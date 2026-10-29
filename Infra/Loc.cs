@@ -117,7 +117,7 @@ internal static class Loc
         }
         catch { }
 
-        return Format(text, args);
+        return Format(text, english, args);
     }
 
     /// <summary>只取译文、没有兜底文案的场合（极少用：只在兜底已在别处确定时）。</summary>
@@ -138,12 +138,16 @@ internal static class Loc
 
     private static bool IsEnglish(string code) => code == "en";
 
-    /// <summary>占位符填充失败时退回原文，绝不抛到 tooltip 构建路径上。</summary>
-    private static string Format(string text, object[] args)
+    /// <summary>译文格式无效时用相同参数填充英文；英文也无效时保留英文原文。</summary>
+    private static string Format(string text, string english, object[] args)
     {
         if (args == null || args.Length == 0) return text;
         try { return string.Format(text, args); }
-        catch (FormatException) { return text; }
+        catch (FormatException)
+        {
+            try { return string.Format(english, args); }
+            catch (FormatException) { return english; }
+        }
     }
 
     /// <summary>当前语言的翻译表；文件不存在或解析失败时返回空表并缓存。</summary>
