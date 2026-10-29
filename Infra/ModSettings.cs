@@ -125,11 +125,11 @@ internal static class ModSettings
             ModuleEffectsToggle.Define(_cfg, "show_module_effects", SecDisplayZh, SecDisplayEn,
                 Text("模组效果的实际变更", "Module Effect Deltas"),
                 Text("机器装模块后，原版只写「性能/效率/质量 +16%」这类百分比。" +
-                     "这里再补一行游戏自己算好的基准值与当前值（处理速度、耗电），" +
-                     "例如「处理速度 850 → 986 ｜ 耗电 7 → 6」；数值直接读物品标签，不自己复算。",
+                     "这里再补一行游戏自己算好的实际值：水分收集器显示产量与品质，所有机器都会显示耗电变化，" +
+                     "例如「产量 850 → 986 ml/天 ｜ 品质 幽灵水」。数值直接取游戏结果，不自己复算。",
                      "Vanilla only lists percentages such as performance/efficiency/quality +16%. " +
-                     "This adds the base and current values the game itself computed (processing speed, " +
-                     "power draw), e.g. \"Speed 850 → 986 | Power 7 -> 6\". Values are read from item tags."));
+                     "This adds the values the game itself computed: output and quality for the moisture " +
+                     "farm, power draw for every machine, e.g. \"Output 850 -> 986 ml/day | Quality Ghostwater\"."));
 
             ContainerToggle.Define(_cfg, "show_container", SecDisplayZh, SecDisplayEn,
                 Text("容器信息", "Container Details"),
