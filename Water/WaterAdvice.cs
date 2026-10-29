@@ -46,6 +46,8 @@ internal static class WaterAdvice
         {
             if (item == null) return result;
             if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return result;
+            // 酒瓶也是液体容器，但不能走水质净化链；空瓶/纯非水液体也不必扫描拥有物。
+            if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) return result;
 
             int purity = SafePurity(item);
             if (purity < 0) return result;

@@ -210,8 +210,11 @@ internal static class ItemNameLabel
 
         try
         {
-            var inventories = GraphUtils.FindChildrenType<GameInventory>(item);
-            return inventories != null && inventories.Count > 0;
+            // contentWindow.child 就是容器内嵌库存。不能在 ValidateSelect 后缀里做
+            // GraphUtils.FindChildrenType：原版已经搜过一次，再搜会让每个普通物品
+            // （包括储物区里的每个酒瓶）都重复分配 Queue/HashSet/List。
+            var window = item.contentWindow;
+            return window != null && window.child is GameInventory;
         }
         catch (Exception ex)
         {
@@ -307,12 +310,16 @@ internal static class ItemNameLabel
     {
         try
         {
-            var middle = element.middle;
-            if (middle == null) return;
+            // 用 sprite 节点（background）的外接框，而不是 middle 的占格矩形：
+            // 像素图的原生尺寸通常大于占格（例如 2×2 格 32px，图 48px 且带偏移），
+            // 按占格放会让名字落在图标外面或压到相邻行。
+            var sprite = element.background != null ? element.background.rectTransform
+                       : element.middle != null ? element.middle.rectTransform
+                       : null;
+            if (sprite == null) return;
 
-            var rect = middle.rectTransform;
             var corners = new Vector3[4];
-            rect.GetWorldCorners(corners);
+            sprite.GetWorldCorners(corners);
 
             float minX = corners[0].x, maxX = corners[0].x, minY = corners[0].y, maxY = corners[0].y;
             for (int i = 1; i < 4; i++)
@@ -323,22 +330,34 @@ internal static class ItemNameLabel
                 if (corners[i].y > maxY) maxY = corners[i].y;
             }
 
-            var scale = rect.lossyScale;
+            var scale = sprite.lossyScale;
             float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
             float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
 
-            float size = Mathf.Clamp(ModSettings.ItemNameSize, 5f, 20f);
+            float size = Mathf.Clamp(ModSettings.ItemNameSize, 5f, 24f);
             float height = size + 2f;
-            float width = Mathf.Max(8f, maxX - minX);
+            float iconWidth = Mathf.Max(8f, maxX - minX);
             float centerX = (minX + maxX) * 0.5f;
             float y = RowY(ModSettings.ItemNamePosition, minY, maxY, height);
-            float z = rect.position.z;
+            float z = sprite.position.z;
 
             if (label.Main != null) label.Main.text.fontSizeMax = size;
             if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
 
-            SetRect(label.Main, width, height, centerX, y, z, sx, sy);
-            SetRect(label.Shadow, width, height, centerX, y - 1f, z, sx, sy);
+            // 文字宽度按实际文本量：底板跟着文字走，不跟着容器宽度走
+            float textWidth = iconWidth;
+            try
+            {
+                if (label.Main != null)
+                {
+                    var pref = label.Main.text.GetPreferredValues(label.Text);
+                    if (pref.x > 1f) textWidth = Mathf.Min(Mathf.Max(8f, pref.x + 2f), Mathf.Max(iconWidth, 240f));
+                }
+            }
+            catch { }
+
+            SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
+            SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
 
             bool bgOn = ModSettings.ItemNameBackground;
             if (label.Bg != null && label.Bg.image != null)
@@ -348,14 +367,14 @@ internal static class ItemNameLabel
                 {
                     float a = Mathf.Clamp01(ModSettings.ItemNameBackgroundAlpha);
                     label.Bg.image.color = new Color(0f, 0f, 0f, a);
-                    SetRect(label.Bg, width + 2f, height + 2f, centerX, y - 1f, z, sx, sy);
+                    SetRect(label.Bg, textWidth + 4f, height + 2f, centerX, y - 1f, z, sx, sy);
                 }
             }
 
             if (_placementLogged < 3)
             {
                 _placementLogged++;
-                Log.Msg($"NameLabel place '{label.Text}': world w={width:0} y={y:0} " +
+                Log.Msg($"NameLabel place '{label.Text}': icon w={iconWidth:0} text w={textWidth:0} y={y:0} " +
                         $"lossyScale=({scale.x:0.##},{scale.y:0.##}) size={size:0.#}");
             }
         }
