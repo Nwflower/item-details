@@ -12,8 +12,8 @@ namespace ItemDetails;
 ///   - 容器探针 = DirectoryMaster.Create + 逐条 TagState.Clone（见 GameRead.DeepCloneTags）；
 ///   - 滤芯/化学剂同样深拷贝，保留真实耐久与全部标签，绝不用「满耐久默认品」代替；
 ///   - 机器同样深拷贝：PurifyContainer 内部会用 GetTagReadonly 读加成标签，
-///     缺键时 TagSystem.GetTag 会插入 0，把真实机器的品质加成钉死（净水器只能到 99.0%）；
-///   - 所有探针在 finally 中销毁，创建/调用失败一律不产出建议。
+///     缺键时 TagSystem.GetTag 会插入默认标签，因此不能传入真实机器；
+///   - 池化壳在 Stop 中销毁，临时化学剂副本在 finally 中清理。
 ///
 /// 效果口径全部复用原版函数，不自己写公式：
 ///   机器     MachinePurifier.PurifyContainer
@@ -137,7 +137,7 @@ internal static class WaterAdvice
 
             // 1) 机器：黑盒试 PurifyContainer。机器必须走深拷贝——函数内部用
             //    GetTagReadonly 读品质/性能加成，而 TagSystem.GetTag 对缺键会插入 0，
-            //    那会把真实机器的加成钉死，净水器从此只能净化到 99.0%（GetPurityMult(0)=1.0）。
+            //    分析过程不应向真实机器写入这些默认标签。
             foreach (var machine in owned.Machines)
             {
                 GameItem m = machine;

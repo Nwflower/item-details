@@ -130,7 +130,7 @@ internal static partial class SelfTest
     /// <summary>
     /// 机器净化模拟不得动到真实机器。PurifyContainer 内部用 <c>GetTagReadonly</c> 读
     /// <c>TOTAL_PERCENTAGE_*_BONUS_INT</c>，而 TagSystem.GetTag 缺键即插入 0 ——
-    /// 直接传真实机器会把品质加成钉死，净水器从此只能净化到 99.0%。
+    /// 直接传真实机器会把缺失的加成标签写进其字典。
     /// 这里拿一台真实机器跑一次模拟，比对标签快照。
     /// </summary>
     private static string CheckMachineSimIsolation(out bool ok)

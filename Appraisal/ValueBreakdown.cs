@@ -8,7 +8,7 @@ namespace ItemDetails;
 /// 并做「拆解合计必须等于游戏真实值」的自校验。
 ///
 /// 仅适用于机械手(HAND)、肋明治(RIBWICH)、等离子(PLASMA) 三类；
-/// 这三类没有真伪概念，只有价值构成。
+/// 肋明治开封或赝品按游戏规则使用固定价，其余情况列出价值构成。
 ///
 /// 公式常量来自 0.46D 反编译结果（AppHandHelper / RibwichHelper / PlasmaHelper）。
 /// </summary>

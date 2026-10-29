@@ -26,8 +26,8 @@ public sealed partial class ModEntry : IMod
     internal static ModEntry? Active { get; private set; }
 
     /// <summary>
-    /// 无头快照：对任意物品跑一遍全部渲染器，返回纯文本（已剥富文本标记）。
-    /// 用于自动化测试 tooltip 内容，不必悬停、不必看屏幕。
+    /// 渲染器快照：返回模组追加内容的纯文本，不包含原版 tooltip 或其抑制、改写。
+    /// 原版集成行为由调用 GetTooltipBasic 的自检用例覆盖。
     /// </summary>
     internal static string? RenderTooltipText(GameItem? item, int width = 60)
     {
@@ -209,10 +209,10 @@ public sealed partial class ModEntry : IMod
     }
 
     /// <summary>
-    /// 唯一的渲染边界：一个模块抛错只损失它自己，后面的模块照常执行。
-    /// 偶发失败只记一次日志并在下条 tooltip 重试；连续失败
+    /// 渲染器的外层异常边界：未被收集器处理的异常在这里隔离，后续模块继续执行。
+    /// 逃逸到此处的偶发异常只记一次日志并在下条 tooltip 重试；连续失败
     /// <see cref="RendererFailureLimit"/> 次后本次会话停用该模块，日志点出名字。
-    /// 无头快照与实机 tooltip 走同一条路径，避免"测的是一套、跑的是另一套"。
+    /// 渲染器快照与实际 tooltip 的追加阶段共用此路径。
     /// </summary>
     private void RunRenderers(RichTextBuilder builder, GameItem item)
     {

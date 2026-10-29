@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace ItemDetails;
 
 /// <summary>
-/// 全部原版读取都走这里。每个字段独立 try/catch，某一项失效只损失该项，不影响其它模块。
-/// 所有类型/成员均已对照 0.46D 的 Il2CppAssemblies\Assembly-CSharp.dll 核实。
+/// 集中常用游戏读取：标签先查字典，缺键返回空结果；游戏估价等调用失败时记录并返回空结果。
+/// 标签与估价接口已对照 Mono 版 0.46D 的 Managed/Assembly-CSharp.dll 核实。
 /// </summary>
 internal static class GameRead
 {
