@@ -60,11 +60,34 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="D:\Steam\steamapps\common
 dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:Diag=true
 
 # 自检构建会同时启用诊断日志
-dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:SelfTest=true
-# 启动游戏时带 -itemdetails-selftest，或在 ModData/item_details/ 放一个 selftest.flag
+dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:SelfTest=true -p:OutputPath=bin/ValidationSelfTest/
 ```
 
-自检会在载入存档后跑一轮用例并退出，用于验证 tooltip 渲染、探针隔离与公式一致性。
+自检会调用真实售水等游戏行为，请先创建可丢弃的专用测试存档。用该存档文件
+`save_<id>.es3` 中的编号指定槽位，编号不是存档列表中的显示顺序：
+
+- 启动参数：`-itemdetails-selftest -itemdetails-selftest-slot <id>`。
+- 或在 `ModData/item_details/selftest.flag` 中写入该编号，启动后文件会被消费。
+  空文件、无效编号、两处编号冲突或指定存档不存在时，自检报错退出，不选择最近存档。
+
+自检加载指定存档，临时开启所需的鉴定、信息增强、双击与水质设置；结束或抛错时恢复，
+临时设置不写入玩家配置。用例使用独立样本，不要求存档中已有含水容器。
+渲染器快照只包含模组追加内容；原版 tooltip 的抑制与改写由另设的原生入口用例检查。
+
+每次运行先覆盖 `ModData/item_details/selftest.txt` 为 `RUNNING`，随后写入相同 run ID 的
+`PASS` 或 `FAIL`。退出码 0 表示成功，1 表示失败；检查结果时同时核对状态与 run ID，
+`RUNNING` 表示尚未完成。编译成功不代表这些游戏内用例已运行。
+
+无需 Unity Editor 的离线回归（公式项目需 .NET 8 SDK 或更高版本，脚本使用 PowerShell 7）：
+
+```powershell
+dotnet run --project tools/FormulaTests/FormulaTests.csproj -c Release
+python -B -m unittest discover -s tools -p test_check_localization.py
+pwsh -NoProfile -File tools/test_localization_runtime.ps1
+pwsh -NoProfile -File tools/test_selftest_results.ps1
+pwsh -NoProfile -File tools/test_selftest_fixtures.ps1
+```
+
 发布包只包含 DLL、manifest、资源目录和发布文档；本地 PDB 与 deps.json 不上传。
 
 ## 设置
