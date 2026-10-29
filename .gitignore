@@ -1,0 +1,14 @@
+# 构建输出
+bin/
+obj/
+out/
+
+# IDE / 用户配置
+*.user
+*.suo
+.vs/
+.idea/
+
+# 本地部署与日志
+Mods/
+*.log
