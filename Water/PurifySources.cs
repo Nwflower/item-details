@@ -13,7 +13,8 @@ namespace ItemDetails;
 ///                                                以及第三方新增滤材
 ///   化学净化剂  item.IsTag("SOLUBLE_TAG")      —— 溶入水后由 ChemicalHelper.HandleTemperatureReaction
 ///                                                的反应链处理（含氯、稳定剂沉降、中和等）
-///   机器        item.IsGameItemType("MACHINE") —— 黑盒试 MachinePurifier.PurifyContainer
+///   机器        item.IsGameItemType("MACHINE") **且** 机器循环回调挂在
+///                                                MachinePurifier 上（见 IsPurifierMachine）
 ///   便携净水器  identifier == "portable_water_purifier"
 ///                                               唯一保留 ID 的例外：它没有区分标签，
 ///                                               效果挂在 onTargetItem 回调里，无法按能力识别
@@ -112,8 +113,9 @@ internal static class PurifySources
                     continue;
                 }
 
-                // 机器：黑盒试，能不能净水由模拟判定
-                if (it.IsGameItemType("MACHINE"))
+                // 机器：必须是真正跑 PurifyContainer 的净水器，否则任何机器都会被
+                // PurifyContainer 的固定预算蹭出零点几个百分点（见 IsPurifierMachine）。
+                if (it.IsGameItemType("MACHINE") && IsPurifierMachine(it))
                 {
                     if (r.Machines.Count < MaxMachines && machineIds.Add(id)) r.Machines.Add(it);
                 }
@@ -122,6 +124,33 @@ internal static class PurifySources
         }
 
         return r;
+    }
+
+    /// <summary>
+    /// 这台机器是否真的会跑 <see cref="MachinePurifier.PurifyContainer"/>。
+    ///
+    /// 不能只看类型是 MACHINE：<c>PurifyContainer</c> 与机器身份无关，去除量只取决于
+    /// 「水量 × 3‰ + 25ml」再乘水质曲线，任何机器（充能器、能量阵列……）被丢进去都会
+    /// 蹭出 0.0x% 的“提升”，于是建议里冒出一堆莫名其妙的净化手段。
+    ///
+    /// 游戏里只有净水器把这个函数挂在自己的机器循环回调上，所以按回调的声明类型判定：
+    /// 委托落在 <c>MachinePurifier</c>（含其闭包类）里就是净水器。
+    /// </summary>
+    private static bool IsPurifierMachine(GameItem machine)
+    {
+        try
+        {
+            var cycle = machine.onCycleEndSlotItemFunc;
+            if (cycle == null) return false;
+
+            for (var t = cycle.Method?.DeclaringType; t != null; t = t.DeclaringType)
+                if (t == typeof(MachinePurifier)) return true;
+
+            // 兜底：闭包类型名不是嵌套形式时仍能认出来
+            string? full = cycle.Method?.DeclaringType?.FullName;
+            return full != null && full.StartsWith("MachinePurifier", StringComparison.Ordinal);
+        }
+        catch { return false; }
     }
 
     /// <summary>清掉拥有物缓存；Mod 停用/重启用时由调用方触发。</summary>
