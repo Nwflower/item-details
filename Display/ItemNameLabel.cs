@@ -319,12 +319,11 @@ internal static class ItemNameLabel
         text.fontStyle = FontStyles.Bold;
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
-        text.overflowMode = TextOverflowModes.Truncate;   // 放不下就切，不换行
-        // 自适应开着，但上限由 Place 按「图标高度 × 相对比例」给；框高也按上限放宽，
-        // 免得像之前那样被矮框压到最小字号。
-        text.enableAutoSizing = true;
-        text.fontSizeMin = 4f;
-        text.fontSizeMax = 12f;
+        text.overflowMode = TextOverflowModes.Ellipsis;   // 宽度不够就省略号，绝不缩字号
+        // 关键：不要开自适应。开着时 TMP 会为了塞进「图标宽度」把字号压小，
+        // 于是大图标字大、小图标字小（实测就是这个原因）。这里固定字号，放不下就截断。
+        text.enableAutoSizing = false;
+        text.fontSize = 14f;
         text.raycastTarget = false;
     }
 
@@ -367,11 +366,10 @@ internal static class ItemNameLabel
             float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
             float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
 
-            // 字号跟随 tooltip 正文：以 tooltip 的 TMP 字号（换算成世界像素）为基准，再乘设置百分比。
-            // 这样同一屏里所有标签、以及标签与 tooltip 之间都是同一套字号，不会大图标字大、小图标字小。
-            float pct = Mathf.Clamp(ModSettings.ItemNameScale, 50f, 200f);
+            // 字号固定跟随 tooltip 正文（不再提供设置项）：同一屏里所有标签、以及标签与 tooltip
+            // 之间都是同一套字号，不会大图标字大、小图标字小。
             float iconWidth = Mathf.Max(8f, maxX - minX);
-            float size = Mathf.Clamp(TypeBadge.TooltipFontWorldSize * pct / 100f, 6f, 40f);
+            float size = Mathf.Clamp(TypeBadge.TooltipFontWorldSize, 6f, 40f);
             float height = size * 1.22f;
             float z = sprite.position.z;
 
@@ -433,8 +431,8 @@ internal static class ItemNameLabel
             label.Background = bgOn;
             label.BackgroundAlpha = bgAlpha;
 
-            if (label.Main != null) label.Main.text.fontSizeMax = size;
-            if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
+            if (label.Main != null) label.Main.text.fontSize = size;
+            if (label.Shadow != null) label.Shadow.text.fontSize = size;
             SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
             SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
 
