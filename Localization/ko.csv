@@ -232,3 +232,4 @@ module.residual,잔류 한도 ×{0}
 history.empty,아직 대화가 없습니다.
 history.earlier,…이전 {0}줄
 history.unknown,손님
+appraisal.minimum_adjustment,최소 가치 보정

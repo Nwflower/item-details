@@ -232,3 +232,4 @@ module.residual,residuo ×{0}
 history.empty,Ancora nessuna battuta.
 history.earlier,…{0} battute precedenti
 history.unknown,Cliente
+appraisal.minimum_adjustment,Adeguamento al valore minimo

@@ -232,3 +232,4 @@ module.residual,残留下限×{0}
 history.empty,还没有对话。
 history.earlier,…更早 {0} 条
 history.unknown,顾客
+appraisal.minimum_adjustment,最低价值补差
