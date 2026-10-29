@@ -9,7 +9,7 @@ namespace ItemDetails;
 /// <summary>
 /// 物品图标上常驻显示名字（不必悬停）。
 ///
-/// 显示范围由设置决定：无（默认）/ 容器名（容器与机器）/ 仅改名物品（用标签打印机改过名的）。
+/// 开关控制容器与机器名称的显示，名称固定放在图标底部。
 ///
 /// 实现要点：
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
@@ -170,43 +170,18 @@ internal static class ItemNameLabel
     {
         if (element == null) return;
 
-        string mode = ModSettings.ItemNameMode;
-        if (mode.StartsWith("无", StringComparison.Ordinal) || mode.StartsWith("Off", StringComparison.OrdinalIgnoreCase))
+        if (!ModSettings.ContainerNames)
         {
             Hide(element);
             return;
         }
 
-        bool renamedOnly = mode.StartsWith("仅", StringComparison.Ordinal)
-                        || mode.StartsWith("Renamed", StringComparison.OrdinalIgnoreCase);
-
         string name = "";
-        bool want = false;
-
-        if (renamedOnly)
+        bool want = ShouldShowContainer(element) && !IsHiddenItem(element);
+        if (want)
         {
-            // 只认「用标签打印机改过名」的物品，显示改后的名字
-            try
-            {
-                if (GeneralHelper.HasCustomName(element))
-                {
-                    want = true;
-                    name = GeneralHelper.GetCustomName(element) ?? "";
-                }
-            }
-            catch (Exception ex) { Log.Warn("NameLabel.CustomName", ex); }
-        }
-        else
-        {
-            want = ShouldShowContainer(element);
-            if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
-            if (want)
-            {
-                // preferCustomName：改过名的容器优先显示改后的名字。
-                // 用无参版本会走回 name 字段，标签打印机改的名字被忽略（「我的保险箱」又变回「保险箱」）。
-                try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
-                catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
-            }
+            try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
+            catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
         }
 
         if (!want || name.Length == 0)
@@ -493,7 +468,7 @@ internal static class ItemNameLabel
             float z = sprite.position.z;
 
             // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
-            // 再按上/中/下档位偏移。旋转 90/180/270 或任意角度时都跟着图标走，
+            // 再加底部内边距。旋转 90/180/270 或任意角度时都跟着图标走，
             // 不会停在旋转前的格子上。
             int bottomEdge = 0;
             float bottomMidY = float.MaxValue;
@@ -507,14 +482,7 @@ internal static class ItemNameLabel
             Vector3 e1 = corners[(bottomEdge + 1) % 4];
             float centerX = (e0.x + e1.x) * 0.5f;
 
-            float y;
-            var posMode = ModSettings.ItemNamePosition;
-            if (posMode.StartsWith("顶", StringComparison.Ordinal) || posMode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
-                y = maxY - height - LabelBottomInset;
-            else if (posMode.StartsWith("中", StringComparison.Ordinal) || posMode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
-                y = (minY + maxY) * 0.5f - height * 0.5f;
-            else
-                y = bottomMidY + LabelBottomInset;
+            float y = bottomMidY + LabelBottomInset;
 
             // 必须先应用最终字号再测宽；否则水罐这类短名字会按旧的 12 号字测宽，
             // 随后以更大的字号写进同一个窄框，被 Truncate 截成一个字。

@@ -276,8 +276,7 @@ internal static class ModSettings
     internal static bool ResultPrefill => ResultPrefillToggle.Value;
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
-    internal static string ItemNameMode => ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
-    internal static string ItemNamePosition => "底部 (Bottom)";
+    internal static bool ContainerNames => ContainerNameToggle.Value;
     internal static bool ItemNameBackground => ContainerNameBgToggle.Value;
     internal static float ItemNameBackgroundAlpha => 0.6f;
 
