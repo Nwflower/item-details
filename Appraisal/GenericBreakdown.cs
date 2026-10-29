@@ -35,7 +35,6 @@ internal static class GenericBreakdown
         new(StringComparer.Ordinal);
     private static readonly Dictionary<string, float> BaselineFailures = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, Record> EmptyBaseline = new(StringComparer.Ordinal);
-    private static bool _registryLogged;
 
     /// <summary>
     /// 标签值的完整快照：TagState 有 string/int/float/long/double/bool 六个值槽
@@ -106,7 +105,6 @@ internal static class GenericBreakdown
             if (type.id != null && Curated.Contains(type.id)) return lines;   // 精选路径负责
             if (type.getCorrectValue == null) return lines;
 
-            LogRegistryOnce();
 
             // 显示文本随语言变化，缓存键必须带语言码，不能复用上一次语言的字符串。
             string key = Loc.Code + "|" + CacheKey(type, item);
@@ -152,7 +150,6 @@ internal static class GenericBreakdown
         FailureCache.Clear();
         BaselineCache.Clear();
         BaselineFailures.Clear();
-        _registryLogged = false;
     }
 
     private static List<string> Build(AppraisalItemType type, GameItem item,
@@ -484,23 +481,4 @@ internal static class GenericBreakdown
         return hit is (string key, string en) ? Loc.T(key, en) : null;
     }
 
-    private static void LogRegistryOnce()
-    {
-        if (_registryLogged) return;
-        _registryLogged = true;
-        try
-        {
-            var all = AppraisalItemRegistry.GetAll();
-            int vanilla = 0, modded = 0;
-            var ids = new StringBuilder();
-            foreach (var t in all)
-            {
-                if (t == null) continue;
-                bool isVanilla = string.IsNullOrEmpty(t.source) || t.source == "vanilla";
-                if (isVanilla) vanilla++; else modded++;
-                ids.Append(t.id).Append(' ');
-            }
-        }
-        catch (Exception ex) { Log.Warn("Generic.Registry", ex); }
-    }
 }
