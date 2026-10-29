@@ -131,6 +131,7 @@ public sealed partial class ModEntry : IMod
         });
         Try("TooltipPipeline", TooltipPipeline.Apply);
         Try("MachineBattery", MachineBatteryInfo.Apply);
+        Try("WaterWarmup", WaterWarmupPatch.Apply);
         Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
         Try("TypeBadge", TypeBadge.Apply);
         Try("ItemNameLabel", ItemNameLabel.Apply);
@@ -150,6 +151,7 @@ public sealed partial class ModEntry : IMod
         Quiet(AppraisalTitlePatch.Remove);
         Quiet(ResultPrefill.Remove);
         Quiet(CustomerAlertTicker.Stop);
+        Quiet(WaterWarmupPatch.Remove);
         Quiet(WaterAdvice.Stop);
         Quiet(ItemValueCache.Reset);
         Quiet(ValueEnhance.Stop);

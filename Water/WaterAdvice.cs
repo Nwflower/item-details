@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
 
 namespace ItemDetails;
 
@@ -293,6 +294,47 @@ internal static class WaterAdvice
         SourceShells.Clear();
     }
 
+    /// <summary>
+    /// 预热：只创建缺失的探针/源壳，不跑净化模拟。
+    /// 在存档加载后由 <see cref="WaterWarmupTicker"/> 调用，把工厂创建成本
+    /// 挪到加载阶段，避免第一次悬停水质容器时付 60ms 级卡顿。
+    /// </summary>
+    internal static bool PrewarmOwned()
+    {
+        try
+        {
+            // 不按 WaterPurity 短路：玩家可能在进入游戏后才打开水质，
+            // 先建壳可以让那次开关也直接命中，不必等下一次悬停才付 Create。
+            var items = EmporiumEntry.Instance?.GetAllOwnedItems();
+            if (items == null || items.Count == 0) return false;
+
+            int probesBefore = ProbeShells.Count;
+            int sourcesBefore = SourceShells.Count;
+
+            foreach (var item in items)
+            {
+                if (item == null) continue;
+                if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) continue;
+                if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) continue;
+                if (SafePurity(item) < 0) continue;
+                GetShell(ProbeShells, item);
+            }
+
+            var owned = PurifySources.Scan();
+            foreach (var machine in owned.Machines) GetShell(SourceShells, machine);
+            foreach (var filter in owned.Filters) GetShell(SourceShells, filter);
+
+            Log.Msg($"WaterAdvice prewarm: probes +{ProbeShells.Count - probesBefore} " +
+                    $"sources +{SourceShells.Count - sourcesBefore}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.Prewarm", ex);
+            return true;   // 失败也不要每 0.5 秒重试刷屏
+        }
+    }
+
     internal static void Stop()
     {
         Cache.Clear();
@@ -529,5 +571,53 @@ internal static class WaterAdvice
             return (int)(water * WaterInfo.PurityFull / total);
         }
         catch { return -1; }
+    }
+}
+
+/// <summary>
+/// 在 EmporiumEntry 完成场景初始化后预热水质探针。只建壳，不模拟。
+/// 用 Start postfix 而不是自建 MonoBehaviour：模组创建的对象在主菜单/场景切换中
+/// 不保证拿到 Update，而 EmporiumEntry.Start 是存档场景确定会走到的时机。
+/// </summary>
+internal static class WaterWarmupPatch
+{
+    private const string HarmonyId = "item_details.water_warmup";
+    private static Harmony? _harmony;
+    private static bool _patched;
+
+    internal static void Apply()
+    {
+        if (_patched) return;
+        try
+        {
+            var start = AccessTools.Method(typeof(EmporiumEntry), "Start", Type.EmptyTypes);
+            if (start == null)
+            {
+                Log.Warn("WaterWarmup.Apply", "未找到 EmporiumEntry.Start，跳过预热");
+                return;
+            }
+            _harmony = new Harmony(HarmonyId);
+            _harmony.Patch(start,
+                postfix: new HarmonyMethod(typeof(WaterWarmupPatch), nameof(AfterStart)));
+            _patched = true;
+            Log.Msg("WaterWarmup: patched EmporiumEntry.Start");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("WaterWarmup.Apply", ex);
+        }
+    }
+
+    internal static void Remove()
+    {
+        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
+        _harmony = null;
+        _patched = false;
+    }
+
+    private static void AfterStart()
+    {
+        try { WaterAdvice.PrewarmOwned(); }
+        catch (Exception ex) { Log.Warn("WaterWarmup.AfterStart", ex); }
     }
 }
