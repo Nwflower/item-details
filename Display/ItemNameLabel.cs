@@ -30,9 +30,11 @@ internal static class ItemNameLabel
     private static bool _patched;
     private static bool _geometryLogged;
     private static int _placementLogged;
+    private static int _rotatedLogged;
 
     private static readonly ConditionalWeakTable<GameItemElement, Label> Labels = new();
     private static readonly System.Collections.Generic.List<WeakReference<GameItemElement>> Tracked = new();
+    private static readonly Vector3[] WorldCorners = new Vector3[4];
     private static GameObject? _tickerGo;
 
     private sealed class Label
@@ -42,6 +44,17 @@ internal static class ItemNameLabel
         internal TreeNodeRender? Bg;
         internal string Text = "";
         internal bool Visible;
+        internal bool HasPlacement;
+        internal float Width;
+        internal float Height;
+        internal float CenterX;
+        internal float Y;
+        internal float Z;
+        internal float ScaleX;
+        internal float ScaleY;
+        internal float FontSize;
+        internal bool Background;
+        internal float BackgroundAlpha;
     }
 
     internal static void Apply()
@@ -318,7 +331,8 @@ internal static class ItemNameLabel
                        : null;
             if (sprite == null) return;
 
-            var corners = new Vector3[4];
+            // Unity 主线程内复用坐标缓冲，避免每个标签每 0.2 秒都分配一个数组。
+            var corners = WorldCorners;
             sprite.GetWorldCorners(corners);
 
             float minX = corners[0].x, maxX = corners[0].x, minY = corners[0].y, maxY = corners[0].y;
@@ -341,9 +355,6 @@ internal static class ItemNameLabel
             float y = RowY(ModSettings.ItemNamePosition, minY, maxY, height);
             float z = sprite.position.z;
 
-            if (label.Main != null) label.Main.text.fontSizeMax = size;
-            if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
-
             // 文字宽度按实际文本量：底板跟着文字走，不跟着容器宽度走
             float textWidth = iconWidth;
             try
@@ -356,19 +367,58 @@ internal static class ItemNameLabel
             }
             catch { }
 
+            bool bgOn = ModSettings.ItemNameBackground;
+            float bgAlpha = Mathf.Clamp01(ModSettings.ItemNameBackgroundAlpha);
+            if (label.HasPlacement
+                && label.Width == textWidth && label.Height == height
+                && label.CenterX == centerX && label.Y == y && label.Z == z
+                && label.ScaleX == sx && label.ScaleY == sy && label.FontSize == size
+                && label.Background == bgOn && label.BackgroundAlpha == bgAlpha)
+                return;
+
+            label.HasPlacement = true;
+            label.Width = textWidth;
+            label.Height = height;
+            label.CenterX = centerX;
+            label.Y = y;
+            label.Z = z;
+            label.ScaleX = sx;
+            label.ScaleY = sy;
+            label.FontSize = size;
+            label.Background = bgOn;
+            label.BackgroundAlpha = bgAlpha;
+
+            if (label.Main != null) label.Main.text.fontSizeMax = size;
+            if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
             SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
             SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
 
-            bool bgOn = ModSettings.ItemNameBackground;
             if (label.Bg != null && label.Bg.image != null)
             {
                 label.Bg.image.enabled = bgOn;
                 if (bgOn)
                 {
-                    float a = Mathf.Clamp01(ModSettings.ItemNameBackgroundAlpha);
-                    label.Bg.image.color = new Color(0f, 0f, 0f, a);
+                    label.Bg.image.color = new Color(0f, 0f, 0f, bgAlpha);
                     SetRect(label.Bg, textWidth + 4f, height + 2f, centerX, y - 1f, z, sx, sy);
                 }
+            }
+
+            // 旋转物品专项诊断：四角与 rotator 角度一起打，确认角点是否已含旋转
+            if (_rotatedLogged < 6)
+            {
+                try
+                {
+                    float rotZ = element.rotator != null ? element.rotator.rectTransform.localEulerAngles.z : 0f;
+                    if (Mathf.Abs(Mathf.DeltaAngle(0f, rotZ)) > 0.5f)
+                    {
+                        _rotatedLogged++;
+                        Log.Msg($"NameLabel rotated '{label.Text}': rotatorZ={rotZ:0.#} " +
+                                $"c0=({corners[0].x:0},{corners[0].y:0}) c1=({corners[1].x:0},{corners[1].y:0}) " +
+                                $"c2=({corners[2].x:0},{corners[2].y:0}) c3=({corners[3].x:0},{corners[3].y:0}) " +
+                                $"-> bbox=({minX:0},{minY:0})-({maxX:0},{maxY:0}) posX={centerX:0} y={y:0}");
+                    }
+                }
+                catch { }
             }
 
             if (_placementLogged < 3)

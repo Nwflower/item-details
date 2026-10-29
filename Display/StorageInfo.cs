@@ -26,6 +26,20 @@ internal static class StorageInfo
     // 内容物最多列出的种类数，超出折叠，避免 tooltip 过宽
     private const int MaxKinds = 5;
 
+    // tooltip 可能每帧重建；内容物聚合适度缓存，变更最迟 1 秒后反映。
+    private const float ContentsCacheSeconds = 1f;
+    private static GameGridInventory? _contentsGrid;
+    private static bool _contentsZh;
+    private static float _contentsAt = float.MinValue;
+    private static List<TooltipLine>? _contentsCache;
+
+    internal static void Stop()
+    {
+        _contentsGrid = null;
+        _contentsCache = null;
+        _contentsAt = float.MinValue;
+    }
+
     internal static List<TooltipLine> Collect(GameItem? item, bool zh)
     {
         var lines = new List<TooltipLine>();

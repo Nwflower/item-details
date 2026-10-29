@@ -281,6 +281,23 @@ internal static class WaterAdvice
 
     internal static int SafePurity(GameItem item)
     {
-        try { return WaterHelper.GetWaterPurity(item); } catch { return -1; }
+        try
+        {
+            // 不调 WaterHelper.GetWaterPurity：它用 GetTagReadonly 遍历所有液体，
+            // 会给真实物品插入缺失标签。这里与 WaterInfo 一样只 peek 已有键。
+            long water = 0;
+            long total = 0;
+            foreach (var liquid in Liquid.Liquids)
+            {
+                if (liquid == null) continue;
+                int parts = GameRead.TagInt(item, liquid.currentPart) ?? 0;
+                if (parts <= 0) continue;
+                total += parts;
+                if (liquid.identifier == "water") water += parts;
+            }
+            if (water <= 0 || total <= 0) return -1;
+            return (int)(water * WaterInfo.PurityFull / total);
+        }
+        catch { return -1; }
     }
 }
