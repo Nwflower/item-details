@@ -351,6 +351,46 @@ public sealed partial class ModEntry
         return AppendLines(builder, MarketModifier.Collect(item, _zh), RenderHandler.ColorPalette.Orange);
     }
 
+    // ---------------- 模组效果的实际变更（基准 → 当前） ----------------
+    /// <summary>
+    /// 机器装了模块时，原版只写「性能/效率/质量 +16%」。这里补一行实际值：
+    /// 处理速度 BASE_PROCESSING_SPEED_TAG → CURRENT_PROCESSING_SPEED_TAG，
+    /// 耗电 MACHINERY_DRAWN_POWER_BASE → machinery_drawn_power。
+    /// 两个数都是 `ModuleHelper.ApplyBasicModuleEffect` 算完写在物品标签上的，
+    /// 本模组只做搬运，不自己复算公式（宁可少一行，也不写错一个数）。
+    /// </summary>
+    private bool TryAppendModuleEffects(RichTextBuilder builder, GameItem item)
+    {
+        if (!ModSettings.ModuleEffects) return false;
+
+        bool receiving;
+        try { receiving = GameRead.IsTag(item, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL"); }
+        catch { return false; }
+        if (!receiving) return false;
+
+        var parts = new List<string>(2);
+        AddDelta(parts, _zh ? "处理速度" : "Speed", item,
+            "BASE_PROCESSING_SPEED_TAG", "CURRENT_PROCESSING_SPEED_TAG");
+        AddDelta(parts, _zh ? "耗电" : "Power", item,
+            "MACHINERY_DRAWN_POWER_BASE", "machinery_drawn_power");
+        if (parts.Count == 0) return false;
+
+        AddLine(builder, (_zh ? "模组实际效果：" : "Module effect: ")
+                        + string.Join(_zh ? " ｜ " : " | ", parts),
+            RenderHandler.ColorPalette.LightTurquoise);
+        return true;
+    }
+
+    /// <summary>基准与当前都读得到、且确实不同时才输出一段「基准 → 当前」。</summary>
+    private static void AddDelta(List<string> parts, string label, GameItem item, string baseTag, string currentTag)
+    {
+        var b = GameRead.TagInt(item, baseTag);
+        var c = GameRead.TagInt(item, currentTag);
+        if (b is not int from || c is not int to) return;
+        if (from == to) return;
+        parts.Add($"{label} {from} → {to}");
+    }
+
     // ---------------- 工具 ----------------
 
     /// <summary>输出模块已经定好颜色的一组行；返回是否真的写入了内容。</summary>

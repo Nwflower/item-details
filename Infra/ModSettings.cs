@@ -63,6 +63,7 @@ internal static class ModSettings
     private static readonly Toggle ValueToggle = new(true);          // 价值构成 + 完美区间 + 赝品原因 + 面板真实价
     private static readonly Toggle ValueEnhanceToggle = new(true);   // 性价比（非鉴定物品）
     private static readonly Toggle PriceImpactToggle = new(true);    // 标签、瑕疵与市场事件的价格影响
+    private static readonly Toggle ModuleEffectsToggle = new(true);  // 模组效果的「基准 → 当前」实际变更
     private static readonly Toggle ContainerToggle = new(true);      // 压缩率 + 内容物
     private static readonly Toggle PlantToggle = new(true);          // 荧光莓品质 + 种子性状
     private static readonly Toggle ContrabandToggle = new(true);     // 违禁溢价
@@ -120,6 +121,15 @@ internal static class ModSettings
                      "Appends the price modifier after label lines and conditions such as " +
                      "Dented/Rusted, and lists active store events affecting the item. " +
                      "Vanilla only shows the names."));
+
+            ModuleEffectsToggle.Define(_cfg, "show_module_effects", SecDisplayZh, SecDisplayEn,
+                Text("模组效果的实际变更", "Module Effect Deltas"),
+                Text("机器装模块后，原版只写「性能/效率/质量 +16%」这类百分比。" +
+                     "这里再补一行游戏自己算好的基准值与当前值（处理速度、耗电），" +
+                     "例如「处理速度 850 → 986 ｜ 耗电 7 → 6」；数值直接读物品标签，不自己复算。",
+                     "Vanilla only lists percentages such as performance/efficiency/quality +16%. " +
+                     "This adds the base and current values the game itself computed (processing speed, " +
+                     "power draw), e.g. \"Speed 850 → 986 | Power 7 -> 6\". Values are read from item tags."));
 
             ContainerToggle.Define(_cfg, "show_container", SecDisplayZh, SecDisplayEn,
                 Text("容器信息", "Container Details"),
@@ -282,6 +292,7 @@ internal static class ModSettings
     internal static bool Auth => AuthToggle.Value;
     internal static bool Value => ValueToggle.Value;
     internal static bool ValueEnhance => ValueEnhanceToggle.Value;
+    internal static bool ModuleEffects => ModuleEffectsToggle.Value;
     internal static bool PriceImpact => PriceImpactToggle.Value;
     internal static bool Container => ContainerToggle.Value;
     internal static bool Plant => PlantToggle.Value;
