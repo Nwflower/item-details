@@ -98,6 +98,15 @@ internal static class ModuleEffectAnnotation
         return (b is int bv && bv != 0) || (t is int tv && tv != 0);
     }
 
+    /// <summary>
+    /// 按标签推导实际影响，**不认识任何机器 id**：
+    ///   性能 → BASE_PROCESSING_SPEED_TAG → CURRENT_PROCESSING_SPEED_TAG（速度差值）
+    ///   效率 → MACHINERY_DRAWN_POWER_BASE → machinery_drawn_power（耗电差值）
+    ///   质量 → TOTAL_PERCENTAGE_QUALITY_BONUS_INT / MACHINE_QUALITY_RATIO_INT
+    ///          （与游戏 ModuleHelper.GetAjustedQuality 同一整数除法；机器没有比率标签就不补）
+    /// 质量在游戏里没有统一模型：水分是「加成+50」分档、熔炉是「加成/100」提纯度、打印机另算，
+    /// 唯一通用的只有上面这个折算值，所以没有比率的机器保留原版百分比。
+    /// </summary>
     private static string BuildNote(char kind, GameItem item)
     {
         bool zh = Locales.IsChinese;
@@ -105,13 +114,6 @@ internal static class ModuleEffectAnnotation
         switch (kind)
         {
             case 'p':
-                if (IsMoistureFarm(item))
-                {
-                    int baseMl = MachineMoistureFarm.BASE_OUTPUT_ML;
-                    int curMl = MachineMoistureFarm.GetOutputVolume(item) / 1000;
-                    if (curMl > 0) return Wrap(Signed(curMl - baseMl) + (zh ? "毫升/天" : " ml/day"));
-                }
-
                 var speedBase = GameRead.TagInt(item, "BASE_PROCESSING_SPEED_TAG");
                 var speedNow = GameRead.TagInt(item, "CURRENT_PROCESSING_SPEED_TAG");
                 if (speedBase is int sb && speedNow is int sn && sb > 0 && sn > 0)
@@ -126,30 +128,16 @@ internal static class ModuleEffectAnnotation
                 return "";
 
             case 'q':
-                // 水分收集器的品质不是百分比：GetOutputQuality 用「质量加成 + 50」当分数，
-                // 再按 50/100/150/200 分档，所以 +16 只是把 50 推到 66，档位仍是幽灵水。
-                // 写成 +0.5% 会是编的，这里显示档位 + 当前分数/下一档。
-                string tier = "";
-                try { tier = MachineMoistureFarm.GetOutputQualityDisplay(item) ?? ""; } catch { }
-
                 var qualityBonus = GameRead.TagInt(item, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT");
-                if (tier.Length > 0 && qualityBonus is int qb)
-                {
-                    int score = qb + 50;          // 与游戏 GetOutputQuality 同一口径
-                    int next = NextQualityStep(score);
-                    return Wrap(zh ? $"{tier} {score}/{next}" : $"{tier} {score}/{next}");
-                }
-                return tier.Length > 0 ? Wrap(tier) : "";
+                var qualityRatio = GameRead.TagInt(item, "MACHINE_QUALITY_RATIO_INT");
+                if (qualityBonus is int qb && qualityRatio is int qr && qr > 0)
+                    return Wrap(Signed(qb / qr) + (zh ? "品质" : " quality"));
+                return "";
         }
 
         return "";
     }
 
-    private static bool IsMoistureFarm(GameItem item)
-    {
-        try { return string.Equals(item.identifier, "moisture_farm", StringComparison.Ordinal); }
-        catch { return false; }
-    }
 
     /// <summary>零变化也写成负数（-0），和玩家「效率+16% 应该减耗」的直觉一致。</summary>
     private static string Signed(int delta) => delta <= 0 ? "-" + (-delta) : "+" + delta;

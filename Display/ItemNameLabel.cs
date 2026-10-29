@@ -38,6 +38,11 @@ internal static class ItemNameLabel
 
     private static readonly ConditionalWeakTable<GameItemElement, Label> Labels = new();
 
+    /// <summary>存活过的元素（弱引用）：校验时机早于布局时用来补一次定位。</summary>
+    private static readonly System.Collections.Generic.List<WeakReference<GameItemElement>> Tracked = new();
+
+    private static GameObject? _tickerGo;
+
     private sealed class Label
     {
         internal TreeNodeRender? Main;
@@ -60,6 +65,11 @@ internal static class ItemNameLabel
 
             _harmony = new Harmony(HarmonyId);
             _harmony.Patch(target, postfix: new HarmonyMethod(typeof(ItemNameLabel), nameof(AfterValidateSelect)));
+
+            _tickerGo = new GameObject("ItemDetails_NameLabelTicker");
+            UnityEngine.Object.DontDestroyOnLoad(_tickerGo);
+            _tickerGo.AddComponent<ItemNameTicker>();
+
             _patched = true;
             Log.Msg("ItemNameLabel: patched GameItemElement.ValidateSelect");
         }
@@ -74,6 +84,48 @@ internal static class ItemNameLabel
         try { _harmony?.UnpatchAll(HarmonyId); } catch { }
         _harmony = null;
         _patched = false;
+        Tracked.Clear();
+        if (_tickerGo != null)
+        {
+            try { UnityEngine.Object.Destroy(_tickerGo); } catch { }
+            _tickerGo = null;
+        }
+    }
+
+    /// <summary>
+    /// 补一次定位：ValidateSelect 跑在布局/旋转生效之前，世界坐标可能还是上一帧的；
+    /// 由 <see cref="ItemNameTicker"/> 每 0.2 秒对所有仍存活的标签重排一次。
+    /// </summary>
+    internal static void ReapplyAll()
+    {
+        for (int i = Tracked.Count - 1; i >= 0; i--)
+        {
+            GameItemElement? element = null;
+            try { Tracked[i].TryGetTarget(out element); } catch { }
+            if (element == null)
+            {
+                Tracked.RemoveAt(i);
+                continue;
+            }
+
+            if (!Labels.TryGetValue(element, out var label) || !label.Visible) continue;
+            Place(element, label);
+        }
+    }
+
+    /// <summary>节流补位：只在有标签存活时做事，正常一屏几十个，开销可忽略。</summary>
+    internal sealed class ItemNameTicker : MonoBehaviour
+    {
+        private const float Interval = 0.2f;
+        private float _timer;
+
+        private void Update()
+        {
+            _timer += Time.unscaledDeltaTime;
+            if (_timer < Interval) return;
+            _timer = 0f;
+            try { ReapplyAll(); } catch { }
+        }
     }
 
     private static void AfterValidateSelect(GameItemElement __instance)
@@ -190,6 +242,7 @@ internal static class ItemNameLabel
 
             var label = new Label { Main = main, Shadow = shadow };
             Labels.Add(element, label);
+            Tracked.Add(new WeakReference<GameItemElement>(element));
             return label;
         }
         catch (Exception ex)
