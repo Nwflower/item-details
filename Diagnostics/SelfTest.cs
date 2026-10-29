@@ -309,6 +309,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：水质行不得给真实物品添加特性（GetWaterFeature 的读即写）
+        {
+            string line = CheckWaterInfoDoesNotAddFeature(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         Log.Msg($"[SelfTest] DONE {(fail == 0 ? "OK" : "FAILED")} pass={pass} fail={fail} total={pass + fail}");
 
         try

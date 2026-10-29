@@ -153,6 +153,43 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>
+    /// 水质行不得给真实物品添加特性。<c>GetCurrentWaterDisplay</c> 内部的
+    /// <c>GetWaterFeature</c> 在缺 <c>CATEGORY_WATER_PURITY</c> 时会 <c>AddItemFeature</c>，
+    /// 等于悬停即改真实物品。
+    /// </summary>
+    private static string CheckWaterInfoDoesNotAddFeature(out bool ok)
+    {
+        ok = false;
+        GameItem? item = null;
+        try
+        {
+            item = TryCreate("water_tank");
+            if (item == null) return "water info feature isolation: 无法创建样本";
+
+            item.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(900000));
+
+            // 造出"没有水质特性"的容器：第三方模组新建的、或特性被移除过
+            item.itemFeatures.RemoveAll(f => f != null && f.category == "CATEGORY_WATER_PURITY");
+            int before = item.itemFeatures.Count;
+
+            WaterInfo.Analyze(item);
+
+            int after = item.itemFeatures.Count;
+            bool added = item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY") != null;
+            ok = after == before && !added;
+            return $"water info feature isolation: before={before} after={after} added={added} (期望数量不变、added=False)";
+        }
+        catch (Exception ex)
+        {
+            return "water info feature isolation: 异常 " + ex.GetType().Name;
+        }
+        finally
+        {
+            if (item != null) { try { item.Destroy(); } catch { } }
+        }
+    }
+
     private static Dictionary<string, string> TagSnapshot(GameItem item)
     {
         var map = new Dictionary<string, string>(StringComparer.Ordinal);

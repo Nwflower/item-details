@@ -69,7 +69,17 @@ internal static class WaterInfo
             try { r.Tier = WaterFeatureHelper.GetWaterDisplayName(r.Purity) ?? ""; } catch { }
             // 标签口径：未揭露时返回伪装值，正是玩家"被骗"的那一面；
             // 与实测档位不同即视为标签与水质不匹配。
-            try { r.Label = WaterFeatureHelper.GetCurrentWaterDisplay(item) ?? ""; } catch { }
+            // 不能直接调 GetCurrentWaterDisplay：它内部的 GetWaterFeature 在物品缺
+            // CATEGORY_WATER_PURITY 特性时会 AddItemFeature——等于悬停时给真实物品加特性。
+            // 先做纯查找（FindItemFeatureByCategory 只遍历），确认特性已存在再取值；
+            // 酒容器由 GetWaterFeature 返回临时特性、不落到物品上，保持原行为。
+            try
+            {
+                bool hasFeature = SafeIsTag(item, "WINE_CONTAINER_TAG")
+                    || item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY") != null;
+                if (hasFeature) r.Label = WaterFeatureHelper.GetCurrentWaterDisplay(item) ?? "";
+            }
+            catch { }
             r.HasData = true;
         }
         catch (Exception ex)
