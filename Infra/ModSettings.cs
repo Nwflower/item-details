@@ -67,16 +67,16 @@ internal static class ModSettings
     private static readonly Toggle PlantToggle = new(true);          // 荧光莓品质 + 种子性状
     private static readonly Toggle ContrabandToggle = new(true);     // 违禁溢价
     private static readonly Toggle LotteryToggle = new(true);        // 彩票命中数与奖金
-    private static readonly Toggle ScratcherToggle = new(false);     // 刮刮卡结果（透视）
+    private static readonly Toggle ScratcherToggle = new(true);      // 刮刮卡结果（透视）
 
     // ---- 顾客提示 ----
     private static readonly Toggle CustomerAlertToggle = new(true);  // 通缉/改造体提示（含真名与等级）
 
     // ---- 透视 ----
     private static readonly Toggle HiddenTruthToggle = new(true);    // 伪装特性 + 真实耐久/纯度
-    private static readonly Toggle WaterPurityToggle = new(false);   // 水质纯度、杂质与建议（透视，默认关闭）
+    private static readonly Toggle WaterPurityToggle = new(true);   // 水质纯度、杂质与建议（默认开，不必有检测仪）
     private static readonly Toggle SealedBoxToggle = new(false);     // 密封箱内容与箱内价值
-    private static readonly Toggle WineToggle = new(false);          // 酒的分数/成分/赝品（透视）
+    private static readonly Toggle WineToggle = new(true);            // 酒的分数/成分/赝品（透视）
 
     // ---- 交互与外观 ----
     private static readonly Toggle DoubleClickInspectToggle = new(true);
@@ -163,16 +163,19 @@ internal static class ModSettings
             WaterPurityToggle.Define(_cfg, "show_water_purity", SecRevealZh, SecRevealEn,
                 Text("水质与建议", "Water Quality & Advice"),
                 Text("液体显示纯度百分比、游戏档位名、杂质构成与非水液体体积，并给出处理建议。" +
-                     "原版要试纸才能知道纯度。",
+                     "开启时不需要水质检测仪；关闭后恢复原版流程（需检测仪/试纸）。" +
+                     "同时启用专门的水质模组（如 AquaSense）时，这一段让给该模组显示。",
                      "Shows purity %, vanilla tier name, impurities, non-water volume and treatment " +
-                     "advice. Vanilla requires test strips to learn purity."));
+                     "advice without needing a water tester. Turn it off to go back to the vanilla " +
+                     "flow (tester required). When a dedicated water mod (e.g. AquaSense) is enabled, " +
+                     "it takes over this section."));
 
             ScratcherToggle.Define(_cfg, "show_scratcher", SecRevealZh, SecRevealEn,
                 Text("刮刮卡结果", "Scratcher Result"),
                 Text("未刮开就给出中奖金额（或不中奖）与已刮进度。按游戏同一套规则只读复算，" +
-                     "不替玩家刮开。会直接跳过刮卡这一步，默认关闭。",
+                     "不替玩家刮开；关闭后则不显示结果。",
                      "Shows the prize (or no prize) and scratched progress before scratching. " +
-                     "Read-only recomputation; skips the scratching step. Off by default."));
+                     "Read-only recomputation; it never scratches for you. Turn it off to hide the result."));
 
             SealedBoxToggle.Define(_cfg, "show_sealed_box", SecRevealZh, SecRevealEn,
                 Text("密封箱内容与价值", "Sealed Container Contents"),
@@ -183,10 +186,9 @@ internal static class ModSettings
             WineToggle.Define(_cfg, "show_wine", SecRevealZh, SecRevealEn,
                 Text("酒的分数与成分", "Wine Score and Composition"),
                 Text("显示原版隐藏的酿造数据：酒分数与档位、糖度/污染物、是否赝品（非法酵母）、" +
-                     "陈化天数与每日加成、发酵进度。默认关闭。",
+                     "陈化天数与每日加成、发酵进度。",
                      "Shows wine data the base game hides: score and tier, extract/contaminant, " +
-                     "counterfeit (illegal yeast), aging days and per-day bonus, fermentation progress. " +
-                     "Off by default."));
+                     "counterfeit (illegal yeast), aging days and per-day bonus, fermentation progress."));
 
             // ================= 交互与外观 =================
             DoubleClickInspectToggle.Define(_cfg, "double_click_inspect", SecInteractionZh, SecInteractionEn,
