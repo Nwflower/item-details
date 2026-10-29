@@ -8,7 +8,7 @@ defect costs, water advice and customer alerts, inlined into the vanilla tooltip
 
 - Mod ID：`item_details`
 - 路线：正式版官方 `IMod` + `manifest.xml`（Mono）
-- 版本：`0.6.0`
+- 版本：`0.6.2`
 - 适配游戏版本：`0.46`
 
 ## 功能
