@@ -15,7 +15,7 @@ namespace ItemDetails;
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
 ///     图钉与外观，物品身份变化/换格子都会走到这里；
 ///   - 文字用 <c>TreeNodeRender.InstantiateText()</c> 生成两层（本体 + 深色投影），
-///     与游戏的堆叠数字同款；父节点挂在 <c>middle</c>（未旋转的矩形），避免随物品旋转颠倒；
+///     与游戏的堆叠数字同款；父节点挂在物品根节点 <c>handler</c>，避开内部裁剪且不随物品旋转；
 ///   - 定位用**世界坐标外接框**（GetWorldCorners），并把节点 localScale 取父级缩放的倒数，
 ///     于是 sizeDelta 与字号都以屏幕像素为单位（实测父级 lossyScale=2，直接写世界宽度会宽一倍）；
 ///   - ValidateSelect 早于布局生效，所以另有 0.2s 节流补位（<see cref="ItemNameTicker"/>）；
@@ -55,6 +55,11 @@ internal static class ItemNameLabel
         internal float FontSize;
         internal bool Background;
         internal float BackgroundAlpha;
+        internal bool HasMeasurement;
+        internal string MeasuredText = "";
+        internal float MeasuredFontSize;
+        internal float MeasuredIconWidth;
+        internal float MeasuredWidth;
     }
 
     internal static void Apply()
@@ -90,6 +95,21 @@ internal static class ItemNameLabel
         try { _harmony?.UnpatchAll(HarmonyId); } catch { }
         _harmony = null;
         _patched = false;
+
+        // 节点挂在物品元素下，不会随 ticker 自动销毁；热停用时必须逐个清理。
+        for (int i = Tracked.Count - 1; i >= 0; i--)
+        {
+            try
+            {
+                if (Tracked[i].TryGetTarget(out var element) && element != null
+                    && Labels.TryGetValue(element, out var label))
+                {
+                    DestroyLabel(label);
+                    Labels.Remove(element);
+                }
+            }
+            catch { }
+        }
         Tracked.Clear();
         if (_tickerGo != null)
         {
@@ -125,7 +145,15 @@ internal static class ItemNameLabel
                 continue;
             }
 
+            try { if (element.rectTransform != null && !element.rectTransform.gameObject.activeInHierarchy) continue; }
+            catch { }
             if (!Labels.TryGetValue(element, out var label) || !label.Visible) continue;
+            if (label.Main == null || label.Shadow == null || label.Bg == null)
+            {
+                // 界面重建可能保留元素、只销毁其子节点；重新创建而不是永久丢失名称。
+                Refresh(element);
+                continue;
+            }
             Place(element, label);
         }
     }
@@ -169,11 +197,11 @@ internal static class ItemNameLabel
         else
         {
             want = ShouldShowContainer(element);
+            if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
             if (want)
             {
                 try { name = element.GetDisplayName() ?? ""; }
                 catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
-                if (IsHiddenByName(name)) want = false;   // 垃圾桶 / 档案箱 不挂标签
             }
         }
 
@@ -211,27 +239,25 @@ internal static class ItemNameLabel
 
     private static void Hide(GameItemElement element)
     {
-        if (!Labels.TryGetValue(element, out var label)) return;
-        if (!label.Visible || label.Main == null || label.Shadow == null) return;
+        if (!Labels.TryGetValue(element, out var label) || !label.Visible) return;
         label.Visible = false;
-        label.Main.text.enabled = false;
-        label.Shadow.text.enabled = false;
-        if (label.Bg?.image != null) label.Bg.image.enabled = false;
+        if (label.Main != null) label.Main.text.enabled = false;
+        if (label.Shadow != null) label.Shadow.text.enabled = false;
+        if (label.Bg != null && label.Bg.image != null) label.Bg.image.enabled = false;
     }
 
-    /// <summary>这几类不带标签：垃圾桶、档案箱（图标本身好认，标签反而占地方）。</summary>
-    private static readonly string[] HiddenNames =
-    {
-        "垃圾桶", "档案箱", "Trash Can", "Trashcan", "Trash Bin", "Archive Box", "Archive",
-    };
+    /// <summary>这几类不带标签：垃圾桶、治安部档案；ID 不随语言或自定义显示名变化。</summary>
+    private static readonly string[] HiddenItemIds = { "trashcan", "intel_sec" };
 
-    private static bool IsHiddenByName(string name)
+    private static bool IsHiddenItem(GameItemElement item)
     {
-        if (string.IsNullOrEmpty(name)) return false;
-        foreach (string h in HiddenNames)
+        try
         {
-            if (name.IndexOf(h, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            string id = item.identifier;
+            foreach (string hidden in HiddenItemIds)
+                if (string.Equals(id, hidden, StringComparison.Ordinal)) return true;
         }
+        catch { }
         return false;
     }
 
@@ -261,12 +287,18 @@ internal static class ItemNameLabel
 
     private static Label? GetOrCreate(GameItemElement element)
     {
-        if (Labels.TryGetValue(element, out var existing)) return existing;
+        if (Labels.TryGetValue(element, out var existing))
+        {
+            if (existing.Main != null && existing.Shadow != null && existing.Bg != null)
+                return existing;
+            RemoveEntry(element, existing);
+        }
 
         try
         {
-            // handler 的 rect 实测是 0×0，锚点类定位会得到零尺寸；middle 才是物品真实矩形。
-            var parent = element.middle;
+            // 现在用世界坐标定位，不依赖父节点矩形；挂在物品根节点可避免 middle 内部裁剪/遮挡，
+            // 同时保持文字不随 rotator 旋转。handler 的 0×0 rect 不影响这种定位方式。
+            var parent = element.handler;
             if (parent == null) return null;
 
             // 半透明底（可选）：无 sprite 的 Image 就是纯色方块，先建它保证画在文字下面
@@ -315,6 +347,79 @@ internal static class ItemNameLabel
         }
     }
 
+    private static void RemoveEntry(GameItemElement element, Label label)
+    {
+        DestroyLabel(label);
+        Labels.Remove(element);
+        for (int i = Tracked.Count - 1; i >= 0; i--)
+        {
+            try
+            {
+                if (Tracked[i].TryGetTarget(out var tracked) && ReferenceEquals(tracked, element))
+                    Tracked.RemoveAt(i);
+            }
+            catch { }
+        }
+    }
+
+    private static void DestroyLabel(Label label)
+    {
+        try { if (label.Main != null) UnityEngine.Object.Destroy(label.Main.gameObject); } catch { }
+        try { if (label.Shadow != null) UnityEngine.Object.Destroy(label.Shadow.gameObject); } catch { }
+        try { if (label.Bg != null) UnityEngine.Object.Destroy(label.Bg.gameObject); } catch { }
+        label.Main = null;
+        label.Shadow = null;
+        label.Bg = null;
+        label.Visible = false;
+    }
+
+    /// <summary>
+    /// 显式挑一个含当前语言字形的字体。
+    ///
+    /// TreeNodeRender.InstantiateText() 内部只在 FontLoader.Instance 与 SelectedLocale 都就绪时
+    /// 才套用本地化字体；启动早期创建的节点会停在预制体的拉丁字体上，
+    /// 中文被 TMP 替换成空格 —— 表现出来就是"文字消失"（日志里会刷
+    /// "The character with Unicode value \u81EA was not found in the [NotoSans-Medium SDF]"）。
+    /// 因此这里按「tooltip 正文字体 → FontLoader 的 Noto_Sans → 任意已有 TMP 字体」三级兜底。
+    /// </summary>
+    private static TMP_FontAsset? ResolveFont()
+    {
+        try
+        {
+            var fromTooltip = TypeBadge.TooltipFont;
+            if (fromTooltip != null) return fromTooltip;
+        }
+        catch { }
+
+        try
+        {
+            // 扫描已加载的字体资源，优先挑名字里带 CJK 线索的（SC / CN / Chinese / Han / Noto）
+            var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+            if (fonts != null)
+            {
+                for (int i = 0; i < fonts.Length; i++)
+                {
+                    var f = fonts[i];
+                    if (f == null) continue;
+                    string n = "";
+                    try { n = f.name ?? ""; } catch { }
+                    if (n.IndexOf("SC", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("CN", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("Chinese", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("Han", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("Noto", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return f;
+                }
+
+                for (int i = 0; i < fonts.Length; i++)
+                    if (fonts[i] != null) return fonts[i];
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
     private static void Configure(TreeNodeRender node, Color color)
     {
         var rt = node.rectTransform;
@@ -322,15 +427,14 @@ internal static class ItemNameLabel
 
         var text = node.text;
         text.color = color;
-        text.fontStyle = FontStyles.Bold;
+        text.fontStyle = FontStyles.Normal;
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
-        text.overflowMode = TextOverflowModes.Ellipsis;   // 宽度不够就省略号，绝不缩字号
-        // 用「自适应」通道但把上下限钉成同一个值：既走 TMP 会正常重建网格的路径，
-        // 又不会被为了塞进图标宽度而压小字号。放不下时靠 Ellipsis 截断。
-        text.enableAutoSizing = true;
-        text.fontSizeMin = 12f;
-        text.fontSizeMax = 12f;
+        // 与参考模组 StorageNameDisplay 一致：固定字号 + Truncate。
+        // Ellipsis 在本游戏的 NotoSansSC / 当前行高下会让 TMP 输出 0 个字符。
+        text.overflowMode = TextOverflowModes.Truncate;
+        text.enableAutoSizing = false;
+        text.fontSize = 12f;
         text.raycastTarget = false;
     }
 
@@ -369,15 +473,16 @@ internal static class ItemNameLabel
                 if (corners[i].y > maxY) maxY = corners[i].y;
             }
 
-            var scale = sprite.lossyScale;
+            // 标签的直接父级是 handler；缩放必须按这个父级抵消，不能混入 rotator/background 自身变换。
+            var scale = element.handler.rectTransform.lossyScale;
             float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
             float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
 
-            // 字号固定跟随 tooltip 正文（不再提供设置项）：同一屏里所有标签、以及标签与 tooltip
-            // 之间都是同一套字号，不会大图标字大、小图标字小。
+            // 图标名使用 tooltip 正文的 50% + 常规字重，降低常驻标签的视觉权重；
+            // 从首次显示就按当前 UI 缩放固定，不再等 tooltip 模板出现后跳变。
             float iconWidth = Mathf.Max(8f, maxX - minX);
-            float size = Mathf.Clamp(TypeBadge.TooltipFontWorldSize, 6f, 40f);
-            float height = size * 1.22f;
+            float size = Mathf.Clamp(14f * sy * 0.50f, 6f, 40f);
+            float height = size * 1.5f;   // 与参考模组一致，给 NotoSansSC 足够的单行布局高度
             float z = sprite.position.z;
 
             // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
@@ -404,18 +509,35 @@ internal static class ItemNameLabel
             else
                 y = bottomMidY + LabelBottomInset;
 
-            // 文字宽度按实际文本量：底板跟着文字走，不跟着容器宽度走
+            // 必须先应用最终字号再测宽；否则水罐这类短名字会按旧的 12 号字测宽，
+            // 随后以更大的字号写进同一个窄框，被 Truncate 截成一个字。
+            if (label.Main != null && label.Main.text.fontSize != size) label.Main.text.fontSize = size;
+            if (label.Shadow != null && label.Shadow.text.fontSize != size) label.Shadow.text.fontSize = size;
+
+            // 文字宽度按实际文本量：底板跟着文字走，不跟着容器宽度走。
+            // 0.2 秒补位时复用测量结果，只有文字、字号或图标宽度变化才问 TMP。
             float textWidth = iconWidth;
-            try
+            if (label.Main != null)
             {
-                if (label.Main != null)
+                if (!label.HasMeasurement || label.MeasuredText != label.Text
+                    || label.MeasuredFontSize != size || label.MeasuredIconWidth != iconWidth)
                 {
-                    var pref = label.Main.text.GetPreferredValues(label.Text);
-                    // 宽度上限 = 图标宽度：超出就必须截断（试剂盒这类小格子尤其明显）
-                    if (pref.x > 1f) textWidth = Mathf.Clamp(pref.x + 2f, 8f, iconWidth);
+                    label.HasMeasurement = true;
+                    label.MeasuredText = label.Text;
+                    label.MeasuredFontSize = size;
+                    label.MeasuredIconWidth = iconWidth;
+                    label.MeasuredWidth = iconWidth;
+                    try
+                    {
+                        var pref = label.Main.text.GetPreferredValues(label.Text);
+                        // 宽度上限 = 图标宽度：超出就必须截断（试剂盒这类小格子尤其明显）
+                        if (pref.x > 1f)
+                            label.MeasuredWidth = Mathf.Clamp(pref.x + 2f, 8f, iconWidth);
+                    }
+                    catch { }
                 }
+                textWidth = label.MeasuredWidth;
             }
-            catch { }
 
             bool bgOn = ModSettings.ItemNameBackground;
             float bgAlpha = Mathf.Clamp01(ModSettings.ItemNameBackgroundAlpha);
@@ -438,8 +560,6 @@ internal static class ItemNameLabel
             label.Background = bgOn;
             label.BackgroundAlpha = bgAlpha;
 
-            if (label.Main != null) { label.Main.text.fontSizeMin = size; label.Main.text.fontSizeMax = size; }
-            if (label.Shadow != null) { label.Shadow.text.fontSizeMin = size; label.Shadow.text.fontSizeMax = size; }
             SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
             SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
 
@@ -485,12 +605,37 @@ internal static class ItemNameLabel
                 _placementLogged++;
                 Log.Msg($"NameLabel place '{label.Text}': icon w={iconWidth:0} text w={textWidth:0} y={y:0} " +
                         $"lossyScale=({scale.x:0.##},{scale.y:0.##}) size={size:0.#}");
+                LogRenderState(label);
             }
         }
         catch (Exception ex)
         {
             Log.Warn("NameLabel.Place", ex);
         }
+    }
+
+    private static void LogRenderState(Label label)
+    {
+        try
+        {
+            var node = label.Main;
+            var text = node?.text;
+            if (node == null || text == null) { Log.Msg("NameLabel render: main text missing"); return; }
+            var rt = node.rectTransform;
+            var canvasRenderer = text.canvasRenderer;
+            string parent = rt.parent != null ? rt.parent.name : "<none>";
+            string font = text.font != null ? text.font.name : "<none>";
+            Log.Msg($"NameLabel render '{label.Text}': active={node.gameObject.activeInHierarchy} enabled={text.isActiveAndEnabled} " +
+                    $"chars={text.textInfo.characterCount} lines={text.textInfo.lineCount} vertices={text.mesh.vertexCount} " +
+                    $"cull={canvasRenderer.cull} alpha={text.color.a:0.##} font={font} fontSize={text.fontSize:0.#} " +
+                    $"auto={text.enableAutoSizing} overflow={text.overflowMode} rect={rt.rect} pos={rt.position} " +
+                    $"scale={rt.lossyScale} parent={parent} sibling={rt.GetSiblingIndex()}");
+            if (label.Bg?.image != null)
+                Log.Msg($"NameLabel background '{label.Text}': active={label.Bg.gameObject.activeInHierarchy} " +
+                        $"enabled={label.Bg.image.isActiveAndEnabled} cull={label.Bg.image.canvasRenderer.cull} " +
+                        $"color={label.Bg.image.color} rect={label.Bg.rectTransform.rect} pos={label.Bg.rectTransform.position}");
+        }
+        catch (Exception ex) { Log.Warn("NameLabel.RenderState", ex); }
     }
 
     private static void SetRect(TreeNodeRender? node, float width, float height,

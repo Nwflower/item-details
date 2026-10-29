@@ -44,6 +44,16 @@ internal static class TypeBadge
         }
     }
 
+    /// <summary>tooltip 正文用的 TMP 字体（一定含当前语言字形），供其它自绘文本对齐同一字体。</summary>
+    internal static TMP_FontAsset? TooltipFont
+    {
+        get
+        {
+            try { return _textTemplate != null ? _textTemplate.font : null; }
+            catch { return null; }
+        }
+    }
+
     private const string HarmonyId = "item_details.type_badge";
     private const string BadgeName = "ItemDetailsTypeBadge";
     private const float ChipGap = 4f;
@@ -68,6 +78,15 @@ internal static class TypeBadge
     private static readonly List<float> Widths = new();
     private static Transform? _builtParent;
     private static float _pendingAt = float.MinValue;
+
+    // 独立性能窗口：正文 [perf] 不包含 ShowTooltip 后缀，分类标签必须单独计时。
+    private static float _perfLogAt;
+    private static int _perfNotes;
+    private static int _perfShows;
+    private static int _perfLayouts;
+    private static double _perfNoteMs;
+    private static double _perfShowMs;
+    private static double _perfMaxShowMs;
 
     internal static void Apply()
     {
@@ -122,12 +141,13 @@ internal static class TypeBadge
     /// <summary>由 GetTooltipBasic 前缀调用：记录本次物品的分类（必须在任何 Add 之前）。</summary>
     internal static void NoteItem(GameItem? item)
     {
-        Pending.Clear();
-        _pendingAt = UnityEngine.Time.unscaledTime;
-        if (item == null) return;
-
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
+            Pending.Clear();
+            _pendingAt = UnityEngine.Time.unscaledTime;
+            if (item == null) return;
+
             var types = item.GetGameItemType();
             if (types == null || types.Count == 0) return;
 
@@ -141,6 +161,11 @@ internal static class TypeBadge
             }
         }
         catch (Exception ex) { Log.Warn("TypeBadge.NoteItem", ex); }
+        finally
+        {
+            _perfNotes++;
+            _perfNoteMs += ElapsedMs(started);
+        }
     }
 
     // ---------------- Harmony 回调 ----------------
@@ -163,6 +188,8 @@ internal static class TypeBadge
 
     private static void AfterShow(OverlayHandler __instance)
     {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        bool laidOut = false;
         try
         {
             // 超过 StaleSeconds 没有重新构建，说明这是缓存 tooltip，分类可能过期——不显示
@@ -175,7 +202,7 @@ internal static class TypeBadge
             var win = __instance?.GetTooltipWindow();
             if (win == null) { Hide(); return; }
 
-            if (!BuildChips(win.rectTransform)) { Hide(); return; }
+            if (!BuildChips(win.rectTransform, out laidOut)) { Hide(); return; }
             Place(win.rectTransform);
             if (_badge != null) _badge.SetActive(true);
         }
@@ -184,6 +211,42 @@ internal static class TypeBadge
             Log.Warn("TypeBadge.AfterShow", ex);
             Hide();
         }
+        finally
+        {
+            TrackShowPerf(started, laidOut);
+        }
+    }
+
+    private static double ElapsedMs(long started) =>
+        (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0
+        / System.Diagnostics.Stopwatch.Frequency;
+
+    /// <summary>每 2 秒汇总一次，避免诊断日志本身成为新的卡顿来源。</summary>
+    private static void TrackShowPerf(long started, bool laidOut)
+    {
+        _perfShows++;
+        if (laidOut) _perfLayouts++;
+        double ms = ElapsedMs(started);
+        _perfShowMs += ms;
+        if (ms > _perfMaxShowMs) _perfMaxShowMs = ms;
+
+        float now = UnityEngine.Time.unscaledTime;
+        if (_perfLogAt <= 0f) _perfLogAt = now + 2f;
+        if (now < _perfLogAt) return;
+
+        double noteAvg = _perfNotes > 0 ? _perfNoteMs / _perfNotes : 0.0;
+        double showAvg = _perfShows > 0 ? _perfShowMs / _perfShows : 0.0;
+        Log.Msg($"[perf] 分类标签（2秒）: 解析={_perfNotes}次/{noteAvg:0.00}ms均次，" +
+                $"显示={_perfShows}次/{showAvg:0.00}ms均次/{_perfMaxShowMs:0.00}ms峰值，" +
+                $"布局更新={_perfLayouts}次，直接复用={_perfShows - _perfLayouts}次");
+
+        _perfNotes = 0;
+        _perfShows = 0;
+        _perfLayouts = 0;
+        _perfNoteMs = 0.0;
+        _perfShowMs = 0.0;
+        _perfMaxShowMs = 0.0;
+        _perfLogAt = now + 2f;
     }
 
     private static void AfterHide()
@@ -193,8 +256,9 @@ internal static class TypeBadge
 
     // ---------------- 构建 ----------------
 
-    private static bool BuildChips(RectTransform tooltipRect)
+    private static bool BuildChips(RectTransform tooltipRect, out bool laidOut)
     {
+        laidOut = false;
         var parent = tooltipRect.parent;
         if (parent == null) return false;
 
@@ -226,6 +290,8 @@ internal static class TypeBadge
         if (container.parent == parent && ReferenceEquals(_builtParent, parent)
             && container.childCount == Pending.Count && SameContent())
             return true;
+
+        laidOut = true;
         if (container.parent != parent) container.SetParent(parent, false);
 
         for (int i = container.childCount - 1; i >= Pending.Count; i--)
