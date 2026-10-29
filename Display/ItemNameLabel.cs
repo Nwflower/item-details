@@ -29,7 +29,7 @@ internal static class ItemNameLabel
 {
     private const string HarmonyId = "item_details.item_name_label";
     private const float LabelHeight = 10f;
-    private const float LabelBottomInset = 1f;
+    private const float LabelBottomInset = 3f;
 
     private static Harmony? _harmony;
     private static bool _patched;
@@ -217,18 +217,22 @@ internal static class ItemNameLabel
     }
 
     /// <summary>
-    /// 贴在物品矩形（middle）的底边内侧。
+    /// 贴在物品矩形（middle）的底边内侧，并留一点边距。
     ///
-    /// 实测坐标系：middle 的局部原点与 pivot 在左上、Y 朝下（rect 为 x:0, y:-96, 112×96），
-    /// 所以锚点用左上角、按「物品像素高度 − 行高 − 内缩」下移即可，不依赖任何缩放约定。
-    /// 第一版挂在 handler 上：handler 的 rect 是 0×0，锚点贴底得到零高度，标签根本不可见。
+    /// 尺寸必须取 <c>middle.rect</c> 的**实际**矩形，不能用 <c>widthPixels/heightPixels</c>：
+    /// 旋转/翻转后 <c>modifiedShape</c> 描述的仍是未旋转的占格，而 middle 的矩形才是屏幕上的外接框——
+    /// 用占格算会让旋转物品的名字跑到图标侧面（实测：旋转过的容器名字贴在右上角、宽度也不对）。
     /// </summary>
     private static void Place(GameItemElement element, Label label)
     {
         try
         {
-            float width = Mathf.Max(8f, element.widthPixels);
-            float height = Mathf.Max(8f, element.heightPixels);
+            var middle = element.middle;
+            if (middle == null) return;
+
+            Rect r = middle.rectTransform.rect;
+            float width = Mathf.Max(8f, r.width);
+            float height = Mathf.Max(8f, r.height);
             float top = -(height - LabelHeight - LabelBottomInset);
 
             foreach (var node in new[] { label.Shadow, label.Main })
