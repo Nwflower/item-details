@@ -106,9 +106,14 @@ internal static class WaterInfo
     /// 杂质显示名。
     ///
     /// 不能直接用 <c>liquid.displayName</c>：它是在 <c>Liquid</c> 的静态构造里一次性
-    /// `LocHelper.GetLocalizedMechanic("liquid_" + identifier)` 固化的。只要这个静态构造
-    /// 在本地化就绪前被触发（Harmony 打补丁会 JIT 目标方法，从而提前跑 cctor），
-    /// 整局会话的液体名都会停在英文。这里按当前语言现查一次，查不到才回落到它。
+    /// `LocHelper.GetLocalizedMechanic(key)` 固化的。只要这个静态构造在本地化就绪前被触发
+    /// （Harmony 打补丁会 JIT 目标方法，从而提前跑 cctor），整局会话的液体名都会停在英文。
+    /// 这里按当前语言现查一次。
+    ///
+    /// 但**不能**用 `"liquid_" + identifier` 硬拼 key：游戏里 36 种液体有 6 种的词条键与
+    /// identifier 不同（见 <see cref="KeyAliases"/>），拼错时 Unity Localization 返回的是
+    /// 「No translation found for 'liquid_microbe'」这类提示串而不是空值，直接显示出去就成了
+    /// Translation Error。因此先查别名表，再用 <see cref="Lookup"/> 校验结果。
     /// </summary>
     private static string DisplayName(Liquid liquid)
     {
@@ -117,19 +122,51 @@ internal static class WaterInfo
             string id = liquid.identifier ?? "";
             if (id.Length > 0)
             {
-                try
+                if (KeyAliases.TryGetValue(id, out var alias))
                 {
-                    string key = "liquid_" + id;
-                    string live = LocHelper.GetLocalizedMechanic(key) ?? "";
-                    if (live.Length > 0 && !string.Equals(live, key, StringComparison.Ordinal))
-                        return live;
+                    string aliased = Lookup(alias);
+                    if (aliased.Length > 0) return aliased;
                 }
-                catch { }
+
+                string live = Lookup("liquid_" + id);
+                if (live.Length > 0) return live;
             }
 
+            // 现查失败（缺词条 / 本地化未就绪）才回落到游戏已经固化好的名字
             string n = liquid.displayName ?? "";
             return n.Length > 0 ? n : (id.Length > 0 ? id : "?");
         }
         catch { return "?"; }
+    }
+
+    /// <summary>
+    /// identifier 与 Mechanic 词条键不一致的 6 种液体（对照 `Liquid.InitLiquid()`：
+    /// 词条键以 <c>GetLocalizedMechanic("...")</c> 的实参为准，identifier 是另一套命名）。
+    /// </summary>
+    private static readonly Dictionary<string, string> KeyAliases = new(StringComparer.Ordinal)
+    {
+        ["microbe"] = "liquid_microbes",
+        ["fat"] = "liquid_fat_oil",
+        ["coffee_mush"] = "liquid_coffee_bean_mush",
+        ["contraceptive"] = "liquid_contraceptive_hormones",
+        ["methylol"] = "liquid_n_methylol_base",
+        ["debris"] = "liquid_insoluble_debris",
+    };
+
+    /// <summary>
+    /// 查一条液体词条。查不到、返回键本身、或返回的是「缺翻译」提示串时一律返回空串——
+    /// 缺翻译提示绝不能当名字显示。
+    /// </summary>
+    private static string Lookup(string key)
+    {
+        try
+        {
+            string text = LocHelper.GetLocalizedMechanic(key) ?? "";
+            if (text.Length == 0) return "";
+            if (string.Equals(text, key, StringComparison.Ordinal)) return "";
+            if (LocHelper.TryParseMissingTranslation(text, out _, out _)) return "";
+            return text;
+        }
+        catch { return ""; }
     }
 }
