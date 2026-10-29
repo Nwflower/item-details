@@ -143,6 +143,38 @@ internal static class GameRead
         }
     }
 
+    /// <summary>
+    /// 容器内部网格的**可用格数**。注意编码与物品外形相反：游戏用
+    /// <c>new GridShapeBuilder(w, h).SetDataFill(0).SetDataOutside(1)</c> 建内部网格，
+    /// 即 0 = 可放置格、1 = 墙或外侧；字符串形式（<c>SetData(shape, width)</c>）也沿用同一约定。
+    /// 若照物品外形的 "!= 0 即实心" 来数，矩形容器会恒为 0，压缩率整行消失。
+    /// </summary>
+    internal static int UsableCells(GridShape? shape)
+    {
+        if (shape == null) return 0;
+        try
+        {
+            int w = shape.width;
+            int h = shape.height;
+            if (w <= 0 || h <= 0) return 0;
+
+            int cells = 0;
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    if (shape.GetLocal(x, y) == 0) cells++;
+                }
+            }
+            return cells;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("GameRead.UsableCells", ex);
+            return 0;
+        }
+    }
+
     // ---------- 荧光莓 ----------
 
     internal static BerryQuality ClassifyBerry(GameItem? it)

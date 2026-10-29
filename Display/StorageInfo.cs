@@ -11,7 +11,7 @@ namespace ItemDetails;
 ///   - 容器内部库存：DirectoryUtils.CreateInventoryWindow(w,h) 返回 (PixelWindow, GameGridInventory)
 ///     并 pixelWindow.Attach(grid)，随后 GameItem.SetContentWindow(pixelWindow)；
 ///     因此 item.contentWindow.child as GameGridInventory 即内部库存。
-///   - 内部格数 = grid.inventoryShape 的实心格数
+///   - 内部格数 = grid.inventoryShape 的**可用格**数（0 = 可用，与物品外形的 1 = 实心相反）
 ///   - 内容物   = grid.childItems（GameGridInventory 覆写，返回 items 的副本）
 ///   - 自身占格 = item.modifiedShape 的实心格数
 /// 原版 ContainerHelper.CreateContainerTooltip 只输出一句通用提示，不列内容物，更无压缩率。
@@ -75,7 +75,8 @@ internal static class StorageInfo
                 if (inner != null)
                 {
                     innerW = inner.width; innerH = inner.height;
-                    innerCells = GameRead.OccupiedCells(inner);
+                    // 内部网格 0 = 可用格（SetDataFill(0)），与物品外形的 1 = 实心相反
+                    innerCells = GameRead.UsableCells(inner);
                     // 不再退回外接矩形：算不出就是算不出，宁可少一行也不给错数字
                 }
             }
@@ -83,7 +84,7 @@ internal static class StorageInfo
 
             if (innerCells <= 0)
             {
-                Log.Warn("StorageInfo.Ratio", "内部网格实心格数为 0，跳过压缩率");
+                Log.Warn("StorageInfo.Ratio", $"内部网格可用格数为 0（{innerW}x{innerH}），跳过压缩率");
                 return;
             }
 

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace ItemDetails;
 
 /// <summary>
-/// 在鉴定服务面板标题后追加「真实价格 / 完美区间」。
+/// 在鉴定服务面板标题后追加「鉴定&lt;物品名&gt;，最优报价&lt;完美档上界&gt;（真实价格&lt;值&gt;）」。
 ///
 /// 不再常驻轮询：Postfix InspectionUIManager.OnInspectItem 时面板已经打开，
 /// 直接在 appraisalPanel 子树里找一次标题；ResetUI / CloseUI 时恢复。
@@ -100,7 +100,7 @@ internal static class AppraisalTitlePatch
             // 我们没注入过、或游戏自己改写了标题 → 以当前文本为原文
             if (_applied.Length == 0 || current != _applied) _original = current;
 
-            string desired = BuildTitle(_original, value);
+            string desired = BuildTitle(_original, value, gameItem);
             if (current == desired) return;
 
             _titleTmp.text = desired;
@@ -121,12 +121,35 @@ internal static class AppraisalTitlePatch
         _applied = "";
     }
 
-    private static string BuildTitle(string original, int trueValue)
+    /// <summary>
+    /// 「鉴定服务 鉴定&lt;物品名&gt;，最优报价&lt;完美档上界&gt;（真实价格&lt;值&gt;）」。
+    /// 最优报价取完美档上界（真实价 ×105%，与游戏 RNG.CalculatePercentage 同样整数截断），
+    /// 即顾客会给到的最高价；真实价格保留在括号里，方便对照。
+    /// </summary>
+    private static string BuildTitle(string original, int trueValue, GameItem item)
     {
-        var (low, high) = AppraisalRanges.Perfect(trueValue);
+        var (_, best) = AppraisalRanges.Perfect(trueValue);
+        string name = DisplayName(item);
+
+        string suffix = name.Length > 0
+            ? Locales.L($" 鉴定{name}，最优报价{best}", $" Appraise {name}, best offer {best}")
+            : Locales.L($" 最优报价{best}", $" best offer {best}");
+
         return Locales.IsChinese
-            ? $"{original}（真实价格{trueValue} · 完美{low}–{high}）"
-            : $"{original} (True {trueValue} · Perfect {low}-{high})";
+            ? $"{original}{suffix}（真实价格{trueValue}）"
+            : $"{original}{suffix} (true {trueValue})";
+    }
+
+    /// <summary>物品显示名（已本地化）。取不到就不写「鉴定XXX」，不编占位词。</summary>
+    private static string DisplayName(GameItem item)
+    {
+        try
+        {
+            string n = item.GetDisplayName() ?? "";
+            if (n.Length > 0) return n.Trim();
+        }
+        catch { }
+        try { return (GameRead.ItemName(item) ?? "").Trim(); } catch { return ""; }
     }
 
     private static TextMeshProUGUI? FindTitle(Transform root)
