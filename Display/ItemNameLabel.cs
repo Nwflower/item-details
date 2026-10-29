@@ -302,7 +302,7 @@ internal static class ItemNameLabel
         text.fontStyle = FontStyles.Bold;
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
-        text.overflowMode = TextOverflowModes.Truncate;
+        text.overflowMode = TextOverflowModes.Ellipsis;   // 小格子放不下时用省略号，而不是硬切
         text.enableAutoSizing = false;   // 字号由 Place 按「图标高度 × 相对比例」直接给，避免自适应把字压小
         text.fontSize = 12f;
         text.raycastTarget = false;
@@ -386,7 +386,8 @@ internal static class ItemNameLabel
                 if (label.Main != null)
                 {
                     var pref = label.Main.text.GetPreferredValues(label.Text);
-                    if (pref.x > 1f) textWidth = Mathf.Min(Mathf.Max(8f, pref.x + 2f), Mathf.Max(iconWidth, 240f));
+                    // 宽度上限 = 图标宽度：超出就必须截断（试剂盒这类小格子尤其明显）
+                    if (pref.x > 1f) textWidth = Mathf.Clamp(pref.x + 2f, 8f, iconWidth);
                 }
             }
             catch { }
@@ -423,7 +424,7 @@ internal static class ItemNameLabel
                 if (bgOn)
                 {
                     label.Bg.image.color = new Color(0f, 0f, 0f, bgAlpha);
-                    SetRect(label.Bg, textWidth + 4f, height + 2f, centerX, y - 1f, z, sx, sy);
+                    SetRect(label.Bg, Mathf.Min(iconWidth, textWidth + 4f), height + 2f, centerX, y - 1f, z, sx, sy);
                 }
             }
 
