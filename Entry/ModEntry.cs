@@ -212,7 +212,7 @@ public sealed partial class ModEntry : IMod
     private void RunRenderers(RichTextBuilder builder, GameItem item)
     {
         // 单次 tooltip 超过这个耗时才记一条，限频 2 秒一次：用来定位"悬停掉帧"。
-        const double PerfLogThresholdMs = 4.0;
+        const double PerfLogThresholdMs = 2.0;
         double totalMs = 0;
         StringBuilder? slow = null;
 
