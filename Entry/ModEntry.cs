@@ -76,7 +76,6 @@ public sealed partial class ModEntry : IMod
         new("feature-reveal", (m, b, i) => m.TryAppendFeatureReveal(b, i)),
         new("storage", (m, b, i) => m.TryAppendStorage(b, i)),
         new("conditions", (m, b, i) => m.TryAppendConditions(b, i)),
-        new("module-effects", (m, b, i) => m.TryAppendModuleEffects(b, i)),
         new("contraband", (m, b, i) => m.TryAppendContraband(b, i)),
         new("lottery", (m, b, i) => m.TryAppendLottery(b, i)),
         new("water", (m, b, i) => m.TryAppendWater(b, i)),

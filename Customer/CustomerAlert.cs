@@ -15,7 +15,8 @@ namespace ItemDetails;
 ///   StoreClient.displayName     string
 ///
 /// 载体：游戏自带 CustomUIManager/CustomUIBuilder（无内置 Toast API），
-/// 自绘一个 overlay 小窗，若干秒后自动关闭。
+/// 自绘一个 overlay 小窗，**常驻到该顾客离开**（PlayerStore.currentClientInstance 被置空时收起），
+/// 无动效、不抢焦点。
 ///
 /// 触发：轮询 PlayerStore.Instance.currentClientInstance，实例变化且非空时评估一次。
 /// </summary>
@@ -23,7 +24,8 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
 {
     private const string WindowId = "item_details.customer_alert";
     private const float PollInterval = 0.5f;
-    private const float ToastSeconds = 6f;
+    /// <summary>提示常驻到顾客离开；这是兜底上限，避免极端情况下窗口一直挂到下一局。</summary>
+    private const float MaxToastSeconds = 300f;
     private const float ToastWidth = 360f;
     private const float ToastHeight = 88f;
     private const float ToastTopMargin = 28f;
@@ -36,6 +38,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
     private StoreClientInstance? _attemptInstance;
     private int _attempts;
     private int _toastVersion;
+    private bool _shown;
     private static GameObject? _go;
 
     /// <summary>同一顾客最多尝试提示几次；仍失败就放弃，避免每 0.5 秒重试刷日志。</summary>
@@ -65,8 +68,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             var ui = CustomUIManager.Instance;
             if (ui != null && ui.IsOpen(WindowId)) ui.CloseWindow(WindowId);
         }
-        catch { }
-        if (_go != null)
+        catch { }        if (_go != null)
         {
             try { UnityEngine.Object.Destroy(_go); } catch { }
             _go = null;
@@ -75,7 +77,11 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
 
     private void Update()
     {
-        if (!ModSettings.CustomerAlert) return;   // 关掉后连轮询都不必做
+        if (!ModSettings.CustomerAlert)
+        {
+            if (_shown) { try { Dismiss(); } catch { } }   // 关掉开关后别把提示留在屏幕上
+            return;
+        }
 
         _timer += Time.deltaTime;
         if (_timer < PollInterval) return;
@@ -98,9 +104,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
 
         if (instance == null)
         {
-            _lastInstance = null;
-            _attemptInstance = null;
-            _attempts = 0;
+            Dismiss();   // 顾客离开：提示随之收起
             return;
         }
 
@@ -164,7 +168,11 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
         }
         catch (Exception ex) { Log.Warn("CustomerAlert.PerkPayout", ex); payout = reward; }
 
-        if (!wanted && !aug) return true;   // 无需提示：算处理完毕，避免反复评估
+        if (!wanted && !aug)
+        {
+            Dismiss();          // 换了位普通顾客：上一位的提示不能留着
+            return true;
+        }
 
         string title;
         if (wanted && aug) title = L("通缉犯 · 改造体顾客", "Wanted · Augmented client");
@@ -226,10 +234,12 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             if (win == null) return false;
 
             PlaceTopRight(win, height);
+            _shown = true;
 
-            // 新提示会递增版本；旧协程到期时不得关闭后来出现的新提示。
+            // 常驻：由「顾客离开」触发关闭；这里只留一个兜底上限，防止极端情况下窗口一直挂着。
+            // 新提示会递增版本；旧计时器到期时不得关闭后来出现的新提示。
             int version = ++_toastVersion;
-            StartCoroutine(CloseAfter(ToastSeconds, version));
+            StartCoroutine(AutoHideAfter(MaxToastSeconds, version));
             return true;
         }
         catch (Exception ex)
@@ -274,15 +284,27 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
 
     private static string L(string zh, string en) => Locales.L(zh, en);
 
-    private IEnumerator CloseAfter(float seconds, int version)
+    /// <summary>收起提示并重置「当前顾客」状态（顾客离开、换成普通顾客、关闭模组时都会走到）。</summary>
+    private void Dismiss()
     {
-        yield return new WaitForSeconds(seconds);
-        if (version != _toastVersion) yield break;
+        _lastInstance = null;
+        _attemptInstance = null;
+        _attempts = 0;
+        if (!_shown) return;
+        _shown = false;
         try
         {
             var ui = CustomUIManager.Instance;
             if (ui != null && ui.IsOpen(WindowId)) ui.CloseWindow(WindowId);
         }
         catch { }
+    }
+
+    /// <summary>兜底关闭：正常路径应在顾客离开时立刻收起，这里只防窗口挂到下一局。</summary>
+    private IEnumerator AutoHideAfter(float seconds, int version)
+    {
+        yield return new WaitForSeconds(seconds);
+        if (version != _toastVersion) yield break;
+        Dismiss();
     }
 }

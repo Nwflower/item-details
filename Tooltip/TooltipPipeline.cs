@@ -164,6 +164,8 @@ internal static class TooltipPipeline
             if (!RewritePriceTerms(ref __0, __instance, __2)) return false;
             if (!RewriteCalorieLine(ref __0, __instance)) return false;
 
+            // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)
+            if (ModuleEffectAnnotation.TryApply(ref __0, __instance, __2, cur)) return false;
 
             return true;
         }
