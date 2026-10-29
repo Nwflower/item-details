@@ -59,56 +59,6 @@ calorie.line,에너지：{0} {1}
 calorie.per_cell,（{0} {1}/칸）
 calorie.unit,kcal
 condition.line,상태：{0} {1}
-config.auth,진위 감정
-config.auth.tip,주사기/담배/식권의 정품·위조 판정과 불합격 항목을 표시합니다。등록된 실제 가치가 있을 때만 실제 가치를 추가합니다。
-config.container,컨테이너 정보
-config.container.tip,압축률（내부 칸÷자체 칸）、내용물 목록、합계 가치를 표시합니다。
-config.contraband,밀수품 암시장 할증
-config.contraband.tip,암시장 할증률을 덧붙입니다（낮음 35 / 보통 70 / 높음 100 / 심각 150）。밀수 등급 자체는 원본이 표시합니다。
-config.customer_alert,손님 방문 알림
-config.customer_alert.tip,수배범이나 개조 고객이 오면 알립니다。실제 현상금、본명、개조 등급을 표시합니다。
-config.dim_description,설명문 흐리게
-config.dim_description.tip,아이템 설명을 회색으로 표시해 감정 정보가 돋보이게 합니다。색상만 바꾸고 텍스트는 그대로입니다。
-config.double_click_inspect,더블클릭으로 감정
-config.double_click_inspect.tip,감정 또는 진위 확인 대상(주사기·담배·우표 등)을 더블클릭해 돋보기 없이 검사 화면을 엽니다. 안내 문구도 바뀝니다. 끄면 원래 흐름으로 돌아갑니다.
-config.hidden_truth,위장과 실제 능력치 공개
-config.hidden_truth.tip,위장 전 실제 상태 차이、실제 내구도、주괴/화학품의 실제 순도를 표시합니다。가짜가 바로 드러나 감정 난이도가 내려갑니다。
-config.hide_estimate_value,원본 예상 가치 줄 숨기기
-config.hide_estimate_value.tip,그 두 줄은 손님 제시가로 실제 감정가와 다릅니다（차이가 클 수 있음）。감정 아이템에만、총액을 계산할 수 있을 때만 숨깁니다。
-config.lottery,복권 적중 수와 상금
-config.lottery.tip,추첨 후 일치한 번호 수와 상금을 표시합니다。원본은 당첨 번호 색만 바꿉니다。
-config.module_effects,모듈 효과 실수치
-config.module_effects.tip,원본은 성능/효율/품질 +16% 같은 비율만 표시합니다。그 줄 뒤에 게임이 계산한 실수치를 덧붙입니다：성능=가공 속도、효율=소비 전력、품질=품질 환산값（품질 비율이 있는 기계만）。모두 아이템 태그에서 나오며、데이터가 없는 기계는 원본 비율 그대로입니다。
-config.name_label_background,이름 라벨 배경
-config.name_label_background.tip,무늬가 복잡한 아이콘에서도 잘 보이도록 이름 뒤에 반투명 검은 바탕을 깝니다。
-config.name_label_background_alpha,배경 불투명도
-config.name_label_background_alpha.tip,배경판의 불투명도（0–1）。
-config.name_label_mode,아이콘에 이름 표시
-config.name_label_mode.tip,없음：표시 안 함。컨테이너명：컨테이너와 기계만。이름 변경만：라벨 프린터로 이름을 바꾼 아이템만。
-config.name_label_position,이름 라벨 위치
-config.name_label_position.tip,아이콘에서 이름이 놓이는 위치（아래/가운데/위）。
-config.plant,식물 정보
-config.plant.tip,베리는 품질（정상/곰팡이/미성숙 등）을、씨앗은 보유 형질과 등급을 표시합니다。
-config.price_impact,라벨·상태·시장 영향
-config.price_impact.tip,라벨 줄과 찍힘/녹 같은 상태 뒤에 가격 영향 %를 덧붙이고、적용 중인 상점 이벤트 보정도 나열합니다。원본은 이름만 표시합니다。
-config.scratcher,스크래치 결과
-config.scratcher.tip,긁기 전에 당첨 금액（또는 꽝）과 진행도를 표시합니다。같은 규칙으로 읽기만 하는 재계산이며 대신 긁지 않습니다。끄면 결과를 숨깁니다。
-config.sealed_box,봉인 상자 내용과 가치
-config.sealed_box.tip,잠긴 컨테이너（금고/총기함）도 개봉 전에 내용물과 총 가치를 보여줍니다。잠금을 건너뛰는 셈이라 기본은 꺼짐입니다。
-config.section.customer,고객 알림
-config.section.display,표시 내용
-config.section.interaction,조작 및 외형
-config.section.reveal,투시
-config.type_badge,아이템 분류 라벨
-config.type_badge.tip,"툴팁 위에 아이템 분류를 색상 판과 흰색 글자로 표시합니다: 의료/물/약물/독극물 파랑, 담배/주류 금색, 사치품 핑크, 음식 초록, 생활용품 하늘색, 무기/방어구 청록, 도구/재료 보라, 위법/제한 암적, 기타 회색. 끄면 원래의 [분류] 줄로 돌아갑니다."
-config.value,가치 구성과 감정 정보
-config.value.tip,감정 아이템은 총액、완벽 제시가 구간、출처 내역、위조 사유를 표시합니다。감정 서비스 제목에는 실제 가격도 붙습니다。알 수 없거나 모드가 추가한 감정 유형은 실측 내역을 사용합니다。
-config.value_enhance,칸당 가치（비감정품）
-config.value_enhance.tip,비감정품은 단가×수량과 칸당 가치（가치÷점유 칸）를 표시합니다。감정품은 실제 가치가 있어 중복 표시하지 않습니다。
-config.water_purity,수질과 조언
-config.water_purity.tip,액체의 순도 %、원본 등급명、불순물、비수액 부피、처리 조언을 수질 검사기 없이 표시합니다。끄면 원본 흐름（검사기 필요）으로 돌아갑니다。전용 수질 모드（AquaSense 등）가 켜져 있으면 그쪽에 넘깁니다。
-config.wine,와인 점수와 성분
-config.wine.tip,원본이 숨긴 양조 데이터를 표시합니다：와인 점수와 등급、당도/오염물、위조 여부（불법 효모）、숙성 일수와 일일 보너스、발효 진행。
 contraband.markup,암시장：+{0}%
 generic.combined,· 조합/기타 {0}
 generic.header,가치 내역（실측）：
@@ -189,8 +139,31 @@ wine.state,와인：{0}
 wine.tier,、{0} 단계
 wine.unknown_state,알 수 없음（{0}）
 wine.yeast_power,효모 강도：{0}/회
+machine.battery_line,남은 에너지: {0} ({1}일)
+config.section.display,표시 최적화
+config.item_appraisal,아이템 감정
+config.item_appraisal.tip,진위 판정, 가치 구성, 완벽 제시가 구간, 위조 사유, 식물 정보를 함께 표시합니다.
+config.info_enhance,정보 강화
+config.info_enhance.tip,칸당 가치, 라벨/시장 영향, 모듈 실제 값, 기계 배터리, 컨테이너 정보, 암시장 할증, 복권 정보, 설명 흐리게, 판매가/매입가 표시를 함께 제공합니다.
+config.type_badge,아이템 분류 라벨
+config.type_badge.tip,"툴팁 위에 아이템 분류를 색상 판과 흰색 글자로 표시합니다: 의료/물/약물/독극물 파랑, 담배/주류 금색, 사치품 핑크, 음식 초록, 생활용품 하늘색, 무기/방어구 청록, 도구/재료 보라, 위법/제한 암적, 기타 회색. 끄면 원래의 [분류] 줄로 돌아갑니다."
+config.container_name,컨테이너/기계 표시 이름
+config.container_name.tip,컨테이너와 기계 아래에 이름을 표시합니다. 위치는 하단 고정입니다.
+config.container_name_bg,표시 이름 반투명 배경
+config.container_name_bg.tip,이름 뒤에 반투명 검정 배경을 추가합니다. 불투명도는 0.6 고정입니다.
+config.customer_alert,손님 방문 알림
+config.customer_alert.tip,수배범이나 개조 고객이 오면 알립니다。실제 현상금、본명、개조 등급을 표시합니다。
+config.section.interaction,조작 최적화
+config.double_click_inspect,더블클릭으로 감정
+config.double_click_inspect.tip,감정 또는 진위 확인 대상(주사기·담배·우표 등)을 더블클릭해 돋보기 없이 검사 화면을 엽니다. 안내 문구도 바뀝니다. 끄면 원래 흐름으로 돌아갑니다.
+config.section.reveal,투시
+config.hidden_truth,불일치·위조 공개
+config.hidden_truth.tip,위장 전 실제 상태 차이、실제 내구도、주괴/화학품의 실제 순도를 표시합니다。가짜가 바로 드러나 감정 난이도가 내려갑니다。
+config.water_wine,수질 분석
+config.water_wine.tip,물의 순도·불순물·정화 조언과 와인의 점수·성분 분석을 함께 표시합니다. 수질 검사 키트가 필요 없습니다.
+config.scratcher,긁기 카드 미리보기
+config.scratcher.tip,긁기 전에 당첨 금액（또는 꽝）과 진행도를 표시합니다。같은 규칙으로 읽기만 하는 재계산이며 대신 긁지 않습니다。끄면 결과를 숨깁니다。
+config.sealed_box,밀봉 상자 투시
+config.sealed_box.tip,잠긴 컨테이너（금고/총기함）도 개봉 전에 내용물과 총 가치를 보여줍니다。잠금을 건너뛰는 셈이라 기본은 꺼짐입니다。
 config.result_prefill,결과 미리 채우기
 config.result_prefill.tip,감정 패널을 열 때 실제 위조 항목을 선택하고 감정 가격을 최적 제시가로 채웁니다. 입력란만 채우며 제출하거나 확인하지 않습니다. 기본값은 꺼짐입니다.
-config.machine_battery,기계 배터리
-config.machine_battery.tip,장착된 배터리의 남은 에너지와 예상 작동 일수를 기계의 일일 에너지 줄 바로 아래에 표시합니다. 배터리가 없는 기계는 표시하지 않습니다.
-machine.battery_line,남은 에너지: {0} ({1}일)

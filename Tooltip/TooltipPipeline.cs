@@ -242,6 +242,7 @@ internal static class TooltipPipeline
     {
         try
         {
+            if (!ModSettings.InfoEnhance) return true;
             EnsurePriceTerms();
             if (text == null) return true;
 
@@ -280,6 +281,7 @@ internal static class TooltipPipeline
     {
         try
         {
+            if (!ModSettings.InfoEnhance) return true;
             var item = _current;
             if (item == null || string.IsNullOrEmpty(text)) return true;
             if (!item.IsTag("CALORIE_VALUE_TAG")) return true;

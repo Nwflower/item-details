@@ -59,56 +59,6 @@ calorie.line,Energia: {0} {1}
 calorie.per_cell," ({0} {1}/célula)"
 calorie.unit,kcal
 condition.line,Estado: {0} {1}
-config.auth,Autenticidade
-config.auth.tip,"Mostra conclusões de autêntico/falsificado e as falhas específicas em injetores, cigarros e cupons de comida. O valor real só é adicionado quando registrado."
-config.container,Detalhes do recipiente
-config.container.tip,"Mostra a taxa de compressão (células internas ÷ células do item), o conteúdo e o valor total."
-config.contraband,Acréscimo do mercado negro (contrabando)
-config.contraband.tip,Acrescenta o ágio do mercado negro (Baixo 35 / Médio 70 / Alto 100 / Crítico 150). O nível de contrabando em si é mostrado pelo jogo base.
-config.customer_alert,Alerta de chegada de cliente
-config.customer_alert.tip,"Avisa quando chega um cliente procurado ou aumentado, incluindo a recompensa real, o nome real e o nível de aumento."
-config.dim_description,Escurecer descrição do item
-config.dim_description.tip,"Exibe as descrições dos itens em cinza para destacar as informações de avaliação. Só muda a cor, não o texto."
-config.double_click_inspect,Clique duplo para inspecionar
-config.double_click_inspect.tip,Abre a inspeção de itens de avaliação ou autenticidade (injetores, cigarros, selos etc.) com clique duplo, sem lupa. Também altera o texto de ajuda; desative para restaurar o fluxo original.
-config.hidden_truth,Revelar disfarces e atributos reais
-config.hidden_truth.tip,"Mostra as diferenças reais de estado, a durabilidade real e a pureza de lingotes/produtos químicos. Expõe falsificações diretamente e reduz a dificuldade da avaliação."
-config.hide_estimate_value,Ocultar linha de estimativa do jogo base
-config.hide_estimate_value.tip,"Essas linhas mostram a oferta do cliente, não o valor real da avaliação. Só são ocultadas em itens de avaliação e quando o total pode ser calculado."
-config.lottery,Acertos e prêmio da loteria
-config.lottery.tip,"Após o sorteio, mostra quantos números acertaram e o prêmio. O jogo base só colore os números acertados."
-config.module_effects,Variações reais dos efeitos de módulo
-config.module_effects.tip,"O jogo base só lista percentuais como desempenho/eficiência/qualidade +16%. Aqui acrescentamos os valores calculados pelo jogo: velocidade de processamento para desempenho, consumo de energia para eficiência e qualidade ajustada para qualidade (apenas máquinas com taxa de qualidade). Tudo derivado das etiquetas do item; máquinas sem esses dados mantêm a linha do jogo base."
-config.name_label_background,Fundo do rótulo de nome
-config.name_label_background.tip,Desenha um fundo preto translúcido atrás do nome em ícones carregados.
-config.name_label_background_alpha,Opacidade do fundo
-config.name_label_background_alpha.tip,"Opacidade do fundo, 0-1."
-config.name_label_mode,Nomes nos ícones
-config.name_label_mode.tip,Desligado: oculta os nomes. Recipientes: só recipientes e máquinas. Só renomeados: só itens renomeados com a impressora de etiquetas.
-config.name_label_position,Posição do nome no ícone
-config.name_label_position.tip,Em que parte do ícone do item o nome fica.
-config.plant,Detalhes da planta
-config.plant.tip,Frutas mostram a qualidade (normal/mofada/imatura); sementes mostram as características e os níveis.
-config.price_impact,"Rótulo, condição e impacto de mercado"
-config.price_impact.tip,"Acrescenta o modificador de preço depois das linhas de rótulo e condições como Amassado/Enferrujado, e lista os eventos ativos da loja que afetam o item. O jogo base só mostra os nomes."
-config.scratcher,Resultado da raspadinha
-config.scratcher.tip,Mostra o prêmio (ou nenhum prêmio) e o progresso antes de raspar. Recálculo somente leitura; nunca raspa por você. Desative para ocultar o resultado.
-config.sealed_box,Conteúdo de recipientes selados
-config.sealed_box.tip,Lista o conteúdo e o valor total de recipientes trancados antes de destrancar. Ignora a tranca; desligado por padrão.
-config.section.customer,Alertas de clientes
-config.section.display,Exibição
-config.section.interaction,Interação e visual
-config.section.reveal,Revelação
-config.type_badge,Etiquetas de tipo
-config.type_badge.tip,"Mostra os tipos do item acima da dica como placas coloridas com texto branco: medicina/água/drogas/venenos azul, tabaco/álcool dourado, luxo rosa, comida verde, artigos domésticos ciano, armas/armadura turquesa, ferramentas/materiais roxo, proibido/restrito vermelho escuro, outros cinza. Desative para voltar à linha [tipo] original."
-config.value,Detalhes de valor e avaliação
-config.value.tip,"Em itens de avaliação: valor total, faixa de oferta perfeita, detalhamento por origem e motivos de falsificação; o título da avaliação também mostra o preço real. Tipos de avaliação desconhecidos ou de mods usam um detalhamento medido."
-config.value_enhance,Valor por célula (não avaliação)
-config.value_enhance.tip,Em itens que não são de avaliação: valor unitário × quantidade e valor por célula ocupada. Itens de avaliação são pulados porque já mostram o valor real.
-config.water_purity,Qualidade da água e dicas
-config.water_purity.tip,"Mostra a pureza em %, o nome da faixa do jogo base, as impurezas, o volume de líquido não-água e dicas de tratamento sem precisar do testador de água. Desative para voltar ao fluxo do jogo base (testador necessário). Se um mod dedicado de água (ex.: AquaSense) estiver ativo, ele assume esta seção."
-config.wine,Pontuação e composição do vinho
-config.wine.tip,"Mostra dados do vinho que o jogo base esconde: pontuação e faixa, extrato/contaminante, falsificação (levedura ilegal), dias de envelhecimento e bônus por dia, progresso da fermentação."
 contraband.markup,Mercado negro: +{0}%
 generic.combined,· Combinado/outros {0}
 generic.header,Detalhamento de valor (medido):
@@ -189,8 +139,31 @@ wine.state,Vinho: {0}
 wine.tier,", faixa {0}"
 wine.unknown_state,Desconhecido({0})
 wine.yeast_power,Força da levedura: {0}/ciclo
+machine.battery_line,Energia restante: {0} ({1} dias)
+config.section.display,Otimização de exibição
+config.item_appraisal,Avaliação do item
+config.item_appraisal.tip,Combina autenticidade, detalhamento de valor, faixa de oferta perfeita, motivos de falsificação e informações de plantas.
+config.info_enhance,Melhorias de informação
+config.info_enhance.tip,Combina valor por célula, impacto de rótulos/mercado, valores de módulos, bateria da máquina, contêineres, acréscimo de contrabando, loteria, descrições esmaecidas e preços de venda/compra.
+config.type_badge,Etiquetas de tipo
+config.type_badge.tip,"Mostra os tipos do item acima da dica como placas coloridas com texto branco: medicina/água/drogas/venenos azul, tabaco/álcool dourado, luxo rosa, comida verde, artigos domésticos ciano, armas/armadura turquesa, ferramentas/materiais roxo, proibido/restrito vermelho escuro, outros cinza. Desative para voltar à linha [tipo] original."
+config.container_name,Nomes em contêineres e máquinas
+config.container_name.tip,Mostra nomes sob contêineres e máquinas. Posição fixa na parte inferior.
+config.container_name_bg,Fundo dos nomes dos ícones
+config.container_name_bg.tip,Adiciona um fundo preto translúcido atrás do nome. Opacidade fixa em 0,6.
+config.customer_alert,Alerta de chegada de cliente
+config.customer_alert.tip,"Avisa quando chega um cliente procurado ou aumentado, incluindo a recompensa real, o nome real e o nível de aumento."
+config.section.interaction,Otimização de operação
+config.double_click_inspect,Clique duplo para inspecionar
+config.double_click_inspect.tip,Abre a inspeção de itens de avaliação ou autenticidade (injetores, cigarros, selos etc.) com clique duplo, sem lupa. Também altera o texto de ajuda; desative para restaurar o fluxo original.
+config.section.reveal,Revelação
+config.hidden_truth,Revelar discrepâncias
+config.hidden_truth.tip,"Mostra as diferenças reais de estado, a durabilidade real e a pureza de lingotes/produtos químicos. Expõe falsificações diretamente e reduz a dificuldade da avaliação."
+config.water_wine,Análise de água
+config.water_wine.tip,Combina pureza, impurezas e dicas de purificação da água com pontuação e composição do vinho. Não exige testador de água.
+config.scratcher,Prévia do raspadinha
+config.scratcher.tip,Mostra o prêmio (ou nenhum prêmio) e o progresso antes de raspar. Recálculo somente leitura; nunca raspa por você. Desative para ocultar o resultado.
+config.sealed_box,Raio-X de contêineres
+config.sealed_box.tip,Lista o conteúdo e o valor total de recipientes trancados antes de destrancar. Ignora a tranca; desligado por padrão.
 config.result_prefill,Preencher resultado
 config.result_prefill.tip,Ao abrir o painel de inspeção, marca os defeitos reais de falsificação e preenche a melhor oferta de avaliação. Apenas preenche os controles; nunca envia nem confirma. Desativado por padrão.
-config.machine_battery,Bateria da máquina
-config.machine_battery.tip,Mostra a energia restante da bateria instalada e os dias estimados diretamente abaixo da linha de energia diária da máquina. Máquinas sem bateria são ignoradas.
-machine.battery_line,Energia restante: {0} ({1} dias)

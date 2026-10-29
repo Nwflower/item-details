@@ -59,56 +59,6 @@ calorie.line,エネルギー：{0} {1}
 calorie.per_cell,（{0} {1}/マス）
 calorie.unit,kcal
 condition.line,状態：{0} {1}
-config.auth,真贋鑑定
-config.auth.tip,注射器/タバコ/フードスタンプの真贋と不合格項目を表示。登録済みの真価がある品にだけ真価を追加します。
-config.container,コンテナ情報
-config.container.tip,圧縮率（内部マス÷本体マス）、中身の一覧、合計価値を表示。
-config.contraband,禁制品の闇市場割増
-config.contraband.tip,闇市場の割増率を追記（低35 / 中70 / 高100 / 深刻150）。禁制品等級そのものはバニラ表示。
-config.customer_alert,来客アラート
-config.customer_alert.tip,指名手配犯や改造体の客が来店した時に通知。実際の懸賞金、本名、改造体レベルを表示。
-config.dim_description,説明文を暗く
-config.dim_description.tip,アイテム説明をグレー表示にして鑑定情報を目立たせます。色のみ変更しテキストは変えません。
-config.double_click_inspect,ダブルクリックで鑑定
-config.double_click_inspect.tip,鑑定対象や真偽確認対象（注射器・タバコ・切手など）をダブルクリックで虫眼鏡なしに検査画面へ開きます。ヒント文も変更します。オフで元の操作に戻ります。
-config.hidden_truth,偽装と真の性能を暴露
-config.hidden_truth.tip,偽装前の真の状態差、真の耐久、インゴット/薬品の真の純度を表示。偽物が露見し鑑定が易しくなります。
-config.hide_estimate_value,バニラの推定価格行を隠す
-config.hide_estimate_value.tip,その2行は客の提示額で真の鑑定価格ではありません（大きくずれることも）。鑑定品のみ、合計を算出できる時だけ隠します。
-config.lottery,宝くじの当選数と賞金
-config.lottery.tip,抽選後、一致した番号数と賞金を表示。バニラは当選番号の色替えのみ。
-config.module_effects,モジュール効果の実数値
-config.module_effects.tip,バニラは「性能/効率/品質 +16%」等の割合のみ。その行の後にゲームが算出した実値を追記：性能=加工速度、効率=消費電力、品質=品質換算値（品質比率のある機械のみ）。全てアイテムタグ由来で、データの無い機械はバニラの割合のまま。
-config.name_label_background,名前ラベルの背景
-config.name_label_background.tip,柄の多いアイコンでも読めるよう、名前に半透明の黒地を敷きます。
-config.name_label_background_alpha,背景の不透明度
-config.name_label_background_alpha.tip,背景の不透明度（0–1）。
-config.name_label_mode,アイコンに名前を表示
-config.name_label_mode.tip,なし：非表示。コンテナ名：コンテナと機械のみ。改名品のみ：ラベルプリンタで改名した品のみ。
-config.name_label_position,名前ラベルの位置
-config.name_label_position.tip,アイコン上で名前を出す位置（下/中/上）。
-config.plant,植物情報
-config.plant.tip,ベリーは品質（正常/カビ/未熟など）を、種は持つ形質と等級を表示。
-config.price_impact,ラベル・状態・市場影響
-config.price_impact.tip,ラベル行や凹み/錆などの状態の後に価格影響%を追記し、有効な店舗イベントの補正も一覧します。バニラは名前のみ。
-config.scratcher,スクラッチ結果
-config.scratcher.tip,削る前に当たり額（またははずれ）と進行度を表示。同一ルールの読み取り専用再計算で、代わりに削りはしません。オフで非表示。
-config.sealed_box,密封箱の中身と価値
-config.sealed_box.tip,施錠された容器（金庫/銃棚）も開錠前に中身と合計価値を一覧。開錠を飛ばすのと同じなので既定はオフ。
-config.section.customer,客への警告
-config.section.display,表示内容
-config.section.interaction,操作と外観
-config.section.reveal,透視
-config.type_badge,アイテム分類ラベル
-config.type_badge.tip,"ツールチップ上部にアイテム分類を色付きの底板と白文字で表示します：医療/水/薬物/毒は青、煙草/酒は金、奢侈品はピンク、食料は緑、日用品はシアン、武器/防具は青緑、道具/材料は紫、違法/制限は暗赤、その他は灰色。オフにすると元の [分類] 行に戻ります。"
-config.value,価値構成と鑑定情報
-config.value.tip,鑑定品は総額、完璧な提示額レンジ、内訳、偽物の理由を表示。鑑定サービスの見出しには真の価格も付きます。未知やMOD追加の鑑定種別は実測内訳を使います。
-config.value_enhance,マス当たり価値（非鑑定品）
-config.value_enhance.tip,非鑑定品は単価×数量とマス当たり価値（価値÷占有マス）を表示。鑑定品は真価があるため重複表示しません。
-config.water_purity,水質と助言
-config.water_purity.tip,液体の純度%、バニラの段階名、不純物、非水液体の量、処理の助言を水質検査器なしで表示。オフでバニラ手順（検査器必須）に戻ります。専用水質MOD（AquaSense等）が有効な時はそのMODに譲ります。
-config.wine,ワインの点数と成分
-config.wine.tip,バニラが隠す醸造データを表示：ワイン点数と段階、糖度/汚染物質、偽物（違法酵母）、熟成日数と日割り加算、発酵進行。
 contraband.markup,闇市場：+{0}%
 generic.combined,· 組合せ/その他 {0}
 generic.header,価値の内訳（実測）：
@@ -189,8 +139,31 @@ wine.state,ワイン：{0}
 wine.tier,、第 {0} 段階
 wine.unknown_state,不明（{0}）
 wine.yeast_power,酵母の力：{0}/回
+machine.battery_line,残りエネルギー：{0}（{1}日）
+config.section.display,表示最適化
+config.item_appraisal,アイテム鑑定
+config.item_appraisal.tip,真偽判定、価値構成、完璧な提示額レンジ、偽物の理由、植物情報をまとめて表示します。
+config.info_enhance,情報強化
+config.info_enhance.tip,セル当たり価値、ラベル/市場影響、モジュール実値、機械バッテリー、コンテナ情報、闇市場上乗せ、宝くじ情報、説明の淡色化、売値/仕入値表示をまとめます。
+config.type_badge,アイテム分類ラベル
+config.type_badge.tip,"ツールチップ上部にアイテム分類を色付きの底板と白文字で表示します：医療/水/薬物/毒は青、煙草/酒は金、奢侈品はピンク、食料は緑、日用品はシアン、武器/防具は青緑、道具/材料は紫、違法/制限は暗赤、その他は灰色。オフにすると元の [分類] 行に戻ります。"
+config.container_name,コンテナ/機械の外観名
+config.container_name.tip,コンテナと機械の下に名前を表示します。位置は下部固定です。
+config.container_name_bg,外観名の半透明背景
+config.container_name_bg.tip,名前に半透明の黒背景を付けます。不透明度は 0.6 固定です。
+config.customer_alert,来客アラート
+config.customer_alert.tip,指名手配犯や改造体の客が来店した時に通知。実際の懸賞金、本名、改造体レベルを表示。
+config.section.interaction,操作最適化
+config.double_click_inspect,ダブルクリックで鑑定
+config.double_click_inspect.tip,鑑定対象や真偽確認対象（注射器・タバコ・切手など）をダブルクリックで虫眼鏡なしに検査画面へ開きます。ヒント文も変更します。オフで元の操作に戻ります。
+config.section.reveal,透視
+config.hidden_truth,偽物・不一致を暴く
+config.hidden_truth.tip,偽装前の真の状態差、真の耐久、インゴット/薬品の真の純度を表示。偽物が露見し鑑定が易しくなります。
+config.water_wine,水質分析
+config.water_wine.tip,水の純度・不純物・浄化提案と、ワインのスコア・成分分析をまとめます。水質検査キットは不要です。
+config.scratcher,スクラッチカードの事前確認
+config.scratcher.tip,削る前に当たり額（またははずれ）と進行度を表示。同一ルールの読み取り専用再計算で、代わりに削りはしません。オフで非表示。
+config.sealed_box,密封コンテナ透視
+config.sealed_box.tip,施錠された容器（金庫/銃棚）も開錠前に中身と合計価値を一覧。開錠を飛ばすのと同じなので既定はオフ。
 config.result_prefill,結果を事前入力
 config.result_prefill.tip,鑑定パネルを開いたとき、実際の偽造箇所を選択し、鑑定価格に最適な提示額を入力します。入力欄を埋めるだけで、送信や確定は行いません。既定ではオフです。
-config.machine_battery,マシンのバッテリー
-config.machine_battery.tip,搭載バッテリーの残りエネルギーと推定稼働日数を、機械の1日あたりエネルギー行の直下に表示します。バッテリーのない機械は表示しません。
-machine.battery_line,残りエネルギー：{0}（{1}日）

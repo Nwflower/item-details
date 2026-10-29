@@ -59,56 +59,6 @@ calorie.line,能量：{0}{1}
 calorie.per_cell,（{0}{1}／格）
 calorie.unit,千卡
 condition.line,状态：{0} {1}
-config.auth,真伪鉴定
-config.auth.tip,注射器/香烟/食品券显示正品/赝品结论与具体不合格项；只有存在已注册真实价值的物品才补充真实价值。
-config.container,容器信息
-config.container.tip,容器显示压缩率（内部格数÷自身占格）、内容物清单与合计价值。
-config.contraband,违禁品黑市溢价
-config.contraband.tip,违禁品追加黑市溢价百分比（低35/中70/高100/严重150）；违禁等级本身由原版显示。
-config.customer_alert,顾客到店提示
-config.customer_alert.tip,顾客到店时提示是否为通缉犯或改造体，并给出实际举报奖励、通缉犯真名与改造体等级。
-config.dim_description,描述文本淡化
-config.dim_description.tip,把物品描述改成灰色，降低视觉权重，让鉴定信息更突出。只改颜色不改文本。
-config.double_click_inspect,双击待鉴定物品直接鉴定
-config.double_click_inspect.tip,双击待鉴定物品或真伪鉴定物品（注射器/香烟/粮票等）直接打开检视面板，不必先用放大镜；提示文案同步改为双击提示。关闭则恢复原版流程与原文案。
-config.hidden_truth,揭示伪装与真实属性
-config.hidden_truth.tip,显示被伪装前的真实条件差异、真实耐久与锭/化学品真实纯度。会直接暴露假货，明显降低鉴定难度。
-config.hide_estimate_value,隐藏原版「预估价值」行
-config.hide_estimate_value.tip,那两行显示的是顾客报价，与鉴定真实价无关（可能差很多），容易误读。只在鉴定物品上隐藏，且我们算不出总价时不隐藏。
-config.lottery,彩票命中数与奖金
-config.lottery.tip,开奖后显示命中几个号码与对应奖金；原版只把命中的号码变色。
-config.module_effects,模组效果的实际变更
-config.module_effects.tip,机器装模块后，原版只写「性能/效率/质量 +16%」这类百分比。这里直接在该行后面补上游戏算好的实际值：性能=加工速度变化、效率=耗电变化、质量=品质折算值（仅限设置了品质比率的机器）。三项都按物品标签推导，没有对应数据的机器保留原版百分比。
-config.name_label_background,图标名半透明底
-config.name_label_background.tip,给名字垫一层半透明黑底，压在花纹复杂的图标上更清楚。
-config.name_label_background_alpha,底色不透明度
-config.name_label_background_alpha.tip,半透明底的不透明度（0–1）。
-config.name_label_mode,图标显示名称
-config.name_label_mode.tip,无：不显示。容器名：只给容器与机器。仅改名物品：只显示用标签打印机改过名的物品。
-config.name_label_position,图标名位置
-config.name_label_position.tip,名字贴在物品图标的下/中/上哪一侧。
-config.plant,植物信息
-config.plant.tip,荧光莓显示品质（正常/发霉/未成熟等）；种子显示携带性状与等级。
-config.price_impact,标签、瑕疵与市场影响
-config.price_impact.tip,在标签行与「凹陷/锈蚀」等状态后追加价格影响百分比，并列出当前生效的店铺事件对这件物品的修正；原版只写名字不写数值。
-config.scratcher,刮刮卡结果
-config.scratcher.tip,未刮开就给出中奖金额（或不中奖）与已刮进度。按游戏同一套规则只读复算，不替玩家刮开；关闭后则不显示结果。
-config.sealed_box,密封箱内容与价值
-config.sealed_box.tip,带锁容器（保险箱/枪柜）未开锁时也列出箱内物品与箱内总价值。等于绕过开锁环节，默认关闭。
-config.section.customer,顾客提示
-config.section.display,显示内容
-config.section.interaction,交互与外观
-config.section.reveal,透视
-config.type_badge,物品分类标签
-config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒金、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
-config.value,价值构成与鉴定信息
-config.value.tip,鉴定物品显示总价、完美报价区间、来源明细与赝品原因；鉴定服务标题附带真实价格。未知或模组新增的鉴定类型使用实测分解。
-config.value_enhance,性价比（非鉴定物品）
-config.value_enhance.tip,非鉴定物品显示单价×数量与性价比（价值÷占格）。鉴定物品已有真实价，不再重复显示，避免与顾客报价混淆。
-config.water_purity,水质与建议
-config.water_purity.tip,液体显示纯度百分比、游戏档位名、杂质构成与非水液体体积，并给出处理建议。开启时不需要水质检测仪；关闭后恢复原版流程（需检测仪/试纸）。同时启用专门的水质模组（如 AquaSense）时，这一段让给该模组显示。
-config.wine,酒的分数与成分
-config.wine.tip,显示原版隐藏的酿造数据：酒分数与档位、糖度/污染物、是否赝品（非法酵母）、陈化天数与每日加成、发酵进度。
 contraband.markup,黑市溢价：+{0}%
 generic.combined,· 组合/其它 {0}
 generic.header,价值分解（实测）：
@@ -189,8 +139,31 @@ wine.state,酒：{0}
 wine.tier,，第 {0} 档
 wine.unknown_state,未知({0})
 wine.yeast_power,酵母力度：{0}/次
+machine.battery_line,剩余能量：{0}（{1}天）
+config.section.display,显示优化
+config.item_appraisal,物品鉴定
+config.item_appraisal.tip,合并真伪鉴定、价值构成、完美报价区间、赝品原因与植物信息。
+config.info_enhance,信息增强
+config.info_enhance.tip,合并性价比、标签与市场影响、模组效果实际值、机器电池、容器信息、黑市溢价、彩票信息、描述淡化与售价/进价显示优化。
+config.type_badge,物品分类标签
+config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒金、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
+config.container_name,容器和机器外显文本
+config.container_name.tip,只给容器和机器显示名称，位置固定底部。
+config.container_name_bg,外显文本半透明底
+config.container_name_bg.tip,给外显文本加半透明黑底，不透明度固定 0.6。
+config.customer_alert,顾客到店提示
+config.customer_alert.tip,顾客到店时提示是否为通缉犯或改造体，并给出实际举报奖励、通缉犯真名与改造体等级。
+config.section.interaction,操作优化
+config.double_click_inspect,双击待鉴定物品直接鉴定
+config.double_click_inspect.tip,双击待鉴定物品或真伪鉴定物品（注射器/香烟/粮票等）直接打开检视面板，不必先用放大镜；提示文案同步改为双击提示。关闭则恢复原版流程与原文案。
+config.section.reveal,透视
+config.hidden_truth,揭示货不对板
+config.hidden_truth.tip,显示被伪装前的真实条件差异、真实耐久与锭/化学品真实纯度。会直接暴露假货，明显降低鉴定难度。
+config.water_wine,水质鉴定
+config.water_wine.tip,合并水质纯度、杂质与净化建议，以及酒的分数和成分分析；开启时不需要水质检测仪。
+config.scratcher,刮刮卡提前看
+config.scratcher.tip,未刮开就给出中奖金额（或不中奖）与已刮进度。按游戏同一套规则只读复算，不替玩家刮开；关闭后则不显示结果。
+config.sealed_box,密封箱透视
+config.sealed_box.tip,带锁容器（保险箱/枪柜）未开锁时也列出箱内物品与箱内总价值。等于绕过开锁环节，默认关闭。
 config.result_prefill,结果预填
 config.result_prefill.tip,打开鉴定面板时自动勾选赝品的实际问题，并把鉴定价格填成最优报价。只预填控件，不自动提交或确认。默认关闭。
-config.machine_battery,机器电池
-config.machine_battery.tip,显示机器电池的剩余能量和按当前每日耗能估算的可运行天数，直接列在「所需能量」行下面；未装电池的机器不显示。
-machine.battery_line,剩余能量：{0}（{1}天）

@@ -34,7 +34,6 @@ PLACEHOLDER = re.compile(r"\{(\d+)\}")
 # 少了它们，设置面板的分组标题在非英语下仍是英文，而校验器还会说「齐全」。
 INDIRECT_KEYS = {
     "config.section.display": "Display",
-    "config.section.customer": "Customer Alerts",
     "config.section.reveal": "Reveal",
     "config.section.interaction": "Interaction & Visuals",
 }

@@ -59,56 +59,6 @@ calorie.line,Énergie: {0} {1}
 calorie.per_cell," ({0} {1}/case)"
 calorie.unit,kcal
 condition.line,État: {0} {1}
-config.auth,Authenticité
-config.auth.tip,"Affiche le verdict authentique/contrefaçon et les contrôles échoués pour seringues, cigarettes et tickets alimentaires. La valeur réelle n'est ajoutée que si elle est enregistrée."
-config.container,Détails du conteneur
-config.container.tip,"Affiche le taux de compression (cases internes ÷ cases de l'objet), le contenu et la valeur totale."
-config.contraband,Majoration marché noir (contrebande)
-config.contraband.tip,Ajoute la majoration marché noir (faible 35 / moyen 70 / élevé 100 / critique 150). Le niveau de contrebande est affiché par le jeu de base.
-config.customer_alert,Alerte d'arrivée client
-config.customer_alert.tip,"Alerte quand un client recherché ou augmenté arrive, avec la prime réelle, le vrai nom et le niveau d'augmentation."
-config.dim_description,Description atténuée
-config.dim_description.tip,"Affiche les descriptions en gris pour faire ressortir l'expertise. Couleur seulement, aucun texte modifié."
-config.double_click_inspect,Double-clic pour expertiser
-config.double_click_inspect.tip,Ouvre l’inspection des objets à expertiser ou à authentifier (injecteurs, cigarettes, timbres, etc.) par double-clic, sans loupe. Modifie aussi le texte d’aide ; désactivez pour revenir au flux d’origine.
-config.hidden_truth,Révéler déguisements et vraies stats
-config.hidden_truth.tip,"Affiche les vrais écarts d'état, la vraie durabilité et la pureté réelle des lingots/produits chimiques. Expose les faux et baisse la difficulté d'expertise."
-config.hide_estimate_value,Masquer la ligne d'estimation d'origine
-config.hide_estimate_value.tip,"Ces lignes montrent l'offre du client, pas la vraie valeur d'expertise. Masquées uniquement sur les objets à expertiser et quand un total est calculable."
-config.lottery,Loterie: numéros et prix
-config.lottery.tip,"Après le tirage, affiche le nombre de numéros trouvés et le prix. Le jeu de base ne colore que les numéros trouvés."
-config.module_effects,Effets réels des modules
-config.module_effects.tip,"Le jeu de base n'affiche que des pourcentages comme performance/efficacité/qualité +16%. Ici s'ajoutent les valeurs calculées: vitesse de traitement pour la performance, consommation pour l'efficacité, qualité ajustée pour la qualité (machines avec ratio de qualité). Tout dérive des tags d'objet; sans données, la ligne d'origine reste."
-config.name_label_background,Fond d'étiquette de nom
-config.name_label_background.tip,Dessine une plaque noire translucide derrière le nom pour les icônes chargées.
-config.name_label_background_alpha,Opacité du fond
-config.name_label_background_alpha.tip,Opacité de la plaque de fond (0-1).
-config.name_label_mode,Noms sur les icônes
-config.name_label_mode.tip,Aucun: masquer. Conteneurs: conteneurs et machines seulement. Renommés: seulement les objets renommés avec l'imprimante d'étiquettes.
-config.name_label_position,Position de l'étiquette
-config.name_label_position.tip,Où le nom se place sur l'icône de l'objet.
-config.plant,Détails des plantes
-config.plant.tip,Les baies affichent leur qualité (normale/moisie/pas mûre); les graines affichent leurs traits et rangs.
-config.price_impact,"Étiquette, état et marché"
-config.price_impact.tip,"Ajoute le modificateur de prix après les étiquettes et les états comme Bosselé/Rouillé, et liste les événements de boutique actifs sur l'objet. Le jeu de base n'affiche que les noms."
-config.scratcher,Résultat de la carte à gratter
-config.scratcher.tip,Affiche le prix (ou l'absence de prix) et la progression avant de gratter. Recalcul en lecture seule; ne gratte jamais à votre place. Désactivez pour masquer le résultat.
-config.sealed_box,Contenu des boîtes scellées
-config.sealed_box.tip,Liste le contenu et la valeur totale des conteneurs verrouillés avant l'ouverture. Contourne la serrure; désactivé par défaut.
-config.section.customer,Alertes clients
-config.section.display,Affichage
-config.section.interaction,Interaction et affichage
-config.section.reveal,Révélation
-config.type_badge,Étiquettes de type
-config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool doré, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
-config.value,Valeur et détails d'expertise
-config.value.tip,"Pour les objets à expertiser: valeur totale, fourchette d'offre parfaite, détail des sources et raisons de contrefaçon; le titre d'expertise affiche aussi le vrai prix. Types inconnus ou moddés: décomposition mesurée."
-config.value_enhance,Valeur par case (hors expertise)
-config.value_enhance.tip,Pour les objets hors expertise: valeur unitaire × quantité et valeur par case occupée. Les objets à expertiser sont ignorés car ils affichent déjà la vraie valeur.
-config.water_purity,Qualité de l'eau et conseils
-config.water_purity.tip,"Affiche le pourcentage de pureté, le nom du palier, les impuretés, le volume non aqueux et des conseils, sans testeur d'eau. Désactivez pour revenir au flux d'origine (testeur requis). Si un mod d'eau dédié (ex. AquaSense) est actif, il prend cette section."
-config.wine,Score et composition du vin
-config.wine.tip,"Affiche des données de vin cachées: score et palier, extrait/contaminant, contrefaçon (levure illégale), jours de vieillissement et bonus par jour, progression de fermentation."
 contraband.markup,Marché noir: +{0}%
 generic.combined,· Combiné/autre {0}
 generic.header,Décomposition de la valeur (mesurée):
@@ -189,8 +139,31 @@ wine.state,Vin: {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu({0})
 wine.yeast_power,Force de la levure: {0}/cycle
+machine.battery_line,Énergie restante : {0} ({1} jours)
+config.section.display,Optimisation de l'affichage
+config.item_appraisal,Expertise d'objet
+config.item_appraisal.tip,Combine authenticité, détail de la valeur, fourchette d'offre parfaite, raisons de contrefaçon et infos sur les plantes.
+config.info_enhance,Informations enrichies
+config.info_enhance.tip,Combine valeur par case, impact des étiquettes/marché, valeurs des modules, batterie de machine, conteneurs, majoration de contrebande, loterie, descriptions atténuées et affichage prix de vente/achat.
+config.type_badge,Étiquettes de type
+config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool doré, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
+config.container_name,Noms sur conteneurs et machines
+config.container_name.tip,Affiche les noms sous les conteneurs et machines. Position fixe en bas.
+config.container_name_bg,Fond des noms d'icônes
+config.container_name_bg.tip,Ajoute un fond noir translucide derrière le nom. Opacité fixe à 0,6.
+config.customer_alert,Alerte d'arrivée client
+config.customer_alert.tip,"Alerte quand un client recherché ou augmenté arrive, avec la prime réelle, le vrai nom et le niveau d'augmentation."
+config.section.interaction,Optimisation des commandes
+config.double_click_inspect,Double-clic pour expertiser
+config.double_click_inspect.tip,Ouvre l’inspection des objets à expertiser ou à authentifier (injecteurs, cigarettes, timbres, etc.) par double-clic, sans loupe. Modifie aussi le texte d’aide ; désactivez pour revenir au flux d’origine.
+config.section.reveal,Révélation
+config.hidden_truth,Révéler les écarts
+config.hidden_truth.tip,"Affiche les vrais écarts d'état, la vraie durabilité et la pureté réelle des lingots/produits chimiques. Expose les faux et baisse la difficulté d'expertise."
+config.water_wine,Analyse de l'eau
+config.water_wine.tip,Combine pureté, impuretés et conseils de purification de l'eau avec le score et la composition du vin. Aucun testeur d'eau requis.
+config.scratcher,Aperçu du ticket à gratter
+config.scratcher.tip,Affiche le prix (ou l'absence de prix) et la progression avant de gratter. Recalcul en lecture seule; ne gratte jamais à votre place. Désactivez pour masquer le résultat.
+config.sealed_box,Radiographie des conteneurs
+config.sealed_box.tip,Liste le contenu et la valeur totale des conteneurs verrouillés avant l'ouverture. Contourne la serrure; désactivé par défaut.
 config.result_prefill,Préremplir le résultat
 config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les défauts réels de contrefaçon et remplit la meilleure offre d'expertise. Remplit uniquement les contrôles ; ne valide jamais. Désactivé par défaut.
-config.machine_battery,Batterie de machine
-config.machine_battery.tip,Affiche l'énergie restante de la batterie installée et les jours estimés directement sous la ligne d'énergie quotidienne de la machine. Les machines sans batterie sont ignorées.
-machine.battery_line,Énergie restante : {0} ({1} jours)

@@ -59,56 +59,6 @@ calorie.line,Energia: {0} {1}
 calorie.per_cell," ({0} {1}/kratkę)"
 calorie.unit,kcal
 condition.line,Stan: {0} {1}
-config.auth,Autentyczność
-config.auth.tip,"Pokazuje werdykt oryginał/podróbka i konkretne niezgodności dla strzykawek, papierosów i bonów żywnościowych. Prawdziwa wartość tylko wtedy, gdy jest zarejestrowana."
-config.container,Szczegóły pojemnika
-config.container.tip,"Pokazuje stopień kompresji (kratki wnętrza ÷ kratki przedmiotu), zawartość i łączną wartość."
-config.contraband,Marża czarnorynkowa kontrabandy
-config.contraband.tip,Dopisuje marżę czarnorynkową (niska 35 / średnia 70 / wysoka 100 / krytyczna 150). Sam poziom kontrabandy pokazuje podstawowa gra.
-config.customer_alert,Powiadomienie o przybyciu klienta
-config.customer_alert.tip,"Powiadamia, gdy przychodzi poszukiwany lub augmentowany klient, wraz z faktyczną nagrodą, prawdziwym imieniem i poziomem augmentacji."
-config.dim_description,Przygaszenie opisu przedmiotu
-config.dim_description.tip,"Wyświetla opisy przedmiotów na szaro, by informacje z wyceny były wyraźniejsze. Tylko kolor, bez zmian tekstu."
-config.double_click_inspect,Dwuklik otwiera wycenę
-config.double_click_inspect.tip,Otwiera panel oględzin przedmiotów do wyceny lub weryfikacji autentyczności (iniektory, papierosy, znaczki itp.) po dwukliku, bez lupy. Zmienia też tekst podpowiedzi; wyłącz, aby przywrócić oryginalny przebieg.
-config.hidden_truth,Ujawnianie kamuflażu i prawdziwych statystyk
-config.hidden_truth.tip,"Pokazuje prawdziwe różnice stanu, rzeczywistą wytrzymałość oraz czystość sztabek/chemikaliów. Wprost zdradza podróbki i ułatwia wycenę."
-config.hide_estimate_value,Ukryj szacunek z podstawowej gry
-config.hide_estimate_value.tip,"Te linie pokazują ofertę klienta, a nie prawdziwą wartość z wyceny. Ukrywane tylko na przedmiotach do wyceny i tylko gdy da się policzyć sumę."
-config.lottery,Trafienia i nagroda w loterii
-config.lottery.tip,"Po losowaniu pokazuje, ile liczb trafiło i jaka jest nagroda. Podstawowa gra tylko koloruje trafione liczby."
-config.module_effects,Rzeczywiste zmiany od modułów
-config.module_effects.tip,"Podstawowa gra podaje tylko procenty, np. wydajność/sprawność/jakość +16%. Tutaj dopisujemy wartości policzone przez grę: szybkość przetwarzania dla wydajności, pobór energii dla sprawności, przeliczoną jakość dla jakości (tylko maszyny ze wskaźnikiem jakości). Wszystko wynika z tagów przedmiotu; maszyny bez danych zachowują linię z podstawowej gry."
-config.name_label_background,Tło podpisu z nazwą
-config.name_label_background.tip,"Rysuje półprzezroczystą czarną płytkę pod nazwą, by nazwa była czytelna na pstrokatych ikonach."
-config.name_label_background_alpha,Krycie tła
-config.name_label_background_alpha.tip,"Krycie płytki tła, 0-1."
-config.name_label_mode,Nazwy na ikonach
-config.name_label_mode.tip,Wyłączone: brak nazw. Pojemniki: tylko pojemniki i maszyny. Tylko zmienione: tylko przedmioty przemianowane drukarką etykiet.
-config.name_label_position,Pozycja podpisu
-config.name_label_position.tip,Gdzie nazwa leży na ikonie przedmiotu.
-config.plant,Szczegóły roślin
-config.plant.tip,Jagody pokazują jakość (normalna/spleśniała/niedojrzała); nasiona pokazują cechy i rangi.
-config.price_impact,"Etykieta, stan i wpływ rynku"
-config.price_impact.tip,Dopisuje modyfikator ceny po etykiecie i stanach typu wgniecenie/rdza oraz listę aktywnych wydarzeń sklepu wpływających na przedmiot. Podstawowa gra pokazuje tylko nazwy.
-config.scratcher,Wynik zdrapki
-config.scratcher.tip,"Pokazuje nagrodę (lub jej brak) i postęp zdrapywania przed zdrapaniem. Tylko odczyt i przeliczenie; nigdy nie zdrapuje za ciebie. Wyłącz, by ukryć wynik."
-config.sealed_box,Zawartość zamkniętego pojemnika
-config.sealed_box.tip,Pokazuje zawartość i łączną wartość zamkniętych pojemników przed otwarciem. Omija zamek; domyślnie wyłączone.
-config.section.customer,Alerty o klientach
-config.section.display,Wyświetlanie
-config.section.interaction,Obsługa i wygląd
-config.section.reveal,Ujawnianie
-config.type_badge,Etykiety typu
-config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol złote, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
-config.value,Wartość i szczegóły wyceny
-config.value.tip,"Dla przedmiotów do wyceny: łączna wartość, przedział idealnej oferty, rozbicie źródeł i powody podróbki; tytuł wyceny pokazuje też prawdziwą cenę. Nieznane lub modowe typy wyceny używają rozbicia z pomiaru."
-config.value_enhance,Wartość na kratkę (poza wyceną)
-config.value_enhance.tip,"Dla przedmiotów bez wyceny: wartość sztuki × ilość i wartość na zajętą kratkę. Przedmioty do wyceny są pomijane, bo już pokazują prawdziwą wartość."
-config.water_purity,Jakość wody i porady
-config.water_purity.tip,"Pokazuje % czystości, nazwę progu z podstawowej gry, zanieczyszczenia, objętość nie-wody i porady bez testera wody. Wyłącz, by wrócić do podstawowego trybu (tester wymagany). Gdy aktywny jest osobny mod do wody (np. AquaSense), przejmuje tę sekcję."
-config.wine,Ocena i skład wina
-config.wine.tip,"Pokazuje dane wina ukryte w podstawowej grze: ocenę i próg, ekstrakt/zanieczyszczenia, podróbkę (nielegalne drożdże), dni leżakowania i bonus dzienny, postęp fermentacji."
 contraband.markup,Czarny rynek: +{0}%
 generic.combined,· Łącznie/inne {0}
 generic.header,Rozbicie wartości (pomiar):
@@ -189,8 +139,31 @@ wine.state,Wino: {0}
 wine.tier,", próg {0}"
 wine.unknown_state,Nieznane({0})
 wine.yeast_power,Moc drożdży: {0}/takt
+machine.battery_line,Pozostała energia: {0} ({1} dni)
+config.section.display,Optymalizacja wyświetlania
+config.item_appraisal,Wycena przedmiotu
+config.item_appraisal.tip,Łączy autentyczność, skład wartości, przedział idealnej oferty, powody podróbki i informacje o roślinach.
+config.info_enhance,Wzmocnienie informacji
+config.info_enhance.tip,Łączy wartość na komórkę, wpływ etykiet/rynku, wartości modułów, baterię maszyny, pojemniki, narzut czarnego rynku, loterię, przygaszone opisy i ceny sprzedaży/zakupu.
+config.type_badge,Etykiety typu
+config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol złote, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
+config.container_name,Nazwy pojemników i maszyn
+config.container_name.tip,Pokazuje nazwy pod pojemnikami i maszynami. Pozycja stała na dole.
+config.container_name_bg,Tło nazw ikon
+config.container_name_bg.tip,Dodaje półprzezroczyste czarne tło za nazwą. Krycie stałe 0,6.
+config.customer_alert,Powiadomienie o przybyciu klienta
+config.customer_alert.tip,"Powiadamia, gdy przychodzi poszukiwany lub augmentowany klient, wraz z faktyczną nagrodą, prawdziwym imieniem i poziomem augmentacji."
+config.section.interaction,Optymalizacja obsługi
+config.double_click_inspect,Dwuklik otwiera wycenę
+config.double_click_inspect.tip,Otwiera panel oględzin przedmiotów do wyceny lub weryfikacji autentyczności (iniektory, papierosy, znaczki itp.) po dwukliku, bez lupy. Zmienia też tekst podpowiedzi; wyłącz, aby przywrócić oryginalny przebieg.
+config.section.reveal,Ujawnianie
+config.hidden_truth,Ujawniaj niezgodności
+config.hidden_truth.tip,"Pokazuje prawdziwe różnice stanu, rzeczywistą wytrzymałość oraz czystość sztabek/chemikaliów. Wprost zdradza podróbki i ułatwia wycenę."
+config.water_wine,Analiza wody
+config.water_wine.tip,Łączy czystość, zanieczyszczenia i porady oczyszczania wody z oceną i składem wina. Nie wymaga testera wody.
+config.scratcher,Podgląd zdrapki
+config.scratcher.tip,"Pokazuje nagrodę (lub jej brak) i postęp zdrapywania przed zdrapaniem. Tylko odczyt i przeliczenie; nigdy nie zdrapuje za ciebie. Wyłącz, by ukryć wynik."
+config.sealed_box,Prześwietlanie skrzyń
+config.sealed_box.tip,Pokazuje zawartość i łączną wartość zamkniętych pojemników przed otwarciem. Omija zamek; domyślnie wyłączone.
 config.result_prefill,Wstępne wypełnianie wyniku
 config.result_prefill.tip,Przy otwarciu panelu oględzin zaznacza rzeczywiste wady podróbki i wpisuje najlepszą ofertę wyceny. Wypełnia tylko pola; nigdy nie wysyła ani nie potwierdza. Domyślnie wyłączone.
-config.machine_battery,Bateria maszyny
-config.machine_battery.tip,Pokazuje pozostałą energię zainstalowanej baterii i szacowane dni pracy bezpośrednio pod wierszem dziennego zużycia energii maszyny. Maszyny bez baterii są pomijane.
-machine.battery_line,Pozostała energia: {0} ({1} dni)
