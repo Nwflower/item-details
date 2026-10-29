@@ -1,0 +1,179 @@
+# Item Details Deutsch (de)
+# key,value
+alert.aug_tier,Augmentierungsstufe: {0}
+alert.bounty," (Kopfgeld {0})"
+alert.real_name,Echter Name: {0}
+alert.title_augmented,Augmentierter Kunde
+alert.title_both,Gesucht · Augmentierter Kunde
+alert.title_wanted,Gesucht
+appraisal.armor,Panzerungsmodul
+appraisal.base,Basis
+appraisal.blade,Klingenmodul
+appraisal.build_deluxe,Deluxe-Konfiguration
+appraisal.build_tactical,Taktische Konfiguration
+appraisal.carbon,Carbonfaser-Schale
+appraisal.casing_crack,Gehäusebruch
+appraisal.casing_reinforced,Verstärkung
+appraisal.casing_screws,Lose Schrauben
+appraisal.casing_wear,Leichte Abnutzung
+appraisal.casing_wear_heavy,Starke Abnutzung
+appraisal.damaged,Beschädigt
+appraisal.emgplus,EMG+-Anschluss
+appraisal.finish_cheap,Billige Lackierung
+appraisal.finish_premium,Premium-Lackierung
+appraisal.gold,Vergoldung
+appraisal.iface_unknown,Schnittstellentyp unbekannt
+appraisal.neural,Neuralanschluss
+appraisal.ribwich_deluxe,Deluxe-Kombi
+appraisal.ribwich_double_meat,Doppelfleisch
+appraisal.ribwich_first_batch,Erste Charge
+appraisal.ribwich_month_edge,Erster oder letzter Monat
+appraisal.ribwich_opened,Geöffnet oder Fälschung (pauschal 40)
+appraisal.ribwich_plant_grade_a,Klasse-A-Packbetrieb {0:D2}
+appraisal.ribwich_plant_grade_c,Klasse-C-Packbetrieb {0:D2}
+appraisal.seal_ignition,Ignition Lab Bonus
+appraisal.seal_ll,Wild's Rides Bonus
+appraisal.seal_republic,Republic Naval Bonus
+appraisal.seal_zhonghua,ZhongHua Bonus
+appraisal.worn,Abgenutzt
+auth.counterfeit,✘ Verdacht auf Fälschung ({0})
+auth.genuine,✔ Echt
+berry.dried,Getrocknet
+berry.line,Beerenqualität: {0}
+berry.moldy,Verschimmelt
+berry.normal,Normal
+berry.small,Klein
+berry.unripe,Unreif
+calorie.line,Energie: {0} {1}
+calorie.per_cell," ({0} {1}/Feld)"
+calorie.unit,kcal
+condition.line,Zustand: {0} {1}
+config.auth,Echtheit
+config.auth.tip,"Zeigt Echt/Fälschung-Urteil und konkrete Fehlprüfungen bei Injektoren, Zigaretten und Essensmarken. Der echte Wert wird nur bei registriertem Wert ergänzt."
+config.container,Behälter-Details
+config.container.tip,"Zeigt Kompressionsrate (Innenzellen ÷ eigene Zellen), Inhalt und Gesamtwert."
+config.contraband,Schwarzmarkt-Aufschlag für Schmuggelware
+config.contraband.tip,Ergänzt den Schwarzmarkt-Aufschlag (Niedrig 35 / Mittel 70 / Hoch 100 / Kritisch 150). Die Schmuggelstufe selbst zeigt das Basisspiel.
+config.customer_alert,Hinweis bei Kundenankunft
+config.customer_alert.tip,"Meldet gesuchte oder augmentierte Kunden bei Ankunft, inklusive echtem Kopfgeld, echtem Namen und Augmentierungsstufe."
+config.dim_description,Artikelbeschreibung abdunkeln
+config.dim_description.tip,"Zeigt Artikelbeschreibungen grau, damit die Schätzinfos herausstechen. Nur Farbe, kein Text geändert."
+config.double_click_inspect,Doppelklick zum Prüfen
+config.double_click_inspect.tip,Doppelklick auf einen Schätzartikel öffnet das Schätzfenster ohne Lupe. Ändert den Hinweistext; ausschalten stellt den Standardablauf wieder her.
+config.hidden_truth,Tarnung & echte Werte zeigen
+config.hidden_truth.tip,"Zeigt echte Zustandsunterschiede, echte Haltbarkeit und Barren-/Chemikalienreinheit. Entlarvt Fälschungen direkt und senkt die Schätzschwierigkeit."
+config.hide_estimate_value,Schätzzeile des Basisspiels ausblenden
+config.hide_estimate_value.tip,"Diese Zeilen zeigen das Kundenangebot, nicht den echten Schätzwert. Nur bei Schätzartikeln ausgeblendet, und nur wenn ein Gesamtwert berechenbar ist."
+config.lottery,Lotterie-Treffer & Gewinn
+config.lottery.tip,Zeigt nach der Ziehung die Trefferzahl und den Gewinn. Das Basisspiel färbt nur die Treffer ein.
+config.module_effects,Modul-Effekte (echte Werte)
+config.module_effects.tip,"Das Basisspiel nennt nur Prozente wie Leistung/Effizienz/Qualität +16%. Hier kommen die berechneten Werte dazu: Leistung = Verarbeitungstempo, Effizienz = Stromverbrauch, Qualität = umgerechnete Qualität (nur Maschinen mit Qualitätsverhältnis). Alles aus Item-Tags abgeleitet; Maschinen ohne Daten behalten die Standardzeile."
+config.name_label_background,Hintergrund der Namensplakette
+config.name_label_background.tip,"Legt eine halbtransparente schwarze Platte hinter den Namen, damit unruhige Icons lesbar bleiben."
+config.name_label_background_alpha,Hintergrund-Deckkraft
+config.name_label_background_alpha.tip,"Deckkraft der Hintergrundplatte, 0-1."
+config.name_label_mode,Namensplaketten auf Icons
+config.name_label_mode.tip,"Aus: keine Plaketten. Behälter: nur Behälter und Maschinen. Nur umbenannt: nur Items, die mit dem Etikettendrucker umbenannt wurden."
+config.name_label_position,Position der Namensplakette
+config.name_label_position.tip,Wo der Name auf dem Item-Icon sitzt.
+config.plant,Pflanzen-Details
+config.plant.tip,Beeren zeigen die Qualität (normal/verschimmelt/unreif); Samen zeigen getragene Merkmale und Ränge.
+config.price_impact,"Etikett, Zustand & Markteinfluss"
+config.price_impact.tip,Ergänzt den Preisfaktor nach Etikettzeilen und Zuständen wie Delle/Rost und listet aktive Ladenereignisse zum Item. Das Basisspiel zeigt nur die Namen.
+config.scratcher,Rubbellos-Ergebnis
+config.scratcher.tip,Zeigt vor dem Rubbeln Gewinn (oder keinen) und Fortschritt. Nur Neuberechnung ohne Eingriff; rubbt nie für dich. Ausschalten blendet das Ergebnis aus.
+config.sealed_box,Inhalt versiegelter Behälter
+config.sealed_box.tip,Listet Inhalt und Gesamtwert verschlossener Behälter vor dem Öffnen. Umgeht das Schloss; standardmäßig aus.
+config.section.customer,Kundenwarnungen
+config.section.display,Anzeige
+config.section.interaction,Bedienung & Optik
+config.section.reveal,Einblick
+config.value,Wert & Schätz-Details
+config.value.tip,"Bei Schätzartikeln: Gesamtwert, perfekte Angebotsspanne, Quellenaufschlüsselung und Fälschungsgründe; der Schätztitel zeigt auch den echten Preis. Unbekannte oder gemoddete Schätzarten nutzen eine gemessene Aufschlüsselung."
+config.value_enhance,Wert pro Feld (ohne Schätzung)
+config.value_enhance.tip,"Bei Nicht-Schätzartikeln: Stückwert × Anzahl und Wert pro belegtem Feld. Schätzartikel entfallen, da sie den echten Wert schon zeigen."
+config.water_purity,Wasserqualität & Tipps
+config.water_purity.tip,"Zeigt Reinheit %, Stufennamen des Basisspiels, Verunreinigungen, Nicht-Wasser-Volumen und Behandlungstipps ohne Wassertester. Ausschalten bringt den Standardablauf zurück (Tester nötig). Bei aktivem Wasser-Mod (z. B. AquaSense) übernimmt dieser den Abschnitt."
+config.wine,Weinwertung und Zusammensetzung
+config.wine.tip,"Zeigt vom Basisspiel versteckte Weindaten: Wertung und Stufe, Extrakt/Schadstoff, Fälschung (illegale Hefe), Reifetage und Tagesbonus, Gärfortschritt."
+contraband.markup,Schwarzmarkt: +{0}%
+generic.combined,· Kombiniert/sonstige {0}
+generic.header,Wertaufschlüsselung (gemessen):
+generic.more,· ... und {0} weitere
+generic.other_attributes,· Andere Attribute {0}
+hidden.chem_purity,Chemische Reinheit: {0}%
+hidden.durability,Haltbarkeit: {0}/{1}
+hidden.durability_faked,"Echte Haltbarkeit: {0}/{1} (angezeigt {2}/{3}, wohl gefälscht)"
+hidden.purity,Reinheit: {0}
+hidden.purity_faked,"Echte Reinheit: {0} (angezeigt {1}, wohl gefälscht)"
+hint.double_click,Doppelklick zum Prüfen; Doppelklick auf ein anderes Item zum Wechseln
+list.sep,", "
+lottery.matched_none,Treffer {0}/6 -> kein Gewinn
+lottery.matched_prize,Treffer {0}/6 -> Gewinn {1}
+lottery.not_drawn,Ausgabe {0}: noch nicht gezogen (jeden Samstag)
+lottery.winning,Gewinnzahlen: {0}
+market.line,Markt: {0}
+module.power,{0} Energie/Tag
+module.quality,{0} Qualität
+module.speed,{0} Tempo
+price.buy,"Einkauf: "
+price.cost_close,)
+price.cost_open," (Kosten "
+price.list," Preis: {0}"
+price.sell,Verkauf: {0}
+reveal.modifier,Echter Faktor: {0}% (getarnt {1}%)
+reveal.real,Echt: {0} (getarnt als {1})
+reveal.real_with_mod,Echt: {0} ({1}%) (getarnt als {2})
+ribwich.header,Warum gefälscht:
+ribwich.more,... und {0} weitere
+ribwich.reason_bun_no_pickles,Sesambrötchen ohne Extra-Essiggurken; Deluxe braucht beides
+ribwich.reason_date_missing,Kein Produktionsdatum eingestempelt
+ribwich.reason_davre_missing,Davre-Markierung fehlt
+ribwich.reason_davre_wrong,Davre-Markierung falsch
+ribwich.reason_first_sticker,Erste Charge darf keinen Ribwich-Aufkleber haben
+ribwich.reason_month_range,Monat {0} außerhalb 1-12
+ribwich.reason_pickles_no_bun,Extra-Essiggurken ohne Sesambrötchen; Deluxe braucht beides
+ribwich.reason_plant_missing,Keine Packbetriebsnummer
+ribwich.reason_plant_range,Packbetrieb-Nr. {0} außerhalb 01-35
+ribwich.reason_second_sticker_missing,Zweite Charge: Ribwich-Aufkleber fehlt
+ribwich.reason_second_sticker_wrong,Zweite Charge hat den falschen Ribwich-Aufkleber
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,Jahr {0} außerhalb 425-429 / 432-438
+scratcher.no_prize,Rubbellos: kein Gewinn
+scratcher.progress,Gerubbelt {0}/3
+scratcher.win,Rubbellos: gewinnt {0} ({1} Treffer)
+sealed.contents,Inhalt: {0}{1}
+sealed.empty,Inhalt: leer
+sealed.more," ... {0} gesamt"
+sealed.total,Inhalt gesamt: {0}
+sealed.unit," ({0})"
+seed.header,Merkmale (unanalysiert):
+seed.more,... und {0} weitere
+seed.trait_rank,{0} (Rang {1})
+storage.contains,"Enthält: "
+storage.more_kinds," und {0} Sorten"
+storage.ratio,Kompressionsrate: {0} ({1}/{2} Felder)
+storage.total_value,Gesamtwert: {0}
+title.appraisal_suffix,"{0} Preis {1}, bestes Angebot {2}"
+value.from,"Quelle: "
+value.per_cell,Wert/Feld: {0} ({1}/{2} Felder)
+value.perfect_range," | perfekt {0}-{1}"
+value.total,Gesamt: {0} × {1} = {2}
+value.total_line,Gesamt: {0}
+water.head,Wasser: {0}% {1}
+water.impurities,Verunreinigungen {0}%
+water.list_head,": "
+water.mismatch," (Etikett passt nicht)"
+water.none,: keine
+water.trace,Spur (unter der Anzeigeschwelle)
+wine.aging,Reifebonus: +{0}/Tag (gesamt +{1})
+wine.composition,"Zusammensetzung: Extrakt {0}‰, Schadstoff {1}‰"
+wine.counterfeit,Fälschung: illegale Hefe
+wine.empty,Leer
+wine.fermenting,Gärt
+wine.finished,Fertig
+wine.score,Weinwertung: {0}{1}
+wine.state,Wein: {0}
+wine.tier,", Stufe {0}"
+wine.unknown_state,Unbekannt({0})
+wine.yeast_power,Hefestärke: {0}/Tick

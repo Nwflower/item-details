@@ -143,26 +143,16 @@ internal static class AppraisalTitlePatch
     /// 「鉴定服务 标价&lt;真实价值&gt;，最优报价&lt;完美档上界&gt;」。
     /// 最优报价取完美档上界（真实价 ×105%，与游戏 RNG.CalculatePercentage 同样整数截断），
     /// 即顾客会给到的最高价。
+    ///
+    /// 后缀语言跟**当前 locale** 走。标题本身由 TMPLocalizer 异步本地化，开面板当帧可能
+    /// 还是英文预制体文本，此时会出现「Appraisal Service 标价420」这种半中半英；
+    /// InjectPostfix 会在随后几帧以游戏写好的基线重建，首帧的混合态不会留下。
+    /// 旧版靠判断标题基线是否含 CJK 来选后缀，那只够中英两种语言。
     /// </summary>
     private static string BuildTitle(string original, int trueValue)
     {
         var (_, best) = AppraisalRanges.Perfect(trueValue);
-        // 后缀语言跟着**标题基线**走，不跟着 locale 走：标题由本地化组件异步写入，
-        // 开面板当帧可能还是英文预制体文本，此时按 locale 拼中文会得到
-        // 「Appraisal Service 标价420，最优报价441」这种半中半英。
-        bool zh = BaseIsChinese(original);
-        return zh
-            ? $"{original} 标价{trueValue}，最优报价{best}"
-            : $"{original} List {trueValue}, best offer {best}";
-    }
-
-    /// <summary>标题基线是否中文（含 CJK/全角字符）。空串时回落到当前语言。</summary>
-    private static bool BaseIsChinese(string s)
-    {
-        if (string.IsNullOrEmpty(s)) return Locales.IsChinese;
-        foreach (char c in s)
-            if (c >= 0x2E80) return true;
-        return false;
+        return Loc.T("title.appraisal_suffix", "{0} List {1}, best offer {2}", original, trueValue, best);
     }
 
     private static TextMeshProUGUI? FindTitle(Transform root)

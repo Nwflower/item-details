@@ -32,28 +32,13 @@ internal static class BerryQualityClassifier
         return BerryQuality.Unknown;
     }
 
-    internal static string? DisplayName(BerryQuality q, bool zh)
+    internal static string? DisplayName(BerryQuality q) => q switch
     {
-        if (zh)
-        {
-            return q switch
-            {
-                BerryQuality.Normal => "正常",
-                BerryQuality.Small => "较小",
-                BerryQuality.Moldy => "发霉",
-                BerryQuality.Unripe => "未成熟",
-                BerryQuality.Dried => "干枯",
-                _ => null,
-            };
-        }
-        return q switch
-        {
-            BerryQuality.Normal => "Normal",
-            BerryQuality.Small => "Small",
-            BerryQuality.Moldy => "Moldy",
-            BerryQuality.Unripe => "Unripe",
-            BerryQuality.Dried => "Dried",
-            _ => null,
-        };
-    }
+        BerryQuality.Normal => Loc.T("berry.normal", "Normal"),
+        BerryQuality.Small => Loc.T("berry.small", "Small"),
+        BerryQuality.Moldy => Loc.T("berry.moldy", "Moldy"),
+        BerryQuality.Unripe => Loc.T("berry.unripe", "Unripe"),
+        BerryQuality.Dried => Loc.T("berry.dried", "Dried"),
+        _ => null,
+    };
 }

@@ -200,8 +200,9 @@ internal static class TooltipPipeline
     {
         try
         {
-            long sell = item.GetCurrentValue(false, true, true, false, 0L);
-            long list = item.GetBaseValue();
+            var value = ItemValueCache.Get(item);
+            long sell = value.Sell;
+            long list = value.List;
             return sell > 0 || list > 0;
         }
         catch { return false; }
@@ -211,7 +212,7 @@ internal static class TooltipPipeline
 
     private static string EstimatePrefix()
     {
-        string locale = Locales.Code;
+        string locale = Loc.Code;
         if (_estimatePrefix != null && _estimateLocale == locale) return _estimatePrefix;
         try
         {
@@ -264,7 +265,7 @@ internal static class TooltipPipeline
             if (!string.IsNullOrEmpty(_buyHead) && text.StartsWith(_buyHead!, StringComparison.Ordinal))
             {
                 if (_priceEmbeddedBuy) return false;
-                text = BuyLabel(IsZh()) + text.Substring(_buyHead!.Length);
+                text = Loc.T("price.buy", "Buy: ") + text.Substring(_buyHead!.Length);
             }
             return true;
         }
@@ -295,15 +296,14 @@ internal static class TooltipPipeline
             // 单位后缀 = 数字之后、行尾之前的部分（去掉首尾空白）
             string tail = text.Substring(idx + cal.ToString().Length).Trim();
             if (tail.Length > 6) return true;            // 不是纯卡路里行
-            if (tail.Length == 0) tail = IsZh() ? "千卡" : "kcal";
+            if (tail.Length == 0) tail = Loc.T("calorie.unit", "kcal");
 
             // 去掉后缀里的括号补充（如「（肉类）」），每格只用核心单位
             int cut = tail.IndexOfAny(new[] { '（', '(' });
             string core = cut > 0 ? tail.Substring(0, cut).Trim() : tail;
             if (core.Length == 0) core = tail;
 
-            bool zh = IsZh();
-            string head = zh ? $"能量：{cal}{tail}" : $"Energy: {cal} {tail}";
+            string head = Loc.T("calorie.line", "Energy: {0} {1}", cal, tail);
             builder.Add(head, RenderHandler.ColorPalette.LightCyan);
 
             if (ModSettings.ValueEnhance)
@@ -314,7 +314,8 @@ internal static class TooltipPipeline
                 if (cells > 0)
                 {
                     double per = (double)cal / cells;
-                    builder.Add(zh ? $"（{per:0.#}{core}／格）" : $" ({per:0.#} {core}/cell)",
+                    builder.Add(Loc.T("calorie.per_cell", " ({0} {1}/cell)",
+                                      per.ToString("0.#"), core),
                                 RenderHandler.ColorPalette.Gray);
                 }
             }
@@ -326,10 +327,6 @@ internal static class TooltipPipeline
     }
     /// <summary>当前是否正在构建物品 tooltip（供其它模块判断"这次 Add 属于 tooltip"）。</summary>
     internal static bool IsBuilding => _current != null;
-    private static bool IsZh()
-    {
-        try { return Locales.IsChinese; } catch { return true; }
-    }
 
     /// <summary>
     /// 拼出价格行：`售价：69（进价55+14） 标价60`
@@ -340,26 +337,25 @@ internal static class TooltipPipeline
     {
         try
         {
-            long sell = item.GetCurrentValue(false, true, true, false, 0L);
-            long list = item.GetBaseValue();
+            var value = ItemValueCache.Get(item);
+            long sell = value.Sell;
+            long list = value.List;
             if (sell <= 0 && list <= 0) return false;
 
             int buy = 0;
             try { buy = GameRead.TagInt(item, "BOUGHT_PRICE_TAG") ?? 0; }
             catch { buy = 0; }
 
-            bool zh = IsZh();
-
             // 分段上色（不拼内联 <color>）：内联标签在长行被折行时会被转义成纯文本。
-            string sellPart = zh ? $"售价：{sell}" : $"Sell: {sell}";
-            string buyHead = zh ? "（进价" : " (Cost ";
-            string buyTail = zh ? "）" : ")";
+            string sellPart = Loc.T("price.sell", "Sell: {0}", sell);
+            string buyHead = Loc.T("price.cost_open", " (Cost ");
+            string buyTail = Loc.T("price.cost_close", ")");
             int diff = (int)(sell - buy);
             string diffTxt = diff.ToString("+0;-0;0");
             var diffColor = diff >= 0
                 ? RenderHandler.ColorPalette.LightGreen   // 正 → 绿（赚）
                 : RenderHandler.ColorPalette.LightRed;    // 负 → 红（亏）
-            string listPart = (zh ? " 标价：" : " List: ") + list;
+            string listPart = Loc.T("price.list", " List: {0}", list);
 
             // 宽度预算：超过就拆两行，避免被 tooltip 截断
             int width = DisplayWidth(sellPart) + DisplayWidth(listPart);
@@ -421,13 +417,10 @@ internal static class TooltipPipeline
         }
         return w;
     }
-    private static string HeadLabel(bool zh) => zh ? "售价：" : "Sell: ";
-    private static string MidLabel(bool zh) => zh ? "，标价：" : ", List: ";
-    private static string BuyLabel(bool zh) => zh ? "进价：" : "Buy: ";
 
     private static void EnsurePriceTerms()
     {
-        string locale = Locales.Code;
+        string locale = Loc.Code;
         if (_priceLocale == locale && _estHead != null) return;
 
         try

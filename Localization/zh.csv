@@ -1,0 +1,179 @@
+# Item Details 简体中文 (zh)
+# key,value
+alert.aug_tier,改造体等级：{0}
+alert.bounty,（举报奖励 {0}）
+alert.real_name,真名：{0}
+alert.title_augmented,改造体顾客
+alert.title_both,通缉犯 · 改造体顾客
+alert.title_wanted,通缉犯
+appraisal.armor,装甲组件
+appraisal.base,基础价格
+appraisal.blade,刀刃组件
+appraisal.build_deluxe,豪华型组合
+appraisal.build_tactical,战术型组合
+appraisal.carbon,碳纤维
+appraisal.casing_crack,外壳破裂
+appraisal.casing_reinforced,加固处理
+appraisal.casing_screws,螺丝外露
+appraisal.casing_wear,轻度磨损
+appraisal.casing_wear_heavy,重度磨损
+appraisal.damaged,受损
+appraisal.emgplus,能源标
+appraisal.finish_cheap,低级颜色
+appraisal.finish_premium,高级颜色
+appraisal.gold,镀金
+appraisal.iface_unknown,未知接口规格
+appraisal.neural,神经接口
+appraisal.ribwich_deluxe,豪华版
+appraisal.ribwich_double_meat,双层肉饼
+appraisal.ribwich_first_batch,第一批次
+appraisal.ribwich_month_edge,首月/末月
+appraisal.ribwich_opened,已开封或赝品（固定价）
+appraisal.ribwich_plant_grade_a,优质包装厂 {0:D2}
+appraisal.ribwich_plant_grade_c,劣质包装厂 {0:D2}
+appraisal.seal_ignition,点火实验室加成
+appraisal.seal_ll,王尔德载具加成
+appraisal.seal_republic,共和国海军加成
+appraisal.seal_zhonghua,中华船舶加成
+appraisal.worn,磨损
+auth.counterfeit,✘ 鉴定：疑似赝品（{0}）
+auth.genuine,✔ 鉴定：正品
+berry.dried,干枯
+berry.line,荧光莓品质：{0}
+berry.moldy,发霉
+berry.normal,正常
+berry.small,较小
+berry.unripe,未成熟
+calorie.line,能量：{0}{1}
+calorie.per_cell,（{0}{1}／格）
+calorie.unit,千卡
+condition.line,状态：{0} {1}
+config.auth,真伪鉴定
+config.auth.tip,注射器/香烟/食品券显示正品/赝品结论与具体不合格项；只有存在已注册真实价值的物品才补充真实价值。
+config.container,容器信息
+config.container.tip,容器显示压缩率（内部格数÷自身占格）、内容物清单与合计价值。
+config.contraband,违禁品黑市溢价
+config.contraband.tip,违禁品追加黑市溢价百分比（低35/中70/高100/严重150）；违禁等级本身由原版显示。
+config.customer_alert,顾客到店提示
+config.customer_alert.tip,顾客到店时提示是否为通缉犯或改造体，并给出实际举报奖励、通缉犯真名与改造体等级。
+config.dim_description,描述文本淡化
+config.dim_description.tip,把物品描述改成灰色，降低视觉权重，让鉴定信息更突出。只改颜色不改文本。
+config.double_click_inspect,双击待鉴定物品直接鉴定
+config.double_click_inspect.tip,双击待鉴定物品直接打开鉴定面板，不必先拿放大镜再拖动；提示文案同步改成双击提示。关掉则恢复原版流程与原文案。
+config.hidden_truth,揭示伪装与真实属性
+config.hidden_truth.tip,显示被伪装前的真实条件差异、真实耐久与锭/化学品真实纯度。会直接暴露假货，明显降低鉴定难度。
+config.hide_estimate_value,隐藏原版「预估价值」行
+config.hide_estimate_value.tip,那两行显示的是顾客报价，与鉴定真实价无关（可能差很多），容易误读。只在鉴定物品上隐藏，且我们算不出总价时不隐藏。
+config.lottery,彩票命中数与奖金
+config.lottery.tip,开奖后显示命中几个号码与对应奖金；原版只把命中的号码变色。
+config.module_effects,模组效果的实际变更
+config.module_effects.tip,机器装模块后，原版只写「性能/效率/质量 +16%」这类百分比。这里直接在该行后面补上游戏算好的实际值：性能=加工速度变化、效率=耗电变化、质量=品质折算值（仅限设置了品质比率的机器）。三项都按物品标签推导，没有对应数据的机器保留原版百分比。
+config.name_label_background,图标名半透明底
+config.name_label_background.tip,给名字垫一层半透明黑底，压在花纹复杂的图标上更清楚。
+config.name_label_background_alpha,底色不透明度
+config.name_label_background_alpha.tip,半透明底的不透明度（0–1）。
+config.name_label_mode,图标显示名称
+config.name_label_mode.tip,无：不显示。容器名：只给容器与机器。仅改名物品：只显示用标签打印机改过名的物品。
+config.name_label_position,图标名位置
+config.name_label_position.tip,名字贴在物品图标的下/中/上哪一侧。
+config.plant,植物信息
+config.plant.tip,荧光莓显示品质（正常/发霉/未成熟等）；种子显示携带性状与等级。
+config.price_impact,标签、瑕疵与市场影响
+config.price_impact.tip,在标签行与「凹陷/锈蚀」等状态后追加价格影响百分比，并列出当前生效的店铺事件对这件物品的修正；原版只写名字不写数值。
+config.scratcher,刮刮卡结果
+config.scratcher.tip,未刮开就给出中奖金额（或不中奖）与已刮进度。按游戏同一套规则只读复算，不替玩家刮开；关闭后则不显示结果。
+config.sealed_box,密封箱内容与价值
+config.sealed_box.tip,带锁容器（保险箱/枪柜）未开锁时也列出箱内物品与箱内总价值。等于绕过开锁环节，默认关闭。
+config.section.customer,顾客提示
+config.section.display,显示内容
+config.section.interaction,交互与外观
+config.section.reveal,透视
+config.value,价值构成与鉴定信息
+config.value.tip,鉴定物品显示总价、完美报价区间、来源明细与赝品原因；鉴定服务标题附带真实价格。未知或模组新增的鉴定类型使用实测分解。
+config.value_enhance,性价比（非鉴定物品）
+config.value_enhance.tip,非鉴定物品显示单价×数量与性价比（价值÷占格）。鉴定物品已有真实价，不再重复显示，避免与顾客报价混淆。
+config.water_purity,水质与建议
+config.water_purity.tip,液体显示纯度百分比、游戏档位名、杂质构成与非水液体体积，并给出处理建议。开启时不需要水质检测仪；关闭后恢复原版流程（需检测仪/试纸）。同时启用专门的水质模组（如 AquaSense）时，这一段让给该模组显示。
+config.wine,酒的分数与成分
+config.wine.tip,显示原版隐藏的酿造数据：酒分数与档位、糖度/污染物、是否赝品（非法酵母）、陈化天数与每日加成、发酵进度。
+contraband.markup,黑市溢价：+{0}%
+generic.combined,· 组合/其它 {0}
+generic.header,价值分解（实测）：
+generic.more,· …另有 {0} 项
+generic.other_attributes,· 其他属性 {0}
+hidden.chem_purity,化学纯度：{0}%
+hidden.durability,耐久：{0}/{1}
+hidden.durability_faked,真实耐久：{0}/{1}（显示为 {2}/{3}，疑似伪造）
+hidden.purity,纯度：{0}
+hidden.purity_faked,真实纯度：{0}（显示为 {1}，疑似伪造）
+hint.double_click,双击鉴定；鉴定中双击另一件直接切换
+list.sep,、
+lottery.matched_none,命中 {0}/6 → 未中奖
+lottery.matched_prize,命中 {0}/6 → 奖金 {1}
+lottery.not_drawn,第{0}期尚未开奖（每周六公布）
+lottery.winning,开奖号码：{0}
+market.line,市场：{0}
+module.power,{0}能量/天
+module.quality,{0}品质
+module.speed,{0}速度
+price.buy,进价：
+price.cost_close,）
+price.cost_open,（进价
+price.list," 标价：{0}"
+price.sell,售价：{0}
+reveal.modifier,真实数值修正：{0}%（伪装为 {1}%）
+reveal.real,真实属性：{0}（伪装为 {1}）
+reveal.real_with_mod,真实属性：{0}（{1}%）（伪装为 {2}）
+ribwich.header,赝品原因：
+ribwich.more,…另有 {0} 项
+ribwich.reason_bun_no_pickles,有芝麻面包却没有加量酸黄瓜（豪华版需两者同时）
+ribwich.reason_date_missing,生产日期缺失
+ribwich.reason_davre_missing,缺少达夫雷标志
+ribwich.reason_davre_wrong,达夫雷标志图案不符
+ribwich.reason_first_sticker,第一批次不应有 Ribwich 贴纸
+ribwich.reason_month_range,生产月份 {0}：应为 1–12
+ribwich.reason_pickles_no_bun,有加量酸黄瓜却没有芝麻面包（豪华版需两者同时）
+ribwich.reason_plant_missing,包装厂编号缺失
+ribwich.reason_plant_range,包装厂编号 {0}：应为 01–35
+ribwich.reason_second_sticker_missing,第二批次缺少 Ribwich 贴纸
+ribwich.reason_second_sticker_wrong,第二批次 Ribwich 贴纸图案错误
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,生产年份 {0}：应为 425–429 或 432–438
+scratcher.no_prize,刮刮卡：不会中奖
+scratcher.progress,已刮开 {0}/3
+scratcher.win,刮刮卡：会中奖 {0}（{1} 个相同）
+sealed.contents,箱内：{0}{1}
+sealed.empty,箱内：空
+sealed.more," …共 {0} 件"
+sealed.total,箱内总价值：{0}
+sealed.unit,（{0}）
+seed.header,性状（未分析）：
+seed.more,…另有 {0} 项
+seed.trait_rank,{0}（等级 {1}）
+storage.contains,内含：
+storage.more_kinds," 等 {0} 类"
+storage.ratio,压缩率：{0}（{1}/{2}格）
+storage.total_value,合计价值：{0}
+title.appraisal_suffix,{0} 标价{1}，最优报价{2}
+value.from,来源：
+value.per_cell,性价比：{0}（{1}/{2}格）
+value.perfect_range," ｜ 完美 {0}–{1}"
+value.total,总价：{0} × {1} = {2}
+value.total_line,总价：{0}
+water.head,水质：{0}% {1}
+water.impurities,杂质 {0}%
+water.list_head,：
+water.mismatch,（不匹配）
+water.none,：无
+water.trace,微量（低于显示阈值）
+wine.aging,陈化加成：+{0}/天（共 +{1}）
+wine.composition,成分：糖度 {0}‰、污染物 {1}‰
+wine.counterfeit,啤酒判定：赝品酒（使用非法酵母）
+wine.empty,空瓶（未装填）
+wine.fermenting,发酵中
+wine.finished,已酿成
+wine.score,酒分数：{0}{1}
+wine.state,酒：{0}
+wine.tier,，第 {0} 档
+wine.unknown_state,未知({0})
+wine.yeast_power,酵母力度：{0}/次

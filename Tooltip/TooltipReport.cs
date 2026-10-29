@@ -1,3 +1,4 @@
+#if ITEMDETAILS_SELFTEST
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -114,3 +115,4 @@ h1{font-size:18px;font-weight:600;color:#e8e8e8;margin:0 0 4px;}
         }
     }
 }
+#endif

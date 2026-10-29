@@ -95,39 +95,52 @@ internal static class RibwichReasons
         return list;
     }
 
-    internal static string Text(Reason r, bool zh, int month, int year, int facility)
+    /// <summary>
+    /// 原因的本地化键。文案与参数分开放：纯逻辑层不认识语言，
+    /// 由 <see cref="RibwichCounterfeit"/> 调 <c>Loc.T</c> 拼出最终文本。
+    /// </summary>
+    internal static string Key(Reason r) => r switch
     {
-        switch (r)
-        {
-            case Reason.ProductionDateMissing:
-                return zh ? "生产日期缺失" : "No production date stamped";
-            case Reason.MonthOutOfRange:
-                return zh ? $"生产月份 {month}：应为 1–12" : $"Month {month} outside 1-12";
-            case Reason.YearOutOfRange:
-                return zh ? $"生产年份 {year}：应为 425–429 或 432–438"
-                          : $"Year {year} outside 425-429 / 432-438";
-            case Reason.FacilityMissing:
-                return zh ? "包装厂编号缺失" : "No packing plant number";
-            case Reason.FacilityOutOfRange:
-                return zh ? $"包装厂编号 {facility}：应为 01–35" : $"Plant no. {facility} outside 01-35";
-            case Reason.DavreMissing:
-                return zh ? "缺少达夫雷标志" : "Davre mark absent";
-            case Reason.DavreWrong:
-                return zh ? "达夫雷标志图案不符" : "Davre mark wrong";
-            case Reason.FirstRunHasSticker:
-                return zh ? "第一批次不应有 Ribwich 贴纸" : "First batch should carry no Ribwich sticker";
-            case Reason.SecondRunStickerMissing:
-                return zh ? "第二批次缺少 Ribwich 贴纸" : "Second batch lacks its Ribwich sticker";
-            case Reason.SecondRunStickerWrong:
-                return zh ? "第二批次 Ribwich 贴纸图案错误" : "Second batch has the wrong Ribwich sticker";
-            case Reason.BunWithoutPickles:
-                return zh ? "有芝麻面包却没有加量酸黄瓜（豪华版需两者同时）"
-                          : "Sesame bun but no extra pickles; deluxe needs both";
-            case Reason.PicklesWithoutBun:
-                return zh ? "有加量酸黄瓜却没有芝麻面包（豪华版需两者同时）"
-                          : "Extra pickles but no sesame bun; deluxe needs both";
-            default:
-                return r.ToString();
-        }
-    }
+        Reason.ProductionDateMissing => "ribwich.reason_date_missing",
+        Reason.MonthOutOfRange => "ribwich.reason_month_range",
+        Reason.YearOutOfRange => "ribwich.reason_year_range",
+        Reason.FacilityMissing => "ribwich.reason_plant_missing",
+        Reason.FacilityOutOfRange => "ribwich.reason_plant_range",
+        Reason.DavreMissing => "ribwich.reason_davre_missing",
+        Reason.DavreWrong => "ribwich.reason_davre_wrong",
+        Reason.FirstRunHasSticker => "ribwich.reason_first_sticker",
+        Reason.SecondRunStickerMissing => "ribwich.reason_second_sticker_missing",
+        Reason.SecondRunStickerWrong => "ribwich.reason_second_sticker_wrong",
+        Reason.BunWithoutPickles => "ribwich.reason_bun_no_pickles",
+        Reason.PicklesWithoutBun => "ribwich.reason_pickles_no_bun",
+        _ => "ribwich.reason_unknown",
+    };
+
+    /// <summary>对应的英文兜底文案（缺本地化词条时直接用它）。</summary>
+    internal static string English(Reason r) => r switch
+    {
+        Reason.ProductionDateMissing => "No production date stamped",
+        Reason.MonthOutOfRange => "Month {0} outside 1-12",
+        Reason.YearOutOfRange => "Year {0} outside 425-429 / 432-438",
+        Reason.FacilityMissing => "No packing plant number",
+        Reason.FacilityOutOfRange => "Plant no. {0} outside 01-35",
+        Reason.DavreMissing => "Davre mark absent",
+        Reason.DavreWrong => "Davre mark wrong",
+        Reason.FirstRunHasSticker => "First batch should carry no Ribwich sticker",
+        Reason.SecondRunStickerMissing => "Second batch lacks its Ribwich sticker",
+        Reason.SecondRunStickerWrong => "Second batch has the wrong Ribwich sticker",
+        Reason.BunWithoutPickles => "Sesame bun but no extra pickles; deluxe needs both",
+        Reason.PicklesWithoutBun => "Extra pickles but no sesame bun; deluxe needs both",
+        _ => "{0}",
+    };
+
+    /// <summary>占位符参数，顺序与 <see cref="English"/> 里的 {0}/{1} 一致。</summary>
+    internal static object[] Args(Reason r, int month, int year, int facility) => r switch
+    {
+        Reason.MonthOutOfRange => new object[] { month },
+        Reason.YearOutOfRange => new object[] { year },
+        Reason.FacilityOutOfRange => new object[] { facility },
+        // 未登记的原因（未来新增枚举值）至少把枚举名显示出来，不要露出 "{0}"
+        _ => new object[] { r.ToString() },
+    };
 }

@@ -14,20 +14,20 @@ internal static class HiddenInfo
     private const RenderHandler.ColorPalette Warn = RenderHandler.ColorPalette.LightRed;
     private const RenderHandler.ColorPalette Info = RenderHandler.ColorPalette.LightTurquoise;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
 
-        TryDurability(item, zh, lines);
-        TryIngotPurity(item, zh, lines);
-        TryChemicalPurity(item, zh, lines);
+        TryDurability(item, lines);
+        TryIngotPurity(item, lines);
+        TryChemicalPurity(item, lines);
 
         return lines;
     }
 
     // ---------- 耐久：真实 vs 伪装 ----------
-    private static void TryDurability(GameItem item, bool zh, List<TooltipLine> lines)
+    private static void TryDurability(GameItem item, List<TooltipLine> lines)
     {
         try
         {
@@ -47,14 +47,15 @@ internal static class HiddenInfo
             {
                 // 有伪装：原版显示 fake，我们揭示 real
                 lines.Add(new TooltipLine(
-                    zh ? $"真实耐久：{real}/{max}（显示为 {fake}/{max}，疑似伪造）"
-                       : $"Real durability: {real}/{max} (shown {fake}/{max}, likely faked)",
+                    Loc.T("hidden.durability_faked",
+                        "Real durability: {0}/{1} (shown {2}/{3}, likely faked)",
+                        real, max, fake, max),
                     Warn));
             }
             else
             {
                 lines.Add(new TooltipLine(
-                    zh ? $"耐久：{real}/{max}" : $"Durability: {real}/{max}",
+                    Loc.T("hidden.durability", "Durability: {0}/{1}", real, max),
                     Info));
             }
         }
@@ -62,7 +63,7 @@ internal static class HiddenInfo
     }
 
     // ---------- 锭纯度：真实 vs 伪装 ----------
-    private static void TryIngotPurity(GameItem item, bool zh, List<TooltipLine> lines)
+    private static void TryIngotPurity(GameItem item, List<TooltipLine> lines)
     {
         try
         {
@@ -78,12 +79,13 @@ internal static class HiddenInfo
             Log.MarkOk("Hidden.IngotPurity");
 
             bool faked = !string.IsNullOrWhiteSpace(fake) && fake != real;
-            string realText = PurityDisplay(real, zh);
+            string realText = PurityDisplay(real);
             lines.Add(new TooltipLine(
                 faked
-                    ? (zh ? $"真实纯度：{realText}（显示为 {PurityDisplay(fake, zh)}，疑似伪造）"
-                          : $"Real purity: {realText} (shown {PurityDisplay(fake, zh)}, likely faked)")
-                    : (zh ? $"纯度：{realText}" : $"Purity: {realText}"),
+                    ? Loc.T("hidden.purity_faked",
+                        "Real purity: {0} (shown {1}, likely faked)",
+                        realText, PurityDisplay(fake))
+                    : Loc.T("hidden.purity", "Purity: {0}", realText),
                 faked ? Warn : Info));
         }
         catch (Exception ex) { Log.Warn("Hidden.IngotPurity", ex); }
@@ -93,7 +95,7 @@ internal static class HiddenInfo
     /// 纯度常量 → 玩家文案。优先用游戏自己 ItemCondition.display（随语言本地化），
     /// 不把 INGOT_PURITY_* 这类内部键直接塞进 tooltip。
     /// </summary>
-    private static string PurityDisplay(string purity, bool zh)
+    private static string PurityDisplay(string purity)
     {
         try
         {
@@ -114,7 +116,7 @@ internal static class HiddenInfo
     }
 
     // ---------- 化学品纯度 ----------
-    private static void TryChemicalPurity(GameItem item, bool zh, List<TooltipLine> lines)
+    private static void TryChemicalPurity(GameItem item, List<TooltipLine> lines)
     {
         try
         {
@@ -127,7 +129,7 @@ internal static class HiddenInfo
 
             Log.MarkOk("Hidden.ChemPurity");
             lines.Add(new TooltipLine(
-                zh ? $"化学纯度：{v:0.#}%" : $"Chemical purity: {v:0.#}%",
+                Loc.T("hidden.chem_purity", "Chemical purity: {0}%", v.ToString("0.#")),
                 Info));
         }
         catch (Exception ex) { Log.Warn("Hidden.ChemPurity", ex); }

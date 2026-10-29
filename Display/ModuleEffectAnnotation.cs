@@ -109,29 +109,27 @@ internal static class ModuleEffectAnnotation
     /// </summary>
     private static string BuildNote(char kind, GameItem item)
     {
-        bool zh = Locales.IsChinese;
-
         switch (kind)
         {
             case 'p':
                 var speedBase = GameRead.TagInt(item, "BASE_PROCESSING_SPEED_TAG");
                 var speedNow = GameRead.TagInt(item, "CURRENT_PROCESSING_SPEED_TAG");
                 if (speedBase is int sb && speedNow is int sn && sb > 0 && sn > 0)
-                    return Wrap(Signed(sn - sb) + (zh ? "速度" : " speed"));
+                    return Wrap(Loc.T("module.speed", "{0} speed", Signed(sn - sb)));
                 return "";
 
             case 'e':
                 var powerBase = GameRead.TagInt(item, "MACHINERY_DRAWN_POWER_BASE");
                 var powerNow = GameRead.TagInt(item, "machinery_drawn_power");
                 if (powerBase is int pb && powerNow is int pn)
-                    return Wrap(Signed(pn - pb) + (zh ? "能量/天" : " power/day"));
+                    return Wrap(Loc.T("module.power", "{0} power/day", Signed(pn - pb)));
                 return "";
 
             case 'q':
                 var qualityBonus = GameRead.TagInt(item, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT");
                 var qualityRatio = GameRead.TagInt(item, "MACHINE_QUALITY_RATIO_INT");
                 if (qualityBonus is int qb && qualityRatio is int qr && qr > 0)
-                    return Wrap(Signed(qb / qr) + (zh ? "品质" : " quality"));
+                    return Wrap(Loc.T("module.quality", "{0} quality", Signed(qb / qr)));
                 return "";
         }
 
@@ -147,7 +145,7 @@ internal static class ModuleEffectAnnotation
     /// <summary>三项加成的标签名走游戏本地化；换语言后自动重建。</summary>
     private static void EnsureLabels()
     {
-        string locale = Locales.Code;
+        string locale = Loc.Code;
         if (locale == _locale && _perf.Length > 0) return;
 
         try { _perf = LocHelper.GetLocalizedMechanic("mech_module_stat_performance") ?? ""; } catch { _perf = ""; }

@@ -18,6 +18,9 @@ namespace ItemDetails;
 /// 自绘一个 overlay 小窗，**常驻到该顾客离开**（PlayerStore.currentClientInstance 被置空时收起），
 /// 无动效、不抢焦点。
 ///
+/// 位置：默认屏幕正上方居中；玩家可以用标题栏拖动，位置记在
+/// <see cref="_sessionPos"/> 里——**只活在本次进程内，不写盘**，重启游戏回到正上方。
+///
 /// 触发：轮询 PlayerStore.Instance.currentClientInstance，实例变化且非空时评估一次。
 /// </summary>
 internal sealed class CustomerAlertTicker : MonoBehaviour
@@ -29,6 +32,20 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
     private const float ToastWidth = 360f;
     private const float ToastHeight = 88f;
     private const float ToastTopMargin = 28f;
+
+    /// <summary>
+    /// 本次进程内记住的提示位置（父节点坐标系里的 anchoredPosition）。
+    /// 刻意**不持久化**：用户要求「重启游戏失效」，所以不进 ModData、不读盘；
+    /// 换分辨率/窗口大小后由 <see cref="PlaceAtSavedOrTopCenter"/> 重新夹回屏幕内。
+    /// </summary>
+    private static Vector2? _sessionPos;
+
+    /// <summary>
+    /// 最近一次由我们摆上去的位置。用来判断玩家到底动没动过：
+    /// 没动过就不更新 <see cref="_sessionPos"/>，这样「默认正上方」不会被
+    /// 上一次提示的高度差异污染（换了行数后仍精确贴顶）。
+    /// </summary>
+    private static Vector2? _appliedPos;
 
     /// <summary>标题警示色（TMP 富文本）。</summary>
     private const string AlertColor = "#FF6B6B";
@@ -63,12 +80,15 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
 
     internal static void Stop()
     {
+        // 关窗会销毁节点：先把玩家拖到的位置记进本次会话，重新启用时不必从头摆
+        RememberWindowPosition();
         try
         {
             var ui = CustomUIManager.Instance;
             if (ui != null && ui.IsOpen(WindowId)) ui.CloseWindow(WindowId);
         }
-        catch { }        if (_go != null)
+        catch { }
+        if (_go != null)
         {
             try { UnityEngine.Object.Destroy(_go); } catch { }
             _go = null;
@@ -175,13 +195,13 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
         }
 
         string title;
-        if (wanted && aug) title = L("通缉犯 · 改造体顾客", "Wanted · Augmented client");
-        else if (wanted) title = L("通缉犯", "Wanted");
-        else title = L("改造体顾客", "Augmented client");
+        if (wanted && aug) title = Loc.T("alert.title_both", "Wanted · Augmented client");
+        else if (wanted) title = Loc.T("alert.title_wanted", "Wanted");
+        else title = Loc.T("alert.title_augmented", "Augmented client");
 
         string body = string.IsNullOrEmpty(name) ? "" : name;
         if (wanted && payout > 0)
-            body += L($"（举报奖励 {payout}）", $" (bounty {payout})");
+            body += Loc.T("alert.bounty", " (bounty {0})", payout);
 
         // 透视补充：通缉犯真名（原版举报后才揭示）与改造体等级
         var extra = new List<string>();
@@ -191,7 +211,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             {
                 string real = client.realName ?? "";
                 if (real.Length > 0 && real != name)
-                    extra.Add(L($"真名：{real}", $"Real name: {real}"));
+                    extra.Add(Loc.T("alert.real_name", "Real name: {0}", real));
             }
             catch { }
         }
@@ -200,7 +220,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             try
             {
                 int tier = client.augTier;
-                if (tier > 0) extra.Add(L($"改造体等级：{tier}", $"Augmentation tier: {tier}"));
+                if (tier > 0) extra.Add(Loc.T("alert.aug_tier", "Augmentation tier: {0}", tier));
             }
             catch { }
         }
@@ -216,6 +236,8 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             var ui = CustomUIManager.Instance;
             if (ui == null) return false;   // UI 尚未就绪：留给下一次轮询
 
+            // 重建窗口会销毁旧节点，位置要在那之前抓下来
+            RememberWindowPosition();
             try { if (ui.IsOpen(WindowId)) ui.CloseWindow(WindowId); } catch { }
 
             // 标题直接承载警示文字并标红（titleText 是 TextMeshProUGUI，支持富文本）。
@@ -223,7 +245,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             string coloredTitle = $"<color={AlertColor}>{title}</color>";
 
             var b = ui.CreateWindow(WindowId, coloredTitle, "overlay")
-                      .SetDraggable(false)
+                      .SetDraggable(true)
                       .SetCloseOnEscape(false);
             if (!string.IsNullOrEmpty(body)) b.AddLabel(body);
             foreach (string line in extra) b.AddLabel(line);
@@ -233,7 +255,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
             var win = b.SetSize(ToastWidth, height).Show();
             if (win == null) return false;
 
-            PlaceTopRight(win, height);
+            PlaceAtSavedOrTopCenter(win, height);
             _shown = true;
 
             // 常驻：由「顾客离开」触发关闭；这里只留一个兜底上限，防止极端情况下窗口一直挂着。
@@ -250,39 +272,83 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
     }
 
     /// <summary>
-    /// 放到屏幕右上角，避开三处容易被遮挡的区域：
-    ///   中间＝顾客立绘，下方＝柜台货物区，顾客头顶＝对话气泡。
-    /// 用父节点的 rect 计算，兼容 CanvasScaler 的参考分辨率。
+    /// 默认放在屏幕**正上方居中**；玩家拖动过之后沿用本次会话记住的位置。
+    ///
+    /// 坐标系与 <c>CustomUIWindow.SetPosition</c> / <c>UIDragHandler</c> 一致：
+    /// 窗口父节点的中心为原点，单位是参考分辨率像素。
+    /// 每次显示都重新夹一次，防三件事：换分辨率、提示行数变化、玩家把窗口拖出屏幕外。
     /// </summary>
-    private void PlaceTopRight(CustomUIWindow win, float height)
+    private void PlaceAtSavedOrTopCenter(CustomUIWindow win, float height)
     {
         try
         {
-            float w, h;
-            var parent = win.Rect != null ? win.Rect.parent as RectTransform : null;
-            if (parent != null && parent.rect.width > 1f && parent.rect.height > 1f)
-            {
-                w = parent.rect.width;
-                h = parent.rect.height;
-            }
-            else
-            {
-                w = Screen.width;
-                h = Screen.height;
-            }
+            GetParentSize(win, out float w, out float h);
 
-            float x = w * 0.5f - ToastWidth * 0.5f - ToastTopMargin;
-            float y = h * 0.5f - height * 0.5f - ToastTopMargin;
-            win.SetPosition(new Vector2(x, y));
+            Vector2 pos = _sessionPos is Vector2 saved
+                ? saved
+                : new Vector2(0f, h * 0.5f - height * 0.5f - ToastTopMargin);
+
+            Vector2 final = ClampInsideParent(pos, w, h, ToastWidth, height);
+            win.SetPosition(final);
+            _appliedPos = final;
         }
         catch (Exception ex)
         {
-            Log.Warn("CustomerAlert.PlaceTopRight", ex);
+            Log.Warn("CustomerAlert.Place", ex);
             try { win.Center(); } catch { }
         }
     }
 
-    private static string L(string zh, string en) => Locales.L(zh, en);
+    /// <summary>窗口父节点的可用尺寸；取不到就退回屏幕像素。</summary>
+    private static void GetParentSize(CustomUIWindow win, out float w, out float h)
+    {
+        var parent = win.Rect != null ? win.Rect.parent as RectTransform : null;
+        if (parent != null && parent.rect.width > 1f && parent.rect.height > 1f)
+        {
+            w = parent.rect.width;
+            h = parent.rect.height;
+            return;
+        }
+        w = Screen.width;
+        h = Screen.height;
+    }
+
+    /// <summary>把中心坐标夹到「整窗仍在父节点内」的范围，避免拖出去之后抓不回来。</summary>
+    private static Vector2 ClampInsideParent(Vector2 pos, float w, float h, float width, float height)
+    {
+        float maxX = Mathf.Max(0f, (w - width) * 0.5f);
+        float maxY = Mathf.Max(0f, (h - height) * 0.5f);
+        return new Vector2(Mathf.Clamp(pos.x, -maxX, maxX), Mathf.Clamp(pos.y, -maxY, maxY));
+    }
+
+    /// <summary>
+    /// 把窗口当前所在位置记进本次会话——**仅当玩家真的拖动过**。
+    /// 窗口即将被销毁时调用；没拖过就保持原样，下次仍精确回到正上方。
+    /// </summary>
+    private static void RememberWindowPosition()
+    {
+        try
+        {
+            var ui = CustomUIManager.Instance;
+            if (ui == null || !ui.IsOpen(WindowId)) return;
+
+            var win = ui.GetWindow(WindowId);
+            if (win == null || !win.IsAlive || win.Rect == null) return;
+
+            Vector2 current = win.Rect.anchoredPosition;
+            // 1 像素以内视为「还是我们摆的位置」，不算玩家拖动
+            if (_appliedPos is Vector2 applied
+                && (current - applied).sqrMagnitude <= 1f)
+                return;
+
+            _sessionPos = current;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("CustomerAlert.RememberPos", ex);
+        }
+    }
+
 
     /// <summary>收起提示并重置「当前顾客」状态（顾客离开、换成普通顾客、关闭模组时都会走到）。</summary>
     private void Dismiss()
@@ -292,6 +358,10 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
         _attempts = 0;
         if (!_shown) return;
         _shown = false;
+
+        // 关窗会销毁节点，玩家拖动过的位置得先记住（仅本次进程内有效）
+        RememberWindowPosition();
+
         try
         {
             var ui = CustomUIManager.Instance;

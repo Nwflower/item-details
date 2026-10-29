@@ -1,0 +1,179 @@
+# Item Details Español (es)
+# key,value
+alert.aug_tier,Nivel de potenciación: {0}
+alert.bounty," (recompensa {0})"
+alert.real_name,Nombre real: {0}
+alert.title_augmented,Cliente potenciado
+alert.title_both,Buscado · Cliente potenciado
+alert.title_wanted,Buscado
+appraisal.armor,Módulo de blindaje
+appraisal.base,Base
+appraisal.blade,Módulo de filo
+appraisal.build_deluxe,Configuración de lujo
+appraisal.build_tactical,Configuración táctica
+appraisal.carbon,Carcasa de fibra de carbono
+appraisal.casing_crack,Carcasa agrietada
+appraisal.casing_reinforced,Refuerzo
+appraisal.casing_screws,Tornillos flojos
+appraisal.casing_wear,Desgaste leve
+appraisal.casing_wear_heavy,Desgaste severo
+appraisal.damaged,Dañado
+appraisal.emgplus,Conector EMG+
+appraisal.finish_cheap,Acabado barato
+appraisal.finish_premium,Acabado premium
+appraisal.gold,Chapado en oro
+appraisal.iface_unknown,Tipo de interfaz desconocido
+appraisal.neural,Puerto neural
+appraisal.ribwich_deluxe,Combo de lujo
+appraisal.ribwich_double_meat,Doble carne
+appraisal.ribwich_first_batch,Primer lote
+appraisal.ribwich_month_edge,Primer o último mes
+appraisal.ribwich_opened,Abierto o falso (40 fijo)
+appraisal.ribwich_plant_grade_a,Planta clase A {0:D2}
+appraisal.ribwich_plant_grade_c,Planta clase C {0:D2}
+appraisal.seal_ignition,Incentivo Ignition Lab
+appraisal.seal_ll,Incentivo Wild's Rides
+appraisal.seal_republic,Incentivo Republic Naval
+appraisal.seal_zhonghua,Incentivo ZhongHua
+appraisal.worn,Desgastado
+auth.counterfeit,✘ Posible falsificación ({0})
+auth.genuine,✔ Auténtico
+berry.dried,Seco
+berry.line,Calidad de baya: {0}
+berry.moldy,Mohoso
+berry.normal,Normal
+berry.small,Pequeño
+berry.unripe,Sin madurar
+calorie.line,Energía: {0} {1}
+calorie.per_cell," ({0} {1}/celda)"
+calorie.unit,kcal
+condition.line,Estado: {0} {1}
+config.auth,Autenticidad
+config.auth.tip,"Muestra el resultado auténtico/falso y los fallos concretos en inyectores, cigarrillos y cupones de comida. El valor real solo se añade si está registrado."
+config.container,Detalles del contenedor
+config.container.tip,"Muestra la tasa de compresión (celdas internas ÷ celdas del objeto), el contenido y el valor total."
+config.contraband,Recargo de contrabando en el mercado negro
+config.contraband.tip,Añade el recargo de mercado negro (Bajo 35 / Medio 70 / Alto 100 / Crítico 150). El nivel de contrabando lo muestra el juego base.
+config.customer_alert,Aviso de llegada de cliente
+config.customer_alert.tip,"Avisa cuando llega un cliente buscado o potenciado, con la recompensa real, el nombre real y el nivel de potenciación."
+config.dim_description,Atenuar la descripción del objeto
+config.dim_description.tip,"Muestra las descripciones en gris para que destaque la información de tasación. Solo cambia el color, no el texto."
+config.double_click_inspect,Doble clic para inspeccionar
+config.double_click_inspect.tip,Haz doble clic en un objeto de tasación para abrir el panel sin la lupa. Cambia el texto de ayuda; desactívalo para volver al flujo original.
+config.hidden_truth,Revelar disfraces y atributos reales
+config.hidden_truth.tip,"Muestra las diferencias reales de estado, la durabilidad real y la pureza real de lingotes y productos químicos. Delata los falsos y facilita mucho la tasación."
+config.hide_estimate_value,Ocultar la línea de estimación del juego base
+config.hide_estimate_value.tip,"Esas líneas muestran la oferta del cliente, no el valor real de tasación. Solo se ocultan en objetos de tasación y cuando se puede calcular un total."
+config.lottery,Aciertos y premio de lotería
+config.lottery.tip,"Tras el sorteo, muestra cuántos números acertaste y el premio. El juego base solo colorea los números acertados."
+config.module_effects,Cambios reales de los módulos
+config.module_effects.tip,"El juego base solo indica porcentajes como rendimiento/eficiencia/calidad +16%. Aquí se añaden los valores que calcula el juego: velocidad de proceso para rendimiento, consumo para eficiencia y calidad ajustada para calidad (solo máquinas con ratio de calidad). Todo se deduce de las etiquetas del objeto; las máquinas sin esos datos conservan la línea original."
+config.name_label_background,Fondo de la etiqueta de nombre
+config.name_label_background.tip,Dibuja una placa negra translúcida tras el nombre para iconos con mucho detalle.
+config.name_label_background_alpha,Opacidad del fondo
+config.name_label_background_alpha.tip,"Opacidad de la placa de fondo, de 0 a 1."
+config.name_label_mode,Nombres sobre los iconos
+config.name_label_mode.tip,Desactivado: sin etiquetas. Contenedores: solo contenedores y máquinas. Solo renombrados: solo objetos renombrados con la impresora de etiquetas.
+config.name_label_position,Posición de la etiqueta de nombre
+config.name_label_position.tip,Dónde se coloca el nombre sobre el icono del objeto.
+config.plant,Detalles de plantas
+config.plant.tip,"Las bayas muestran su calidad (normal/mohosa/sin madurar); las semillas, sus rasgos y rangos."
+config.price_impact,"Etiqueta, estado e impacto de mercado"
+config.price_impact.tip,"Añade el modificador de precio tras las etiquetas y estados como Abollado/Oxidado, y lista los eventos de tienda activos que afectan al objeto. El juego base solo muestra los nombres."
+config.scratcher,Resultado del rasca y gana
+config.scratcher.tip,Muestra el premio (o que no hay) y el progreso rascado antes de rascar. Es un recálculo de solo lectura; nunca rasca por ti. Desactívalo para ocultar el resultado.
+config.sealed_box,Contenido de contenedores sellados
+config.sealed_box.tip,Lista el contenido y el valor total de contenedores cerrados antes de abrirlos. Se salta la cerradura; desactivado por defecto.
+config.section.customer,Avisos de clientes
+config.section.display,Visualización
+config.section.interaction,Interacción y aspecto
+config.section.reveal,Revelación
+config.value,Valor y datos de tasación
+config.value.tip,"En objetos de tasación: valor total, rango de oferta perfecta, desglose por origen y motivos del falso; el título de tasación también muestra el precio real. Los tipos de tasación desconocidos o de mods usan un desglose medido."
+config.value_enhance,Valor por celda (sin tasación)
+config.value_enhance.tip,En objetos sin tasación: valor unitario × cantidad y valor por celda ocupada. Los objetos de tasación se omiten porque ya muestran el valor real.
+config.water_purity,Calidad del agua y consejos
+config.water_purity.tip,"Muestra el % de pureza, el nivel del juego, las impurezas, el volumen no acuoso y consejos de tratamiento sin necesitar el medidor. Desactívalo para volver al flujo original (hace falta medidor). Si hay un mod de agua dedicado activo (por ejemplo AquaSense), este asume la sección."
+config.wine,Puntuación y composición del vino
+config.wine.tip,"Muestra datos de vino que el juego base oculta: puntuación y nivel, extracto/contaminante, falso (levadura ilegal), días de crianza y bono diario, y progreso de fermentación."
+contraband.markup,Mercado negro: +{0}%
+generic.combined,· Combinado/otros {0}
+generic.header,Desglose del valor (medido):
+generic.more,· ... y {0} más
+generic.other_attributes,· Otros atributos {0}
+hidden.chem_purity,Pureza química: {0}%
+hidden.durability,Durabilidad: {0}/{1}
+hidden.durability_faked,"Durabilidad real: {0}/{1} (se muestra {2}/{3}, probablemente falsificada)"
+hidden.purity,Pureza: {0}
+hidden.purity_faked,"Pureza real: {0} (se muestra {1}, probablemente falsificada)"
+hint.double_click,Doble clic para tasar; doble clic en otro objeto para cambiar
+list.sep,", "
+lottery.matched_none,Acertados {0}/6 -> sin premio
+lottery.matched_prize,Acertados {0}/6 -> premio {1}
+lottery.not_drawn,Edición {0}: aún sin sorteo (se sortea cada sábado)
+lottery.winning,Número ganador: {0}
+market.line,Mercado: {0}
+module.power,{0} energía/día
+module.quality,{0} calidad
+module.speed,{0} velocidad
+price.buy,"Compra: "
+price.cost_close,)
+price.cost_open," (Coste "
+price.list," Precio: {0}"
+price.sell,Venta: {0}
+reveal.modifier,Modificador real: {0}% (disfrazado {1}%)
+reveal.real,Real: {0} (disfrazado como {1})
+reveal.real_with_mod,Real: {0} ({1}%) (disfrazado como {2})
+ribwich.header,Motivos del falso:
+ribwich.more,... y {0} más
+ribwich.reason_bun_no_pickles,Pan de sésamo pero sin pepinillos extra; el de lujo exige ambos
+ribwich.reason_date_missing,Sin fecha de producción grabada
+ribwich.reason_davre_missing,Falta la marca Davre
+ribwich.reason_davre_wrong,Marca Davre incorrecta
+ribwich.reason_first_sticker,El primer lote no debe llevar pegatina Ribwich
+ribwich.reason_month_range,Mes {0} fuera de 1-12
+ribwich.reason_pickles_no_bun,Pepinillos extra pero sin pan de sésamo; el de lujo exige ambos
+ribwich.reason_plant_missing,Sin número de planta
+ribwich.reason_plant_range,Planta n.º {0} fuera de 01-35
+ribwich.reason_second_sticker_missing,Al segundo lote le falta su pegatina Ribwich
+ribwich.reason_second_sticker_wrong,El segundo lote lleva una pegatina Ribwich errónea
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,Año {0} fuera de 425-429 / 432-438
+scratcher.no_prize,Rasca y gana: sin premio
+scratcher.progress,Rascado {0}/3
+scratcher.win,Rasca y gana: gana {0} ({1} coincidencias)
+sealed.contents,Dentro: {0}{1}
+sealed.empty,Contenido: vacío
+sealed.more," ... {0} en total"
+sealed.total,Total dentro: {0}
+sealed.unit," ({0})"
+seed.header,Rasgos (sin analizar):
+seed.more,... y {0} más
+seed.trait_rank,{0} (rango {1})
+storage.contains,"Contiene: "
+storage.more_kinds," y {0} tipos"
+storage.ratio,Compresión: {0} ({1}/{2} celdas)
+storage.total_value,Valor total: {0}
+title.appraisal_suffix,"{0} Precio {1}, mejor oferta {2}"
+value.from,"Origen: "
+value.per_cell,Valor/celda: {0} ({1}/{2} celdas)
+value.perfect_range," | perfecto {0}-{1}"
+value.total,Total: {0} × {1} = {2}
+value.total_line,Total: {0}
+water.head,Agua: {0}% {1}
+water.impurities,Impurezas {0}%
+water.list_head,": "
+water.mismatch," (etiqueta no coincide)"
+water.none,: ninguna
+water.trace,trazas (bajo el umbral de visualización)
+wine.aging,Bono de crianza: +{0}/día (total +{1})
+wine.composition,"Composición: extracto {0}‰, contaminante {1}‰"
+wine.counterfeit,Falso: levadura ilegal
+wine.empty,Vacío
+wine.fermenting,Fermentando
+wine.finished,Acabado
+wine.score,Puntuación del vino: {0}{1}
+wine.state,Vino: {0}
+wine.tier,", nivel {0}"
+wine.unknown_state,Desconocido({0})
+wine.yeast_power,Potencia de levadura: {0}/ciclo

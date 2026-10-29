@@ -1,0 +1,179 @@
+# Item Details Русский (ru)
+# key,value
+alert.aug_tier,Уровень аугментации: {0}
+alert.bounty," (награда {0})"
+alert.real_name,Настоящее имя: {0}
+alert.title_augmented,Аугментированный клиент
+alert.title_both,В розыске · Аугментированный клиент
+alert.title_wanted,В розыске
+appraisal.armor,Модуль брони
+appraisal.base,Базовая цена
+appraisal.blade,Модуль клинка
+appraisal.build_deluxe,Люкс-сборка
+appraisal.build_tactical,Тактическая сборка
+appraisal.carbon,Карбоновый корпус
+appraisal.casing_crack,Трещина корпуса
+appraisal.casing_reinforced,Усиление
+appraisal.casing_screws,Ослабленные винты
+appraisal.casing_wear,Лёгкий износ
+appraisal.casing_wear_heavy,Сильный износ
+appraisal.damaged,Повреждено
+appraisal.emgplus,Разъём EMG+
+appraisal.finish_cheap,Дешёвая отделка
+appraisal.finish_premium,Отделка премиум
+appraisal.gold,Золочение
+appraisal.iface_unknown,Тип интерфейса неизвестен
+appraisal.neural,Нейроразъём
+appraisal.ribwich_deluxe,Люкс-набор
+appraisal.ribwich_double_meat,Двойное мясо
+appraisal.ribwich_first_batch,Первая партия
+appraisal.ribwich_month_edge,Первый или последний месяц
+appraisal.ribwich_opened,Открыто или подделка (фикс. 40)
+appraisal.ribwich_plant_grade_a,Завод класса A {0:D2}
+appraisal.ribwich_plant_grade_c,Завод класса C {0:D2}
+appraisal.seal_ignition,Бонус Ignition Lab
+appraisal.seal_ll,Бонус Wild's Rides
+appraisal.seal_republic,Бонус Republic Naval
+appraisal.seal_zhonghua,Бонус ZhongHua
+appraisal.worn,Изношено
+auth.counterfeit,✘ Подозрение на подделку ({0})
+auth.genuine,✔ Оригинал
+berry.dried,Высушена
+berry.line,Качество ягоды: {0}
+berry.moldy,Плесневелая
+berry.normal,Нормальная
+berry.small,Мелкая
+berry.unripe,Недозрелая
+calorie.line,Энергия: {0} {1}
+calorie.per_cell," ({0} {1}/клетку)"
+calorie.unit,kcal
+condition.line,Состояние: {0} {1}
+config.auth,Подлинность
+config.auth.tip,"Показывает вердикт оригинал/подделка и конкретные несоответствия для шприцев, сигарет и продовольственных талонов. Настоящая стоимость — только если она зарегистрирована."
+config.container,Сведения о контейнере
+config.container.tip,"Показывает степень сжатия (клетки внутри ÷ клетки предмета), содержимое и общую стоимость."
+config.contraband,Наценка чёрного рынка на контрабанду
+config.contraband.tip,Дописывает наценку чёрного рынка (низкая 35 / средняя 70 / высокая 100 / критическая 150). Сам уровень контрабанды показывает базовая игра.
+config.customer_alert,Оповещение о приходе клиента
+config.customer_alert.tip,"Сообщает, когда приходит клиент в розыске или с аугментацией, включая фактическую награду, настоящее имя и уровень аугментации."
+config.dim_description,Затемнение описания предмета
+config.dim_description.tip,"Показывает описания предметов серым, чтобы сведения об оценке выделялись. Только цвет, текст не меняется."
+config.double_click_inspect,Двойной щелчок: оценка
+config.double_click_inspect.tip,"Двойной щелчок по предмету для оценки открывает панель оценки без лупы. Меняет текст подсказки; выключите, чтобы вернуть поведение базовой игры."
+config.hidden_truth,Раскрытие маскировки и настоящих характеристик
+config.hidden_truth.tip,"Показывает настоящие различия состояния, реальную прочность и чистоту слитков/химикатов. Прямо выдаёт подделки и упрощает оценку."
+config.hide_estimate_value,Скрыть строку оценки из базовой игры
+config.hide_estimate_value.tip,"Эти строки показывают предложение клиента, а не настоящую стоимость по оценке. Скрываются только у предметов для оценки и только если сумму можно посчитать."
+config.lottery,Совпадения и приз в лотерее
+config.lottery.tip,"После розыгрыша показывает, сколько чисел совпало, и приз. Базовая игра лишь подсвечивает совпавшие числа."
+config.module_effects,Фактические изменения от модулей
+config.module_effects.tip,"Базовая игра пишет только проценты, например производительность/эффективность/качество +16%. Здесь дописываются значения, посчитанные игрой: скорость обработки для производительности, расход энергии для эффективности, пересчитанное качество для качества (только машины с коэффициентом качества). Всё выводится из тегов предмета; машины без данных сохраняют строку базовой игры."
+config.name_label_background,Фон подписи с названием
+config.name_label_background.tip,"Рисует полупрозрачную чёрную подложку под названием, чтобы название читалось на пёстрых иконках."
+config.name_label_background_alpha,Непрозрачность фона
+config.name_label_background_alpha.tip,"Непрозрачность подложки, 0-1."
+config.name_label_mode,Названия на иконках
+config.name_label_mode.tip,Выключено: названий нет. Контейнеры: только контейнеры и машины. Только переименованные: только предметы с названием от принтера этикеток.
+config.name_label_position,Положение подписи
+config.name_label_position.tip,Где название располагается на иконке предмета.
+config.plant,Сведения о растениях
+config.plant.tip,Ягоды показывают качество (нормальная/плесневелая/недозрелая); семена показывают свои признаки и ранги.
+config.price_impact,"Этикетка, состояние и влияние рынка"
+config.price_impact.tip,"Дописывает модификатор цены после строк этикетки и таких состояний, как вмятина/ржавчина, а также выводит активные события магазина, влияющие на предмет. Базовая игра показывает только названия."
+config.scratcher,Результат скретч-карты
+config.scratcher.tip,"Показывает приз (или его отсутствие) и прогресс стирания до стирания. Только пересчёт без записи; карта не стирается за вас. Выключите, чтобы скрыть результат."
+config.sealed_box,Содержимое закрытого контейнера
+config.sealed_box.tip,Показывает содержимое и общую стоимость закрытых контейнеров до вскрытия. Обходит замок; по умолчанию выключено.
+config.section.customer,Оповещения о клиентах
+config.section.display,Отображение
+config.section.interaction,Управление и вид
+config.section.reveal,Раскрытие
+config.value,Стоимость и сведения об оценке
+config.value.tip,"Для предметов для оценки: общая стоимость, диапазон идеального предложения, разбивка источников и причины подделки; заголовок оценки также показывает настоящую цену. Неизвестные или модовые типы оценки используют разбивку по замерам."
+config.value_enhance,Стоимость за клетку (без оценки)
+config.value_enhance.tip,"Для предметов без оценки: цена за штуку × количество и стоимость на занятую клетку. Предметы для оценки пропускаются, так как уже показывают настоящую стоимость."
+config.water_purity,Качество воды и советы
+config.water_purity.tip,"Показывает % чистоты, название уровня из базовой игры, примеси, объём не-воды и советы без тестера воды. Выключите, чтобы вернуть базовый порядок (нужен тестер). Если включён отдельный водный мод (например, AquaSense), он забирает этот раздел."
+config.wine,Оценка и состав вина
+config.wine.tip,"Показывает скрытые в базовой игре данные вина: оценку и уровень, экстракт/загрязнитель, подделку (незаконные дрожжи), дни выдержки и бонус за день, ход ферментации."
+contraband.markup,Чёрный рынок: +{0}%
+generic.combined,· Вместе/другое {0}
+generic.header,Разбивка стоимости (замер):
+generic.more,· ... и ещё {0}
+generic.other_attributes,· Прочие атрибуты {0}
+hidden.chem_purity,Химическая чистота: {0}%
+hidden.durability,Прочность: {0}/{1}
+hidden.durability_faked,"Настоящая прочность: {0}/{1} (показано {2}/{3}, вероятно подделка)"
+hidden.purity,Чистота: {0}
+hidden.purity_faked,"Настоящая чистота: {0} (показано {1}, вероятно подделка)"
+hint.double_click,Двойной щелчок — оценка; щелчок по другому предмету переключает
+list.sep,", "
+lottery.matched_none,Совпало {0}/6 -> без приза
+lottery.matched_prize,Совпало {0}/6 -> приз {1}
+lottery.not_drawn,Выпуск {0}: розыгрыша ещё не было (каждую субботу)
+lottery.winning,Выигрыш: {0}
+market.line,Рынок: {0}
+module.power,{0} энергии/день
+module.quality,{0} качества
+module.speed,{0} скорости
+price.buy,"Закупка: "
+price.cost_close,)
+price.cost_open," (Закупка "
+price.list," Цена: {0}"
+price.sell,Продажа: {0}
+reveal.modifier,Настоящий модификатор: {0}% (маскировка {1}%)
+reveal.real,Настоящее: {0} (выдаётся за {1})
+reveal.real_with_mod,Настоящее: {0} ({1}%) (выдаётся за {2})
+ribwich.header,Почему подделка:
+ribwich.more,... и ещё {0}
+ribwich.reason_bun_no_pickles,Булка с кунжутом без огурчиков; люкс требует оба
+ribwich.reason_date_missing,Нет даты производства
+ribwich.reason_davre_missing,Нет знака Davre
+ribwich.reason_davre_wrong,Неверный знак Davre
+ribwich.reason_first_sticker,В первой партии нет наклейки Ribwich
+ribwich.reason_month_range,Месяц {0} вне 1-12
+ribwich.reason_pickles_no_bun,Огурчики без кунжутной булки; люкс требует оба
+ribwich.reason_plant_missing,Нет номера упаковочного завода
+ribwich.reason_plant_range,Номер завода {0} вне 01-35
+ribwich.reason_second_sticker_missing,Во второй партии нет наклейки Ribwich
+ribwich.reason_second_sticker_wrong,Во второй партии неверная наклейка Ribwich
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,Год {0} вне 425-429 / 432-438
+scratcher.no_prize,Скретч: без приза
+scratcher.progress,Стёрто {0}/3
+scratcher.win,Скретч: выигрыш {0} ({1} совпадений)
+sealed.contents,Внутри: {0}{1}
+sealed.empty,Содержимое: пусто
+sealed.more," ... всего {0}"
+sealed.total,Всего внутри: {0}
+sealed.unit," ({0})"
+seed.header,Признаки (не проанализированы):
+seed.more,... и ещё {0}
+seed.trait_rank,{0} (ранг {1})
+storage.contains,"Содержит: "
+storage.more_kinds," и ещё видов: {0}"
+storage.ratio,Сжатие: {0} ({1}/{2} клеток)
+storage.total_value,Общая стоимость: {0}
+title.appraisal_suffix,"{0} цена {1}, лучшее предложение {2}"
+value.from,"Источник: "
+value.per_cell,Стоимость/клетку: {0} ({1}/{2} клеток)
+value.perfect_range," | идеально {0}-{1}"
+value.total,Итого: {0} × {1} = {2}
+value.total_line,Итого: {0}
+water.head,Вода: {0}% {1}
+water.impurities,Примеси {0}%
+water.list_head,": "
+water.mismatch," (несовпадение этикетки)"
+water.none,: нет
+water.trace,следы (ниже порога отображения)
+wine.aging,Бонус выдержки: +{0}/день (всего +{1})
+wine.composition,"Состав: экстракт {0}‰, загрязнитель {1}‰"
+wine.counterfeit,Подделка: незаконные дрожжи
+wine.empty,Пусто
+wine.fermenting,Бродит
+wine.finished,Готово
+wine.score,Оценка вина: {0}{1}
+wine.state,Вино: {0}
+wine.tier,", уровень {0}"
+wine.unknown_state,Неизвестно({0})
+wine.yeast_power,Сила дрожжей: {0}/тик

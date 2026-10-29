@@ -91,7 +91,7 @@ internal static class GenericBreakdown
         }
     }
 
-    internal static List<string> Collect(GameItem? item, bool zh)
+    internal static List<string> Collect(GameItem? item)
     {
         var lines = new List<string>();
         try
@@ -108,8 +108,8 @@ internal static class GenericBreakdown
 
             LogRegistryOnce();
 
-            // 显示文本随语言变化，缓存键必须带语言，不能复用上一次语言的字符串。
-            string key = (zh ? "zh|" : "en|") + CacheKey(type, item);
+            // 显示文本随语言变化，缓存键必须带语言码，不能复用上一次语言的字符串。
+            string key = Loc.Code + "|" + CacheKey(type, item);
             if (Cache.TryGetValue(key, out var cached))
             {
                 FailureCache.Remove(key);
@@ -123,7 +123,7 @@ internal static class GenericBreakdown
                 FailureCache.Remove(key);
             }
 
-            var built = Build(type, item, type.getCorrectValue, zh, out bool reliable);
+            var built = Build(type, item, type.getCorrectValue, out bool reliable);
             if (!reliable)
             {
                 // 24 次采样和逐标签消融可能反复失败；短暂负缓存避免同一物品
@@ -156,10 +156,18 @@ internal static class GenericBreakdown
     }
 
     private static List<string> Build(AppraisalItemType type, GameItem item,
-        Func<GameItem, int> getValue, bool zh, out bool reliable)
+        Func<GameItem, int> getValue, out bool reliable)
     {
         reliable = false;
         var lines = new List<string>();
+
+        // 标签数超过消融上限时不做截断分解：截断输入会让 ValueAblation
+        // 看不到被省略的键，仍可能把不完整结果标成 reliable。
+        if (TagRecords(item).Count > MaxTags)
+        {
+            Log.Warn("Generic.TooManyTags", $"标签数超过 {MaxTags}，跳过分解：" + type.id);
+            return lines;
+        }
 
         // 1) 基线采样：成功按类型缓存；失败短路 5 秒，之后允许重试。
         var baseline = GetBaseline(type);
@@ -245,7 +253,7 @@ internal static class GenericBreakdown
             int otherDelta = 0;
             foreach (var p in result.Parts)
             {
-                string? name = TagName(p.Key, p.Value, zh);
+                string? name = TagName(p.Key, p.Value);
                 if (name == null) otherDelta += p.Delta;
                 else known.Add((p, name));
             }
@@ -258,17 +266,17 @@ internal static class GenericBreakdown
                 lines.Add($"· {knownItem.Name} {sign}");
             }
             if (known.Count > MaxLines)
-                lines.Add(zh ? $"· …另有 {known.Count - MaxLines} 项" : $"· ... and {known.Count - MaxLines} more");
+                lines.Add(Loc.T("generic.more", "· ... and {0} more", known.Count - MaxLines));
             if (otherDelta != 0)
             {
                 string sign = otherDelta > 0 ? $"+{otherDelta}" : otherDelta.ToString();
-                lines.Add(zh ? $"· 其他属性 {sign}" : $"· Other attributes {sign}");
+                lines.Add(Loc.T("generic.other_attributes", "· Other attributes {0}", sign));
             }
 
             if (result.Residual != 0)
             {
                 string sign = result.Residual > 0 ? $"+{result.Residual}" : result.Residual.ToString();
-                lines.Add(zh ? $"· 组合/其它 {sign}" : $"· Combined/other {sign}");
+                lines.Add(Loc.T("generic.combined", "· Combined/other {0}", sign));
             }
 
             return lines;
@@ -407,8 +415,8 @@ internal static class GenericBreakdown
     }
 
     /// <summary>
-    /// 物品当前标签（键 → 规范化值），最多 MaxTags 项。
-    /// Build 与 CacheKey 必须用同一份口径，否则缓存键与实际消融的标签集不一致。
+    /// 物品当前的完整标签快照。Build 会在超过 MaxTags 时提前拒绝；
+    /// 这里不能静默截断，否则完整性判断与缓存键都会漏掉尾部标签。
     /// </summary>
     private static List<KeyValuePair<string, Record>> TagRecords(GameItem item)
     {
@@ -418,7 +426,6 @@ internal static class GenericBreakdown
             foreach (var kv in item.modifiedState.dict)
             {
                 if (kv.Value == null) continue;
-                if (result.Count >= MaxTags) break;
                 result.Add(new KeyValuePair<string, Record>(kv.Key, ToRecord(kv.Value)));
             }
         }
@@ -429,7 +436,11 @@ internal static class GenericBreakdown
     private static string CacheKey(AppraisalItemType type, GameItem item)
     {
         var sb = new StringBuilder();
-        sb.Append(type.id).Append('|');
+        // 第三方 getCorrectValue 可以读取任意物品字段，不能假定“同标签就同结果”。
+        // 用实例身份隔离成功/失败缓存，再保留类型与物品 ID 便于诊断键冲突。
+        sb.Append(type.id).Append('|').Append(type.itemId).Append('|').Append(type.source).Append('|')
+          .Append(item.identifier).Append('|').Append(GameRead.UniqueId(item)).Append('|')
+          .Append(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)).Append('|');
 
         var keys = new List<string>();
         foreach (var kv in TagRecords(item))
@@ -441,35 +452,36 @@ internal static class GenericBreakdown
     }
 
     /// <summary>标签显示名：已知的返回玩家可读名称；未知返回 null，由调用方合并。</summary>
-    private static string? TagName(string tag, string canonical, bool zh)
+    private static string? TagName(string tag, string canonical)
     {
         string raw = Record.StrOf(canonical ?? "");
 
-        string? friendly = (tag, raw) switch
+        // 键与英文兜底成对出现：键复用于 zh.csv 等译文，英文保证缺文件时也能读。
+        (string Key, string En)? hit = (tag, raw) switch
         {
-            ("HAND_MATERIAL", "GOLD_PLATED") => zh ? "镀金" : "Gold plating",
-            ("HAND_MATERIAL", "CARBON_COMPOSITE") => zh ? "碳纤维" : "Carbon-fiber shell",
-            ("HAND_INTERFACE", "NEURAL") => zh ? "神经接口" : "Neural jack",
-            ("HAND_INTERFACE", "EMG_PLUS") => zh ? "能源标" : "EMG+ connector",
-            ("HAND_CONDITION", "WEAR") => zh ? "磨损" : "Worn",
-            ("HAND_CONDITION", "DAMAGE") => zh ? "受损" : "Damaged",
-            ("HAND_ADDON_ARMORED", "ARMORED") => zh ? "装甲组件" : "Armor module",
-            ("HAND_ADDON_BLADED", "BLADED") => zh ? "刀刃组件" : "Blade module",
-            ("PLASMA_SEAL", "LL") => zh ? "王尔德载具" : "Wild's Rides",
-            ("PLASMA_SEAL", "ZHONGHUA") => zh ? "中华船舶" : "ZhongHua",
-            ("PLASMA_SEAL", "REPUBLIC") => zh ? "共和国海军" : "Republic Naval",
-            ("PLASMA_SEAL", "IGNITION_LAB") => zh ? "点火实验室" : "Ignition Lab",
-            ("PLASMA_COLOR", "HIGH_QUALITY") => zh ? "高级颜色" : "Premium finish",
-            ("PLASMA_COLOR", "POOR1") or ("PLASMA_COLOR", "POOR2") => zh ? "低级颜色" : "Cheap finish",
-            ("PLASMA_CASING_CONDITION_WEAR", "WEAR") => zh ? "轻度磨损" : "Slight wear",
-            ("PLASMA_CASING_CONDITION_WEAR", "WEAR_HEAVY") => zh ? "重度磨损" : "Severe wear",
-            ("PLASMA_CASING_CONDITION_CRACK", "CRACK") => zh ? "外壳破裂" : "Casing fracture",
-            ("PLASMA_CASING_CONDITION_UNCOVERED", "UNCOVERED") => zh ? "螺丝外露" : "Loose screws",
-            ("PLASMA_CASING_CONDITION_REINFORCED", "REINFORCED") => zh ? "加固处理" : "Reinforcement",
+            ("HAND_MATERIAL", "GOLD_PLATED") => ("appraisal.gold", "Gold plating"),
+            ("HAND_MATERIAL", "CARBON_COMPOSITE") => ("appraisal.carbon", "Carbon-fiber shell"),
+            ("HAND_INTERFACE", "NEURAL") => ("appraisal.neural", "Neural jack"),
+            ("HAND_INTERFACE", "EMG_PLUS") => ("appraisal.emgplus", "EMG+ connector"),
+            ("HAND_CONDITION", "WEAR") => ("appraisal.worn", "Worn"),
+            ("HAND_CONDITION", "DAMAGE") => ("appraisal.damaged", "Damaged"),
+            ("HAND_ADDON_ARMORED", "ARMORED") => ("appraisal.armor", "Armor module"),
+            ("HAND_ADDON_BLADED", "BLADED") => ("appraisal.blade", "Blade module"),
+            ("PLASMA_SEAL", "LL") => ("appraisal.seal_ll_short", "Wild's Rides"),
+            ("PLASMA_SEAL", "ZHONGHUA") => ("appraisal.seal_zhonghua_short", "ZhongHua"),
+            ("PLASMA_SEAL", "REPUBLIC") => ("appraisal.seal_republic_short", "Republic Naval"),
+            ("PLASMA_SEAL", "IGNITION_LAB") => ("appraisal.seal_ignition_short", "Ignition Lab"),
+            ("PLASMA_COLOR", "HIGH_QUALITY") => ("appraisal.finish_premium", "Premium finish"),
+            ("PLASMA_COLOR", "POOR1") or ("PLASMA_COLOR", "POOR2") => ("appraisal.finish_cheap", "Cheap finish"),
+            ("PLASMA_CASING_CONDITION_WEAR", "WEAR") => ("appraisal.casing_wear", "Slight wear"),
+            ("PLASMA_CASING_CONDITION_WEAR", "WEAR_HEAVY") => ("appraisal.casing_wear_heavy", "Severe wear"),
+            ("PLASMA_CASING_CONDITION_CRACK", "CRACK") => ("appraisal.casing_crack", "Casing fracture"),
+            ("PLASMA_CASING_CONDITION_UNCOVERED", "UNCOVERED") => ("appraisal.casing_screws", "Loose screws"),
+            ("PLASMA_CASING_CONDITION_REINFORCED", "REINFORCED") => ("appraisal.casing_reinforced", "Reinforcement"),
             _ => null,
         };
 
-        return friendly;
+        return hit is (string key, string en) ? Loc.T(key, en) : null;
     }
 
     private static void LogRegistryOnce()

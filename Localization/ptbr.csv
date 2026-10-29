@@ -1,0 +1,179 @@
+# Item Details Português (Brasil) (ptbr)
+# key,value
+alert.aug_tier,Nível de aumento: {0}
+alert.bounty," (recompensa {0})"
+alert.real_name,Nome real: {0}
+alert.title_augmented,Cliente aumentado
+alert.title_both,Procurado · Cliente aumentado
+alert.title_wanted,Procurado
+appraisal.armor,Módulo de armadura
+appraisal.base,Base
+appraisal.blade,Módulo de lâmina
+appraisal.build_deluxe,Configuração de luxo
+appraisal.build_tactical,Configuração tática
+appraisal.carbon,Carcaça de fibra de carbono
+appraisal.casing_crack,Fratura na carcaça
+appraisal.casing_reinforced,Reforço
+appraisal.casing_screws,Parafusos soltos
+appraisal.casing_wear,Desgaste leve
+appraisal.casing_wear_heavy,Desgaste grave
+appraisal.damaged,Danificado
+appraisal.emgplus,Conector EMG+
+appraisal.finish_cheap,Acabamento barato
+appraisal.finish_premium,Acabamento premium
+appraisal.gold,Banho de ouro
+appraisal.iface_unknown,Tipo de interface desconhecido
+appraisal.neural,Conector neural
+appraisal.ribwich_deluxe,Combo de luxo
+appraisal.ribwich_double_meat,Carne dupla
+appraisal.ribwich_first_batch,Primeiro lote
+appraisal.ribwich_month_edge,Primeiro ou último mês
+appraisal.ribwich_opened,Aberto ou falsificado (fixo 40)
+appraisal.ribwich_plant_grade_a,Fábrica classe A {0:D2}
+appraisal.ribwich_plant_grade_c,Fábrica classe C {0:D2}
+appraisal.seal_ignition,Incentivo Ignition Lab
+appraisal.seal_ll,Incentivo Wild's Rides
+appraisal.seal_republic,Incentivo Republic Naval
+appraisal.seal_zhonghua,Incentivo ZhongHua
+appraisal.worn,Gasto
+auth.counterfeit,✘ Suspeita de falsificação ({0})
+auth.genuine,✔ Autêntico
+berry.dried,Seca
+berry.line,Qualidade da fruta: {0}
+berry.moldy,Mofada
+berry.normal,Normal
+berry.small,Pequena
+berry.unripe,Imatura
+calorie.line,Energia: {0} {1}
+calorie.per_cell," ({0} {1}/célula)"
+calorie.unit,kcal
+condition.line,Estado: {0} {1}
+config.auth,Autenticidade
+config.auth.tip,"Mostra conclusões de autêntico/falsificado e as falhas específicas em injetores, cigarros e cupons de comida. O valor real só é adicionado quando registrado."
+config.container,Detalhes do recipiente
+config.container.tip,"Mostra a taxa de compressão (células internas ÷ células do item), o conteúdo e o valor total."
+config.contraband,Acréscimo do mercado negro (contrabando)
+config.contraband.tip,Acrescenta o ágio do mercado negro (Baixo 35 / Médio 70 / Alto 100 / Crítico 150). O nível de contrabando em si é mostrado pelo jogo base.
+config.customer_alert,Alerta de chegada de cliente
+config.customer_alert.tip,"Avisa quando chega um cliente procurado ou aumentado, incluindo a recompensa real, o nome real e o nível de aumento."
+config.dim_description,Escurecer descrição do item
+config.dim_description.tip,"Exibe as descrições dos itens em cinza para destacar as informações de avaliação. Só muda a cor, não o texto."
+config.double_click_inspect,Clique duplo para inspecionar
+config.double_click_inspect.tip,Dê clique duplo em um item de avaliação para abrir o painel sem a lupa. Altera o texto da dica; desative para voltar ao fluxo do jogo base.
+config.hidden_truth,Revelar disfarces e atributos reais
+config.hidden_truth.tip,"Mostra as diferenças reais de estado, a durabilidade real e a pureza de lingotes/produtos químicos. Expõe falsificações diretamente e reduz a dificuldade da avaliação."
+config.hide_estimate_value,Ocultar linha de estimativa do jogo base
+config.hide_estimate_value.tip,"Essas linhas mostram a oferta do cliente, não o valor real da avaliação. Só são ocultadas em itens de avaliação e quando o total pode ser calculado."
+config.lottery,Acertos e prêmio da loteria
+config.lottery.tip,"Após o sorteio, mostra quantos números acertaram e o prêmio. O jogo base só colore os números acertados."
+config.module_effects,Variações reais dos efeitos de módulo
+config.module_effects.tip,"O jogo base só lista percentuais como desempenho/eficiência/qualidade +16%. Aqui acrescentamos os valores calculados pelo jogo: velocidade de processamento para desempenho, consumo de energia para eficiência e qualidade ajustada para qualidade (apenas máquinas com taxa de qualidade). Tudo derivado das etiquetas do item; máquinas sem esses dados mantêm a linha do jogo base."
+config.name_label_background,Fundo do rótulo de nome
+config.name_label_background.tip,Desenha um fundo preto translúcido atrás do nome em ícones carregados.
+config.name_label_background_alpha,Opacidade do fundo
+config.name_label_background_alpha.tip,"Opacidade do fundo, 0-1."
+config.name_label_mode,Nomes nos ícones
+config.name_label_mode.tip,Desligado: oculta os nomes. Recipientes: só recipientes e máquinas. Só renomeados: só itens renomeados com a impressora de etiquetas.
+config.name_label_position,Posição do nome no ícone
+config.name_label_position.tip,Em que parte do ícone do item o nome fica.
+config.plant,Detalhes da planta
+config.plant.tip,Frutas mostram a qualidade (normal/mofada/imatura); sementes mostram as características e os níveis.
+config.price_impact,"Rótulo, condição e impacto de mercado"
+config.price_impact.tip,"Acrescenta o modificador de preço depois das linhas de rótulo e condições como Amassado/Enferrujado, e lista os eventos ativos da loja que afetam o item. O jogo base só mostra os nomes."
+config.scratcher,Resultado da raspadinha
+config.scratcher.tip,Mostra o prêmio (ou nenhum prêmio) e o progresso antes de raspar. Recálculo somente leitura; nunca raspa por você. Desative para ocultar o resultado.
+config.sealed_box,Conteúdo de recipientes selados
+config.sealed_box.tip,Lista o conteúdo e o valor total de recipientes trancados antes de destrancar. Ignora a tranca; desligado por padrão.
+config.section.customer,Alertas de clientes
+config.section.display,Exibição
+config.section.interaction,Interação e visual
+config.section.reveal,Revelação
+config.value,Detalhes de valor e avaliação
+config.value.tip,"Em itens de avaliação: valor total, faixa de oferta perfeita, detalhamento por origem e motivos de falsificação; o título da avaliação também mostra o preço real. Tipos de avaliação desconhecidos ou de mods usam um detalhamento medido."
+config.value_enhance,Valor por célula (não avaliação)
+config.value_enhance.tip,Em itens que não são de avaliação: valor unitário × quantidade e valor por célula ocupada. Itens de avaliação são pulados porque já mostram o valor real.
+config.water_purity,Qualidade da água e dicas
+config.water_purity.tip,"Mostra a pureza em %, o nome da faixa do jogo base, as impurezas, o volume de líquido não-água e dicas de tratamento sem precisar do testador de água. Desative para voltar ao fluxo do jogo base (testador necessário). Se um mod dedicado de água (ex.: AquaSense) estiver ativo, ele assume esta seção."
+config.wine,Pontuação e composição do vinho
+config.wine.tip,"Mostra dados do vinho que o jogo base esconde: pontuação e faixa, extrato/contaminante, falsificação (levedura ilegal), dias de envelhecimento e bônus por dia, progresso da fermentação."
+contraband.markup,Mercado negro: +{0}%
+generic.combined,· Combinado/outros {0}
+generic.header,Detalhamento de valor (medido):
+generic.more,· ... e mais {0}
+generic.other_attributes,· Outros atributos {0}
+hidden.chem_purity,Pureza química: {0}%
+hidden.durability,Durabilidade: {0}/{1}
+hidden.durability_faked,"Durabilidade real: {0}/{1} (exibida {2}/{3}, provavelmente falsa)"
+hidden.purity,Pureza: {0}
+hidden.purity_faked,"Pureza real: {0} (exibida {1}, provavelmente falsa)"
+hint.double_click,Clique duplo para inspecionar; clique duplo em outro item para trocar
+list.sep,", "
+lottery.matched_none,Acertos {0}/6 -> sem prêmio
+lottery.matched_prize,Acertos {0}/6 -> prêmio {1}
+lottery.not_drawn,Edição {0}: ainda não sorteada (sorteio todo sábado)
+lottery.winning,Sorteados: {0}
+market.line,Mercado: {0}
+module.power,{0} energia/dia
+module.quality,{0} qualidade
+module.speed,{0} velocidade
+price.buy,"Compra: "
+price.cost_close,)
+price.cost_open," (Custo "
+price.list," Preço pedido: {0}"
+price.sell,Venda: {0}
+reveal.modifier,Modificador real: {0}% (disfarçado {1}%)
+reveal.real,Real: {0} (disfarçado como {1})
+reveal.real_with_mod,Real: {0} ({1}%) (disfarçado como {2})
+ribwich.header,Por que é falsificado:
+ribwich.more,... e mais {0}
+ribwich.reason_bun_no_pickles,Pão com gergelim sem picles extra; o de luxo exige ambos
+ribwich.reason_date_missing,Sem data de produção carimbada
+ribwich.reason_davre_missing,Marca Davre ausente
+ribwich.reason_davre_wrong,Marca Davre incorreta
+ribwich.reason_first_sticker,O primeiro lote não deve ter adesivo Ribwich
+ribwich.reason_month_range,Mês {0} fora de 1-12
+ribwich.reason_pickles_no_bun,Picles extra sem pão com gergelim; o de luxo exige ambos
+ribwich.reason_plant_missing,Sem número da fábrica
+ribwich.reason_plant_range,Fábrica nº {0} fora de 01-35
+ribwich.reason_second_sticker_missing,O segundo lote não tem adesivo Ribwich
+ribwich.reason_second_sticker_wrong,O segundo lote tem adesivo Ribwich errado
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,Ano {0} fora de 425-429 / 432-438
+scratcher.no_prize,Raspadinha: sem prêmio
+scratcher.progress,Raspado {0}/3
+scratcher.win,Raspadinha: ganha {0} ({1} iguais)
+sealed.contents,Dentro: {0}{1}
+sealed.empty,Conteúdo: vazio
+sealed.more," ... {0} no total"
+sealed.total,Total dentro: {0}
+sealed.unit," ({0})"
+seed.header,Características (não analisadas):
+seed.more,... e mais {0}
+seed.trait_rank,{0} (nível {1})
+storage.contains,"Contém: "
+storage.more_kinds," e {0} tipos"
+storage.ratio,Compressão: {0} ({1}/{2} células)
+storage.total_value,Valor total: {0}
+title.appraisal_suffix,"{0} Preço pedido {1}, melhor oferta {2}"
+value.from,"Origem: "
+value.per_cell,Valor/célula: {0} ({1}/{2} células)
+value.perfect_range," | perfeito {0}-{1}"
+value.total,Total: {0} × {1} = {2}
+value.total_line,Total: {0}
+water.head,Água: {0}% {1}
+water.impurities,Impurezas {0}%
+water.list_head,": "
+water.mismatch," (rótulo não confere)"
+water.none,: nenhum
+water.trace,traço (abaixo do limite de exibição)
+wine.aging,Bônus de envelhecimento: +{0}/dia (total +{1})
+wine.composition,"Composição: extrato {0}‰, contaminante {1}‰"
+wine.counterfeit,Falsificado: levedura ilegal
+wine.empty,Vazio
+wine.fermenting,Fermentando
+wine.finished,Pronto
+wine.score,Pontuação do vinho: {0}{1}
+wine.state,Vinho: {0}
+wine.tier,", faixa {0}"
+wine.unknown_state,Desconhecido({0})
+wine.yeast_power,Força da levedura: {0}/ciclo

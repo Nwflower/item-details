@@ -20,7 +20,7 @@ internal static class ScratcherInfo
     private const string StatePrefix = "SCRATCHER_STATE";
     private const int NutrifruitSymbol = 1;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         try
@@ -66,17 +66,16 @@ internal static class ScratcherInfo
 
             lines.Add(prize > 0
                 ? new TooltipLine(
-                    zh ? $"刮刮卡：会中奖 {prize}（{bestCount} 个相同）"
-                       : $"Scratcher: wins {prize} ({bestCount} matching)",
+                    Loc.T("scratcher.win", "Scratcher: wins {0} ({1} matching)", prize, bestCount),
                     RenderHandler.ColorPalette.LightGreen)
                 : new TooltipLine(
-                    zh ? "刮刮卡：不会中奖" : "Scratcher: no prize",
+                    Loc.T("scratcher.no_prize", "Scratcher: no prize"),
                     RenderHandler.ColorPalette.LightRed));
 
             if (statesReadable && scratched < 3)
             {
                 lines.Add(new TooltipLine(
-                    zh ? $"已刮开 {scratched}/3" : $"Scratched {scratched}/3",
+                    Loc.T("scratcher.progress", "Scratched {0}/3", scratched),
                     RenderHandler.ColorPalette.LightCyan));
             }
 

@@ -28,9 +28,11 @@ internal static class ItemNameLabel
 
     private static Harmony? _harmony;
     private static bool _patched;
+#if ITEMDETAILS_DIAG
     private static bool _geometryLogged;
     private static int _placementLogged;
     private static int _rotatedLogged;
+#endif
 
     private static readonly ConditionalWeakTable<GameItemElement, Label> Labels = new();
     private static readonly System.Collections.Generic.List<WeakReference<GameItemElement>> Tracked = new();
@@ -321,6 +323,7 @@ internal static class ItemNameLabel
             shadow.text.enabled = false;
             main.text.enabled = false;
 
+#if ITEMDETAILS_DIAG
             if (!_geometryLogged)
             {
                 _geometryLogged = true;
@@ -334,6 +337,7 @@ internal static class ItemNameLabel
                 }
                 catch { }
             }
+#endif
 
             var label = new Label { Main = main, Shadow = shadow, Bg = bg };
             Labels.Add(element, label);
@@ -582,6 +586,7 @@ internal static class ItemNameLabel
                 }
             }
 
+#if ITEMDETAILS_DIAG
             // 旋转物品专项诊断：四角与 rotator 角度一起打，确认角点是否已含旋转
             if (_rotatedLogged < 6)
             {
@@ -607,6 +612,7 @@ internal static class ItemNameLabel
                         $"lossyScale=({scale.x:0.##},{scale.y:0.##}) size={size:0.#}");
                 LogRenderState(label);
             }
+#endif
         }
         catch (Exception ex)
         {
@@ -614,6 +620,7 @@ internal static class ItemNameLabel
         }
     }
 
+#if ITEMDETAILS_DIAG
     private static void LogRenderState(Label label)
     {
         try
@@ -637,6 +644,7 @@ internal static class ItemNameLabel
         }
         catch (Exception ex) { Log.Warn("NameLabel.RenderState", ex); }
     }
+#endif
 
     private static void SetRect(TreeNodeRender? node, float width, float height,
                                 float centerX, float y, float z, float sx, float sy)

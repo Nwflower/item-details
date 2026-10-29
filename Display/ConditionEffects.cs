@@ -31,7 +31,7 @@ internal static class ConditionEffects
     /// <summary>最多展示几条，避免 tooltip 过长。</summary>
     private const int MaxLines = 4;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -42,7 +42,7 @@ internal static class ConditionEffects
             foreach (var f in FeatureScan.All(item))
             {
                 if (lines.Count >= MaxLines) break;
-                TryOne(f, zh, lines, seen);
+                TryOne(f, lines, seen);
             }
 
             if (lines.Count > 0) Log.MarkOk("ConditionEffects");
@@ -65,7 +65,7 @@ internal static class ConditionEffects
     /// <summary>转换型条件按点数显示（无 %），其余按百分比显示。</summary>
     internal static string Suffix(ItemCondition cond) => cond.isTransformative ? "" : "%";
 
-    private static void TryOne(ItemFeature f, bool zh, List<TooltipLine> lines, HashSet<string> seen)
+    private static void TryOne(ItemFeature f, List<TooltipLine> lines, HashSet<string> seen)
     {
         try
         {
@@ -95,7 +95,7 @@ internal static class ConditionEffects
             // isTransformative 走点数，其余走百分比（与游戏 GetFormattedActualModifier 一致）
             string suffix = Suffix(cond);
             string signed = amount > 0 ? $"+{amount}{suffix}" : $"{amount}{suffix}";
-            string text = zh ? $"状态：{display} {signed}" : $"Condition: {display} {signed}";
+            string text = Loc.T("condition.line", "Condition: {0} {1}", display, signed);
 
             lines.Add(new TooltipLine(text, amount < 0 ? Penalty : Bonus));
             Log.MarkOk("ConditionEffects." + (cond.identifier ?? "?"));

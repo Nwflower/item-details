@@ -28,7 +28,21 @@ internal static class SealedBoxInfo
     /// <summary>异常数据上限：超过就不列明细、不给总价。</summary>
     private const int MaxChildren = 512;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    // 与普通容器一致：tooltip 高频重建时，内容物与价值最迟 1 秒刷新一次。
+    private const float CacheSeconds = 1f;
+    private static GameGridInventory? _cacheGrid;
+    private static string _cacheLocale = "";
+    private static float _cacheAt = float.MinValue;
+    private static List<TooltipLine>? _cache;
+
+    internal static void Stop()
+    {
+        _cacheGrid = null;
+        _cache = null;
+        _cacheAt = float.MinValue;
+    }
+
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         try
@@ -49,70 +63,103 @@ internal static class SealedBoxInfo
             catch (Exception ex) { Log.Warn("SealedBox.Window", ex); return lines; }
             if (grid == null) return lines;
 
+            float now = UnityEngine.Time.unscaledTime;
+            string locale = Loc.Code;
+            if (_cache != null && ReferenceEquals(_cacheGrid, grid)
+                && _cacheLocale == locale && now - _cacheAt <= CacheSeconds)
+            {
+                lines.AddRange(_cache);
+                if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");
+                return lines;
+            }
+            void StoreCache()
+            {
+                _cacheGrid = grid;
+                _cacheLocale = locale;
+                _cacheAt = now;
+                _cache = lines;
+            }
+
             // ---------- 内容物 + 合计价值：同一次遍历、同一套价值口径 ----------
             // 旧版单件用 GetCurrentValue、总价用 grid.GetTotalValue，两者口径不同
             // （后者走 GetValue，不含同一套 ItemFeature/事件修正），带瑕疵时会自相矛盾。
+            List<GameItem>? items = null;
+            try { items = grid.childItems; }
+            catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
+            if (items == null || items.Count > MaxChildren)
+            {
+                // 读取失败或异常超限时保持无输出，不能误报成“箱内：空”。
+                if (items != null)
+                    Log.Warn("SealedBox.Items", $"内容物 {items.Count} 件，超过上限 {MaxChildren}，跳过");
+                StoreCache();
+                return lines;
+            }
+
             var contents = new StringBuilder();
-            int shown = 0, total = 0;
+            int shown = 0, total = items.Count;
             long sum = 0;
             try
             {
-                List<GameItem>? items = null;
-                try { items = grid.childItems; } catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
-                if (items != null && items.Count <= MaxChildren)
+                foreach (var child in items)
                 {
-                    total = items.Count;
-                    foreach (var child in items)
-                    {
-                        if (child == null) continue;
+                    if (child == null) continue;
 
-                        long unit = 0;
-                        int stack = 1;
-                        try { if (child.unitCount > 1) stack = child.unitCount; } catch { }
+                    long unit = 0;
+                    int stack = 1;
+                    try { if (child.unitCount > 1) stack = child.unitCount; } catch { }
+
+                    bool nestedContainer = false;
+                    try { nestedContainer = child.contentWindow != null; } catch { }
+                    if (!nestedContainer)
+                    {
                         try
                         {
                             unit = child.GetCurrentValue(useRetailMarkup: false, withChild: true,
                                                          includeEvents: true, forceMarkup: false);
                         }
                         catch { unit = 0; }
-
-                        if (unit > 0 && StackValue.TryTotal(unit, stack, out long lineTotal)
-                            && lineTotal <= long.MaxValue - sum)
-                        {
-                            sum += lineTotal;
-                        }
-
-                        if (shown >= MaxItems) continue;
-                        if (shown > 0) contents.Append(zh ? "、" : ", ");
-                        contents.Append(GameRead.ItemName(child));
-                        if (unit > 0) contents.Append(zh ? $"（{unit}）" : $" ({unit})");
-                        shown++;
                     }
-                }
-                else if (items != null)
-                {
-                    // 异常数据（超过上限）不列明细也不给总价，避免误导
-                    Log.Warn("SealedBox.Items", $"内容物 {items.Count} 件，超过上限 {MaxChildren}，跳过");
+                    // 嵌套容器仍列名称，但不递归求值，避免箱套箱时成本不可控。
+
+                    if (unit > 0 && StackValue.TryTotal(unit, stack, out long lineTotal)
+                        && lineTotal <= long.MaxValue - sum)
+                    {
+                        sum += lineTotal;
+                    }
+
+                    if (shown >= MaxItems) continue;
+                    if (shown > 0) contents.Append(Loc.T("list.sep", ", "));
+                    contents.Append(GameRead.ItemName(child));
+                    if (unit > 0) contents.Append(Loc.T("sealed.unit", " ({0})", unit));
+                    shown++;
                 }
             }
-            catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
+            catch (Exception ex)
+            {
+                Log.Warn("SealedBox.Items", ex);
+                StoreCache();
+                return lines;
+            }
 
             if (shown == 0)
             {
-                lines.Add(new TooltipLine(zh ? "箱内：空" : "Contents: empty", Color));
+                lines.Add(new TooltipLine(Loc.T("sealed.empty", "Contents: empty"), Color));
             }
             else
             {
-                string more = total > shown ? (zh ? $" …共 {total} 件" : $" ... {total} total") : "";
+                string more = total > shown
+                    ? Loc.T("sealed.more", " ... {0} total", total)
+                    : "";
                 lines.Add(new TooltipLine(
-                    zh ? $"箱内：{contents}{more}" : $"Inside: {contents}{more}",
+                    Loc.T("sealed.contents", "Inside: {0}{1}", contents.ToString(), more),
                     Color));
             }
 
             // ---------- 箱内总价值 ----------
             if (sum > 0)
-                lines.Add(new TooltipLine(zh ? $"箱内总价值：{sum}" : $"Total inside: {sum}", Color));
+                lines.Add(new TooltipLine(Loc.T("sealed.total", "Total inside: {0}", sum), Color));
 
+            StoreCache();
             if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");
         }
         catch (Exception ex)

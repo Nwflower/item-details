@@ -17,7 +17,7 @@ internal static class RibwichCounterfeit
 {
     internal const int MaxLines = 6;
 
-    internal static List<string> Collect(GameItem? item, bool zh)
+    internal static List<string> Collect(GameItem? item)
     {
         var result = new List<string>();
         try
@@ -50,10 +50,14 @@ internal static class RibwichCounterfeit
                 davre, logo, productionMark, facilityMark, bun, pickles);
 
             for (int i = 0; i < reasons.Count && i < MaxLines; i++)
-                result.Add(RibwichReasons.Text(reasons[i], zh, month, year, facility));
+            {
+                var r = reasons[i];
+                result.Add(Loc.T(RibwichReasons.Key(r), RibwichReasons.English(r),
+                    RibwichReasons.Args(r, month, year, facility)));
+            }
 
             if (reasons.Count > MaxLines)
-                result.Add(zh ? $"…另有 {reasons.Count - MaxLines} 项" : $"... and {reasons.Count - MaxLines} more");
+                result.Add(Loc.T("ribwich.more", "... and {0} more", reasons.Count - MaxLines));
 
             if (result.Count > 0) Log.MarkOk("RibwichCounterfeit");
         }

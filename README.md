@@ -8,7 +8,7 @@ defect costs, water advice and customer alerts, inlined into the vanilla tooltip
 
 - Mod ID：`item_details`
 - 路线：正式版官方 `IMod` + `manifest.xml`（Mono）
-- 版本：`0.5.0`
+- 版本：`0.6.0`
 - 适配游戏版本：`0.46`
 
 ## 功能
@@ -22,7 +22,7 @@ defect costs, water advice and customer alerts, inlined into the vanilla tooltip
 | 缺陷价值 | 原版只写状态不写金额的瑕疵，这里补上对价格的影响 |
 | 违禁与品质 | 违禁品黑市溢价、荧光莓品质、储存压缩率、容器内容物价值 |
 | 水质 | 含水容器显示水质与杂质，并按玩家手上的净化手段列出可行提升 |
-| 顾客提示 | 顾客到店时提示通缉犯或改造体身份与举报奖励 |
+| 顾客提示 | 顾客到店时提示通缉犯或改造体身份与举报奖励；提示条默认在屏幕正上方居中，可用标题栏拖动，**位置只在本次游戏内记住**（不写盘，重启回到正上方） |
 | 鉴定面板 | 打开鉴定服务时，标题追加真实价格与完美报价区间 |
 | 便捷 | 双击待鉴定物品直接打开鉴定面板；鉴定中双击另一件直接切换 |
 
@@ -50,19 +50,49 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="D:\Steam\steamapps\common
 输出在 `bin/Release/netstandard2.1/`，含 `ItemDetails.dll` 与随包资源。
 引用的是游戏自带的 `Assembly-CSharp.dll`、Unity 与 `0Harmony.dll`（全部 `Private=false`，不会被打进产物）。
 
-诊断构建（可选）：模组内自带的无头自检默认**不编译进产物**，需要时显式打开：
+诊断构建（可选）：普通 Release 不包含信息/性能日志和自检代码，需要时显式打开：
 
 ```powershell
+# 只启用信息、性能与 UI 诊断日志，不启用自动读档或自检
+dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:Diag=true
+
+# 自检构建会同时启用诊断日志
 dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:SelfTest=true
 # 启动游戏时带 -itemdetails-selftest，或在 ModData/item_details/ 放一个 selftest.flag
 ```
 
 自检会在载入存档后跑一轮用例并退出，用于验证 tooltip 渲染、探针隔离与公式一致性。
+发布包只包含 DLL、manifest、资源目录和发布文档；本地 PDB 与 deps.json 不上传。
 
 ## 设置
 
 模组菜单内可逐项开关，全部即时生效并持久化：真伪、价值构成、赝品原因、缺陷价值、
 违禁溢价、荧光莓、压缩率、水质透视、顾客提示、双击鉴定、鉴定面板标题、描述淡化等。
+
+## 多语种
+
+界面文案跟随游戏语言，覆盖游戏内置的全部 11 套语言表：
+
+| 语言码 | 语言 | 游戏下拉框可选 |
+|---|---|---|
+| `en` | English（兜底语言） | ✅ |
+| `zh` | 简体中文 | ✅ |
+| `ru` `de` `ja` `fr` `es` `pl` | 俄语 / 德语 / 日语 / 法语 / 西班牙语 / 波兰语 | ✅ |
+| `it` `ko` `ptbr` | 意大利语 / 韩语 / 巴西葡萄牙语 | ⬜ 词表存在，但游戏界面没有提供选项 |
+
+实现约定：
+
+- **英文文案写在代码里**（`Loc.T("key", "English …")`），它就是兜底值；其余语言放在
+  `Localization/<语言码>.csv`。缺文件、漏词条、翻译写坏时都回落到英文，
+  绝不会把 `price.sell` 这类内部键名显示给玩家。
+- 换语言即时生效（语言码缓存 0.25 秒），不需要重启。
+- 想加一门语言：复制 `Localization/zh.csv` 改名为目标语言码（必须与游戏
+  `SelectedLocale.Identifier.Code` 一致），按 `key,value` 逐行翻译即可被自动载入。
+  **首尾带空格或含逗号的值要用双引号整体包住**，`{0}` 这类占位符不能删改。
+- 改完跑一次 `python tools/check_localization.py`：校验键是否齐全、有无孤儿词条、
+  占位符是否与英文一致。
+
+> 除简体中文与英文外，其余 9 种语言为机器翻译初稿，措辞欢迎提 PR 修正。
 
 ## 来源说明
 
@@ -83,3 +113,5 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:SelfTest=true
 - 鉴定面板标题依赖遍历 `appraisalPanel` 子树查找「鉴定服务」文本，游戏改文案或层级会失配（日志会给出降级提示）。
 - 水质模拟在缓存未命中时会构造探针物品跑真实净化流程，属主线程开销。
 - 游戏更新后定价或标签结构变化时，相关行会整行消失而非显示旧值。
+- 设置面板的三个下拉框（图标名显示范围 / 位置 / 半透明底）选项文本同时是存档里的配置值，
+  改动会重置玩家已保存的选择，因此暂时保持中英双语的固定写法，不参与多语种。

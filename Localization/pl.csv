@@ -1,0 +1,179 @@
+# Item Details Polski (pl)
+# key,value
+alert.aug_tier,Poziom augmentacji: {0}
+alert.bounty," (nagroda {0})"
+alert.real_name,Prawdziwe imię: {0}
+alert.title_augmented,Klient z augmentacją
+alert.title_both,Poszukiwany · Klient z augmentacją
+alert.title_wanted,Poszukiwany
+appraisal.armor,Moduł pancerza
+appraisal.base,Cena bazowa
+appraisal.blade,Moduł ostrza
+appraisal.build_deluxe,Wersja deluxe
+appraisal.build_tactical,Wersja taktyczna
+appraisal.carbon,Korpus z włókna węglowego
+appraisal.casing_crack,Pęknięty korpus
+appraisal.casing_reinforced,Wzmocnienie
+appraisal.casing_screws,Luźne śruby
+appraisal.casing_wear,Lekkie zużycie
+appraisal.casing_wear_heavy,Silne zużycie
+appraisal.damaged,Uszkodzone
+appraisal.emgplus,Złącze EMG+
+appraisal.finish_cheap,Tanie wykończenie
+appraisal.finish_premium,Wykończenie premium
+appraisal.gold,Pozłacanie
+appraisal.iface_unknown,Nieznany typ interfejsu
+appraisal.neural,Gniazdo neuronowe
+appraisal.ribwich_deluxe,Zestaw deluxe
+appraisal.ribwich_double_meat,Podwójne mięso
+appraisal.ribwich_first_batch,Pierwsza partia
+appraisal.ribwich_month_edge,Pierwszy lub ostatni miesiąc
+appraisal.ribwich_opened,Otwarte lub podróbka (stałe 40)
+appraisal.ribwich_plant_grade_a,Zakład klasy A {0:D2}
+appraisal.ribwich_plant_grade_c,Zakład klasy C {0:D2}
+appraisal.seal_ignition,Bonus Ignition Lab
+appraisal.seal_ll,Bonus Wild's Rides
+appraisal.seal_republic,Bonus Republic Naval
+appraisal.seal_zhonghua,Bonus ZhongHua
+appraisal.worn,Zużyte
+auth.counterfeit,✘ Podejrzana podróbka ({0})
+auth.genuine,✔ Oryginał
+berry.dried,Wysuszona
+berry.line,Jakość jagody: {0}
+berry.moldy,Spleśniała
+berry.normal,Normalna
+berry.small,Drobna
+berry.unripe,Niedojrzała
+calorie.line,Energia: {0} {1}
+calorie.per_cell," ({0} {1}/kratkę)"
+calorie.unit,kcal
+condition.line,Stan: {0} {1}
+config.auth,Autentyczność
+config.auth.tip,"Pokazuje werdykt oryginał/podróbka i konkretne niezgodności dla strzykawek, papierosów i bonów żywnościowych. Prawdziwa wartość tylko wtedy, gdy jest zarejestrowana."
+config.container,Szczegóły pojemnika
+config.container.tip,"Pokazuje stopień kompresji (kratki wnętrza ÷ kratki przedmiotu), zawartość i łączną wartość."
+config.contraband,Marża czarnorynkowa kontrabandy
+config.contraband.tip,Dopisuje marżę czarnorynkową (niska 35 / średnia 70 / wysoka 100 / krytyczna 150). Sam poziom kontrabandy pokazuje podstawowa gra.
+config.customer_alert,Powiadomienie o przybyciu klienta
+config.customer_alert.tip,"Powiadamia, gdy przychodzi poszukiwany lub augmentowany klient, wraz z faktyczną nagrodą, prawdziwym imieniem i poziomem augmentacji."
+config.dim_description,Przygaszenie opisu przedmiotu
+config.dim_description.tip,"Wyświetla opisy przedmiotów na szaro, by informacje z wyceny były wyraźniejsze. Tylko kolor, bez zmian tekstu."
+config.double_click_inspect,Dwuklik otwiera wycenę
+config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny otwiera panel wyceny bez lupy. Zmienia tekst podpowiedzi; wyłącz, by wrócić do trybu podstawowej gry."
+config.hidden_truth,Ujawnianie kamuflażu i prawdziwych statystyk
+config.hidden_truth.tip,"Pokazuje prawdziwe różnice stanu, rzeczywistą wytrzymałość oraz czystość sztabek/chemikaliów. Wprost zdradza podróbki i ułatwia wycenę."
+config.hide_estimate_value,Ukryj szacunek z podstawowej gry
+config.hide_estimate_value.tip,"Te linie pokazują ofertę klienta, a nie prawdziwą wartość z wyceny. Ukrywane tylko na przedmiotach do wyceny i tylko gdy da się policzyć sumę."
+config.lottery,Trafienia i nagroda w loterii
+config.lottery.tip,"Po losowaniu pokazuje, ile liczb trafiło i jaka jest nagroda. Podstawowa gra tylko koloruje trafione liczby."
+config.module_effects,Rzeczywiste zmiany od modułów
+config.module_effects.tip,"Podstawowa gra podaje tylko procenty, np. wydajność/sprawność/jakość +16%. Tutaj dopisujemy wartości policzone przez grę: szybkość przetwarzania dla wydajności, pobór energii dla sprawności, przeliczoną jakość dla jakości (tylko maszyny ze wskaźnikiem jakości). Wszystko wynika z tagów przedmiotu; maszyny bez danych zachowują linię z podstawowej gry."
+config.name_label_background,Tło podpisu z nazwą
+config.name_label_background.tip,"Rysuje półprzezroczystą czarną płytkę pod nazwą, by nazwa była czytelna na pstrokatych ikonach."
+config.name_label_background_alpha,Krycie tła
+config.name_label_background_alpha.tip,"Krycie płytki tła, 0-1."
+config.name_label_mode,Nazwy na ikonach
+config.name_label_mode.tip,Wyłączone: brak nazw. Pojemniki: tylko pojemniki i maszyny. Tylko zmienione: tylko przedmioty przemianowane drukarką etykiet.
+config.name_label_position,Pozycja podpisu
+config.name_label_position.tip,Gdzie nazwa leży na ikonie przedmiotu.
+config.plant,Szczegóły roślin
+config.plant.tip,Jagody pokazują jakość (normalna/spleśniała/niedojrzała); nasiona pokazują cechy i rangi.
+config.price_impact,"Etykieta, stan i wpływ rynku"
+config.price_impact.tip,Dopisuje modyfikator ceny po etykiecie i stanach typu wgniecenie/rdza oraz listę aktywnych wydarzeń sklepu wpływających na przedmiot. Podstawowa gra pokazuje tylko nazwy.
+config.scratcher,Wynik zdrapki
+config.scratcher.tip,"Pokazuje nagrodę (lub jej brak) i postęp zdrapywania przed zdrapaniem. Tylko odczyt i przeliczenie; nigdy nie zdrapuje za ciebie. Wyłącz, by ukryć wynik."
+config.sealed_box,Zawartość zamkniętego pojemnika
+config.sealed_box.tip,Pokazuje zawartość i łączną wartość zamkniętych pojemników przed otwarciem. Omija zamek; domyślnie wyłączone.
+config.section.customer,Alerty o klientach
+config.section.display,Wyświetlanie
+config.section.interaction,Obsługa i wygląd
+config.section.reveal,Ujawnianie
+config.value,Wartość i szczegóły wyceny
+config.value.tip,"Dla przedmiotów do wyceny: łączna wartość, przedział idealnej oferty, rozbicie źródeł i powody podróbki; tytuł wyceny pokazuje też prawdziwą cenę. Nieznane lub modowe typy wyceny używają rozbicia z pomiaru."
+config.value_enhance,Wartość na kratkę (poza wyceną)
+config.value_enhance.tip,"Dla przedmiotów bez wyceny: wartość sztuki × ilość i wartość na zajętą kratkę. Przedmioty do wyceny są pomijane, bo już pokazują prawdziwą wartość."
+config.water_purity,Jakość wody i porady
+config.water_purity.tip,"Pokazuje % czystości, nazwę progu z podstawowej gry, zanieczyszczenia, objętość nie-wody i porady bez testera wody. Wyłącz, by wrócić do podstawowego trybu (tester wymagany). Gdy aktywny jest osobny mod do wody (np. AquaSense), przejmuje tę sekcję."
+config.wine,Ocena i skład wina
+config.wine.tip,"Pokazuje dane wina ukryte w podstawowej grze: ocenę i próg, ekstrakt/zanieczyszczenia, podróbkę (nielegalne drożdże), dni leżakowania i bonus dzienny, postęp fermentacji."
+contraband.markup,Czarny rynek: +{0}%
+generic.combined,· Łącznie/inne {0}
+generic.header,Rozbicie wartości (pomiar):
+generic.more,· ... i jeszcze {0}
+generic.other_attributes,· Inne atrybuty {0}
+hidden.chem_purity,Czystość chemiczna: {0}%
+hidden.durability,Wytrzymałość: {0}/{1}
+hidden.durability_faked,"Prawdziwa wytrzymałość: {0}/{1} (pokazuje {2}/{3}, prawdopodobnie fałsz)"
+hidden.purity,Czystość: {0}
+hidden.purity_faked,"Prawdziwa czystość: {0} (pokazuje {1}, prawdopodobnie fałsz)"
+hint.double_click,Dwuklik: wycena; dwuklik na innym przedmiocie przełącza
+list.sep,", "
+lottery.matched_none,Trafiono {0}/6 -> brak nagrody
+lottery.matched_prize,Trafiono {0}/6 -> nagroda {1}
+lottery.not_drawn,Wydanie {0}: jeszcze nie losowano (losowanie w każdą sobotę)
+lottery.winning,Wylosowano: {0}
+market.line,Rynek: {0}
+module.power,{0} energii/dzień
+module.quality,{0} jakości
+module.speed,{0} szybkości
+price.buy,"Kupno: "
+price.cost_close,)
+price.cost_open," (Zakup "
+price.list," Cena: {0}"
+price.sell,Sprzedaż: {0}
+reveal.modifier,Prawdziwy modyfikator: {0}% (udawany {1}%)
+reveal.real,Prawda: {0} (udawane {1})
+reveal.real_with_mod,Prawda: {0} ({1}%) (udawane {2})
+ribwich.header,Dlaczego podróbka:
+ribwich.more,... i jeszcze {0}
+ribwich.reason_bun_no_pickles,Bułka z sezamem bez ogórków; deluxe wymaga obu
+ribwich.reason_date_missing,Brak daty produkcji
+ribwich.reason_davre_missing,Brak znaku Davre
+ribwich.reason_davre_wrong,Zły znak Davre
+ribwich.reason_first_sticker,Pierwsza partia nie ma naklejki Ribwich
+ribwich.reason_month_range,Miesiąc {0} poza 1-12
+ribwich.reason_pickles_no_bun,Dodatkowe ogórki bez bułki sezamowej; deluxe wymaga obu
+ribwich.reason_plant_missing,Brak numeru zakładu pakowania
+ribwich.reason_plant_range,Nr zakładu {0} poza 01-35
+ribwich.reason_second_sticker_missing,Druga partia bez naklejki Ribwich
+ribwich.reason_second_sticker_wrong,Druga partia ma złą naklejkę Ribwich
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,Rok {0} poza 425-429 / 432-438
+scratcher.no_prize,Zdrapka: bez nagrody
+scratcher.progress,Zdrapano {0}/3
+scratcher.win,Zdrapka: wygrana {0} ({1} zgodnych)
+sealed.contents,W środku: {0}{1}
+sealed.empty,Zawartość: pusta
+sealed.more," ... razem {0}"
+sealed.total,Razem w środku: {0}
+sealed.unit," ({0})"
+seed.header,Cechy (niezbadane):
+seed.more,... i jeszcze {0}
+seed.trait_rank,{0} (ranga {1})
+storage.contains,"Zawiera: "
+storage.more_kinds," i jeszcze rodzajów: {0}"
+storage.ratio,Kompresja: {0} ({1}/{2} kratek)
+storage.total_value,Łączna wartość: {0}
+title.appraisal_suffix,"{0} cena {1}, najlepsza oferta {2}"
+value.from,"Źródło: "
+value.per_cell,Wartość/kratkę: {0} ({1}/{2} kratek)
+value.perfect_range," | idealnie {0}-{1}"
+value.total,Razem: {0} × {1} = {2}
+value.total_line,Razem: {0}
+water.head,Woda: {0}% {1}
+water.impurities,Zanieczyszczenia {0}%
+water.list_head,": "
+water.mismatch," (niezgodność etykiety)"
+water.none,: brak
+water.trace,śladowe (poniżej progu wyświetlania)
+wine.aging,Bonus leżakowania: +{0}/dzień (razem +{1})
+wine.composition,"Skład: ekstrakt {0}‰, zanieczyszczenia {1}‰"
+wine.counterfeit,Podróbka: nielegalne drożdże
+wine.empty,Pusta
+wine.fermenting,Fermentuje
+wine.finished,Gotowe
+wine.score,Ocena wina: {0}{1}
+wine.state,Wino: {0}
+wine.tier,", próg {0}"
+wine.unknown_state,Nieznane({0})
+wine.yeast_power,Moc drożdży: {0}/takt

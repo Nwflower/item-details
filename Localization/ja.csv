@@ -1,0 +1,179 @@
+# Item Details 日本語 (ja)
+# key,value
+alert.aug_tier,改造体レベル：{0}
+alert.bounty,（懸賞金 {0}）
+alert.real_name,本名：{0}
+alert.title_augmented,改造体の客
+alert.title_both,指名手配 · 改造体の客
+alert.title_wanted,指名手配
+appraisal.armor,装甲モジュール
+appraisal.base,基本価格
+appraisal.blade,刃モジュール
+appraisal.build_deluxe,デラックス構成
+appraisal.build_tactical,タクティカル構成
+appraisal.carbon,カーボン外装
+appraisal.casing_crack,外装の亀裂
+appraisal.casing_reinforced,補強加工
+appraisal.casing_screws,ネジの緩み
+appraisal.casing_wear,軽度の摩耗
+appraisal.casing_wear_heavy,重度の摩耗
+appraisal.damaged,損傷
+appraisal.emgplus,EMG+コネクタ
+appraisal.finish_cheap,低級塗装
+appraisal.finish_premium,高級塗装
+appraisal.gold,金メッキ
+appraisal.iface_unknown,インターフェース規格不明
+appraisal.neural,ニューラルジャック
+appraisal.ribwich_deluxe,デラックス版
+appraisal.ribwich_double_meat,ダブルパティ
+appraisal.ribwich_first_batch,第1バッチ
+appraisal.ribwich_month_edge,初月/最終月
+appraisal.ribwich_opened,開封済みか偽物（固定40）
+appraisal.ribwich_plant_grade_a,優良包装工場 {0:D2}
+appraisal.ribwich_plant_grade_c,劣悪包装工場 {0:D2}
+appraisal.seal_ignition,Ignition Lab 特典
+appraisal.seal_ll,Wild's Rides 特典
+appraisal.seal_republic,Republic Naval 特典
+appraisal.seal_zhonghua,ZhongHua 特典
+appraisal.worn,摩耗
+auth.counterfeit,✘ 偽物の疑い（{0}）
+auth.genuine,✔ 本物
+berry.dried,乾燥
+berry.line,ベリーの品質：{0}
+berry.moldy,カビ
+berry.normal,正常
+berry.small,小ぶり
+berry.unripe,未熟
+calorie.line,エネルギー：{0} {1}
+calorie.per_cell,（{0} {1}/マス）
+calorie.unit,kcal
+condition.line,状態：{0} {1}
+config.auth,真贋鑑定
+config.auth.tip,注射器/タバコ/フードスタンプの真贋と不合格項目を表示。登録済みの真価がある品にだけ真価を追加します。
+config.container,コンテナ情報
+config.container.tip,圧縮率（内部マス÷本体マス）、中身の一覧、合計価値を表示。
+config.contraband,禁制品の闇市場割増
+config.contraband.tip,闇市場の割増率を追記（低35 / 中70 / 高100 / 深刻150）。禁制品等級そのものはバニラ表示。
+config.customer_alert,来客アラート
+config.customer_alert.tip,指名手配犯や改造体の客が来店した時に通知。実際の懸賞金、本名、改造体レベルを表示。
+config.dim_description,説明文を暗く
+config.dim_description.tip,アイテム説明をグレー表示にして鑑定情報を目立たせます。色のみ変更しテキストは変えません。
+config.double_click_inspect,ダブルクリックで鑑定
+config.double_click_inspect.tip,鑑定対象をダブルクリックで鑑定パネルを開けます（虫眼鏡不要）。ヒント文も切替。オフでバニラ動作に戻ります。
+config.hidden_truth,偽装と真の性能を暴露
+config.hidden_truth.tip,偽装前の真の状態差、真の耐久、インゴット/薬品の真の純度を表示。偽物が露見し鑑定が易しくなります。
+config.hide_estimate_value,バニラの推定価格行を隠す
+config.hide_estimate_value.tip,その2行は客の提示額で真の鑑定価格ではありません（大きくずれることも）。鑑定品のみ、合計を算出できる時だけ隠します。
+config.lottery,宝くじの当選数と賞金
+config.lottery.tip,抽選後、一致した番号数と賞金を表示。バニラは当選番号の色替えのみ。
+config.module_effects,モジュール効果の実数値
+config.module_effects.tip,バニラは「性能/効率/品質 +16%」等の割合のみ。その行の後にゲームが算出した実値を追記：性能=加工速度、効率=消費電力、品質=品質換算値（品質比率のある機械のみ）。全てアイテムタグ由来で、データの無い機械はバニラの割合のまま。
+config.name_label_background,名前ラベルの背景
+config.name_label_background.tip,柄の多いアイコンでも読めるよう、名前に半透明の黒地を敷きます。
+config.name_label_background_alpha,背景の不透明度
+config.name_label_background_alpha.tip,背景の不透明度（0–1）。
+config.name_label_mode,アイコンに名前を表示
+config.name_label_mode.tip,なし：非表示。コンテナ名：コンテナと機械のみ。改名品のみ：ラベルプリンタで改名した品のみ。
+config.name_label_position,名前ラベルの位置
+config.name_label_position.tip,アイコン上で名前を出す位置（下/中/上）。
+config.plant,植物情報
+config.plant.tip,ベリーは品質（正常/カビ/未熟など）を、種は持つ形質と等級を表示。
+config.price_impact,ラベル・状態・市場影響
+config.price_impact.tip,ラベル行や凹み/錆などの状態の後に価格影響%を追記し、有効な店舗イベントの補正も一覧します。バニラは名前のみ。
+config.scratcher,スクラッチ結果
+config.scratcher.tip,削る前に当たり額（またははずれ）と進行度を表示。同一ルールの読み取り専用再計算で、代わりに削りはしません。オフで非表示。
+config.sealed_box,密封箱の中身と価値
+config.sealed_box.tip,施錠された容器（金庫/銃棚）も開錠前に中身と合計価値を一覧。開錠を飛ばすのと同じなので既定はオフ。
+config.section.customer,客への警告
+config.section.display,表示内容
+config.section.interaction,操作と外観
+config.section.reveal,透視
+config.value,価値構成と鑑定情報
+config.value.tip,鑑定品は総額、完璧な提示額レンジ、内訳、偽物の理由を表示。鑑定サービスの見出しには真の価格も付きます。未知やMOD追加の鑑定種別は実測内訳を使います。
+config.value_enhance,マス当たり価値（非鑑定品）
+config.value_enhance.tip,非鑑定品は単価×数量とマス当たり価値（価値÷占有マス）を表示。鑑定品は真価があるため重複表示しません。
+config.water_purity,水質と助言
+config.water_purity.tip,液体の純度%、バニラの段階名、不純物、非水液体の量、処理の助言を水質検査器なしで表示。オフでバニラ手順（検査器必須）に戻ります。専用水質MOD（AquaSense等）が有効な時はそのMODに譲ります。
+config.wine,ワインの点数と成分
+config.wine.tip,バニラが隠す醸造データを表示：ワイン点数と段階、糖度/汚染物質、偽物（違法酵母）、熟成日数と日割り加算、発酵進行。
+contraband.markup,闇市場：+{0}%
+generic.combined,· 組合せ/その他 {0}
+generic.header,価値の内訳（実測）：
+generic.more,· …ほか {0} 件
+generic.other_attributes,· その他の属性 {0}
+hidden.chem_purity,化学純度：{0}%
+hidden.durability,耐久：{0}/{1}
+hidden.durability_faked,真の耐久：{0}/{1}（表示 {2}/{3}、偽装の疑い）
+hidden.purity,純度：{0}
+hidden.purity_faked,真の純度：{0}（表示 {1}、偽装の疑い）
+hint.double_click,ダブルクリックで鑑定；別の品をダブルクリックで切替
+list.sep,、
+lottery.matched_none,一致 {0}/6 -> はずれ
+lottery.matched_prize,一致 {0}/6 -> 賞金 {1}
+lottery.not_drawn,第{0}回：未抽選（毎週土曜に抽選）
+lottery.winning,当選番号：{0}
+market.line,市場：{0}
+module.power,{0}電力/日
+module.quality,{0}品質
+module.speed,{0}速度
+price.buy,買値：
+price.cost_close,）
+price.cost_open,"（仕入 "
+price.list," 定価：{0}"
+price.sell,売値：{0}
+reveal.modifier,真の補正：{0}%（偽装 {1}%）
+reveal.real,真の値：{0}（偽装 {1}）
+reveal.real_with_mod,真の値：{0}（{1}%）（偽装 {2}）
+ribwich.header,偽物の理由：
+ribwich.more,…ほか {0} 件
+ribwich.reason_bun_no_pickles,ゴマバンズなのに追加ピクルス無し（デラックスは両方必要）
+ribwich.reason_date_missing,製造日の印が無い
+ribwich.reason_davre_missing,Davre マークが無い
+ribwich.reason_davre_wrong,Davre マークが違う
+ribwich.reason_first_sticker,第1バッチに Ribwich シールは付かない
+ribwich.reason_month_range,製造月 {0} が 1–12 の範囲外
+ribwich.reason_pickles_no_bun,追加ピクルスがあるのにゴマバンズ無し（デラックスは両方必要）
+ribwich.reason_plant_missing,包装工場番号が無い
+ribwich.reason_plant_range,工場番号 {0} が 01–35 の範囲外
+ribwich.reason_second_sticker_missing,第2バッチに Ribwich シールが無い
+ribwich.reason_second_sticker_wrong,第2バッチの Ribwich シールが違う
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,製造年 {0} が 425–429 / 432–438 の範囲外
+scratcher.no_prize,スクラッチ：はずれ
+scratcher.progress,削り済み {0}/3
+scratcher.win,スクラッチ：当たり {0}（{1} 個一致）
+sealed.contents,中身：{0}{1}
+sealed.empty,中身：空
+sealed.more," …計 {0} 点"
+sealed.total,中身の合計：{0}
+sealed.unit,（{0}）
+seed.header,形質（未分析）：
+seed.more,…ほか {0} 件
+seed.trait_rank,{0}（ランク {1}）
+storage.contains,中身：
+storage.more_kinds," ほか {0} 種"
+storage.ratio,圧縮率：{0}（{1}/{2} マス）
+storage.total_value,合計価値：{0}
+title.appraisal_suffix,{0} 定価{1}、最良提示{2}
+value.from,出所：
+value.per_cell,マス単価：{0}（{1}/{2} マス）
+value.perfect_range," ｜ 完璧 {0}–{1}"
+value.total,総額：{0} × {1} = {2}
+value.total_line,総額：{0}
+water.head,水質：{0}% {1}
+water.impurities,不純物 {0}%
+water.list_head,：
+water.mismatch,（ラベル不一致）
+water.none,：なし
+water.trace,微量（表示閾値未満）
+wine.aging,熟成ボーナス：+{0}/日（計 +{1}）
+wine.composition,成分：糖度 {0}‰、汚染物質 {1}‰
+wine.counterfeit,贋作：違法酵母
+wine.empty,空
+wine.fermenting,発酵中
+wine.finished,醸成済み
+wine.score,ワイン点数：{0}{1}
+wine.state,ワイン：{0}
+wine.tier,、第 {0} 段階
+wine.unknown_state,不明（{0}）
+wine.yeast_power,酵母の力：{0}/回

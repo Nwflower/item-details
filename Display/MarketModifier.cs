@@ -21,7 +21,7 @@ internal static class MarketModifier
 {
     private const int MaxLines = 3;
 
-    internal static List<string> Collect(GameItem? item, bool zh)
+    internal static List<string> Collect(GameItem? item)
     {
         var lines = new List<string>();
         try
@@ -52,7 +52,7 @@ internal static class MarketModifier
                     if (!affects) continue;
 
                     if (shown >= MaxLines) break;
-                    if (shown > 0) sb.Append(zh ? "、" : ", ");
+                    if (shown > 0) sb.Append(Loc.T("list.sep", ", "));
 
                     string label = Safe(() => nd.publicDisplay);
                     if (string.IsNullOrEmpty(label)) label = Safe(() => ev.displayName);
@@ -66,7 +66,7 @@ internal static class MarketModifier
             }
 
             if (shown > 0)
-                lines.Add(zh ? $"市场：{sb}" : $"Market: {sb}");
+                lines.Add(Loc.T("market.line", "Market: {0}", sb.ToString()));
         }
         catch (Exception ex)
         {

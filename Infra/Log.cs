@@ -56,6 +56,8 @@ internal static class Log
     /// <summary>该项恢复正常，清掉失败计数，下次再失败会重新从第 1 次开始报。</summary>
     internal static void MarkOk(string key) => _counts.Remove(key);
 
+    /// <summary>诊断信息只在显式 Diag/SelfTest 构建中编译调用；警告和错误始终保留。</summary>
+    [System.Diagnostics.Conditional("ITEMDETAILS_DIAG")]
     internal static void Msg(string msg)
     {
         try { Debug.Log($"[ItemDetails] {msg}"); } catch { }

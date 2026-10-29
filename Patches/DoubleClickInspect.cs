@@ -111,8 +111,8 @@ internal static class DoubleClickInspect
             catch { }
 
             builder.AddLine(
-                Locales.L("双击鉴定；鉴定中双击另一件直接切换",
-                          "Double-click to inspect; double-click another item to switch"),
+                Loc.T("hint.double_click",
+                    "Double-click to inspect; double-click another item to switch"),
                 true, RenderHandler.ColorPalette.LightOrange);
             return false;
         }

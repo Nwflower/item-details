@@ -293,6 +293,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：泛型快照不得静默截断第 24 项之后的标签
+        {
+            string line = CheckGenericTagSnapshot(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：只读标签读取不得向真实物品插入缺失键（GetTagReadonly 的坑）
         {
             string line = CheckTagReadIsolation(out bool ok);
@@ -320,6 +328,30 @@ internal static partial class SelfTest
         // 额外验证：酒瓶跳过净化模拟，纯度读取不插入缺失标签
         {
             string line = CheckWaterAdviceReadIsolation(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：相符的水经完整 tooltip 后不得被自动交易系统改判为错标签
+        {
+            string line = CheckWaterSaleStateIsolation(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：直接执行游戏真实售水结算，必须出水、入账且无误标声誉损失
+        {
+            string line = CheckWaterFountainTransaction(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：当前语言的 Localization/*.csv 真的被读到（多语种改造的回归护栏）
+        {
+            string line = CheckLocalization(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);

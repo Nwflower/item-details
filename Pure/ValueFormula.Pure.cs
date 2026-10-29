@@ -17,14 +17,20 @@ internal static partial class ValueBreakdown
 {
     internal enum Kind { None, Hand, Ribwich, Plasma }
 
+    /// <summary>
+    /// 一项价值来源。文案拆成「本地化键 + 英文兜底」：本文件属于纯公式层，
+    /// 不引用 Unity/游戏类型，所以不在这里选语言，交给 Appraisal 层用 Loc.T 解析。
+    /// <see cref="Args"/> 供 <c>{0}</c> 之类的占位符使用。
+    /// </summary>
     internal readonly struct Part
     {
-        internal readonly string Zh;
+        internal readonly string Key;
         internal readonly string En;
         internal readonly int Amount;
         internal readonly bool IsBase;
-        internal Part(string zh, string en, int amount, bool isBase = false)
-        { Zh = zh; En = en; Amount = amount; IsBase = isBase; }
+        internal readonly object[] Args;
+        internal Part(string key, string en, int amount, bool isBase = false, params object[] args)
+        { Key = key; En = en; Amount = amount; IsBase = isBase; Args = args ?? System.Array.Empty<object>(); }
     }
 
     internal sealed class Result
@@ -53,21 +59,21 @@ internal static partial class ValueBreakdown
             return new Result { Kind = Kind.Hand, Valid = false };
 
         var r = new Result { Kind = Kind.Hand };
-        r.Parts.Add(new("基础价格", "Base", 100, true));
-        if (mat == "CARBON_COMPOSITE") r.Parts.Add(new("碳纤维", "Carbon-fiber shell", 50));
-        if (mat == "GOLD_PLATED") r.Parts.Add(new("镀金", "Gold plating", 200));
-        if (iface == "NEURAL") r.Parts.Add(new("神经接口", "Neural jack", 120));
-        if (iface == "EMG_PLUS") r.Parts.Add(new("能源标", "EMG+ connector", 45));
-        if (iface == "UNSPECIFIED") r.Parts.Add(new("未知接口规格", "Interface type unknown", -60));
-        if (cond == "WEAR") r.Parts.Add(new("磨损", "Worn", -35));
-        if (cond == "DAMAGE") r.Parts.Add(new("受损", "Damaged", -85));
-        if (armored == "ARMORED") r.Parts.Add(new("装甲组件", "Armor module", 50));
-        if (bladed == "BLADED") r.Parts.Add(new("刀刃", "Blade module", 80));
+        r.Parts.Add(new("appraisal.base", "Base", 100, true));
+        if (mat == "CARBON_COMPOSITE") r.Parts.Add(new("appraisal.carbon", "Carbon-fiber shell", 50));
+        if (mat == "GOLD_PLATED") r.Parts.Add(new("appraisal.gold", "Gold plating", 200));
+        if (iface == "NEURAL") r.Parts.Add(new("appraisal.neural", "Neural jack", 120));
+        if (iface == "EMG_PLUS") r.Parts.Add(new("appraisal.emgplus", "EMG+ connector", 45));
+        if (iface == "UNSPECIFIED") r.Parts.Add(new("appraisal.iface_unknown", "Interface type unknown", -60));
+        if (cond == "WEAR") r.Parts.Add(new("appraisal.worn", "Worn", -35));
+        if (cond == "DAMAGE") r.Parts.Add(new("appraisal.damaged", "Damaged", -85));
+        if (armored == "ARMORED") r.Parts.Add(new("appraisal.armor", "Armor module", 50));
+        if (bladed == "BLADED") r.Parts.Add(new("appraisal.blade", "Blade module", 80));
         if (mat == "CARBON_COMPOSITE" && (iface == "EMG_PLUS" || iface == "NEURAL")
             && cond == "NONE" && armored == "ARMORED" && bladed == "BLADED")
-            r.Parts.Add(new("战术型组合", "Tactical build", 100));
+            r.Parts.Add(new("appraisal.build_tactical", "Tactical build", 100));
         if (mat == "GOLD_PLATED" && iface == "NEURAL" && cond == "NONE")
-            r.Parts.Add(new("豪华型组合", "Deluxe build", 200));
+            r.Parts.Add(new("appraisal.build_deluxe", "Deluxe build", 200));
         Sum(r, 50);
         return r;
     }
@@ -92,22 +98,22 @@ internal static partial class ValueBreakdown
             return new Result { Kind = Kind.Plasma, Valid = false };
 
         var r = new Result { Kind = Kind.Plasma };
-        r.Parts.Add(new("基础价格", "Base", 300, true));
-        if (wear == "WEAR") r.Parts.Add(new("轻度磨损", "Slight wear", -45));
-        if (wear == "WEAR_HEAVY") r.Parts.Add(new("重度磨损", "Severe wear", -90));
-        if (crack == "CRACK") r.Parts.Add(new("外壳破裂", "Casing fracture", -150));
-        if (uncov == "UNCOVERED") r.Parts.Add(new("螺丝外露", "Loose screws", -30));
-        if (reinf == "REINFORCED") r.Parts.Add(new("加固处理", "Reinforcement", 60));
-        if (color == "POOR1" || color == "POOR2") r.Parts.Add(new("低级颜色", "Cheap finish", -150));
-        if (color == "HIGH_QUALITY") r.Parts.Add(new("高级颜色", "Premium finish", 150));
+        r.Parts.Add(new("appraisal.base", "Base", 300, true));
+        if (wear == "WEAR") r.Parts.Add(new("appraisal.casing_wear", "Slight wear", -45));
+        if (wear == "WEAR_HEAVY") r.Parts.Add(new("appraisal.casing_wear_heavy", "Severe wear", -90));
+        if (crack == "CRACK") r.Parts.Add(new("appraisal.casing_crack", "Casing fracture", -150));
+        if (uncov == "UNCOVERED") r.Parts.Add(new("appraisal.casing_screws", "Loose screws", -30));
+        if (reinf == "REINFORCED") r.Parts.Add(new("appraisal.casing_reinforced", "Reinforcement", 60));
+        if (color == "POOR1" || color == "POOR2") r.Parts.Add(new("appraisal.finish_cheap", "Cheap finish", -150));
+        if (color == "HIGH_QUALITY") r.Parts.Add(new("appraisal.finish_premium", "Premium finish", 150));
         if (seal == "LL" && (color == "STANDARD" || color == "POOR1" || color == "POOR2"))
-            r.Parts.Add(new("王尔德载具加成", "Wild's Rides incentive", 60));
+            r.Parts.Add(new("appraisal.seal_ll", "Wild's Rides incentive", 60));
         else if (seal == "ZHONGHUA" && wear == "NONE" && crack == "NONE" && uncov == "NONE" && color == "STANDARD")
-            r.Parts.Add(new("中华船舶加成", "ZhongHua incentive", 120));
+            r.Parts.Add(new("appraisal.seal_zhonghua", "ZhongHua incentive", 120));
         else if (seal == "REPUBLIC" && crack != "CRACK" && color == "STANDARD")
-            r.Parts.Add(new("共和国海军加成", "Republic Naval incentive", 120));
+            r.Parts.Add(new("appraisal.seal_republic", "Republic Naval incentive", 120));
         else if (seal == "IGNITION_LAB" && reinf == "NONE" && wear == "NONE" && crack == "NONE" && uncov == "NONE" && color == "HIGH_QUALITY")
-            r.Parts.Add(new("点火实验室加成", "Ignition Lab incentive", 750));
+            r.Parts.Add(new("appraisal.seal_ignition", "Ignition Lab incentive", 750));
         Sum(r, 90);
         return r;
     }
@@ -126,7 +132,7 @@ internal static partial class ValueBreakdown
         if (wrap == 1 || wrap == 2 || native == 40)
         {
             var fr = new Result { Kind = Kind.Ribwich, Valid = true, Total = 40 };
-            fr.Parts.Add(new("已开封或赝品（固定价）", "Opened or fake (flat 40)", 40, true));
+            fr.Parts.Add(new("appraisal.ribwich_opened", "Opened or fake (flat 40)", 40, true));
             return fr;
         }
 
@@ -141,15 +147,17 @@ internal static partial class ValueBreakdown
             return new Result { Kind = Kind.Ribwich, Valid = false };
 
         var r = new Result { Kind = Kind.Ribwich };
-        r.Parts.Add(new("基础价格", "Base", 150, true));
-        if (meat == 1) r.Parts.Add(new("双层肉饼", "Double meat", 800));
-        if (bun == 1 && pickles == 1) r.Parts.Add(new("豪华版", "Deluxe combo", 300));
+        r.Parts.Add(new("appraisal.base", "Base", 150, true));
+        if (meat == 1) r.Parts.Add(new("appraisal.ribwich_double_meat", "Double meat", 800));
+        if (bun == 1 && pickles == 1) r.Parts.Add(new("appraisal.ribwich_deluxe", "Deluxe combo", 300));
         if ((month == 1 && year == 425) || (month == 12 && year == 438))
-            r.Parts.Add(new("首月/末月", "First or final month", 50));
-        if (year >= 425 && year <= 429) r.Parts.Add(new("第一批次", "First batch", 80));
+            r.Parts.Add(new("appraisal.ribwich_month_edge", "First or final month", 50));
+        if (year >= 425 && year <= 429) r.Parts.Add(new("appraisal.ribwich_first_batch", "First batch", 80));
         int f = fac.Value;
-        if (OneOf(f, 1, 2, 5, 8, 21, 34)) r.Parts.Add(new($"优质包装厂 {f:D2}", $"Grade-A plant {f:D2}", 50));
-        else if (OneOf(f, 7, 15, 18, 26, 31)) r.Parts.Add(new($"劣质包装厂 {f:D2}", $"Grade-C plant {f:D2}", -50));
+        if (OneOf(f, 1, 2, 5, 8, 21, 34))
+            r.Parts.Add(new("appraisal.ribwich_plant_grade_a", "Grade-A plant {0:D2}", 50, false, f));
+        else if (OneOf(f, 7, 15, 18, 26, 31))
+            r.Parts.Add(new("appraisal.ribwich_plant_grade_c", "Grade-C plant {0:D2}", -50, false, f));
         Sum(r, 40);
         return r;
     }

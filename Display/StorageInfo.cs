@@ -29,7 +29,7 @@ internal static class StorageInfo
     // tooltip 可能每帧重建；内容物聚合适度缓存，变更最迟 1 秒后反映。
     private const float ContentsCacheSeconds = 1f;
     private static GameGridInventory? _contentsGrid;
-    private static bool _contentsZh;
+    private static string _contentsLocale = "";
     private static float _contentsAt = float.MinValue;
     private static List<TooltipLine>? _contentsCache;
 
@@ -40,7 +40,7 @@ internal static class StorageInfo
         _contentsAt = float.MinValue;
     }
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -64,8 +64,8 @@ internal static class StorageInfo
             try { isMachine = item.IsGameItemType("MACHINE"); } catch { }
             if (isMachine) return lines;
 
-            AddRatio(item, grid, zh, lines);
-            AddContents(grid, zh, lines);
+            AddRatio(item, grid, lines);
+            AddContents(grid, lines);
 
             if (lines.Count > 0) Log.MarkOk("StorageInfo");
         }
@@ -76,7 +76,7 @@ internal static class StorageInfo
         return lines;
     }
 
-    private static void AddRatio(GameItem item, GameGridInventory grid, bool zh, List<TooltipLine> lines)
+    private static void AddRatio(GameItem item, GameGridInventory grid, List<TooltipLine> lines)
     {
         try
         {
@@ -123,19 +123,20 @@ internal static class StorageInfo
             double ratio = (double)innerCells / selfCells;
 
             lines.Add(new TooltipLine(
-                zh ? $"压缩率：{ratio:0.0}（{innerCells}/{selfCells}格）"
-                   : $"Compression: {ratio:0.0} ({innerCells}/{selfCells} cells)",
+                Loc.T("storage.ratio", "Compression: {0} ({1}/{2} cells)",
+                    ratio.ToString("0.0"), innerCells, selfCells),
                 Color));
 
         }
         catch (Exception ex) { Log.Warn("StorageInfo.Ratio", ex); }
     }
 
-    private static void AddContents(GameGridInventory grid, bool zh, List<TooltipLine> lines)
+    private static void AddContents(GameGridInventory grid, List<TooltipLine> lines)
     {
         float now = UnityEngine.Time.unscaledTime;
+        string locale = Loc.Code;
         if (_contentsCache != null && ReferenceEquals(_contentsGrid, grid)
-            && _contentsZh == zh && now - _contentsAt <= ContentsCacheSeconds)
+            && _contentsLocale == locale && now - _contentsAt <= ContentsCacheSeconds)
         {
             lines.AddRange(_contentsCache);
             return;
@@ -145,7 +146,7 @@ internal static class StorageInfo
         void StoreCache()
         {
             _contentsGrid = grid;
-            _contentsZh = zh;
+            _contentsLocale = locale;
             _contentsAt = now;
             _contentsCache = built;
         }
@@ -203,25 +204,25 @@ internal static class StorageInfo
             if (order.Count == 0) { StoreCache(); return; }
 
             var sb = new StringBuilder();
-            sb.Append(zh ? "内含：" : "Contains: ");
+            sb.Append(Loc.T("storage.contains", "Contains: "));
             int shown = 0;
             foreach (var name in order)
             {
                 if (shown >= MaxKinds) break;
-                if (shown > 0) sb.Append(zh ? "、" : ", ");
+                if (shown > 0) sb.Append(Loc.T("list.sep", ", "));
                 int n = counts[name];
                 sb.Append(n > 1 ? $"{name}×{n}" : name);
                 shown++;
             }
             if (order.Count > MaxKinds)
-                sb.Append(zh ? $" 等 {order.Count} 类" : $" and {order.Count} kinds");
+                sb.Append(Loc.T("storage.more_kinds", " and {0} kinds", order.Count));
 
             built.Add(new TooltipLine(sb.ToString(), Color));
 
             if (totalValue > 0)
             {
                 built.Add(new TooltipLine(
-                    zh ? $"合计价值：{totalValue}" : $"Total value: {totalValue}",
+                    Loc.T("storage.total_value", "Total value: {0}", totalValue),
                     Color));
             }
             StoreCache();

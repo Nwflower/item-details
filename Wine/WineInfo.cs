@@ -27,7 +27,7 @@ internal static class WineInfo
     private const RenderHandler.ColorPalette Bad = RenderHandler.ColorPalette.LightRed;
     private const RenderHandler.ColorPalette Info = RenderHandler.ColorPalette.LightCyan;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         try
@@ -45,18 +45,18 @@ internal static class WineInfo
             // 1) 状态
             string stateText = state switch
             {
-                0 => zh ? "空瓶（未装填）" : "Empty",
-                1 => zh ? "发酵中" : "Fermenting",
-                2 => zh ? "已酿成" : "Finished",
-                _ => zh ? $"未知({state})" : $"Unknown({state})",
+                0 => Loc.T("wine.empty", "Empty"),
+                1 => Loc.T("wine.fermenting", "Fermenting"),
+                2 => Loc.T("wine.finished", "Finished"),
+                _ => Loc.T("wine.unknown_state", "Unknown({0})", state),
             };
-            lines.Add(new TooltipLine(zh ? $"酒：{stateText}" : $"Wine: {stateText}", Info));
+            lines.Add(new TooltipLine(Loc.T("wine.state", "Wine: {0}", stateText), Info));
 
             // 2) 分数与档位（原版零售版不显示）
             if (state == 2 || score > 0)
             {
-                string tierText = tier > 0 ? (zh ? $"，第 {tier} 档" : $", tier {tier}") : "";
-                lines.Add(new TooltipLine(zh ? $"酒分数：{score}{tierText}" : $"Wine score: {score}{tierText}",
+                string tierText = tier > 0 ? Loc.T("wine.tier", ", tier {0}", tier) : "";
+                lines.Add(new TooltipLine(Loc.T("wine.score", "Wine score: {0}{1}", score, tierText),
                                           tier >= 4 ? Good : Info));
             }
 
@@ -67,14 +67,14 @@ internal static class WineInfo
                 try { extract = WineHelper.GetWineExtractPerMille(item); } catch { }
                 try { contaminant = WineHelper.GetWineContaminantPerMille(item); } catch { }
                 lines.Add(new TooltipLine(
-                    zh ? $"成分：糖度 {extract}‰、污染物 {contaminant}‰"
-                       : $"Composition: extract {extract}‰, contaminant {contaminant}‰",
+                    Loc.T("wine.composition",
+                        "Composition: extract {0}‰, contaminant {1}‰", extract, contaminant),
                     Detail));
             }
 
             // 4) 赝品判定（非法酵母）
             if (counterfeit)
-                lines.Add(new TooltipLine(zh ? "啤酒判定：赝品酒（使用非法酵母）" : "Counterfeit: illegal yeast", Bad));
+                lines.Add(new TooltipLine(Loc.T("wine.counterfeit", "Counterfeit: illegal yeast"), Bad));
 
             // 5) 陈化加成：原版 AgableHelper.AddAgeTooltipLine 已显示「陈化 N 天」，
             //    这里只补它没写的每日加成与累计，避免同一句出现两遍。
@@ -83,8 +83,7 @@ internal static class WineInfo
             {
                 int perDay = GameRead.TagInt(item, "AGE_VALUE_MOD_PER_DAY_INT") ?? 3;
                 lines.Add(new TooltipLine(
-                    zh ? $"陈化加成：+{perDay}/天（共 +{age * perDay}）"
-                       : $"Aging bonus: +{perDay}/day (total +{age * perDay})",
+                    Loc.T("wine.aging", "Aging bonus: +{0}/day (total +{1})", perDay, age * perDay),
                     Detail));
             }
 
@@ -96,7 +95,7 @@ internal static class WineInfo
                 if (yeastTag is int yeast && yeast > 0)
                 {
                     lines.Add(new TooltipLine(
-                        zh ? $"酵母力度：{yeast}/次" : $"Yeast power: {yeast}/tick",
+                        Loc.T("wine.yeast_power", "Yeast power: {0}/tick", yeast),
                         Detail));
                 }
             }

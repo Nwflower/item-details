@@ -26,7 +26,7 @@ internal static class LotteryInfo
     private const string NumberTag = "LOTTERY_NUMBER_TAG";
     private const string WinningTag = "LOTTERY_WINNING_NUMBER_TAG";
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -49,8 +49,7 @@ internal static class LotteryInfo
             if (string.IsNullOrWhiteSpace(winning))
             {
                 lines.Add(new TooltipLine(
-                    zh ? $"第{edition}期尚未开奖（每周六公布）"
-                       : $"Edition {edition}: not drawn yet (draws every Saturday)",
+                    Loc.T("lottery.not_drawn", "Edition {0}: not drawn yet (draws every Saturday)", edition),
                     RenderHandler.ColorPalette.LightYellow));
                 return lines;
             }
@@ -64,12 +63,12 @@ internal static class LotteryInfo
             var color = won ? RenderHandler.ColorPalette.LightGreen : RenderHandler.ColorPalette.LightRed;
 
             lines.Add(new TooltipLine(
-                zh ? $"开奖号码：{winning}" : $"Winning: {winning}",
+                Loc.T("lottery.winning", "Winning: {0}", winning),
                 RenderHandler.ColorPalette.LightCyan));
             lines.Add(new TooltipLine(
                 won
-                    ? (zh ? $"命中 {matches}/6 → 奖金 {prize}" : $"Matched {matches}/6 -> prize {prize}")
-                    : (zh ? $"命中 {matches}/6 → 未中奖" : $"Matched {matches}/6 -> no prize"),
+                    ? Loc.T("lottery.matched_prize", "Matched {0}/6 -> prize {1}", matches, prize)
+                    : Loc.T("lottery.matched_none", "Matched {0}/6 -> no prize", matches),
                 color));
         }
         catch (Exception ex)

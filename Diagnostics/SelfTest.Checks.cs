@@ -56,6 +56,40 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>超过 24 个标签时，快照仍必须完整保留尾部标签，供 Build 明确拒绝分解。</summary>
+    private static string CheckGenericTagSnapshot(out bool ok)
+    {
+        ok = false;
+        GameItem? item = null;
+        try
+        {
+            item = TryCreate("plasma_fuel");
+            if (item == null) return "generic tag snapshot: 无法创建样本";
+            PlasmaHelper.InitPlasmaItem(item);
+            for (int i = 0; i < 25; i++)
+                item.ModifyTag("ITEMDETAILS_GENERIC_EXTRA_" + i, t => t.Enable().SetInt(i));
+
+            int expected = 0;
+            foreach (var kv in item.modifiedState.dict)
+                if (kv.Value != null) expected++;
+
+            var method = typeof(GenericBreakdown).GetMethod("TagRecords",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var snapshot = method?.Invoke(null, new object[] { item }) as System.Collections.ICollection;
+            int actual = snapshot?.Count ?? -1;
+            ok = expected >= 25 && actual == expected;
+            return $"generic tag snapshot: expected={expected} actual={actual} (期望一致且 >=25)";
+        }
+        catch (Exception ex)
+        {
+            return "generic tag snapshot: 异常 " + ex.GetType().Name;
+        }
+        finally
+        {
+            if (item != null) { try { item.Destroy(); } catch { } }
+        }
+    }
+
     /// <summary>
     /// 只读读取的回归：GameRead 的 TagInt/TagString/TagDouble 不得向真实物品插入缺失键，
     /// 且必须能读到按 double 写入的值（化学品纯度就是这种存储方式）。
@@ -190,6 +224,166 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>
+    /// 自动售水误判回归：一瓶标签与实物相符的水，经过水质显示、完整净化建议和
+    /// 完整 tooltip 后，液体标签、水质特性与游戏自己的错标签判定都必须保持不变。
+    /// </summary>
+    private static string CheckWaterSaleStateIsolation(out bool ok)
+    {
+        ok = false;
+        GameItem? item = null;
+        try
+        {
+            item = TryCreate("bottled_water");
+            if (item == null) return "water sale isolation: 无法创建样本";
+
+            // 735ml 水 + 15ml 重金属（总容量 750ml）：可出售的 Base Water，标签与真实条件初始一致。
+            item.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(735000));
+            item.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), st => st.Enable().SetInt(15000));
+            WaterFeatureHelper.InitWaterFeature(item);
+
+            var originalFeature = item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY");
+            if (originalFeature == null) return "water sale isolation: 样本缺水质特性";
+
+            var tagsBefore = TagSnapshot(item);
+            string featureBefore = WaterFeatureSnapshot(item);
+            long valueBefore = item.unitValue;
+            bool mislabelledBefore = VendingMachineHelper.IsMislabelled(item);
+
+            WaterAdvice.Stop();
+            _ = WaterInfo.Analyze(item);
+            _ = WaterAdvice.SimulateMethods(item);
+
+            // 清掉建议缓存，再让完整渲染器独立跑一次，覆盖玩家实际悬停路径。
+            WaterAdvice.Stop();
+            _ = ModEntry.RenderTooltipText(item);
+
+            var tagsAfter = TagSnapshot(item);
+            string featureAfter = WaterFeatureSnapshot(item);
+            bool sameFeature = ReferenceEquals(originalFeature,
+                item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY"));
+            bool mislabelledAfter = VendingMachineHelper.IsMislabelled(item);
+            bool tagsSame = TagsEqual(tagsBefore, tagsAfter);
+            bool featureUnchanged = sameFeature && featureBefore == featureAfter;
+            bool valueUnchanged = valueBefore == item.unitValue;
+
+            ok = !mislabelledBefore && !mislabelledAfter && tagsSame
+                 && featureUnchanged && valueUnchanged;
+            return $"water sale isolation: mislabelled={mislabelledBefore}/{mislabelledAfter} " +
+                   $"tagsSame={tagsSame} featureSame={featureUnchanged} valueSame={valueUnchanged} " +
+                   "(期望 False/False、其余 True)";
+        }
+        catch (Exception ex)
+        {
+            return "water sale isolation: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            WaterAdvice.Stop();
+            if (item != null) { try { item.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
+    /// 真实售水结算验收：相符的 Base Water 经模组完整分析后，直接调用游戏自己的
+    /// SimulateWaterSale。必须真的出水并入账，且上下层声誉的误标损失都为零增量。
+    /// </summary>
+    private static string CheckWaterFountainTransaction(out bool ok)
+    {
+        ok = false;
+        GameItem? source = null;
+        GameItem? machine = null;
+        try
+        {
+            source = TryCreate("bottled_water");
+            machine = TryCreate("vending_fountain");
+            if (source == null || machine == null) return "water fountain transaction: 无法创建样本";
+
+            source.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(735000));
+            source.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), st => st.Enable().SetInt(15000));
+            WaterFeatureHelper.InitWaterFeature(source);
+            GeneralHelper.SetItemOwned(source, own: true);
+            GeneralHelper.SetItemOwned(machine, own: true);
+
+            var input = MachineHelper.GetSlot(machine, 1) as GameSlotInventory;
+            if (input == null) return "water fountain transaction: 找不到 Base Water 输入槽";
+            int remaining = GraphUtils.TryAcceptAll(input, source);
+            if (remaining != 0 || input.childItem != source)
+                return $"water fountain transaction: 无法把水源放入输入槽 remaining={remaining} " +
+                       $"owned={GeneralHelper.IsItemOwned(source)}/{GeneralHelper.IsItemOwned(machine)} " +
+                       $"waterType={source.IsGameItemType("WATER")} " +
+                       $"liquidContainer={source.IsTag("LIQUID_CONTAINER_TAG")} " +
+                       $"mayAccept={VendingFountainHelper.MayAcceptWaterSource(source)}";
+
+            int volumeBefore = LiquidPartsTotal(source);
+            int waterBefore = GameRead.TagInt(source, Liquid.GetCurrentPartFromId("water")) ?? 0;
+            int capacity = GameRead.TagInt(source, "LIQUID_CONTAINER_CAPACITY") ?? 0;
+            bool validFilledBottle = waterBefore > 0 && volumeBefore > 0 && volumeBefore == capacity;
+            int cashBefore = GameRead.TagInt(machine, "VENDING_CASH") ?? -1;
+            double lossLLBefore = PlayerStore.Instance.fountainMislabelRepLossLL;
+            double lossULBefore = PlayerStore.Instance.fountainMislabelRepLossUL;
+
+            WaterAdvice.Stop();
+            _ = WaterInfo.Analyze(source);
+            _ = WaterAdvice.SimulateMethods(source);
+            WaterAdvice.Stop();
+            _ = ModEntry.RenderTooltipText(source);
+
+            // labelPurity=2 与实测 98% 一致；出售容器和水源都由游戏函数处理。
+            VendingFountainHelper.SimulateWaterSale(2, "bottled_water", input, machine);
+
+            int volumeAfter = LiquidPartsTotal(source);
+            int cashAfter = GameRead.TagInt(machine, "VENDING_CASH") ?? -1;
+            double lossLLDelta = PlayerStore.Instance.fountainMislabelRepLossLL - lossLLBefore;
+            double lossULDelta = PlayerStore.Instance.fountainMislabelRepLossUL - lossULBefore;
+            bool transferred = validFilledBottle && volumeAfter < volumeBefore;
+            bool paid = cashBefore >= 0 && cashAfter > cashBefore;
+            bool noMislabelLoss = lossLLDelta == 0.0 && lossULDelta == 0.0;
+
+            ok = transferred && paid && noMislabelLoss;
+            return $"water fountain transaction: water={waterBefore} volume={volumeBefore}->{volumeAfter} " +
+                   $"capacity={capacity} cash={cashBefore}->{cashAfter} " +
+                   $"repLossDelta={lossLLDelta}/{lossULDelta} " +
+                   "(期望瓶中有水且装满、水量下降、现金增加、损失 0/0)";
+        }
+        catch (Exception ex)
+        {
+            return "water fountain transaction: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            WaterAdvice.Stop();
+            if (source != null) { try { source.Destroy(); } catch { } }
+            if (machine != null) { try { machine.Destroy(); } catch { } }
+        }
+    }
+
+    private static int LiquidPartsTotal(GameItem item)
+    {
+        long total = 0;
+        foreach (var liquid in Liquid.Liquids)
+            if (liquid != null) total += GameRead.TagInt(item, liquid.currentPart) ?? 0;
+        return total > int.MaxValue ? int.MaxValue : (int)total;
+    }
+
+    private static string WaterFeatureSnapshot(GameItem item)
+    {
+        var f = item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY");
+        if (f == null) return "missing";
+        string fake = f.fakeCondition?.identifier ?? "";
+        string real = f.realCondition?.identifier ?? "";
+        return $"{item.itemFeatures.Count}|{fake}|{real}|{f.customIntValue1}|" +
+               $"{f.IsExposed()}|{f.IsFeatureDiscovered()}|{f.IsFeatureMatch()}|{f.isDisabled}";
+    }
+
+    private static bool TagsEqual(Dictionary<string, string> a, Dictionary<string, string> b)
+    {
+        if (a.Count != b.Count) return false;
+        foreach (var kv in a)
+            if (!b.TryGetValue(kv.Key, out string? value) || value != kv.Value) return false;
+        return true;
+    }
+
     private static Dictionary<string, string> TagSnapshot(GameItem item)
     {
         var map = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -219,13 +413,16 @@ internal static partial class SelfTest
         try
         {
             var normal = WineHelper.CreateFinishedWineForDebug(5);
-            var nLines = WineInfo.Collect(normal, true);
-            bool hasScore = HasLine(nLines, "酒分数");
-            bool normalClean = !HasLine(nLines, "赝品");
+            var nLines = WineInfo.Collect(normal);
+            // 断言用本地化后的前缀，不写死中文：模组已支持多语种，中文文案只在 zh 下成立。
+            string scoreHead = Loc.T("wine.score", "Wine score: {0}{1}", "", "");
+            string fakeHead = Loc.T("wine.counterfeit", "Counterfeit: illegal yeast");
+            bool hasScore = HasLine(nLines, scoreHead);
+            bool normalClean = !HasLine(nLines, fakeHead);
 
             var fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
-            var fLines = WineInfo.Collect(fake, true);
-            bool fakeMarked = HasLine(fLines, "赝品");
+            var fLines = WineInfo.Collect(fake);
+            bool fakeMarked = HasLine(fLines, fakeHead);
 
             ok = hasScore && normalClean && fakeMarked;
             return $"wine: score={hasScore} normalClean={normalClean} fakeMarked={fakeMarked} (期望 true/true/true)";
@@ -500,6 +697,42 @@ internal static partial class SelfTest
     {
         try { return DirectoryMaster.Create<GameItem>(id); }
         catch (Exception ex) { Log.Warn("SelfTest.Create." + id, ex); return null; }
+    }
+
+    /// <summary>
+    /// 多语种回归护栏：确认当前语言的 Localization/&lt;code&gt;.csv 真被读到、键能解析。
+    ///
+    /// 只判「有没有」，不比对具体译文——译文可以随时改，改译文不该让自检变红。
+    /// en 是设计上的例外：英文就是代码里的兜底，本来就没有 CSV。
+    /// </summary>
+    private static string CheckLocalization(out bool ok)
+    {
+        ok = false;
+        try
+        {
+            string code = Loc.Code;
+            if (code.Length == 0)
+                return "loc: 读不到 locale（主菜单早期或本地化未就绪），本项跳过";
+
+            int entries = Loc.TableEntries;
+            string genuine = Loc.T("auth.genuine", "✔ Genuine");
+            string counter = Loc.T("auth.counterfeit", "✘ Suspected counterfeit ({0})", "--");
+            bool noRawKey = genuine != "auth.genuine" && counter != "auth.counterfeit";
+
+            if (code == "en")
+            {
+                ok = noRawKey;
+                return $"loc: locale=en 走代码内英文兜底（无 CSV），样例='{genuine}' noRawKey={noRawKey}";
+            }
+
+            bool translated = entries > 0;
+            ok = translated && noRawKey;
+            return $"loc: locale={code} 词条={entries} 样例='{genuine}' translated={translated} noRawKey={noRawKey}";
+        }
+        catch (Exception ex)
+        {
+            return "loc: 异常 " + ex.GetType().Name;
+        }
     }
 
     private static void SetStr(GameItem item, string tag, string value)

@@ -18,7 +18,7 @@ internal static class FeatureReveal
 {
     private const RenderHandler.ColorPalette Color = RenderHandler.ColorPalette.LightRed;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -26,7 +26,7 @@ internal static class FeatureReveal
         try
         {
             foreach (var f in FeatureScan.All(item))
-                TryOne(f, zh, lines);
+                TryOne(f, lines);
 
             if (lines.Count > 0) Log.MarkOk("FeatureReveal");
         }
@@ -37,7 +37,7 @@ internal static class FeatureReveal
         return lines;
     }
 
-    private static void TryOne(ItemFeature f, bool zh, List<TooltipLine> lines)
+    private static void TryOne(ItemFeature f, List<TooltipLine> lines)
     {
         try
         {
@@ -58,17 +58,17 @@ internal static class FeatureReveal
             if (!realDiffers && !modDiffers) return;
 
             string text;
+            string modReal = realMod.ToString("+0;-0;0");
+            string modFake = fakeMod.ToString("+0;-0;0");
             if (realDiffers)
             {
-                text = zh
-                    ? $"真实属性：{real}{(modDiffers ? $"（{realMod:+0;-0;0}%）" : "")}（伪装为 {fake}）"
-                    : $"Real: {real}{(modDiffers ? $" ({realMod:+0;-0;0}%)" : "")} (disguised as {fake})";
+                text = modDiffers
+                    ? Loc.T("reveal.real_with_mod", "Real: {0} ({1}%) (disguised as {2})", real, modReal, fake)
+                    : Loc.T("reveal.real", "Real: {0} (disguised as {1})", real, fake);
             }
             else
             {
-                text = zh
-                    ? $"真实数值修正：{realMod:+0;-0;0}%（伪装为 {fakeMod:+0;-0;0}%）"
-                    : $"Real modifier: {realMod:+0;-0;0}% (disguised {fakeMod:+0;-0;0}%)";
+                text = Loc.T("reveal.modifier", "Real modifier: {0}% (disguised {1}%)", modReal, modFake);
             }
 
             lines.Add(new TooltipLine(text, Color));

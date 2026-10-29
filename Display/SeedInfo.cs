@@ -20,7 +20,7 @@ internal static class SeedInfo
 
     private const int MaxTraits = 8;
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool zh)
+    internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         try
@@ -56,7 +56,7 @@ internal static class SeedInfo
 
                 // 标题已写明“性状”，条目只列名称，避免每条重复“性状：”。
                 string text = rank > 1
-                    ? (zh ? $"{name}（等级 {rank}）" : $"{name} (rank {rank})")
+                    ? Loc.T("seed.trait_rank", "{0} (rank {1})", name, rank)
                     : name;
                 lines.Add(new TooltipLine(text, Color));
                 shown++;
@@ -65,7 +65,7 @@ internal static class SeedInfo
             if (traits.Count > shown)
             {
                 lines.Add(new TooltipLine(
-                    zh ? $"…另有 {traits.Count - shown} 项性状" : $"... and {traits.Count - shown} more",
+                    Loc.T("seed.more", "... and {0} more", traits.Count - shown),
                     Color));
             }
 

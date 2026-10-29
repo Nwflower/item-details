@@ -79,6 +79,7 @@ internal static class TypeBadge
     private static Transform? _builtParent;
     private static float _pendingAt = float.MinValue;
 
+#if ITEMDETAILS_DIAG
     // 独立性能窗口：正文 [perf] 不包含 ShowTooltip 后缀，分类标签必须单独计时。
     private static float _perfLogAt;
     private static int _perfNotes;
@@ -87,6 +88,7 @@ internal static class TypeBadge
     private static double _perfNoteMs;
     private static double _perfShowMs;
     private static double _perfMaxShowMs;
+#endif
 
     internal static void Apply()
     {
@@ -141,7 +143,9 @@ internal static class TypeBadge
     /// <summary>由 GetTooltipBasic 前缀调用：记录本次物品的分类（必须在任何 Add 之前）。</summary>
     internal static void NoteItem(GameItem? item)
     {
+#if ITEMDETAILS_DIAG
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
         try
         {
             Pending.Clear();
@@ -161,11 +165,13 @@ internal static class TypeBadge
             }
         }
         catch (Exception ex) { Log.Warn("TypeBadge.NoteItem", ex); }
+#if ITEMDETAILS_DIAG
         finally
         {
             _perfNotes++;
             _perfNoteMs += ElapsedMs(started);
         }
+#endif
     }
 
     // ---------------- Harmony 回调 ----------------
@@ -188,7 +194,9 @@ internal static class TypeBadge
 
     private static void AfterShow(OverlayHandler __instance)
     {
+#if ITEMDETAILS_DIAG
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
         bool laidOut = false;
         try
         {
@@ -211,12 +219,15 @@ internal static class TypeBadge
             Log.Warn("TypeBadge.AfterShow", ex);
             Hide();
         }
+#if ITEMDETAILS_DIAG
         finally
         {
             TrackShowPerf(started, laidOut);
         }
+#endif
     }
 
+#if ITEMDETAILS_DIAG
     private static double ElapsedMs(long started) =>
         (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0
         / System.Diagnostics.Stopwatch.Frequency;
@@ -248,6 +259,7 @@ internal static class TypeBadge
         _perfMaxShowMs = 0.0;
         _perfLogAt = now + 2f;
     }
+#endif
 
     private static void AfterHide()
     {

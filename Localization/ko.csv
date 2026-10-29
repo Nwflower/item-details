@@ -1,0 +1,179 @@
+# Item Details 한국어 (ko)
+# key,value
+alert.aug_tier,개조 등급：{0}
+alert.bounty,（현상금 {0}）
+alert.real_name,본명：{0}
+alert.title_augmented,개조 고객
+alert.title_both,수배 중 · 개조 고객
+alert.title_wanted,수배 중
+appraisal.armor,장갑 모듈
+appraisal.base,기본 가격
+appraisal.blade,칼날 모듈
+appraisal.build_deluxe,디럭스 구성
+appraisal.build_tactical,택티컬 구성
+appraisal.carbon,카본 외장
+appraisal.casing_crack,외장 균열
+appraisal.casing_reinforced,보강 처리
+appraisal.casing_screws,나사 풀림
+appraisal.casing_wear,경미한 마모
+appraisal.casing_wear_heavy,심한 마모
+appraisal.damaged,손상
+appraisal.emgplus,EMG+ 커넥터
+appraisal.finish_cheap,저급 도장
+appraisal.finish_premium,고급 도장
+appraisal.gold,금 도금
+appraisal.iface_unknown,인터페이스 규격 불명
+appraisal.neural,뉴럴 잭
+appraisal.ribwich_deluxe,디럭스판
+appraisal.ribwich_double_meat,더블 패티
+appraisal.ribwich_first_batch,1차 배치
+appraisal.ribwich_month_edge,첫 달/마지막 달
+appraisal.ribwich_opened,개봉 또는 위조（고정 40）
+appraisal.ribwich_plant_grade_a,우수 포장공장 {0:D2}
+appraisal.ribwich_plant_grade_c,불량 포장공장 {0:D2}
+appraisal.seal_ignition,Ignition Lab 특전
+appraisal.seal_ll,Wild's Rides 특전
+appraisal.seal_republic,Republic Naval 특전
+appraisal.seal_zhonghua,ZhongHua 특전
+appraisal.worn,마모
+auth.counterfeit,✘ 위조 의심（{0}）
+auth.genuine,✔ 정품
+berry.dried,건조
+berry.line,베리 품질：{0}
+berry.moldy,곰팡이
+berry.normal,정상
+berry.small,작음
+berry.unripe,미성숙
+calorie.line,에너지：{0} {1}
+calorie.per_cell,（{0} {1}/칸）
+calorie.unit,kcal
+condition.line,상태：{0} {1}
+config.auth,진위 감정
+config.auth.tip,주사기/담배/식권의 정품·위조 판정과 불합격 항목을 표시합니다。등록된 실제 가치가 있을 때만 실제 가치를 추가합니다。
+config.container,컨테이너 정보
+config.container.tip,압축률（내부 칸÷자체 칸）、내용물 목록、합계 가치를 표시합니다。
+config.contraband,밀수품 암시장 할증
+config.contraband.tip,암시장 할증률을 덧붙입니다（낮음 35 / 보통 70 / 높음 100 / 심각 150）。밀수 등급 자체는 원본이 표시합니다。
+config.customer_alert,손님 방문 알림
+config.customer_alert.tip,수배범이나 개조 고객이 오면 알립니다。실제 현상금、본명、개조 등급을 표시합니다。
+config.dim_description,설명문 흐리게
+config.dim_description.tip,아이템 설명을 회색으로 표시해 감정 정보가 돋보이게 합니다。색상만 바꾸고 텍스트는 그대로입니다。
+config.double_click_inspect,더블클릭으로 감정
+config.double_click_inspect.tip,감정 대상 아이템을 더블클릭하면 감정 창이 열립니다（돋보기 불필요）。안내 문구도 함께 바뀝니다。끄면 원본 흐름으로 돌아갑니다。
+config.hidden_truth,위장과 실제 능력치 공개
+config.hidden_truth.tip,위장 전 실제 상태 차이、실제 내구도、주괴/화학품의 실제 순도를 표시합니다。가짜가 바로 드러나 감정 난이도가 내려갑니다。
+config.hide_estimate_value,원본 예상 가치 줄 숨기기
+config.hide_estimate_value.tip,그 두 줄은 손님 제시가로 실제 감정가와 다릅니다（차이가 클 수 있음）。감정 아이템에만、총액을 계산할 수 있을 때만 숨깁니다。
+config.lottery,복권 적중 수와 상금
+config.lottery.tip,추첨 후 일치한 번호 수와 상금을 표시합니다。원본은 당첨 번호 색만 바꿉니다。
+config.module_effects,모듈 효과 실수치
+config.module_effects.tip,원본은 성능/효율/품질 +16% 같은 비율만 표시합니다。그 줄 뒤에 게임이 계산한 실수치를 덧붙입니다：성능=가공 속도、효율=소비 전력、품질=품질 환산값（품질 비율이 있는 기계만）。모두 아이템 태그에서 나오며、데이터가 없는 기계는 원본 비율 그대로입니다。
+config.name_label_background,이름 라벨 배경
+config.name_label_background.tip,무늬가 복잡한 아이콘에서도 잘 보이도록 이름 뒤에 반투명 검은 바탕을 깝니다。
+config.name_label_background_alpha,배경 불투명도
+config.name_label_background_alpha.tip,배경판의 불투명도（0–1）。
+config.name_label_mode,아이콘에 이름 표시
+config.name_label_mode.tip,없음：표시 안 함。컨테이너명：컨테이너와 기계만。이름 변경만：라벨 프린터로 이름을 바꾼 아이템만。
+config.name_label_position,이름 라벨 위치
+config.name_label_position.tip,아이콘에서 이름이 놓이는 위치（아래/가운데/위）。
+config.plant,식물 정보
+config.plant.tip,베리는 품질（정상/곰팡이/미성숙 등）을、씨앗은 보유 형질과 등급을 표시합니다。
+config.price_impact,라벨·상태·시장 영향
+config.price_impact.tip,라벨 줄과 찍힘/녹 같은 상태 뒤에 가격 영향 %를 덧붙이고、적용 중인 상점 이벤트 보정도 나열합니다。원본은 이름만 표시합니다。
+config.scratcher,스크래치 결과
+config.scratcher.tip,긁기 전에 당첨 금액（또는 꽝）과 진행도를 표시합니다。같은 규칙으로 읽기만 하는 재계산이며 대신 긁지 않습니다。끄면 결과를 숨깁니다。
+config.sealed_box,봉인 상자 내용과 가치
+config.sealed_box.tip,잠긴 컨테이너（금고/총기함）도 개봉 전에 내용물과 총 가치를 보여줍니다。잠금을 건너뛰는 셈이라 기본은 꺼짐입니다。
+config.section.customer,고객 알림
+config.section.display,표시 내용
+config.section.interaction,조작 및 외형
+config.section.reveal,투시
+config.value,가치 구성과 감정 정보
+config.value.tip,감정 아이템은 총액、완벽 제시가 구간、출처 내역、위조 사유를 표시합니다。감정 서비스 제목에는 실제 가격도 붙습니다。알 수 없거나 모드가 추가한 감정 유형은 실측 내역을 사용합니다。
+config.value_enhance,칸당 가치（비감정품）
+config.value_enhance.tip,비감정품은 단가×수량과 칸당 가치（가치÷점유 칸）를 표시합니다。감정품은 실제 가치가 있어 중복 표시하지 않습니다。
+config.water_purity,수질과 조언
+config.water_purity.tip,액체의 순도 %、원본 등급명、불순물、비수액 부피、처리 조언을 수질 검사기 없이 표시합니다。끄면 원본 흐름（검사기 필요）으로 돌아갑니다。전용 수질 모드（AquaSense 등）가 켜져 있으면 그쪽에 넘깁니다。
+config.wine,와인 점수와 성분
+config.wine.tip,원본이 숨긴 양조 데이터를 표시합니다：와인 점수와 등급、당도/오염물、위조 여부（불법 효모）、숙성 일수와 일일 보너스、발효 진행。
+contraband.markup,암시장：+{0}%
+generic.combined,· 조합/기타 {0}
+generic.header,가치 내역（실측）：
+generic.more,· …외 {0} 항목
+generic.other_attributes,· 기타 속성 {0}
+hidden.chem_purity,화학 순도：{0}%
+hidden.durability,내구도：{0}/{1}
+hidden.durability_faked,실제 내구도：{0}/{1}（표시 {2}/{3}、위장 의심）
+hidden.purity,순도：{0}
+hidden.purity_faked,실제 순도：{0}（표시 {1}、위장 의심）
+hint.double_click,더블클릭으로 감정；다른 아이템을 더블클릭하면 전환
+list.sep,、
+lottery.matched_none,적중 {0}/6 -> 미당첨
+lottery.matched_prize,적중 {0}/6 -> 상금 {1}
+lottery.not_drawn,제{0}회：아직 추첨 전（매주 토요일 추첨）
+lottery.winning,당첨 번호：{0}
+market.line,시장：{0}
+module.power,{0} 전력/일
+module.quality,{0} 품질
+module.speed,{0} 속도
+price.buy,매입가：
+price.cost_close,）
+price.cost_open,"（원가 "
+price.list," 정가：{0}"
+price.sell,판매가：{0}
+reveal.modifier,실제 보정：{0}%（위장 {1}%）
+reveal.real,실제：{0}（위장 {1}）
+reveal.real_with_mod,실제：{0}（{1}%）（위장 {2}）
+ribwich.header,위조 사유：
+ribwich.more,…외 {0} 항목
+ribwich.reason_bun_no_pickles,참깨 번인데 추가 피클 없음（디럭스는 둘 다 필요）
+ribwich.reason_date_missing,생산일자 인쇄 없음
+ribwich.reason_davre_missing,Davre 마크 없음
+ribwich.reason_davre_wrong,Davre 마크 불일치
+ribwich.reason_first_sticker,1차 배치는 Ribwich 스티커가 없어야 함
+ribwich.reason_month_range,생산월 {0}이 1–12 범위 밖
+ribwich.reason_pickles_no_bun,추가 피클은 있는데 참깨 번 없음（디럭스는 둘 다 필요）
+ribwich.reason_plant_missing,포장공장 번호 없음
+ribwich.reason_plant_range,공장 번호 {0}이 01–35 범위 밖
+ribwich.reason_second_sticker_missing,2차 배치에 Ribwich 스티커 없음
+ribwich.reason_second_sticker_wrong,2차 배치의 Ribwich 스티커가 다름
+ribwich.reason_unknown,{0}
+ribwich.reason_year_range,생산연도 {0}이 425–429 / 432–438 범위 밖
+scratcher.no_prize,스크래치：꽝
+scratcher.progress,긁은 칸 {0}/3
+scratcher.win,스크래치：당첨 {0}（{1} 개 일치）
+sealed.contents,내용물：{0}{1}
+sealed.empty,내용물：없음
+sealed.more," …총 {0} 개"
+sealed.total,내용물 총액：{0}
+sealed.unit,（{0}）
+seed.header,형질（미분석）：
+seed.more,…외 {0} 항목
+seed.trait_rank,{0}（등급 {1}）
+storage.contains,포함：
+storage.more_kinds," 외 {0} 종"
+storage.ratio,압축률：{0}（{1}/{2} 칸）
+storage.total_value,합계 가치：{0}
+title.appraisal_suffix,{0} 정가{1}、최고 제시가{2}
+value.from,출처：
+value.per_cell,칸당 가치：{0}（{1}/{2} 칸）
+value.perfect_range," ｜ 완벽 {0}–{1}"
+value.total,총액：{0} × {1} = {2}
+value.total_line,총액：{0}
+water.head,수질：{0}% {1}
+water.impurities,불순물 {0}%
+water.list_head,：
+water.mismatch,（라벨 불일치）
+water.none,：없음
+water.trace,미량（표시 임계값 미만）
+wine.aging,숙성 보너스：+{0}/일（총 +{1}）
+wine.composition,성분：당도 {0}‰、오염물 {1}‰
+wine.counterfeit,위조：불법 효모
+wine.empty,비어 있음
+wine.fermenting,발효 중
+wine.finished,완성됨
+wine.score,와인 점수：{0}{1}
+wine.state,와인：{0}
+wine.tier,、{0} 단계
+wine.unknown_state,알 수 없음（{0}）
+wine.yeast_power,효모 강도：{0}/회

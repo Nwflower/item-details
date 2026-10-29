@@ -21,6 +21,7 @@ public sealed partial class ModEntry : IMod
     private ModLog? _log;
     private Action<RichTextBuilder, GameItem>? _cb;
 
+#if ITEMDETAILS_SELFTEST
     /// <summary>当前生效的实例，供无头快照测试复用同一套渲染器。</summary>
     internal static ModEntry? Active { get; private set; }
 
@@ -34,7 +35,6 @@ public sealed partial class ModEntry : IMod
         {
             var mod = Active;
             if (mod == null || item == null) return null;
-            mod.RefreshLocale();
 
             var builder = new RichTextBuilder(width);
             mod.RunRenderers(builder, item);
@@ -46,6 +46,7 @@ public sealed partial class ModEntry : IMod
             return null;
         }
     }
+#endif
 
     /// <summary>一个 tooltip 追加器：名字只用于日志定位，执行顺序即 <see cref="Renderers"/> 的顺序。</summary>
     private readonly struct RendererDef
@@ -109,7 +110,9 @@ public sealed partial class ModEntry : IMod
 
     public void OnEnable()
     {
+#if ITEMDETAILS_SELFTEST
         Active = this;
+#endif
         Log.Reset();   // 上次启停留下的失败计数不再沿用，重新按本次会话限流
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);
 
@@ -138,12 +141,17 @@ public sealed partial class ModEntry : IMod
             if (_cb != null) ModHook.OnCreateTooltipLate -= _cb;
         });
         _cb = null;
+#if ITEMDETAILS_SELFTEST
         if (ReferenceEquals(Active, this)) Active = null;
+#endif
 
         Quiet(AppraisalTitlePatch.Remove);
         Quiet(CustomerAlertTicker.Stop);
         Quiet(WaterAdvice.Stop);
+        Quiet(ItemValueCache.Reset);
+        Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
+        Quiet(SealedBoxInfo.Stop);
         Quiet(GenericBreakdown.Stop);
         Quiet(LabelImpact.Remove);
         Quiet(DoubleClickInspect.Remove);
@@ -153,6 +161,7 @@ public sealed partial class ModEntry : IMod
         Quiet(ItemNameLabel.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);
+        Quiet(Loc.ResetCache);   // 下次启用重新读盘：玩家可能换了语言，或更新了 Localization/*.csv
         _log?.Log("unsubscribed");
         Log.Reset();
     }
@@ -178,12 +187,8 @@ public sealed partial class ModEntry : IMod
     }
 
     // ---------------- 语言 ----------------
-    private bool _zh;   // 每次构建 tooltip 前由 RefreshLocale 同步
-
-    /// <summary>每次构建 tooltip 前同步一次语言；判定与缓存都交给 <see cref="Locales"/>。</summary>
-    private void RefreshLocale() => _zh = Locales.IsChinese;
-
-    private string L(string zh, string en) => _zh ? zh : en;
+    // 语言判定与文案选择都在 <see cref="Loc"/>：tooltip 构建期间由 Loc 内部按语言码缓存，
+    // 这里不再需要把 bool zh 穿进每个模块（旧版就是那么做的，新增模块必漏）。
 
     /// <summary>含水容器：由水质模块统一呈现，其它物品维度模块对它豁免。</summary>
     private static bool IsLiquid(GameItem item)
@@ -198,10 +203,6 @@ public sealed partial class ModEntry : IMod
     {
         if (builder == null || item == null) return;
 
-        try { RefreshLocale(); }
-        catch (Exception ex) { Log.Warn("OnTooltipLate.Locale", ex); }
-
-
         RunRenderers(builder, item);
     }
 
@@ -213,17 +214,18 @@ public sealed partial class ModEntry : IMod
     /// </summary>
     private void RunRenderers(RichTextBuilder builder, GameItem item)
     {
-        // 单次 tooltip 超过这个耗时才记一条，限频 2 秒一次：用来定位"悬停掉帧"。
-        const double PerfLogThresholdMs = 2.0;
+#if ITEMDETAILS_DIAG
         double totalMs = 0;
-        StringBuilder? slow = null;
+#endif
 
         for (int i = 0; i < Renderers.Length; i++)
         {
             if (_rendererFailures[i] >= RendererFailureLimit) continue;
 
             RendererDef def = Renderers[i];
+#if ITEMDETAILS_DIAG
             long started = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
             try
             {
                 def.Append(this, builder, item);
@@ -244,25 +246,78 @@ public sealed partial class ModEntry : IMod
                 }
             }
 
+#if ITEMDETAILS_DIAG
             double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0
                         / System.Diagnostics.Stopwatch.Frequency;
             totalMs += ms;
-            if (ms >= 1.0)
-            {
-                slow ??= new StringBuilder();
-                if (slow.Length > 0) slow.Append(' ');
-                slow.Append(def.Name).Append('=').Append(ms.ToString("0.0")).Append("ms");
-            }
+            _perfModuleCalls[i]++;
+            _perfModuleMs[i] += ms;
+            if (ms > _perfModuleMaxMs[i]) _perfModuleMaxMs[i] = ms;
+#endif
         }
 
-        if (totalMs >= PerfLogThresholdMs && UnityEngine.Time.unscaledTime >= _nextPerfLogAt)
-        {
-            _nextPerfLogAt = UnityEngine.Time.unscaledTime + 2f;
-            string detail = slow == null ? "" : " 明细: " + slow;
-            Log.Msg($"[perf] tooltip 构建 {totalMs:0.0}ms（{item?.identifier}）{detail}");
-        }
+#if ITEMDETAILS_DIAG
+        TrackRendererPerf(item, totalMs);
+#endif
     }
 
-    /// <summary>性能日志限频用；不参与任何功能判断。</summary>
-    private static float _nextPerfLogAt;
+#if ITEMDETAILS_DIAG
+    // 正文独立性能窗口：单次阈值日志会漏掉每次不足 2ms、但每帧都发生的持续开销。
+    private readonly int[] _perfModuleCalls = new int[Renderers.Length];
+    private readonly double[] _perfModuleMs = new double[Renderers.Length];
+    private readonly double[] _perfModuleMaxMs = new double[Renderers.Length];
+    private int _perfRuns;
+    private double _perfTotalMs;
+    private double _perfMaxTotalMs;
+    private string _perfMaxItem = "";
+    private float _perfLogAt;
+
+    /// <summary>每 2 秒输出总构建与累计最慢的前 4 个模块，避免逐条日志干扰性能。</summary>
+    private void TrackRendererPerf(GameItem item, double totalMs)
+    {
+        _perfRuns++;
+        _perfTotalMs += totalMs;
+        if (totalMs > _perfMaxTotalMs)
+        {
+            _perfMaxTotalMs = totalMs;
+            _perfMaxItem = item.identifier ?? "";
+        }
+
+        float now = UnityEngine.Time.unscaledTime;
+        if (_perfLogAt <= 0f) _perfLogAt = now + 2f;
+        if (now < _perfLogAt) return;
+
+        var order = new int[Renderers.Length];
+        for (int i = 0; i < order.Length; i++) order[i] = i;
+        Array.Sort(order, (a, b) => _perfModuleMs[b].CompareTo(_perfModuleMs[a]));
+
+        var detail = new StringBuilder();
+        int shown = 0;
+        for (int i = 0; i < order.Length && shown < 4; i++)
+        {
+            int index = order[i];
+            int calls = _perfModuleCalls[index];
+            if (calls == 0) continue;
+            double sum = _perfModuleMs[index];
+            detail.Append(' ').Append(Renderers[index].Name).Append('=')
+                .Append(sum.ToString("0.00")).Append('/')
+                .Append((sum / calls).ToString("0.00")).Append('/')
+                .Append(_perfModuleMaxMs[index].ToString("0.00")).Append("ms");
+            shown++;
+        }
+
+        double average = _perfRuns > 0 ? _perfTotalMs / _perfRuns : 0.0;
+        Log.Msg($"[perf] tooltip 正文（2秒）: 构建={_perfRuns}次/{average:0.00}ms均次/" +
+                $"{_perfMaxTotalMs:0.00}ms峰值（{_perfMaxItem}）；模块前4（累计/均次/峰值）:{detail}");
+
+        Array.Clear(_perfModuleCalls, 0, _perfModuleCalls.Length);
+        Array.Clear(_perfModuleMs, 0, _perfModuleMs.Length);
+        Array.Clear(_perfModuleMaxMs, 0, _perfModuleMaxMs.Length);
+        _perfRuns = 0;
+        _perfTotalMs = 0.0;
+        _perfMaxTotalMs = 0.0;
+        _perfMaxItem = "";
+        _perfLogAt = now + 2f;
+    }
+#endif
 }
