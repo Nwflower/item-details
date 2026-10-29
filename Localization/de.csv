@@ -167,3 +167,4 @@ config.sealed_box,Behälter-Röntgen
 config.sealed_box.tip,Listet Inhalt und Gesamtwert verschlossener Behälter vor dem Öffnen. Umgeht das Schloss; standardmäßig aus.
 config.result_prefill,Ergebnis vorausfüllen
 config.result_prefill.tip,Füllt beim Öffnen der Prüfansicht die tatsächlichen Fälschungsmerkmale und den besten Schätzpreis vor. Es werden nur die Bedienelemente ausgefüllt, nichts wird gesendet oder bestätigt. Standardmäßig aus.
+appraisal.minimum_adjustment,Mindestwertanpassung

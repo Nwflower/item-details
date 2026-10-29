@@ -167,3 +167,4 @@ config.sealed_box,Prześwietlanie skrzyń
 config.sealed_box.tip,Pokazuje zawartość i łączną wartość zamkniętych pojemników przed otwarciem. Omija zamek; domyślnie wyłączone.
 config.result_prefill,Wstępne wypełnianie wyniku
 config.result_prefill.tip,Przy otwarciu panelu oględzin zaznacza rzeczywiste wady podróbki i wpisuje najlepszą ofertę wyceny. Wypełnia tylko pola; nigdy nie wysyła ani nie potwierdza. Domyślnie wyłączone.
+appraisal.minimum_adjustment,Korekta do wartości minimalnej

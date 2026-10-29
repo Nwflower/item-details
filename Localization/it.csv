@@ -167,3 +167,4 @@ config.sealed_box,Raggi X contenitori
 config.sealed_box.tip,Elenca contenuto e valore totale dei contenitori chiusi prima di aprirli. Salta la serratura; disattivato per impostazione predefinita.
 config.result_prefill,Precompila risultato
 config.result_prefill.tip,All'apertura del pannello di ispezione, seleziona i difetti reali di contraffazione e inserisce la migliore offerta di perizia. Compila solo i controlli; non invia né conferma. Disattivato per impostazione predefinita.
+appraisal.minimum_adjustment,Adeguamento al valore minimo

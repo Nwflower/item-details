@@ -167,3 +167,4 @@ config.sealed_box,Radiographie des conteneurs
 config.sealed_box.tip,Liste le contenu et la valeur totale des conteneurs verrouillés avant l'ouverture. Contourne la serrure; désactivé par défaut.
 config.result_prefill,Préremplir le résultat
 config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les défauts réels de contrefaçon et remplit la meilleure offre d'expertise. Remplit uniquement les contrôles ; ne valide jamais. Désactivé par défaut.
+appraisal.minimum_adjustment,Ajustement à la valeur minimale

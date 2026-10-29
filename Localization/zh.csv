@@ -167,3 +167,4 @@ config.sealed_box,密封箱透视
 config.sealed_box.tip,带锁容器（保险箱/枪柜）未开锁时也列出箱内物品与箱内总价值。等于绕过开锁环节，默认关闭。
 config.result_prefill,结果预填
 config.result_prefill.tip,打开鉴定面板时自动勾选赝品的实际问题，并把鉴定价格填成最优报价。只预填控件，不自动提交或确认。默认关闭。
+appraisal.minimum_adjustment,最低价值补差

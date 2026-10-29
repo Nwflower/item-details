@@ -167,3 +167,4 @@ config.sealed_box,Raio-X de contêineres
 config.sealed_box.tip,Lista o conteúdo e o valor total de recipientes trancados antes de destrancar. Ignora a tranca; desligado por padrão.
 config.result_prefill,Preencher resultado
 config.result_prefill.tip,Ao abrir o painel de inspeção, marca os defeitos reais de falsificação e preenche a melhor oferta de avaliação. Apenas preenche os controles; nunca envia nem confirma. Desativado por padrão.
+appraisal.minimum_adjustment,Ajuste ao valor mínimo

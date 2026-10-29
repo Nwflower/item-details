@@ -167,3 +167,4 @@ config.sealed_box,밀봉 상자 투시
 config.sealed_box.tip,잠긴 컨테이너（금고/총기함）도 개봉 전에 내용물과 총 가치를 보여줍니다。잠금을 건너뛰는 셈이라 기본은 꺼짐입니다。
 config.result_prefill,결과 미리 채우기
 config.result_prefill.tip,감정 패널을 열 때 실제 위조 항목을 선택하고 감정 가격을 최적 제시가로 채웁니다. 입력란만 채우며 제출하거나 확인하지 않습니다. 기본값은 꺼짐입니다.
+appraisal.minimum_adjustment,최소 가치 보정

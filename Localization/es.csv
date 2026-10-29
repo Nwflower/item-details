@@ -167,3 +167,4 @@ config.sealed_box,Rayos X de contenedores
 config.sealed_box.tip,Lista el contenido y el valor total de contenedores cerrados antes de abrirlos. Se salta la cerradura; desactivado por defecto.
 config.result_prefill,Rellenar resultado
 config.result_prefill.tip,Al abrir el panel de inspección, marca los defectos reales de falsificación y rellena el mejor precio de tasación. Solo rellena los controles; nunca envía ni confirma. Desactivado por defecto.
+appraisal.minimum_adjustment,Ajuste al valor mínimo

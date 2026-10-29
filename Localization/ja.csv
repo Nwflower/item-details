@@ -167,3 +167,4 @@ config.sealed_box,密封コンテナ透視
 config.sealed_box.tip,施錠された容器（金庫/銃棚）も開錠前に中身と合計価値を一覧。開錠を飛ばすのと同じなので既定はオフ。
 config.result_prefill,結果を事前入力
 config.result_prefill.tip,鑑定パネルを開いたとき、実際の偽造箇所を選択し、鑑定価格に最適な提示額を入力します。入力欄を埋めるだけで、送信や確定は行いません。既定ではオフです。
+appraisal.minimum_adjustment,最低価値の補正
