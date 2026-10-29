@@ -235,7 +235,7 @@ internal static class ModSettings
                 Text("无：不显示。容器名：只给容器与机器。仅改名物品：只显示用标签打印机改过名的物品。",
                      "Off: hide labels. Containers: only containers and machines. Renamed only: only items renamed with the label printer."));
 
-            _namePos = _cfg.Define("name_label_position", "底部 (Bottom)", SecInteractionZh,
+            _namePos = _cfg.Define("name_label_position", "中间 (Middle)", SecInteractionZh,
                 Text("图标名位置", "Name Label Position"),
                 new[] { "底部 (Bottom)", "中间 (Middle)", "顶部 (Top)" },
                 Text("名字贴在物品图标的下/中/上哪一侧。", "Where the name sits on the item icon."));
@@ -337,7 +337,7 @@ internal static class ModSettings
     internal static bool HideEstimate => HideEstimateToggle.Value;
     internal static bool DimDescription => DimDescriptionToggle.Value;
     internal static string ItemNameMode => _nameMode?.Value ?? "容器名 (Containers)";
-    internal static string ItemNamePosition => _namePos?.Value ?? "底部 (Bottom)";
+    internal static string ItemNamePosition => _namePos?.Value ?? "中间 (Middle)";
     internal static bool ItemNameBackground => _nameBg?.Value ?? false;
     internal static float ItemNameBackgroundAlpha => _nameBgAlpha?.Value ?? 0.55f;
 
