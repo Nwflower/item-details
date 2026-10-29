@@ -167,6 +167,9 @@ internal static class TooltipPipeline
             // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)
             if (ModuleEffectAnnotation.TryApply(ref __0, __instance, __2, cur)) return false;
 
+            // 模块物品的空「模组效果：」表头（三项加成全 0）直接丢掉
+            if (ModuleEffectAnnotation.ShouldDrop(__0, cur)) return false;
+
             return true;
         }
         catch { return true; }
