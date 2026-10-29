@@ -133,13 +133,30 @@ internal static class StorageInfo
 
     private static void AddContents(GameGridInventory grid, bool zh, List<TooltipLine> lines)
     {
+        float now = UnityEngine.Time.unscaledTime;
+        if (_contentsCache != null && ReferenceEquals(_contentsGrid, grid)
+            && _contentsZh == zh && now - _contentsAt <= ContentsCacheSeconds)
+        {
+            lines.AddRange(_contentsCache);
+            return;
+        }
+
+        var built = new List<TooltipLine>();
+        void StoreCache()
+        {
+            _contentsGrid = grid;
+            _contentsZh = zh;
+            _contentsAt = now;
+            _contentsCache = built;
+        }
+
         try
         {
             List<GameItem>? items = null;
             try { items = grid.childItems; }
-            catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); return; }
-            if (items == null || items.Count == 0) return;
-            if (items.Count > 512) return;   // 异常保护
+            catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); StoreCache(); return; }
+            if (items == null || items.Count == 0) { StoreCache(); return; }
+            if (items.Count > 512) { StoreCache(); return; }   // 异常保护
 
             // 按显示名聚合数量
             var counts = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -183,7 +200,7 @@ internal static class StorageInfo
                 catch { }
             }
 
-            if (order.Count == 0) return;
+            if (order.Count == 0) { StoreCache(); return; }
 
             var sb = new StringBuilder();
             sb.Append(zh ? "内含：" : "Contains: ");
@@ -199,15 +216,21 @@ internal static class StorageInfo
             if (order.Count > MaxKinds)
                 sb.Append(zh ? $" 等 {order.Count} 类" : $" and {order.Count} kinds");
 
-            lines.Add(new TooltipLine(sb.ToString(), Color));
+            built.Add(new TooltipLine(sb.ToString(), Color));
 
             if (totalValue > 0)
             {
-                lines.Add(new TooltipLine(
+                built.Add(new TooltipLine(
                     zh ? $"合计价值：{totalValue}" : $"Total value: {totalValue}",
                     Color));
             }
+            StoreCache();
         }
-        catch (Exception ex) { Log.Warn("StorageInfo.Contents", ex); }
+        catch (Exception ex)
+        {
+            Log.Warn("StorageInfo.Contents", ex);
+            StoreCache();
+        }
+        lines.AddRange(built);
     }
 }

@@ -303,9 +303,8 @@ internal static class ItemNameLabel
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
         text.overflowMode = TextOverflowModes.Truncate;
-        text.enableAutoSizing = true;
-        text.fontSizeMin = 5f;
-        text.fontSizeMax = 9f;   // 屏幕像素，每次 Place 会按设置覆盖
+        text.enableAutoSizing = false;   // 字号由 Place 按「图标高度 × 相对比例」直接给，避免自适应把字压小
+        text.fontSize = 12f;
         text.raycastTarget = false;
     }
 
@@ -348,9 +347,12 @@ internal static class ItemNameLabel
             float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
             float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
 
-            float size = Mathf.Clamp(ModSettings.ItemNameSize, 5f, 24f);
-            float height = size + 2f;
+            // 相对大小：字号 = 图标高度 × 设置百分比，跟着图标缩放，不受界面分辨率影响
+            float pct = Mathf.Clamp(ModSettings.ItemNameScale, 10f, 100f);
             float iconWidth = Mathf.Max(8f, maxX - minX);
+            float iconHeight = Mathf.Max(8f, maxY - minY);
+            float size = Mathf.Clamp(iconHeight * pct / 100f, 7f, 48f);
+            float height = size * 1.25f;
             float z = sprite.position.z;
 
             // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
@@ -410,8 +412,8 @@ internal static class ItemNameLabel
             label.Background = bgOn;
             label.BackgroundAlpha = bgAlpha;
 
-            if (label.Main != null) label.Main.text.fontSizeMax = size;
-            if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
+            if (label.Main != null) label.Main.text.fontSize = size;
+            if (label.Shadow != null) label.Shadow.text.fontSize = size;
             SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
             SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
 
