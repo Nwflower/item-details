@@ -47,9 +47,15 @@ internal static class ItemNameLabel
     {
         internal TreeNodeRender? Main;
         internal TreeNodeRender? Shadow;
+        internal TreeNodeRender? BgBorder;
+        internal TreeNodeRender? BgFill;
         internal string Text = "";
         internal bool Visible;
     }
+
+    // 与 tooltip 同一套观感：深紫底 + 浅青 1px 边框（tooltip 底板就是这两种颜色）
+    private static readonly Color FillColor = new Color(0.16f, 0.14f, 0.20f, 0.95f);
+    private static readonly Color BorderColor = new Color(0.49f, 0.82f, 0.80f, 0.9f);
 
     internal static void Apply()
     {
@@ -162,6 +168,8 @@ internal static class ItemNameLabel
             label.Visible = true;
             label.Main.text.enabled = true;
             label.Shadow.text.enabled = true;
+            if (label.BgBorder?.image != null) label.BgBorder.image.enabled = true;
+            if (label.BgFill?.image != null) label.BgFill.image.enabled = true;
         }
 
         if (label.Text != name)
@@ -181,6 +189,8 @@ internal static class ItemNameLabel
         label.Visible = false;
         label.Main.text.enabled = false;
         label.Shadow.text.enabled = false;
+        if (label.BgBorder?.image != null) label.BgBorder.image.enabled = false;
+        if (label.BgFill?.image != null) label.BgFill.image.enabled = false;
     }
 
     /// <summary>容器（有内嵌库存）或机器；判定失败一律不显示，不猜。</summary>
@@ -215,9 +225,14 @@ internal static class ItemNameLabel
             var parent = element.middle;
             if (parent == null) return null;
 
-            // 先投影后本体：与游戏堆叠数字同样的两层文字，像素图上才看得清
+            // 背景两层 + 文字两层，创建顺序即层级顺序：边框最底、填充其次、文字最上
+            var bgBorder = TreeNodeRender.Instantiate().SetParent(parent);
+            var bgFill = TreeNodeRender.Instantiate().SetParent(parent);
             var shadow = TreeNodeRender.InstantiateText().SetParent(parent);
             var main = TreeNodeRender.InstantiateText().SetParent(parent);
+
+            InitQuad(bgBorder, BorderColor);
+            InitQuad(bgFill, FillColor);
 
             Configure(shadow, new Color(0f, 0f, 0f, 0.85f));
             Configure(main, Color.white);
@@ -240,7 +255,7 @@ internal static class ItemNameLabel
                 catch { }
             }
 
-            var label = new Label { Main = main, Shadow = shadow };
+            var label = new Label { Main = main, Shadow = shadow, BgBorder = bgBorder, BgFill = bgFill };
             Labels.Add(element, label);
             Tracked.Add(new WeakReference<GameItemElement>(element));
             return label;
@@ -268,6 +283,36 @@ internal static class ItemNameLabel
         text.fontSizeMin = 5f;
         text.fontSizeMax = 9f;
         text.raycastTarget = false;
+    }
+
+    /// <summary>无 sprite 的 Image 直接画成纯色方块，正好当底板/边框用（不依赖任何图集）。</summary>
+    private static void InitQuad(TreeNodeRender node, Color color)
+    {
+        try
+        {
+            var img = node.image;
+            if (img != null)
+            {
+                img.sprite = null;
+                img.color = color;
+                img.raycastTarget = false;
+                img.enabled = true;
+            }
+            node.rectTransform.localScale = Vector3.one;
+        }
+        catch (Exception ex) { Log.Warn("NameLabel.Quad", ex); }
+    }
+
+    /// <summary>统一设置一层的锚点/尺寸/世界位置（pivot 取底边中点，y 即底边）。</summary>
+    private static void SetRect(TreeNodeRender? node, float width, float height, float centerX, float y, float z)
+    {
+        if (node == null) return;
+        var rt = node.rectTransform;
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0f);
+        rt.sizeDelta = new Vector2(width, height);
+        rt.position = new Vector3(centerX, y, z);
     }
 
     /// <summary>
@@ -301,21 +346,11 @@ internal static class ItemNameLabel
             float y = minY + LabelBottomInset;
             float z = rect.position.z;
 
-            foreach (var node in new[] { label.Shadow, label.Main })
-            {
-                if (node == null) continue;
-                var rt = node.rectTransform;
-
-                rt.anchorMin = new Vector2(0.5f, 0.5f);
-                rt.anchorMax = new Vector2(0.5f, 0.5f);
-                rt.pivot = new Vector2(0.5f, 0f);
-                rt.sizeDelta = new Vector2(width, LabelHeight);
-                rt.position = new Vector3(centerX, y, z);
-            }
-
-            // 投影下移 1px，形成描边感（与游戏堆叠数字的叠法一致）
-            if (label.Shadow != null)
-                label.Shadow.rectTransform.position = new Vector3(centerX, y - 1f, z);
+            // 边框最大、填充其次、文字最上；每层都自下而上叠 1px，形成 tooltip 那样的细描边
+            SetRect(label.BgBorder, width + 4f, LabelHeight + 4f, centerX, y - 2f, z);
+            SetRect(label.BgFill, width + 2f, LabelHeight + 2f, centerX, y - 1f, z);
+            SetRect(label.Main, width, LabelHeight, centerX, y, z);
+            SetRect(label.Shadow, width, LabelHeight, centerX, y - 1f, z);
 
             if (_placementLogged < 3)
             {
