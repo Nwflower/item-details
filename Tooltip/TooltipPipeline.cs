@@ -128,9 +128,9 @@ internal static class TooltipPipeline
     {
         try
         {
-            if (!ModSettings.HideEstimate) return false;
+            if (!ModSettings.HideEstimate || !ModSettings.Value) return false;
             if (!GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
-            // 只有我们确实能给出总价时才隐藏，避免"两边都没有"。
+            // 替代渲染器必须启用且能算出总价，才隐藏原版估价。
             return ValueBreakdown.Analyze(item) != null;
         }
         catch { return false; }
