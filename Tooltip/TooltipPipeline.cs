@@ -290,14 +290,15 @@ internal static class TooltipPipeline
             try { cal = item.GetTagReadonly("CALORIE_VALUE_TAG").GetInt(); } catch { return true; }
             if (cal <= 0) return true;
 
-            // 只在"含该数字的短行"上动手，避免误伤描述文本
-            if (text.Length > 24) return true;
+            // 与原版 FoodItemHelper 的行模板精确匹配，不能仅凭一个数字认作热量。
+            string key = item.IsTag("MEAT_FOOD_TAG") ? "mech_food_calories_meat" : "mech_food_calories";
+            string nativeLine = " " + LocHelper.GetLocalizedMechanic(key, cal);
+            if (!string.Equals(text, nativeLine, StringComparison.Ordinal)) return true;
             int idx = text.IndexOf(cal.ToString(), StringComparison.Ordinal);
             if (idx < 0) return true;
 
             // 单位后缀 = 数字之后、行尾之前的部分（去掉首尾空白）
             string tail = text.Substring(idx + cal.ToString().Length).Trim();
-            if (tail.Length > 6) return true;            // 不是纯卡路里行
             if (tail.Length == 0) tail = Loc.T("calorie.unit", "kcal");
 
             // 去掉后缀里的括号补充（如「（肉类）」），每格只用核心单位
