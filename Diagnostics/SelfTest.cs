@@ -349,6 +349,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 独立酒样本应显示分数，并区分正常酒与非法酵母赝品。
+        {
+            string line = CheckWineInfo(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：几瓶水交替访问时，多槽水质建议缓存不得互相淘汰
         {
             string line = CheckWaterAdviceCache(out bool ok);
