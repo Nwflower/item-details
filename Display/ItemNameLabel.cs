@@ -355,53 +355,6 @@ internal static class ItemNameLabel
         label.Visible = false;
     }
 
-    /// <summary>
-    /// 显式挑一个含当前语言字形的字体。
-    ///
-    /// TreeNodeRender.InstantiateText() 内部只在 FontLoader.Instance 与 SelectedLocale 都就绪时
-    /// 才套用本地化字体；启动早期创建的节点会停在预制体的拉丁字体上，
-    /// 中文被 TMP 替换成空格 —— 表现出来就是"文字消失"（日志里会刷
-    /// "The character with Unicode value \u81EA was not found in the [NotoSans-Medium SDF]"）。
-    /// 因此这里按「tooltip 正文字体 → FontLoader 的 Noto_Sans → 任意已有 TMP 字体」三级兜底。
-    /// </summary>
-    private static TMP_FontAsset? ResolveFont()
-    {
-        try
-        {
-            var fromTooltip = TypeBadge.TooltipFont;
-            if (fromTooltip != null) return fromTooltip;
-        }
-        catch { }
-
-        try
-        {
-            // 扫描已加载的字体资源，优先挑名字里带 CJK 线索的（SC / CN / Chinese / Han / Noto）
-            var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
-            if (fonts != null)
-            {
-                for (int i = 0; i < fonts.Length; i++)
-                {
-                    var f = fonts[i];
-                    if (f == null) continue;
-                    string n = "";
-                    try { n = f.name ?? ""; } catch { }
-                    if (n.IndexOf("SC", StringComparison.OrdinalIgnoreCase) >= 0
-                        || n.IndexOf("CN", StringComparison.OrdinalIgnoreCase) >= 0
-                        || n.IndexOf("Chinese", StringComparison.OrdinalIgnoreCase) >= 0
-                        || n.IndexOf("Han", StringComparison.OrdinalIgnoreCase) >= 0
-                        || n.IndexOf("Noto", StringComparison.OrdinalIgnoreCase) >= 0)
-                        return f;
-                }
-
-                for (int i = 0; i < fonts.Length; i++)
-                    if (fonts[i] != null) return fonts[i];
-            }
-        }
-        catch { }
-
-        return null;
-    }
-
     private static void Configure(TreeNodeRender node, Color color)
     {
         var rt = node.rectTransform;
@@ -418,16 +371,6 @@ internal static class ItemNameLabel
         text.enableAutoSizing = false;
         text.fontSize = 12f;
         text.raycastTarget = false;
-    }
-
-    /// <summary>上/中/下三档位置：按设置把标签放在外接框的对应一侧（屏幕像素）。</summary>
-    private static float RowY(string mode, float minY, float maxY, float height)
-    {
-        if (mode.StartsWith("顶", StringComparison.Ordinal) || mode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
-            return maxY - height - LabelBottomInset;
-        if (mode.StartsWith("中", StringComparison.Ordinal) || mode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
-            return (minY + maxY) * 0.5f - height * 0.5f;
-        return minY + LabelBottomInset;   // 默认底部
     }
 
     private static void Place(GameItemElement element, Label label)
