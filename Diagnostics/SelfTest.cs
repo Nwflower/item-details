@@ -341,7 +341,7 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        // 额外验证：相符的水经完整 tooltip 后不得被自动交易系统改判为错标签
+        // 额外验证：相符的水经模组渲染器后不得被自动交易系统改判为错标签
         {
             string line = CheckWaterSaleStateIsolation(out bool ok);
             if (ok) pass++; else fail++;
@@ -360,6 +360,32 @@ internal static partial class SelfTest
         // 额外验证：几瓶水交替访问时，多槽水质建议缓存不得互相淘汰
         {
             string line = CheckWaterAdviceCache(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 原生 tooltip 入口与缓存上下文的集成回归。
+        {
+            string line = CheckWaterAdviceInstalledFilter(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckAppraisalDisabledPrice(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckNativeCalorieOrigin(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckPartialContainerTotals(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
