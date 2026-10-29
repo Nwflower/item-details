@@ -24,6 +24,8 @@ internal static class AppraisalTitlePatch
     private static TextMeshProUGUI? _titleTmp;
     private static string _original = "";   // 注入前的原文
     private static string _applied = "";    // 我们写进去的文本（空 = 当前没有注入）
+    private static bool _loggedOnce;        // 首次注入时打一条路径日志，方便排查"写错控件"
+    private static bool _reapplyScheduled;  // 已在下一帧补写一次
 
     internal static void Apply()
     {
@@ -75,8 +77,8 @@ internal static class AppraisalTitlePatch
             if (!ModSettings.Value || gameItem == null) return;
             if (!GameRead.IsTag(gameItem, "APPRAISAL_ITEM")) return;
 
-            int? trueVal = GameRead.TrueValue(gameItem);
-            if (trueVal is not int value || value <= 0) return;
+            int value = ResolveTrueValue(gameItem);
+            if (value <= 0) return;
 
             var insp = InspectionUIManager.Instance;
             var panel = insp?.appraisalPanel;
@@ -105,6 +107,21 @@ internal static class AppraisalTitlePatch
 
             _titleTmp.text = desired;
             _applied = desired;
+
+            if (!_loggedOnce)
+            {
+                _loggedOnce = true;
+                Log.Msg($"AppraisalTitle: 注入到 '{Path(_titleTmp.transform)}' → {desired}");
+            }
+
+            // 面板的 SetActive / 本地化组件可能在下一帧再把标题写一遍，
+            // 这时只在 OnInspectItem 里注入一次会被覆盖掉，表现为"标题后面什么都没有"。
+            if (!_reapplyScheduled && insp != null)
+            {
+                _reapplyScheduled = true;
+                try { insp.StartCoroutine(ReapplyNextFrame()); }
+                catch { _reapplyScheduled = false; }
+            }
         }
         catch (Exception ex)
         {
@@ -138,10 +155,12 @@ internal static class AppraisalTitlePatch
     {
         string localized = "";
         try { localized = LocHelper.GetLocalizedUI("ui_inspection_panel_title") ?? ""; } catch { }
-        return FindTitle(root, localized);
+        // 先只认「正在显示」的标题：面板层级里常有同名但未激活的隐藏副本，
+        // 写进副本会表现为"标题完全没变"。找不到再退回全量搜索。
+        return FindTitle(root, localized, true) ?? FindTitle(root, localized, false);
     }
 
-    private static TextMeshProUGUI? FindTitle(Transform t, string localized)
+    private static TextMeshProUGUI? FindTitle(Transform t, string localized, bool activeOnly)
     {
         for (int i = 0; i < t.childCount; i++)
         {
@@ -149,7 +168,7 @@ internal static class AppraisalTitlePatch
             if (child == null) continue;
 
             var tmp = child.GetComponent<TextMeshProUGUI>();
-            if (tmp != null)
+            if (tmp != null && (!activeOnly || tmp.isActiveAndEnabled))
             {
                 string txt = tmp.text ?? "";
                 if ((localized.Length > 0 && txt.Contains(localized))
@@ -159,9 +178,47 @@ internal static class AppraisalTitlePatch
                     return tmp;
             }
 
-            var found = FindTitle(child, localized);
+            var found = FindTitle(child, localized, activeOnly);
             if (found != null) return found;
         }
         return null;
+    }
+
+    /// <summary>游戏没登记这类鉴定物时（GetCorrectBaseValue 返回 0）用本模组自己的分解结果，
+    /// 与 tooltip 里「总价」同一来源，避免标题和正文对不上。</summary>
+    private static int ResolveTrueValue(GameItem item)
+    {
+        try
+        {
+            int? native = GameRead.TrueValue(item);
+            if (native is int n && n > 0) return n;
+        }
+        catch { }
+        try { return ValueBreakdown.Analyze(item)?.Total ?? 0; } catch { return 0; }
+    }
+
+    /// <summary>下一帧再核对一次：被游戏或本地化组件覆盖就补回去。</summary>
+    private static System.Collections.IEnumerator ReapplyNextFrame()
+    {
+        yield return null;
+        _reapplyScheduled = false;
+        if (_titleTmp == null || _applied.Length == 0) yield break;
+        try
+        {
+            if (_titleTmp.isActiveAndEnabled && _titleTmp.text != _applied)
+                _titleTmp.text = _applied;
+        }
+        catch { }
+    }
+
+    private static string Path(Transform t)
+    {
+        try
+        {
+            var sb = new System.Text.StringBuilder(t.name);
+            for (var p = t.parent; p != null; p = p.parent) sb.Insert(0, p.name + "/");
+            return sb.ToString();
+        }
+        catch { return "?"; }
     }
 }
