@@ -22,7 +22,7 @@ namespace ItemDetails;
 ///            （净水片就是「含 15ml 氯的可溶化学物品」，走同一条链，不再特判）
 ///   滤芯     WaterHelper.HandleFilter（逐液体，被去除量转成水；uv_filter 由其内部处理）
 ///
-/// 这条路径比其它模块贵得多，所以按「液体组成 + 容器类型 + 净化前纯度」缓存。
+/// 这条路径比其它模块贵得多，所以按液体组成、容器类型、纯度与已装滤芯状态缓存。
 /// 不按物品实例缓存：玩家常有多瓶同纯度、同杂质的水，按实例会让每瓶首次悬停
 /// 都重跑一次完整模拟（实测单次 60ms 左右）。同组成的水共享结果，首次只付一次成本。
 /// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束；水的纯度/杂质变化会改变 key，仍会重算。
@@ -34,7 +34,7 @@ namespace ItemDetails;
 internal static class WaterAdvice
 {
     private const float CacheSeconds = 30f;
-    // 容量只是上限：条目仍受 10 秒 TTL 约束。100 槽足以覆盖任何正常的水容器对比，
+    // 容量只是上限：条目仍受 30 秒 TTL 约束。100 槽足以覆盖正常的水容器对比，
     // 线性扫描在工具提示频率下可忽略，真正防止卡顿的是不再让 A/B 互相淘汰。
     private const int MaxEntries = 100;
 
@@ -49,6 +49,11 @@ internal static class WaterAdvice
     {
         internal long Signature;
         internal int Purity;
+        internal GameItem? InstalledFilter;
+        internal int? FilterDurability;
+        internal int? FilterSize;
+        internal string FilterName = "";
+        internal string Locale = "";
         internal float At;
         internal List<Method> Methods = new();
     }
@@ -74,6 +79,13 @@ internal static class WaterAdvice
             if (purity < 0) return result;
 
             long signature = CompositionSignature(item);
+            // HandleFilter 的效果取决于已装滤芯的耐久与孔径，不能只按水质共享。
+            // 直接查标签，不调用会在缺键时写入真实物品的 GetTagReadonly。
+            GameItem? installedFilter = WaterHelper.GetFilterItem(item);
+            int? filterDurability = GameRead.TagInt(installedFilter, "DURABILITY_TAG");
+            int? filterSize = GameRead.TagInt(installedFilter, "FILTER_SIZE_TAG");
+            string filterName = GameRead.ItemName(installedFilter);
+            string locale = Loc.Code;
             float now = UnityEngine.Time.unscaledTime;
 
             // 过期项顺手清掉，其余按最近使用顺序从后往前找。
@@ -86,6 +98,9 @@ internal static class WaterAdvice
                     continue;
                 }
                 if (entry.Signature != signature || entry.Purity != purity) continue;
+                if (!ReferenceEquals(entry.InstalledFilter, installedFilter)
+                    || entry.FilterDurability != filterDurability || entry.FilterSize != filterSize
+                    || entry.FilterName != filterName || entry.Locale != locale) continue;
 
                 if (i != Cache.Count - 1)
                 {
@@ -162,9 +177,6 @@ internal static class WaterAdvice
             }
 
             // 4) 滤芯：容器里已装的那支优先（它才是实际能用的），否则用背包里的。
-            GameItem? installedFilter = null;
-            try { installedFilter = WaterHelper.GetFilterItem(item); } catch { }
-
             if (installedFilter != null)
             {
                 var shell = GetShell(SourceShells, installedFilter);
@@ -196,6 +208,11 @@ internal static class WaterAdvice
             {
                 Signature = signature,
                 Purity = purity,
+                InstalledFilter = installedFilter,
+                FilterDurability = filterDurability,
+                FilterSize = filterSize,
+                FilterName = filterName,
+                Locale = locale,
                 At = now,
                 Methods = result,
             });
