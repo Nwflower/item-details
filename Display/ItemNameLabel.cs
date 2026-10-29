@@ -173,6 +173,7 @@ internal static class ItemNameLabel
             {
                 try { name = element.GetDisplayName() ?? ""; }
                 catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
+                if (IsHiddenByName(name)) want = false;   // 垃圾桶 / 档案箱 不挂标签
             }
         }
 
@@ -210,6 +211,22 @@ internal static class ItemNameLabel
         label.Main.text.enabled = false;
         label.Shadow.text.enabled = false;
         if (label.Bg?.image != null) label.Bg.image.enabled = false;
+    }
+
+    /// <summary>这几类不带标签：垃圾桶、档案箱（图标本身好认，标签反而占地方）。</summary>
+    private static readonly string[] HiddenNames =
+    {
+        "垃圾桶", "档案箱", "Trash Can", "Trashcan", "Trash Bin", "Archive Box", "Archive",
+    };
+
+    private static bool IsHiddenByName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return false;
+        foreach (string h in HiddenNames)
+        {
+            if (name.IndexOf(h, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+        }
+        return false;
     }
 
     /// <summary>容器（有内嵌库存）或机器；判定失败一律不显示，不猜。</summary>
@@ -302,9 +319,12 @@ internal static class ItemNameLabel
         text.fontStyle = FontStyles.Bold;
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
-        text.overflowMode = TextOverflowModes.Ellipsis;   // 小格子放不下时用省略号，而不是硬切
-        text.enableAutoSizing = false;   // 字号由 Place 按「图标高度 × 相对比例」直接给，避免自适应把字压小
-        text.fontSize = 12f;
+        text.overflowMode = TextOverflowModes.Truncate;   // 放不下就切，不换行
+        // 自适应开着，但上限由 Place 按「图标高度 × 相对比例」给；框高也按上限放宽，
+        // 免得像之前那样被矮框压到最小字号。
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 4f;
+        text.fontSizeMax = 12f;
         text.raycastTarget = false;
     }
 
@@ -352,7 +372,7 @@ internal static class ItemNameLabel
             float iconWidth = Mathf.Max(8f, maxX - minX);
             float iconHeight = Mathf.Max(8f, maxY - minY);
             float size = Mathf.Clamp(iconHeight * pct / 100f, 7f, 48f);
-            float height = size * 1.25f;
+            float height = size * 1.3f;
             float z = sprite.position.z;
 
             // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
@@ -413,8 +433,8 @@ internal static class ItemNameLabel
             label.Background = bgOn;
             label.BackgroundAlpha = bgAlpha;
 
-            if (label.Main != null) label.Main.text.fontSize = size;
-            if (label.Shadow != null) label.Shadow.text.fontSize = size;
+            if (label.Main != null) label.Main.text.fontSizeMax = size;
+            if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
             SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
             SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
 

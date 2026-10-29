@@ -12,3 +12,6 @@ out/
 # 本地部署与日志
 Mods/
 *.log
+
+# 自检构建输出（临时目录，勿入库）
+binReleaseSelfTest/

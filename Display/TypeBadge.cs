@@ -43,6 +43,9 @@ internal static class TypeBadge
     private static TMP_Text? _textTemplate;     // 文本模板
 
     private static readonly List<Entry> Pending = new();
+    private static readonly List<Entry> Built = new();
+    private static readonly List<float> Widths = new();
+    private static Transform? _builtParent;
     private static float _pendingAt = float.MinValue;
 
     internal static void Apply()
@@ -197,41 +200,53 @@ internal static class TypeBadge
 
         var container = _badge.GetComponent<RectTransform>();
 
-        // 清掉上一轮的框
-        for (int i = container.childCount - 1; i >= 0; i--)
+        // tooltip 每次重建都会走到这里。分类没变时整排复用，避免反复 Instantiate/Destroy；
+        // 分类变化时也只增减必要节点，并更新现有 Image/TMP。
+        if (container.parent == parent && ReferenceEquals(_builtParent, parent)
+            && container.childCount == Pending.Count && SameContent())
+            return true;
+        if (container.parent != parent) container.SetParent(parent, false);
+
+        for (int i = container.childCount - 1; i >= Pending.Count; i--)
             try { UnityEngine.Object.Destroy(container.GetChild(i).gameObject); } catch { }
 
-        // 先按文字算每个框的尺寸
-        var widths = new List<float>();
+        int count = Math.Min(container.childCount, Pending.Count);
+        for (int i = count; i < Pending.Count; i++)
+        {
+            var chip = CreateChip(Pending[i]);
+            if (chip == null) break;
+            chip.transform.SetParent(container, false);
+            count++;
+        }
+
+        Widths.Clear();
         float height = 0f;
-        foreach (var e in Pending)
+        for (int i = 0; i < count; i++)
         {
             float w, h;
             try
             {
-                var pref = _textTemplate.GetPreferredValues(e.Display);
+                var pref = _textTemplate.GetPreferredValues(Pending[i].Display);
                 w = Mathf.Ceil(pref.x) + PadX * 2f;
                 h = Mathf.Ceil(pref.y) + PadY * 2f;
             }
             catch { w = 60f; h = 18f; }
-            widths.Add(w);
+            Widths.Add(w);
             height = Mathf.Max(height, h);
         }
 
-        float total = ChipGap * Mathf.Max(0, widths.Count - 1);
-        foreach (float w in widths) total += w;
-
+        float total = ChipGap * Mathf.Max(0, count - 1);
+        foreach (float w in Widths) total += w;
         container.sizeDelta = new Vector2(total, height);
 
         float x = -total * 0.5f;
-        for (int i = 0; i < Pending.Count; i++)
+        for (int i = 0; i < count; i++)
         {
-            float w = widths[i];
-            var chip = CreateChip(Pending[i]);
-            if (chip == null) continue;
+            float w = Widths[i];
+            var chip = container.GetChild(i).gameObject;
+            ConfigureChip(chip, Pending[i]);
 
             var r = chip.GetComponent<RectTransform>();
-            r.SetParent(container, false);
             r.anchorMin = new Vector2(0.5f, 0.5f);
             r.anchorMax = new Vector2(0.5f, 0.5f);
             r.pivot = new Vector2(0.5f, 0.5f);
@@ -241,7 +256,22 @@ internal static class TypeBadge
             x += w + ChipGap;
         }
 
-        return container.childCount > 0;
+        if (count == Pending.Count)
+        {
+            Built.Clear();
+            Built.AddRange(Pending);
+            _builtParent = parent;
+        }
+        return count > 0;
+    }
+
+    private static bool SameContent()
+    {
+        if (Built.Count != Pending.Count) return false;
+        for (int i = 0; i < Built.Count; i++)
+            if (Built[i].TypeConst != Pending[i].TypeConst || Built[i].Display != Pending[i].Display)
+                return false;
+        return true;
     }
 
     private static Image? FindBackgroundTemplate(RectTransform tooltipRect)
@@ -304,6 +334,19 @@ internal static class TypeBadge
         tmp.enableWordWrapping = false;
         tmp.raycastTarget = false;
 
+        var tr = textGo.GetComponent<RectTransform>();
+        tr.anchorMin = Vector2.zero;
+        tr.anchorMax = Vector2.one;
+        tr.pivot = new Vector2(0.5f, 0.5f);
+        tr.offsetMin = new Vector2(1f, PadY * 0.5f);
+        tr.offsetMax = new Vector2(-1f, -PadY * 0.5f);
+
+        ConfigureChip(chip, e);
+        return chip;
+    }
+
+    private static void ConfigureChip(GameObject chip, Entry e)
+    {
         // 配色：类型色作背景，文字白色；背景过亮时文字转黑
         Color bg = new Color(0.16f, 0.14f, 0.20f, 0.95f);
         try { bg = TypeHelper.GetTypeColor(e.TypeConst); } catch { }
@@ -313,8 +356,18 @@ internal static class TypeBadge
         if (chipImage != null) chipImage.color = bg;
 
         Color fg = Luminance(bg) > 0.6f ? Color.black : Color.white;
-        tmp.color = fg;
-        tmp.text = e.Display;
+        var tmp = chip.GetComponentInChildren<TMP_Text>(true);
+        if (tmp != null)
+        {
+            if (_textTemplate != null)
+            {
+                tmp.font = _textTemplate.font;
+                tmp.fontSharedMaterial = _textTemplate.fontSharedMaterial;
+                tmp.fontSize = Mathf.Max(10f, _textTemplate.fontSize * 0.85f);
+            }
+            tmp.color = fg;
+            if (tmp.text != e.Display) tmp.text = e.Display;
+        }
 
         // 边框与文字同色
         var outline = chip.GetComponent<Outline>();
@@ -325,15 +378,6 @@ internal static class TypeBadge
             outline.effectDistance = new Vector2(1f, 1f);
             outline.useGraphicAlpha = false;
         }
-
-        var tr = textGo.GetComponent<RectTransform>();
-        tr.anchorMin = Vector2.zero;
-        tr.anchorMax = Vector2.one;
-        tr.pivot = new Vector2(0.5f, 0.5f);
-        tr.offsetMin = new Vector2(1f, PadY * 0.5f);
-        tr.offsetMax = new Vector2(-1f, -PadY * 0.5f);
-
-        return chip;
     }
 
     /// <summary>整排放在 tooltip 正上方并水平居中。</summary>
@@ -374,6 +418,9 @@ internal static class TypeBadge
         _badge = null;
         _chipTemplate = null;
         _textTemplate = null;
+        _builtParent = null;
         Pending.Clear();
+        Built.Clear();
+        Widths.Clear();
     }
 }

@@ -236,6 +236,42 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>酒瓶不得进入净化模拟；纯度 peek 不得给真实容器插入缺失液体标签。</summary>
+    private static string CheckWaterAdviceReadIsolation(out bool ok)
+    {
+        ok = false;
+        GameItem? wine = null;
+        GameItem? water = null;
+        try
+        {
+            wine = WineHelper.CreateFinishedWineForDebug(5);
+            int wineBefore = wine.modifiedState.dict.Count;
+            var methods = WaterAdvice.SimulateMethods(wine);
+            int wineInserted = wine.modifiedState.dict.Count - wineBefore;
+            bool wineSkipped = GameRead.IsTag(wine, "WINE_CONTAINER_TAG") && methods.Count == 0;
+
+            water = TryCreate("water_tank");
+            if (water == null) return "water advice isolation: 无法创建水容器";
+            water.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(900000));
+            int waterBefore = water.modifiedState.dict.Count;
+            int purity = WaterAdvice.SafePurity(water);
+            int waterInserted = water.modifiedState.dict.Count - waterBefore;
+
+            ok = wineSkipped && wineInserted == 0 && waterInserted == 0 && purity == WaterInfo.PurityFull;
+            return $"water advice isolation: wineSkipped={wineSkipped} wineInserted={wineInserted} " +
+                   $"waterInserted={waterInserted} purity={purity} (期望 true/0/0/{WaterInfo.PurityFull})";
+        }
+        catch (Exception ex)
+        {
+            return "water advice isolation: 异常 " + ex.GetType().Name;
+        }
+        finally
+        {
+            if (wine != null) { try { wine.Destroy(); } catch { } }
+            if (water != null) { try { water.Destroy(); } catch { } }
+        }
+    }
+
     private static bool HasLine(List<TooltipLine> lines, string keyword)
     {
         foreach (var l in lines)

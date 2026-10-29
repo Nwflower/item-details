@@ -143,6 +143,8 @@ public sealed partial class ModEntry : IMod
         Quiet(AppraisalTitlePatch.Remove);
         Quiet(CustomerAlertTicker.Stop);
         Quiet(WaterAdvice.Stop);
+        Quiet(StorageInfo.Stop);
+        Quiet(GenericBreakdown.Stop);
         Quiet(LabelImpact.Remove);
         Quiet(DoubleClickInspect.Remove);
         Quiet(TooltipPipeline.Remove);

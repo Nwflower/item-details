@@ -24,13 +24,17 @@ internal static class GenericBreakdown
     private const int MaxTags = 24;
     private const int MaxCacheEntries = 256;
     private const int MaxBaselineTypes = 64;
+    private const float FailureCacheSeconds = 5f;
 
     private static readonly HashSet<string> Curated = new(StringComparer.Ordinal)
     { "hand", "ribwich", "plasma_fuel" };
 
     private static readonly Dictionary<string, List<string>> Cache = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, float> FailureCache = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, Dictionary<string, Record>> BaselineCache =
         new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, float> BaselineFailures = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, Record> EmptyBaseline = new(StringComparer.Ordinal);
     private static bool _registryLogged;
 
     /// <summary>
@@ -106,11 +110,30 @@ internal static class GenericBreakdown
 
             // 显示文本随语言变化，缓存键必须带语言，不能复用上一次语言的字符串。
             string key = (zh ? "zh|" : "en|") + CacheKey(type, item);
-            if (Cache.TryGetValue(key, out var cached)) return cached;
+            if (Cache.TryGetValue(key, out var cached))
+            {
+                FailureCache.Remove(key);
+                return cached;
+            }
+
+            float now = UnityEngine.Time.unscaledTime;
+            if (FailureCache.TryGetValue(key, out float failedAt))
+            {
+                if (now - failedAt <= FailureCacheSeconds) return lines;
+                FailureCache.Remove(key);
+            }
 
             var built = Build(type, item, type.getCorrectValue, zh, out bool reliable);
-            if (!reliable) return lines;   // 失败/不完整不缓存，下个物品仍可重新尝试
+            if (!reliable)
+            {
+                // 24 次采样和逐标签消融可能反复失败；短暂负缓存避免同一物品
+                // 每次 tooltip 重建都重跑，5 秒后仍允许恢复。
+                if (FailureCache.Count >= MaxCacheEntries) FailureCache.Clear();
+                FailureCache[key] = now;
+                return lines;
+            }
 
+            FailureCache.Remove(key);
             if (Cache.Count >= MaxCacheEntries) Cache.Clear();
             Cache[key] = built;
             if (built.Count > 0) Log.MarkOk("GenericBreakdown");
@@ -123,13 +146,22 @@ internal static class GenericBreakdown
         }
     }
 
+    internal static void Stop()
+    {
+        Cache.Clear();
+        FailureCache.Clear();
+        BaselineCache.Clear();
+        BaselineFailures.Clear();
+        _registryLogged = false;
+    }
+
     private static List<string> Build(AppraisalItemType type, GameItem item,
         Func<GameItem, int> getValue, bool zh, out bool reliable)
     {
         reliable = false;
         var lines = new List<string>();
 
-        // 1) 基线采样：每个类型只采样一次；失败时不缓存，留给后续物品重试。
+        // 1) 基线采样：成功按类型缓存；失败短路 5 秒，之后允许重试。
         var baseline = GetBaseline(type);
         if (baseline.Count == 0)
         {
@@ -261,11 +293,24 @@ internal static class GenericBreakdown
         string key = (type.id ?? "") + "|" + (type.itemId ?? "") + "|" + (type.source ?? "");
         if (BaselineCache.TryGetValue(key, out var cached)) return cached;
 
+        float now = UnityEngine.Time.unscaledTime;
+        if (BaselineFailures.TryGetValue(key, out float failedAt))
+        {
+            if (now - failedAt <= FailureCacheSeconds) return EmptyBaseline;
+            BaselineFailures.Remove(key);
+        }
+
         var baseline = SampleBaseline(type);
         if (baseline.Count > 0)
         {
+            BaselineFailures.Remove(key);
             if (BaselineCache.Count >= MaxBaselineTypes) BaselineCache.Clear();
             BaselineCache[key] = baseline;
+        }
+        else
+        {
+            if (BaselineFailures.Count >= MaxBaselineTypes) BaselineFailures.Clear();
+            BaselineFailures[key] = now;
         }
         return baseline;
     }
