@@ -15,21 +15,19 @@ namespace ItemDetails;
 /// 实现：
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
 ///     图钉与外观，物品身份变化/换格子都会走到这里；
-///   - 文字用 <c>TreeNodeRender.InstantiateText()</c> 生成两个节点（本体 + 深色投影），
-///     与游戏的堆叠数字同款；父节点挂在 <c>handler</c>（未旋转），避免随物品旋转颠倒；
-///   - 定位只用锚点（父矩形底边拉伸），不猜父节点的局部原点/缩放约定；
-///   - 每个元素只建一次，挂在元素自身节点下，元素销毁时随之销毁；
-///     用 <see cref="ConditionalWeakTable{TKey,TValue}"/> 记录，不持有已销毁元素的强引用。
-///
-/// 历史：第一版按「handler 原点在左上、Y 朝下」的像素偏移放置，实测名字压在图标中间并溢出到
-/// 相邻格子（min/max 字号也没生效），所以改为纯锚点定位 + Truncate，并第一次创建时打一条
-/// geometry 日志，方便按实机数据继续调。
+///   - 文字用 <c>TreeNodeRender.InstantiateText()</c> 生成两层（本体 + 深色投影），
+///     与游戏的堆叠数字同款；父节点挂在 <c>middle</c>（未旋转的矩形），避免随物品旋转颠倒；
+///   - 定位用**世界坐标外接框**（GetWorldCorners），并把节点 localScale 取父级缩放的倒数，
+///     于是 sizeDelta 与字号都以屏幕像素为单位。之前直接拿世界宽度当 sizeDelta：
+///     实测父级 lossyScale=2，于是标签被放大成两倍宽、横向糊满相邻格子；
+///   - ValidateSelect 早于布局生效，所以另有 0.2s 节流补位（<see cref="ItemNameTicker"/>）；
+///   - 每个元素只建一次、挂在元素节点下随其销毁，用弱引用表记录，不持有已销毁元素。
 /// </summary>
 internal static class ItemNameLabel
 {
     private const string HarmonyId = "item_details.item_name_label";
-    private const float LabelHeight = 10f;
-    private const float LabelBottomInset = 3f;
+    private const float LabelHeight = 11f;      // 屏幕像素
+    private const float LabelBottomInset = 3f;  // 屏幕像素
 
     private static Harmony? _harmony;
     private static bool _patched;
@@ -37,25 +35,16 @@ internal static class ItemNameLabel
     private static int _placementLogged;
 
     private static readonly ConditionalWeakTable<GameItemElement, Label> Labels = new();
-
-    /// <summary>存活过的元素（弱引用）：校验时机早于布局时用来补一次定位。</summary>
     private static readonly System.Collections.Generic.List<WeakReference<GameItemElement>> Tracked = new();
-
     private static GameObject? _tickerGo;
 
     private sealed class Label
     {
         internal TreeNodeRender? Main;
         internal TreeNodeRender? Shadow;
-        internal TreeNodeRender? BgBorder;
-        internal TreeNodeRender? BgFill;
         internal string Text = "";
         internal bool Visible;
     }
-
-    // 与 tooltip 同一套观感：深紫底 + 浅青 1px 边框（tooltip 底板就是这两种颜色）
-    private static readonly Color FillColor = new Color(0.16f, 0.14f, 0.20f, 0.95f);
-    private static readonly Color BorderColor = new Color(0.49f, 0.82f, 0.80f, 0.9f);
 
     internal static void Apply()
     {
@@ -98,10 +87,21 @@ internal static class ItemNameLabel
         }
     }
 
-    /// <summary>
-    /// 补一次定位：ValidateSelect 跑在布局/旋转生效之前，世界坐标可能还是上一帧的；
-    /// 由 <see cref="ItemNameTicker"/> 每 0.2 秒对所有仍存活的标签重排一次。
-    /// </summary>
+    /// <summary>节流补位：ValidateSelect 跑在布局/旋转生效之前，世界坐标可能还是上一帧的。</summary>
+    internal sealed class ItemNameTicker : MonoBehaviour
+    {
+        private const float Interval = 0.2f;
+        private float _timer;
+
+        private void Update()
+        {
+            _timer += Time.unscaledDeltaTime;
+            if (_timer < Interval) return;
+            _timer = 0f;
+            try { ReapplyAll(); } catch { }
+        }
+    }
+
     internal static void ReapplyAll()
     {
         for (int i = Tracked.Count - 1; i >= 0; i--)
@@ -116,21 +116,6 @@ internal static class ItemNameLabel
 
             if (!Labels.TryGetValue(element, out var label) || !label.Visible) continue;
             Place(element, label);
-        }
-    }
-
-    /// <summary>节流补位：只在有标签存活时做事，正常一屏几十个，开销可忽略。</summary>
-    internal sealed class ItemNameTicker : MonoBehaviour
-    {
-        private const float Interval = 0.2f;
-        private float _timer;
-
-        private void Update()
-        {
-            _timer += Time.unscaledDeltaTime;
-            if (_timer < Interval) return;
-            _timer = 0f;
-            try { ReapplyAll(); } catch { }
         }
     }
 
@@ -168,8 +153,6 @@ internal static class ItemNameLabel
             label.Visible = true;
             label.Main.text.enabled = true;
             label.Shadow.text.enabled = true;
-            if (label.BgBorder?.image != null) label.BgBorder.image.enabled = true;
-            if (label.BgFill?.image != null) label.BgFill.image.enabled = true;
         }
 
         if (label.Text != name)
@@ -189,8 +172,6 @@ internal static class ItemNameLabel
         label.Visible = false;
         label.Main.text.enabled = false;
         label.Shadow.text.enabled = false;
-        if (label.BgBorder?.image != null) label.BgBorder.image.enabled = false;
-        if (label.BgFill?.image != null) label.BgFill.image.enabled = false;
     }
 
     /// <summary>容器（有内嵌库存）或机器；判定失败一律不显示，不猜。</summary>
@@ -220,19 +201,12 @@ internal static class ItemNameLabel
 
         try
         {
-            // handler 的 rect 实测是 0×0（sizeDelta=(0,0)），锚点贴底会得到零高度 → 标签永远不可见。
-            // middle 才是物品的真实矩形（实测 112×96），且位于 rotator 之上，不会随物品旋转。
+            // handler 的 rect 实测是 0×0，锚点类定位会得到零尺寸；middle 才是物品真实矩形。
             var parent = element.middle;
             if (parent == null) return null;
 
-            // 背景两层 + 文字两层，创建顺序即层级顺序：边框最底、填充其次、文字最上
-            var bgBorder = TreeNodeRender.Instantiate().SetParent(parent);
-            var bgFill = TreeNodeRender.Instantiate().SetParent(parent);
             var shadow = TreeNodeRender.InstantiateText().SetParent(parent);
             var main = TreeNodeRender.InstantiateText().SetParent(parent);
-
-            InitQuad(bgBorder, BorderColor);
-            InitQuad(bgFill, FillColor);
 
             Configure(shadow, new Color(0f, 0f, 0f, 0.85f));
             Configure(main, Color.white);
@@ -248,14 +222,14 @@ internal static class ItemNameLabel
                 {
                     var h = element.handler.rectTransform;
                     var m = element.rectTransform;
-                    Log.Msg($"NameLabel geometry: handler sizeDelta={h.sizeDelta} rect={h.rect} pivot={h.pivot} " +
-                            $"anchor=({h.anchorMin},{h.anchorMax}); middle sizeDelta={m.sizeDelta} rect={m.rect}; " +
+                    Log.Msg($"NameLabel geometry: handler rect={h.rect} sizeDelta={h.sizeDelta}; " +
+                            $"middle rect={m.rect} sizeDelta={m.sizeDelta} lossyScale={m.lossyScale}; " +
                             $"item={element.widthPixels}x{element.heightPixels} grid={UISettings.current.gridSize}");
                 }
                 catch { }
             }
 
-            var label = new Label { Main = main, Shadow = shadow, BgBorder = bgBorder, BgFill = bgFill };
+            var label = new Label { Main = main, Shadow = shadow };
             Labels.Add(element, label);
             Tracked.Add(new WeakReference<GameItemElement>(element));
             return label;
@@ -270,7 +244,6 @@ internal static class ItemNameLabel
     private static void Configure(TreeNodeRender node, Color color)
     {
         var rt = node.rectTransform;
-        rt.localScale = Vector3.one;
         rt.localEulerAngles = Vector3.zero;
 
         var text = node.text;
@@ -279,48 +252,15 @@ internal static class ItemNameLabel
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
         text.overflowMode = TextOverflowModes.Truncate;
-        text.enableAutoSizing = true;   // 长名字自动缩小，不撑出格子
+        text.enableAutoSizing = true;
         text.fontSizeMin = 5f;
-        text.fontSizeMax = 9f;
+        text.fontSizeMax = 9f;   // 屏幕像素（节点 localScale 已抵消父级缩放）
         text.raycastTarget = false;
     }
 
-    /// <summary>无 sprite 的 Image 直接画成纯色方块，正好当底板/边框用（不依赖任何图集）。</summary>
-    private static void InitQuad(TreeNodeRender node, Color color)
-    {
-        try
-        {
-            var img = node.image;
-            if (img != null)
-            {
-                img.sprite = null;
-                img.color = color;
-                img.raycastTarget = false;
-                img.enabled = true;
-            }
-            node.rectTransform.localScale = Vector3.one;
-        }
-        catch (Exception ex) { Log.Warn("NameLabel.Quad", ex); }
-    }
-
-    /// <summary>统一设置一层的锚点/尺寸/世界位置（pivot 取底边中点，y 即底边）。</summary>
-    private static void SetRect(TreeNodeRender? node, float width, float height, float centerX, float y, float z)
-    {
-        if (node == null) return;
-        var rt = node.rectTransform;
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0f);
-        rt.sizeDelta = new Vector2(width, height);
-        rt.position = new Vector3(centerX, y, z);
-    }
-
     /// <summary>
-    /// 用**世界坐标**把标签放在物品外接框的底边内侧。
-    ///
-    /// 为什么不再用局部锚点：旋转/翻转后 <c>middle</c> 的 pivot、anchoredPosition 与占格都不再对齐，
-    /// 按局部坐标算会出现「名字跑到图标右侧」「工具箱子名压到隔壁机器」这种情况（实测）。
-    /// GetWorldCorners 给的是屏幕上的四个角，取 min/max 直接得到外接框，与旋转无关。
+    /// 世界外接框的底边 + 3px，宽度取外接框宽度；
+    /// 节点 localScale 取父级缩放的倒数，这样 sizeDelta 与字号都直接是屏幕像素。
     /// </summary>
     private static void Place(GameItemElement element, Label label)
     {
@@ -341,27 +281,41 @@ internal static class ItemNameLabel
                 if (corners[i].y < minY) minY = corners[i].y;
             }
 
-            float width = Mathf.Max(8f, maxX - minX);
+            var scale = rect.lossyScale;
+            float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
+            float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
+
+            float width = Mathf.Max(8f, maxX - minX);   // 世界（= 屏幕）像素
             float centerX = (minX + maxX) * 0.5f;
             float y = minY + LabelBottomInset;
             float z = rect.position.z;
 
-            // 边框最大、填充其次、文字最上；每层都自下而上叠 1px，形成 tooltip 那样的细描边
-            SetRect(label.BgBorder, width + 4f, LabelHeight + 4f, centerX, y - 2f, z);
-            SetRect(label.BgFill, width + 2f, LabelHeight + 2f, centerX, y - 1f, z);
-            SetRect(label.Main, width, LabelHeight, centerX, y, z);
-            SetRect(label.Shadow, width, LabelHeight, centerX, y - 1f, z);
+            SetRect(label.Main, width, LabelHeight, centerX, y, z, sx, sy);
+            SetRect(label.Shadow, width, LabelHeight, centerX, y - 1f, z, sx, sy);
 
             if (_placementLogged < 3)
             {
                 _placementLogged++;
-                Log.Msg($"NameLabel place '{label.Text}': world=({minX:0},{minY:0})-({maxX:0}) " +
-                        $"w={width:0} -> pos=({centerX:0},{y:0}) localScale={rect.lossyScale.x:0.##}");
+                Log.Msg($"NameLabel place '{label.Text}': world w={width:0} y={y:0} " +
+                        $"lossyScale=({scale.x:0.##},{scale.y:0.##}) local=({width / sx:0} x {LabelHeight / sy:0.##})");
             }
         }
         catch (Exception ex)
         {
             Log.Warn("NameLabel.Place", ex);
         }
+    }
+
+    private static void SetRect(TreeNodeRender? node, float width, float height,
+                                float centerX, float y, float z, float sx, float sy)
+    {
+        if (node == null) return;
+        var rt = node.rectTransform;
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0f);
+        rt.localScale = new Vector3(1f / sx, 1f / sy, 1f);   // 抵消父级缩放：sizeDelta 即屏幕像素
+        rt.sizeDelta = new Vector2(width, height);
+        rt.position = new Vector3(centerX, y, z);
     }
 }
