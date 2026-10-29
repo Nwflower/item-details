@@ -6,17 +6,17 @@ namespace ItemDetails;
 /// 把原版「模组效果: -性能: +16%」这类百分比行就地补上实际变更，例如：
 ///   -性能: +16%(+136毫升/天)
 ///   -效率: +16%(-0能量/天)
-///   -质量: +16%(幽灵水)
+///   -质量: +8%(+2品质)
 ///
 /// 为什么就地改而不是另起一行：玩家要的是"每个加成后面直接看到影响"，而这三行正是
 /// 原版 `MachineHelper.AddTooltipModuleBonus` 用 `RichTextBuilder.AddLine` 打出来的，
 /// 我们已经在 AddLine 前缀里，接得住。
 ///
-/// 数值全部来自游戏自己，不复制公式：
-///   · 性能：水分收集器用 `MachineMoistureFarm.GetOutputVolume`（基准 = BASE_OUTPUT_ML），
-///           其它机器用 BASE_PROCESSING_SPEED_TAG → CURRENT_PROCESSING_SPEED_TAG；
+/// 数值全部来自游戏写在机器物品上的标签，**不认识任何具体机器**：
+///   · 性能：BASE_PROCESSING_SPEED_TAG → CURRENT_PROCESSING_SPEED_TAG；
 ///   · 效率：MACHINERY_DRAWN_POWER_BASE → machinery_drawn_power（游戏已按 +效率% 算好）；
-///   · 质量：`MachineMoistureFarm.GetOutputQualityDisplay` 的档位名。
+///   · 质量：TOTAL_PERCENTAGE_QUALITY_BONUS_INT / MACHINE_QUALITY_RATIO_INT
+///           （与 `ModuleHelper.GetAjustedQuality` 同一整数除法，没有比率标签的机器不补）。
 /// 任何一项读不到就不补——宁可少一段，也不写错一个数。
 /// </summary>
 internal static class ModuleEffectAnnotation
@@ -143,15 +143,6 @@ internal static class ModuleEffectAnnotation
     private static string Signed(int delta) => delta <= 0 ? "-" + (-delta) : "+" + delta;
 
     private static string Wrap(string body) => "(" + body + ")";
-
-    /// <summary>下一档品质阈值：游戏 `GetOutputQuality` 用 50/100/150/200 分档。</summary>
-    private static int NextQualityStep(int score)
-    {
-        if (score < 50) return 50;
-        if (score < 100) return 100;
-        if (score < 150) return 150;
-        return 200;
-    }
 
     /// <summary>三项加成的标签名走游戏本地化；换语言后自动重建。</summary>
     private static void EnsureLabels()
