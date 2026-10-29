@@ -24,8 +24,6 @@ internal static partial class SelfTest
     private const string Flag = "-itemdetails-selftest";
     private const string TriggerFile = "selftest.flag";
 
-    internal static bool Requested { get; private set; }
-
     internal static void MaybeStart(string modId)
     {
         try
@@ -45,7 +43,7 @@ internal static partial class SelfTest
             bool viaFile = ConsumeTriggerFile(modId);
             if (!viaArgs && !viaFile) return;
 
-            Requested = true;
+            BeginRun(modId);
             Log.Msg($"[SelfTest] armed by {(viaArgs ? "command line" : "trigger file")}");
 
             // 物品目录是 MonoBehaviour（Directory<T>），只有游戏场景加载后才注册，
@@ -63,6 +61,7 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             Log.Error("SelfTest.MaybeStart", ex);
+            if (Requested) Finish(false, "Startup failed: " + ex);
         }
     }
 
@@ -132,8 +131,7 @@ internal static partial class SelfTest
                 if (_tries >= 3)
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] DONE FAILED: 自动读档连续失败");
-                    try { Application.Quit(); } catch { }
+                    Finish(false, "Automatic save loading failed.");
                     return;
                 }
 
@@ -141,8 +139,7 @@ internal static partial class SelfTest
                 if (slots == null || slots.Count == 0)
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] DONE FAILED: 没有可读的存档");
-                    try { Application.Quit(); } catch { }
+                    Finish(false, "No readable save exists.");
                     return;
                 }
 
@@ -174,6 +171,7 @@ internal static partial class SelfTest
         try
         {
             ModHook.OnGameLoadedLate -= Arm;
+            if (!Requested) return;
             var go = new GameObject("ItemDetails_SelfTest");
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.AddComponent<Runner>();
@@ -182,6 +180,7 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             Log.Error("SelfTest.Arm", ex);
+            Finish(false, "Could not start the test runner: " + ex);
         }
     }
 
@@ -203,21 +202,22 @@ internal static partial class SelfTest
                 if (_elapsed > 40f)
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] DONE FAILED: item directory never became ready");
-                    Quit();
+                    Finish(false, "Item directory never became ready.");
                 }
                 return;
             }
             try { probe.Destroy(); } catch { }
 
             _done = true;
-            RunAll();
-            Quit();
-        }
-
-        private void Quit()
-        {
-            try { Application.Quit(); } catch { }
+            try
+            {
+                bool success = RunAll(out string report);
+                Finish(success, report);
+            }
+            catch (Exception ex)
+            {
+                Finish(false, "Test execution failed: " + ex);
+            }
         }
     }
 
@@ -230,7 +230,7 @@ internal static partial class SelfTest
         internal int? Expected;
     }
 
-    private static void RunAll()
+    private static bool RunAll(out string reportText)
     {
         var cases = new List<Case>();
         try
@@ -242,8 +242,8 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             Log.Error("SelfTest.BuildCases", ex);
-            Log.Msg("[SelfTest] DONE FAILED: 用例构造异常 " + ex.GetType().Name);
-            return;
+            reportText = "Case construction failed: " + ex;
+            return false;
         }
 
         int pass = 0, fail = 0;
@@ -445,17 +445,8 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        Log.Msg($"[SelfTest] DONE {(fail == 0 ? "OK" : "FAILED")} pass={pass} fail={fail} total={pass + fail}");
-
-        try
-        {
-            ModHelper.WriteModDataFileText("item_details", "selftest.txt",
-                $"pass={pass} fail={fail} total={pass + fail}{Environment.NewLine}{report}");
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("SelfTest.WriteReport", ex);
-        }
+        reportText = $"pass={pass} fail={fail} total={pass + fail}{Environment.NewLine}{report}";
+        return fail == 0;
     }
 
     /// <summary>
