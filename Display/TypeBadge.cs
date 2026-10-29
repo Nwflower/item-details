@@ -36,6 +36,7 @@ internal static class TypeBadge
         internal string Display = "";
     }
 
+    private static bool _patched;
     private static Harmony? _harmony;
     private static GameObject? _badge;          // 容器（无渲染组件）
     private static Image? _chipTemplate;        // 底板模板（tooltip 自身背景）
@@ -46,6 +47,7 @@ internal static class TypeBadge
 
     internal static void Apply()
     {
+        if (_patched) return;
         try
         {
             _harmony = new Harmony(HarmonyId);
@@ -76,6 +78,7 @@ internal static class TypeBadge
             if (hide != null)
                 _harmony.Patch(hide, postfix: new HarmonyMethod(typeof(TypeBadge), nameof(AfterHide)));
 
+            _patched = true;
             Log.Msg("TypeBadge: patched OverlayHandler tooltip");
         }
         catch (Exception ex)
@@ -88,6 +91,7 @@ internal static class TypeBadge
     {
         try { _harmony?.UnpatchAll(HarmonyId); } catch { }
         _harmony = null;
+        _patched = false;
         DestroyBadge();
     }
 
@@ -170,8 +174,12 @@ internal static class TypeBadge
         var parent = tooltipRect.parent;
         if (parent == null) return false;
 
+        // Unity 的"假 null"：界面重建后这些引用会变成已销毁对象，必须重新取
         if (_textTemplate == null)
+        {
             _textTemplate = tooltipRect.GetComponentInChildren<TMP_Text>(true);
+            _chipTemplate = null;          // 与文本模板同源，一起失效
+        }
         if (_textTemplate == null) { Log.Warn("TypeBadge.Template", "tooltip 内未找到 TMP 文本"); return false; }
 
         if (_chipTemplate == null)

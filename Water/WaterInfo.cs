@@ -92,12 +92,33 @@ internal static class WaterInfo
         try { return item.IsTag(tag); } catch { return false; }
     }
 
+    /// <summary>
+    /// 杂质显示名。
+    ///
+    /// 不能直接用 <c>liquid.displayName</c>：它是在 <c>Liquid</c> 的静态构造里一次性
+    /// `LocHelper.GetLocalizedMechanic("liquid_" + identifier)` 固化的。只要这个静态构造
+    /// 在本地化就绪前被触发（Harmony 打补丁会 JIT 目标方法，从而提前跑 cctor），
+    /// 整局会话的液体名都会停在英文。这里按当前语言现查一次，查不到才回落到它。
+    /// </summary>
     private static string DisplayName(Liquid liquid)
     {
         try
         {
+            string id = liquid.identifier ?? "";
+            if (id.Length > 0)
+            {
+                try
+                {
+                    string key = "liquid_" + id;
+                    string live = LocHelper.GetLocalizedMechanic(key) ?? "";
+                    if (live.Length > 0 && !string.Equals(live, key, StringComparison.Ordinal))
+                        return live;
+                }
+                catch { }
+            }
+
             string n = liquid.displayName ?? "";
-            return n.Length > 0 ? n : (liquid.identifier ?? "?");
+            return n.Length > 0 ? n : (id.Length > 0 ? id : "?");
         }
         catch { return "?"; }
     }

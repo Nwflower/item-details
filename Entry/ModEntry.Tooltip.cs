@@ -214,6 +214,9 @@ public sealed partial class ModEntry
     private bool TryAppendWater(RichTextBuilder builder, GameItem item)
     {
         if (!ModSettings.WaterPurity) return false;
+        // AquaSense 是专职水质模组：它已经输出「水质详情 + 液体成分 + 容量条」，
+        // 这里再列一遍就是重复（见 ModCompat）。净化收益建议由 water-advice 单独输出。
+        if (ModCompat.AquaSenseActive) return false;
 
         var r = WaterInfo.Analyze(item);
         if (!r.HasData) return false;
