@@ -436,7 +436,7 @@ internal static partial class SelfTest
     }
 
     /// <summary>
-    /// 用存档里的真实水容器验证多槽缓存：A/B 交替后再次访问 A/B，
+    /// 用确定组成的独立样本验证多槽缓存：A/B 交替后再次访问 A/B，
     /// 必须返回各自第一次的同一个结果实例，而不是重建出新的列表。
     /// </summary>
     private static string CheckWaterAdviceCache(out bool ok)
@@ -447,22 +447,17 @@ internal static partial class SelfTest
         var firstMs = new List<double>();
         try
         {
-            var owned = EmporiumEntry.Instance?.GetAllOwnedItems();
-            if (owned == null) return "water advice cache: 无法读取拥有物";
-
-            foreach (var item in owned)
+            foreach (int waterParts in new[] { 735000, 720000 })
             {
-                if (item == null) continue;
-                if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) continue;
-                if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) continue;
-                if (WaterAdvice.SafePurity(item) < 0) continue;
-                if (picked.Exists(p => ReferenceEquals(p, item))) continue;
+                var item = TryCreate("bottled_water");
+                if (item == null) return "water advice cache: 无法创建含水样本";
                 picked.Add(item);
-                if (picked.Count >= 3) break;
+                foreach (var liquid in Liquid.Liquids)
+                    item.ModifyTag(liquid.currentPart, state => state.Enable().SetInt(0));
+                item.ModifyTag(Liquid.GetCurrentPartFromId("water"), state => state.Enable().SetInt(waterParts));
+                item.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), state => state.Enable().SetInt(750000 - waterParts));
+                WaterFeatureHelper.InitWaterFeature(item);
             }
-
-            if (picked.Count < 2)
-                return $"water advice cache: 存档内只有 {picked.Count} 件含水容器，至少需要 2 件";
 
             // 从干净缓存开始，测量每种水的首次真实模拟成本。
             WaterAdvice.Stop();
@@ -504,6 +499,7 @@ internal static partial class SelfTest
         finally
         {
             WaterAdvice.Stop();
+            foreach (var item in picked) { try { item.Destroy(); } catch { } }
         }
     }
 

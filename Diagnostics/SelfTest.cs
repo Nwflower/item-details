@@ -12,10 +12,11 @@ namespace ItemDetails;
 /// 触发方式有两种，正常游玩都不受影响：
 ///   - 命令行 <c>-itemdetails-selftest</c>；
 ///   - 工具写入的一次性 <c>ModData/item_details/selftest.flag</c>（启动游戏不带参数，
-///     Steam 不会弹「用自定义参数启动游戏」确认框）。
+///     文件内容必须是专用测试存档的槽位 ID）。命令行还需指定
+///     <c>-itemdetails-selftest-slot ID</c>。
 ///
 /// 关键是物品目录是 MonoBehaviour，主菜单阶段 <c>DirectoryMaster.Create</c> 必然返回 null，
-/// 所以要等存档加载完成后再跑，并由 <see cref="AutoLoader"/> 自动读最近存档。
+/// 所以要等存档加载完成后再跑，并由 <see cref="AutoLoader"/> 读取明确指定的测试存档。
 ///
 /// 用例与探针断言在 <c>SelfTest.Checks.cs</c>；本文件只管"什么时候跑、跑完怎么退出"。
 /// </summary>
@@ -23,13 +24,15 @@ internal static partial class SelfTest
 {
     private const string Flag = "-itemdetails-selftest";
     private const string TriggerFile = "selftest.flag";
+    private static bool _runnerStarted;
 
     internal static void MaybeStart(string modId)
     {
         try
         {
             bool viaArgs = false;
-            foreach (string a in Environment.GetCommandLineArgs())
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (string a in args)
             {
                 if (string.Equals(a, Flag, StringComparison.OrdinalIgnoreCase))
                 {
@@ -40,10 +43,17 @@ internal static partial class SelfTest
 
             // 也可以由工具放一个一次性标志文件触发：这样启动游戏完全不带参数，
             // Steam 不会弹「用自定义参数启动游戏」确认框，才能无人值守。
-            bool viaFile = ConsumeTriggerFile(modId);
+            bool viaFile = ModHelper.ModDataFileExists(modId, TriggerFile);
             if (!viaArgs && !viaFile) return;
 
             BeginRun(modId);
+            string? trigger = viaFile ? ConsumeTriggerFile(modId) : null;
+            if (!TryReadSlot(args, trigger, out _saveSlot, out string error))
+            {
+                Finish(false, error);
+                return;
+            }
+            _runnerStarted = false;
             Log.Msg($"[SelfTest] armed by {(viaArgs ? "command line" : "trigger file")}");
 
             // 物品目录是 MonoBehaviour（Directory<T>），只有游戏场景加载后才注册，
@@ -52,8 +62,7 @@ internal static partial class SelfTest
             ModHook.OnGameLoadedLate += Arm;
             Log.Msg("[SelfTest] armed, will run after a save is loaded");
 
-            // 主菜单不会触发 OnGameLoadedLate，这里自动点一次「继续游戏」，
-            // 让自检完全免人工。失败就保持原状，仍可手动载入存档。
+            // 主菜单不会触发 OnGameLoadedLate，自动载入指定槽位。
             var go = new GameObject("ItemDetails_SelfTestAutoLoad");
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.AddComponent<AutoLoader>();
@@ -65,25 +74,16 @@ internal static partial class SelfTest
         }
     }
 
-    /// <summary>读取并删除一次性触发文件；存在即视为请求自检。</summary>
-    private static bool ConsumeTriggerFile(string modId)
+    /// <summary>读取专用测试槽位并删除一次性触发文件。</summary>
+    private static string ConsumeTriggerFile(string modId)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(modId)) return false;
-            if (!ModHelper.ModDataFileExists(modId, TriggerFile)) return false;
-            ModHelper.DeleteModDataFile(modId, TriggerFile);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("SelfTest.Flag", ex);
-            return false;
-        }
+        string text = ModHelper.ReadModDataFileText(modId, TriggerFile) ?? "";
+        ModHelper.DeleteModDataFile(modId, TriggerFile);
+        return text;
     }
 
     /// <summary>
-    /// 主菜单自动读一次「最近存档」，让自检无需人工。
+    /// 主菜单自动读取明确指定的测试槽位。
     ///
     /// 走过的两条弯路，别再踩：
     ///   - `MainMenuUIController.OnContinueClick()` 是**新游戏**（天赋/难度）流程，不读档；
@@ -119,7 +119,7 @@ internal static partial class SelfTest
                 if (loaded)      // 已经进游戏（可能自动续档）
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] save already loaded, skip auto-load");
+                    Arm();
                     return;
                 }
 
@@ -136,10 +136,10 @@ internal static partial class SelfTest
                 }
 
                 var slots = SaveUIManager.GetOrderedSlotIds();
-                if (slots == null || slots.Count == 0)
+                if (slots == null || !slots.Contains(_saveSlot))
                 {
                     _done = true;
-                    Finish(false, "No readable save exists.");
+                    Finish(false, $"Requested self-test save slot {_saveSlot} does not exist.");
                     return;
                 }
 
@@ -147,7 +147,7 @@ internal static partial class SelfTest
                 var newGame = NewGameData.Instance;
                 if (menu == null || newGame == null) return;   // 场景还没就绪，下次再试
 
-                int slotId = slots[0];   // 已按最近优先排序
+                int slotId = _saveSlot;
                 _tries++;
                 _requested = true;
                 _requestedAt = Time.unscaledTime;
@@ -157,7 +157,7 @@ internal static partial class SelfTest
                 newGame.saveFile = null;
                 menu.StartNewGameClick();
 
-                Log.Msg($"[SelfTest] loading latest save slot {slotId} (try {_tries})");
+                Log.Msg($"[SelfTest] loading selected test save slot {slotId} (try {_tries})");
             }
             catch (Exception ex)
             {
@@ -171,7 +171,13 @@ internal static partial class SelfTest
         try
         {
             ModHook.OnGameLoadedLate -= Arm;
-            if (!Requested) return;
+            if (!Requested || _runnerStarted) return;
+            if (PlayerStore.Instance.saveSlotId != _saveSlot)
+            {
+                Finish(false, $"Loaded save slot {PlayerStore.Instance.saveSlotId} differs from requested test slot {_saveSlot}.");
+                return;
+            }
+            _runnerStarted = true;
             var go = new GameObject("ItemDetails_SelfTest");
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.AddComponent<Runner>();
@@ -211,7 +217,9 @@ internal static partial class SelfTest
             _done = true;
             try
             {
-                bool success = RunAll(out string report);
+                bool success;
+                string report;
+                using (new TestSettings()) success = RunAll(out report);
                 Finish(success, report);
             }
             catch (Exception ex)
