@@ -57,28 +57,28 @@ internal static class GameRead
     internal static int? TagInt(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return null;
-        try { return tag!.valueInt; } catch { return null; }
+        return tag!.valueInt;
     }
 
     /// <summary>读标签字符串；标签不存在返回 null（与"存在但为空串"区分）。</summary>
     internal static string? TagString(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return null;
-        try { return tag!.valueString; } catch { return null; }
+        return tag!.valueString;
     }
 
     /// <summary>读标签 double（化学品纯度等按 double 存储的字段）。</summary>
     internal static double? TagDouble(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return null;
-        try { return tag!.valueDouble; } catch { return null; }
+        return tag!.valueDouble;
     }
 
     /// <summary>读标签是否启用；标签不存在返回 false。</summary>
     internal static bool TagEnabled(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return false;
-        try { return tag!.valueEnabled; } catch { return false; }
+        return tag!.valueEnabled;
     }
 
     // ---------- 估价 ----------
