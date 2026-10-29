@@ -148,12 +148,6 @@ internal static class ModSettings
 
             _cfg.Save();
 
-            // 漏网的条目也要登记：`_cfg.Define` 直接注册的条目（四个下拉框）没有经过
-            // Toggle.Define，如果只重写登记过的那批，它们的 Section 会一直是英文，
-            // 于是面板里会多出一个独立的英文分组头（和中文标题并列）。
-            // 注册顺序保证了这里读到的一定是注册时的英文名，所以能按英文名反查键。
-            RegisterUntrackedSections();
-
             // 这里**不读语言**：Init 跑在主菜单早期，而 LocHelper.GetCurrentLocaleCode()
             // 最终是 LocalizationSettings.SelectedLocale → GetSelectedLocale()，在选择结果
             // 未就绪时会同步 WaitForCompletion()。模组 Init 正处于启动/本地化初始化途中，
@@ -169,42 +163,8 @@ internal static class ModSettings
         }
     }
 
-    /// <summary>首次重写时记一次语言判定结果：这是本模组第一次、也是唯一一次主动读 locale。</summary>
+    /// <summary>首次刷新分组时记录语言。</summary>
     private static bool _localeLogged;
-
-    /// <summary>
-    /// 英文分组名 → 本地化键。用于把「注册时写下的英文分组名」反查回键，
-    /// 这样不管是 Toggle.Define 还是直接 _cfg.Define 注册的条目都能被重写。
-    /// </summary>
-    private static readonly (string En, string Key)[] SectionMap =
-    {
-        (SecDisplayEn, SecDisplayKey),
-        (SecRevealEn, SecRevealKey),
-        (SecInteractionEn, SecInteractionKey),
-    };
-
-    /// <summary>
-    /// 把没经过 <see cref="Toggle.Define"/> 的条目补进 <see cref="Sections"/>。
-    /// 必须在所有 Define 调用之后、且在任何重写之前执行：那时 Section 还是注册时的英文名。
-    ///
-    /// 同时兼容「注册时误把键当分组名传进来」的写法（历史上真发生过：
-    /// 直接 Define 的四个下拉框把 `config.section.interaction` 当 section 传了，
-    /// 面板里因此多出一个写着原始键名的英文分组头）。
-    /// </summary>
-    private static void RegisterUntrackedSections()
-    {
-        if (_cfg == null) return;
-        foreach (var entry in _cfg.Entries)
-        {
-            if (Sections.Exists(s => ReferenceEquals(s.Entry, entry))) continue;
-            foreach (var (en, key) in SectionMap)
-            {
-                if (entry.Section != en && entry.Section != key) continue;
-                Sections.Add((entry, key, en));
-                break;
-            }
-        }
-    }
 
     /// <summary>
     /// 按当前语言重写分组标题。ConfigEntry.Section 的 setter 是 internal，
