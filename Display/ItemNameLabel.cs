@@ -367,11 +367,11 @@ internal static class ItemNameLabel
             float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
             float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
 
-            // 相对大小：字号 = 图标高度 × 设置百分比，跟着图标缩放，不受界面分辨率影响
-            float pct = Mathf.Clamp(ModSettings.ItemNameScale, 10f, 100f);
+            // 字号跟随 tooltip 正文：以 tooltip 的 TMP 字号（换算成世界像素）为基准，再乘设置百分比。
+            // 这样同一屏里所有标签、以及标签与 tooltip 之间都是同一套字号，不会大图标字大、小图标字小。
+            float pct = Mathf.Clamp(ModSettings.ItemNameScale, 50f, 200f);
             float iconWidth = Mathf.Max(8f, maxX - minX);
-            float iconHeight = Mathf.Max(8f, maxY - minY);
-            float size = Mathf.Clamp(iconHeight * pct / 100f, 7f, 48f);
+            float size = Mathf.Clamp(TypeBadge.TooltipFontWorldSize * pct / 100f, 6f, 40f);
             float height = size * 1.22f;
             float z = sprite.position.z;
 

@@ -240,11 +240,11 @@ internal static class ModSettings
                 Text("图标名位置", "Name Label Position"),
                 new[] { "底部 (Bottom)", "中间 (Middle)", "顶部 (Top)" },
                 Text("名字贴在物品图标的下/中/上哪一侧。", "Where the name sits on the item icon."));
-            _nameScale = _cfg.Define("name_label_scale", 25f, SecInteractionZh,
+            _nameScale = _cfg.Define("name_label_scale", 100f, SecInteractionZh,
                 Text("图标名相对大小", "Name Label Scale"),
-                10f, 100f,
-                Text("字号相对图标高度的百分比（10–100）。相对大小会跟着物品图标一起缩放，不随界面分辨率失真。",
-                     "Font size as a percentage of the icon height (10-100), so it scales with the icon instead of the UI resolution."));
+                50f, 200f,
+                Text("相对 tooltip 正文字号的百分比（50–200，100 = 与 tooltip 一致）。",
+                     "Font size as a percentage of the tooltip body text (50-200, 100 = same as tooltip)."));
             _nameBg = _cfg.Define("name_label_background", false, SecInteractionZh,
                 Text("图标名半透明底", "Name Label Background"),
                 Text("给名字垫一层半透明黑底，压在花纹复杂的图标上更清楚。",
@@ -343,7 +343,7 @@ internal static class ModSettings
     internal static bool DimDescription => DimDescriptionToggle.Value;
     internal static string ItemNameMode => _nameMode?.Value ?? "容器名 (Containers)";
     internal static string ItemNamePosition => _namePos?.Value ?? "底部 (Bottom)";
-    internal static float ItemNameScale => _nameScale?.Value ?? 25f;
+    internal static float ItemNameScale => _nameScale?.Value ?? 100f;
     internal static bool ItemNameBackground => _nameBg?.Value ?? false;
     internal static float ItemNameBackgroundAlpha => _nameBgAlpha?.Value ?? 0.55f;
 

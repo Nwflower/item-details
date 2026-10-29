@@ -23,6 +23,27 @@ namespace ItemDetails;
 /// </summary>
 internal static class TypeBadge
 {
+    /// <summary>
+    /// tooltip 正文的字号（换算成世界像素），供其它自绘文本对齐同一套字号。
+    /// tooltip 还没出现过时返回兜底值。
+    /// </summary>
+    internal static float TooltipFontWorldSize
+    {
+        get
+        {
+            try
+            {
+                var t = _textTemplate;
+                if (t == null) return 14f;
+                float scale = t.rectTransform != null ? Mathf.Abs(t.rectTransform.lossyScale.y) : 1f;
+                if (scale < 0.001f) scale = 1f;
+                float size = t.fontSize * scale;
+                return size > 1f ? size : 14f;
+            }
+            catch { return 14f; }
+        }
+    }
+
     private const string HarmonyId = "item_details.type_badge";
     private const string BadgeName = "ItemDetailsTypeBadge";
     private const float ChipGap = 4f;
