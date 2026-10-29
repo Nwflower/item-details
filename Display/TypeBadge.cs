@@ -314,7 +314,7 @@ internal static class TypeBadge
         if (outline != null)
         {
             outline.effectColor = fg;
-            outline.effectDistance = new Vector2(2f, 2f);
+            outline.effectDistance = new Vector2(1f, 1f);
             outline.useGraphicAlpha = false;
         }
 
