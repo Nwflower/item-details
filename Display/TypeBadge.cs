@@ -14,7 +14,7 @@ namespace ItemDetails;
 /// 设计要点：
 ///   - 分类来源全部走游戏数据：GetGameItemType() + TypeHelper.GetTypeDisplayName()。
 ///   - 所有分类统一“有色实底 + 白字 + 浅色描边”，颜色按语义分组：
-///     医疗/水/药物蓝、烟酒黑底白字、奢侈品粉、食物绿、日用品青、
+///     医疗/水/麻醉品蓝、烟酒黑底白字、奢侈品粉、食物绿、日用品青、
 ///     武器/护甲青绿、工具/材料紫、违禁/受限暗红、其余灰色。
 ///     底板必须使用无 sprite 的纯白 quad；复用 tooltip 的深色花纹 sprite 会乘色，
 ///     把粉色/灰色压成暗红/棕色。
@@ -426,7 +426,7 @@ internal static class TypeBadge
     private static void ConfigureChip(GameObject chip, Entry e)
     {
         // 所有分类统一“有色实底 + 白字 + 浅色描边”，不再沿用游戏类型色。
-        // 颜色按语义分组：医疗/水/药物蓝、烟酒黑底白字、奢侈品粉、食物绿、
+        // 颜色按语义分组：医疗/水/麻醉品蓝、烟酒黑底白字、奢侈品粉、食物绿、
         // 日用品青、武器/护甲青绿、工具/材料紫，违禁/受限暗红，其余灰色。
         ChipColors(e.TypeConst, out Color bg, out Color border);
         Color fg = Color.white;
@@ -499,7 +499,7 @@ internal static class TypeBadge
             case "WATER":
             case "WATER_RATION":
             case "WATER_PURIFICATION_SUPPLY":
-            case "SUBSTANCE":
+            case "NARCOTIC":
             case "POISON":
                 bg = BlueBg; border = BlueBorder; return;
 
@@ -508,7 +508,7 @@ internal static class TypeBadge
                 bg = PinkBg; border = PinkBorder; return;
 
             case "ALCOHOL":
-            case "NARCOTIC":
+            case "SUBSTANCE":
                 bg = BlackBg; border = BlackBorder; return;
 
             case "HOUSEHOLD_GOOD":
