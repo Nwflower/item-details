@@ -410,9 +410,11 @@ internal static partial class SelfTest
     private static string CheckWineInfo(out bool ok)
     {
         ok = false;
+        GameItem? normal = null;
+        GameItem? fake = null;
         try
         {
-            var normal = WineHelper.CreateFinishedWineForDebug(5);
+            normal = WineHelper.CreateFinishedWineForDebug(5);
             var nLines = WineInfo.Collect(normal);
             // 断言用本地化后的前缀，不写死中文：模组已支持多语种，中文文案只在 zh 下成立。
             string scoreHead = Loc.T("wine.score", "Wine score: {0}{1}", "", "");
@@ -420,7 +422,7 @@ internal static partial class SelfTest
             bool hasScore = HasLine(nLines, scoreHead);
             bool normalClean = !HasLine(nLines, fakeHead);
 
-            var fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
+            fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
             var fLines = WineInfo.Collect(fake);
             bool fakeMarked = HasLine(fLines, fakeHead);
 
@@ -430,6 +432,11 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             return "wine: 异常 " + ex.GetType().Name;
+        }
+        finally
+        {
+            if (fake != null) { try { fake.Destroy(); } catch { } }
+            if (normal != null) { try { normal.Destroy(); } catch { } }
         }
     }
 
