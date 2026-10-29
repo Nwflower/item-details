@@ -220,7 +220,7 @@ internal static partial class SelfTest
             _ = WaterInfo.Analyze(item);
             _ = WaterAdvice.SimulateMethods(item);
 
-            // 清掉建议缓存，再让完整渲染器独立跑一次，覆盖玩家实际悬停路径。
+            // 清掉建议缓存，再让模组渲染器独立跑一次；原版 tooltip 补丁由集成用例覆盖。
             WaterAdvice.Stop();
             _ = ModEntry.RenderTooltipText(item);
 

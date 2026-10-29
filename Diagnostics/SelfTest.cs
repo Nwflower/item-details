@@ -333,7 +333,7 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        // 额外验证：相符的水经完整 tooltip 后不得被自动交易系统改判为错标签
+        // 额外验证：相符的水经模组渲染器后不得被自动交易系统改判为错标签
         {
             string line = CheckWaterSaleStateIsolation(out bool ok);
             if (ok) pass++; else fail++;
@@ -365,9 +365,23 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 原生 tooltip 入口与缓存上下文的集成回归。
+        {
+            string line = CheckWaterAdviceInstalledFilter(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：滤芯/设备状态必须使缓存 key 失效
         {
             string line = CheckCacheKeyFreshness(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckAppraisalDisabledPrice(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -380,10 +394,22 @@ internal static partial class SelfTest
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
+        {
+            string line = CheckNativeCalorieOrigin(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
 
         // 额外验证：第三方鉴定分解只在显式注册期间生效
         {
             string line = CheckAppraisalInjection(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckPartialContainerTotals(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
