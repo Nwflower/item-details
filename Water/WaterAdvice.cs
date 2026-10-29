@@ -25,6 +25,10 @@ namespace ItemDetails;
 /// 不按物品实例缓存：玩家常有多瓶同纯度、同杂质的水，按实例会让每瓶首次悬停
 /// 都重跑一次完整模拟（实测单次 60ms 左右）。同组成的水共享结果，首次只付一次成本。
 /// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束；水的纯度/杂质变化会改变 key，仍会重算。
+///
+/// 探针壳按 identifier 池化复用。实测单次 66ms 中 DirectoryMaster.Create 占 55ms，
+/// DeepCloneTags 仅 0.07ms；池化后新组成约 10ms，化学剂因 DissolveInto 会 Destroy
+/// 化学剂、仍需每次克隆，是剩余 Create 成本的主要来源。
 /// </summary>
 internal static class WaterAdvice
 {
@@ -49,6 +53,11 @@ internal static class WaterAdvice
     }
 
     private static readonly List<CacheEntry> Cache = new();
+
+    // 探针壳按 identifier 复用。DirectoryMaster.Create 实测约 4–5ms/次；
+    // 标签深拷贝只有 0.1ms，因此复用壳、重灌标签才是正确优化。
+    private static readonly Dictionary<string, GameItem> ProbeShells = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, GameItem> SourceShells = new(StringComparer.Ordinal);
 
     internal static List<Method> SimulateMethods(GameItem? item)
     {
@@ -92,8 +101,23 @@ internal static class WaterAdvice
             TrackCache(hit: false, now);
 #endif
 
+#if ITEMDETAILS_DIAG
+            _diagCloneCreateMs = 0;
+            _diagCloneTagsMs = 0;
+            _diagFeatureMs = 0;
+            _diagCloneCount = 0;
+            var diagTotal = System.Diagnostics.Stopwatch.StartNew();
+            var diagScan = System.Diagnostics.Stopwatch.StartNew();
+#endif
             var owned = PurifySources.Scan();
+#if ITEMDETAILS_DIAG
+            diagScan.Stop();
+#endif
             var usedNames = new HashSet<string>(StringComparer.Ordinal);
+
+            // 容器探针壳与净化源壳都按 identifier 复用；每次使用前只重灌标签。
+            GameItem? sharedProbe = GetShell(ProbeShells, item);
+            if (sharedProbe == null) return result;
 
             // 1) 机器：黑盒试 PurifyContainer。机器必须走深拷贝——函数内部用
             //    GetTagReadonly 读品质/性能加成，而 TagSystem.GetTag 对缺键会插入 0，
@@ -101,14 +125,18 @@ internal static class WaterAdvice
             foreach (var machine in owned.Machines)
             {
                 GameItem m = machine;
-                RunOnProbe(item, m, usedNames, result,
-                    (probe, _) => ApplyMachine(probe, m));
+                if (!ResetProbe(sharedProbe, item)) return result;
+                var shell = GetShell(SourceShells, m);
+                if (shell == null || !ResetSource(shell, m)) continue;
+                RunOnProbe(sharedProbe, m, usedNames, result,
+                    (probe, _) => ApplyMachineShell(probe, shell));
             }
 
             // 2) 便携净水器
             if (owned.Portable != null)
             {
-                RunOnProbe(item, owned.Portable, usedNames, result,
+                if (!ResetProbe(sharedProbe, item)) return result;
+                RunOnProbe(sharedProbe, owned.Portable, usedNames, result,
                     (probe, _) => WaterHelper.PurifyToBaseWater(probe));
             }
 
@@ -116,8 +144,11 @@ internal static class WaterAdvice
             foreach (var agent in owned.ChemAgents)
             {
                 GameItem a = agent;
-                RunOnProbe(item, a, usedNames, result, (probe, _) =>
+                if (!ResetProbe(sharedProbe, item)) return result;
+                RunOnProbe(sharedProbe, a, usedNames, result, (probe, _) =>
                 {
+                    // DissolveInto 会 Destroy 化学剂，因此这里不能复用壳；
+                    // 每次克隆一份并在 finally 中清理。
                     var dissolved = CloneItem(a);
                     if (dissolved == null) return;
                     try
@@ -135,17 +166,31 @@ internal static class WaterAdvice
 
             if (installedFilter != null)
             {
-                RunFilter(item, installedFilter, usedNames, result);
+                var shell = GetShell(SourceShells, installedFilter);
+                if (shell == null || !ResetSource(shell, installedFilter)) return result;
+                if (!ResetProbe(sharedProbe, item)) return result;
+                RunFilter(sharedProbe, installedFilter, shell, usedNames, result);
             }
             else
             {
                 foreach (var f in owned.Filters)
-                    RunFilter(item, f, usedNames, result);
+                {
+                    var shell = GetShell(SourceShells, f);
+                    if (shell == null || !ResetSource(shell, f)) continue;
+                    if (!ResetProbe(sharedProbe, item)) return result;
+                    RunFilter(sharedProbe, f, shell, usedNames, result);
+                }
             }
 
             result.RemoveAll(m => m.GainPct < 0.01);
             result.Sort((a, b) => b.GainPct.CompareTo(a.GainPct));
 
+#if ITEMDETAILS_DIAG
+            diagTotal.Stop();
+            Log.Msg($"[perf] 水质模拟 purity={purity} methods={result.Count} clones={_diagCloneCount} " +
+                    $"total={diagTotal.Elapsed.TotalMilliseconds:0.00}ms scan={diagScan.Elapsed.TotalMilliseconds:0.00}ms " +
+                    $"create={_diagCloneCreateMs:0.00}ms tags={_diagCloneTagsMs:0.00}ms feature={_diagFeatureMs:0.00}ms");
+#endif
             Cache.Add(new CacheEntry
             {
                 Signature = signature,
@@ -197,9 +242,61 @@ internal static class WaterAdvice
         }
     }
 
+    /// <summary>按 identifier 取一个可复用壳；首次才 Create。</summary>
+    private static GameItem? GetShell(Dictionary<string, GameItem> pool, GameItem source)
+    {
+        try
+        {
+            string id = source.identifier ?? "";
+            if (id.Length == 0) return null;
+            if (pool.TryGetValue(id, out var existing)) return existing;
+
+            var shell = CloneItem(source);
+            if (shell == null) return null;
+            pool[id] = shell;
+            return shell;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.GetShell", ex);
+            return null;
+        }
+    }
+
+    /// <summary>复用净化源壳：只重灌标签/单件价值，不重新 Create。</summary>
+    private static bool ResetSource(GameItem shell, GameItem source)
+    {
+        try
+        {
+            var cloned = GameRead.DeepCloneTags(source.modifiedState);
+            if (cloned == null) return false;
+
+            shell.modifiedState = cloned;
+            shell.state = shell.modifiedState;
+            try { shell.unitValue = source.unitValue; } catch { }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.ResetSource", ex);
+            return false;
+        }
+    }
+
+    private static void ClearShells()
+    {
+        foreach (var shell in ProbeShells.Values)
+            try { shell.Destroy(); } catch { }
+        foreach (var shell in SourceShells.Values)
+            try { shell.Destroy(); } catch { }
+        ProbeShells.Clear();
+        SourceShells.Clear();
+    }
+
     internal static void Stop()
     {
         Cache.Clear();
+        ClearShells();
 #if ITEMDETAILS_DIAG
         _diagHits = 0;
         _diagMisses = 0;
@@ -212,6 +309,10 @@ internal static class WaterAdvice
     private static int _diagHits;
     private static int _diagMisses;
     private static float _diagAt;
+    private static double _diagCloneCreateMs;
+    private static double _diagCloneTagsMs;
+    private static double _diagFeatureMs;
+    private static int _diagCloneCount;
 
     /// <summary>
     /// 每 2 秒汇总一次缓存命中/重算。重算次数才是水质建议的真实成本来源：
@@ -239,6 +340,7 @@ internal static class WaterAdvice
     /// <c>TagSystem.GetTag</c> 缺键即插入 0 —— 直接传真实机器会把它的加成永久钉成 0，
     /// 表现为净水器只能净化到 99.0%。
     /// </summary>
+    /// <summary>安全入口：直接传真实机器时先克隆，绝不改真实物品。</summary>
     internal static void ApplyMachine(GameItem probe, GameItem machine)
     {
         GameItem? clone = null;
@@ -255,16 +357,19 @@ internal static class WaterAdvice
         }
     }
 
-    /// <summary>单容器手段：造探针 → 跑一次 → 比较纯度。任何一步失败都不产出建议。</summary>
-    private static void RunOnProbe(GameItem container, GameItem source,
+    /// <summary>池化路径：调用方已经拿到隔离壳并重置过标签。</summary>
+    private static void ApplyMachineShell(GameItem probe, GameItem machineShell)
+    {
+        try { MachinePurifier.PurifyContainer(machineShell, probe); }
+        catch (Exception ex) { Log.Warn("WaterAdvice.ApplyMachineShell", ex); }
+    }
+
+    /// <summary>在已重置的共享探针上跑一次手段，比较前后纯度。</summary>
+    private static void RunOnProbe(GameItem probe, GameItem source,
         HashSet<string> usedNames, List<Method> result, PurifyAction action)
     {
-        GameItem? probe = null;
         try
         {
-            probe = NewProbe(container);
-            if (probe == null) return;
-
             int before = SafePurity(probe);
             if (before < 0) return;
 
@@ -273,24 +378,14 @@ internal static class WaterAdvice
             AddMethod(result, usedNames, GameRead.ItemName(source), before, SafePurity(probe));
         }
         catch (Exception ex) { Log.Warn("WaterAdvice.Simulate", ex); }
-        finally
-        {
-            if (probe != null) { try { probe.Destroy(); } catch { } }
-        }
     }
 
-    /// <summary>滤芯：容器探针 + 滤芯深拷贝，逐液体走原版 HandleFilter。</summary>
-    private static void RunFilter(GameItem container, GameItem filterSource,
+    /// <summary>滤芯：共享容器探针 + 滤芯深拷贝，逐液体走原版 HandleFilter。</summary>
+    private static void RunFilter(GameItem probe, GameItem filterSource, GameItem filterShell,
         HashSet<string> usedNames, List<Method> result)
     {
-        GameItem? probe = null;
-        GameItem? filter = null;
         try
         {
-            probe = NewProbe(container);
-            filter = CloneItem(filterSource);
-            if (probe == null || filter == null) return;
-
             int before = SafePurity(probe);
             if (before < 0) return;
 
@@ -302,7 +397,7 @@ internal static class WaterAdvice
                 int amount = GameRead.TagInt(probe, part) ?? 0;
                 if (amount <= 0) continue;
 
-                int remaining = WaterHelper.HandleFilter(liquid.identifier, amount, probe, filter);
+                int remaining = WaterHelper.HandleFilter(liquid.identifier, amount, probe, filterShell);
                 int removed = amount - remaining;
                 if (removed <= 0) continue;
 
@@ -314,11 +409,6 @@ internal static class WaterAdvice
             AddMethod(result, usedNames, GameRead.ItemName(filterSource), before, SafePurity(probe));
         }
         catch (Exception ex) { Log.Warn("WaterAdvice.Filter", ex); }
-        finally
-        {
-            if (probe != null) { try { probe.Destroy(); } catch { } }
-            if (filter != null) { try { filter.Destroy(); } catch { } }
-        }
     }
 
     private static void AddMethod(List<Method> list, HashSet<string> usedNames,
@@ -335,18 +425,43 @@ internal static class WaterAdvice
         list.Add(new Method { Name = name, GainPct = (after - before) / 100.0 });
     }
 
-    /// <summary>造一个与真实容器标签隔离的探针（深拷贝，见 GameRead.DeepCloneTags）。</summary>
-    private static GameItem? NewProbe(GameItem item)
+    /// <summary>
+    /// 复用探针壳：重灌容器的标签/单件价值，移除上一轮的水质特性并重新初始化。
+    /// 只重建 TagState 和水质特性，不重新 DirectoryMaster.Create。
+    /// </summary>
+    private static bool ResetProbe(GameItem probe, GameItem item)
     {
-        var probe = CloneItem(item);
-        if (probe == null) return null;
+        try
+        {
+            var cloned = GameRead.DeepCloneTags(item.modifiedState);
+            if (cloned == null) return false;
 
-        // 探针必须拥有自己的水质特性。共享 itemFeatures 会让 UpdateWaterFeature
-        // 改写真实物品的暴露状态和价值修正。
-        try { WaterFeatureHelper.InitWaterFeature(probe); }
-        catch (Exception ex) { Log.Warn("WaterAdvice.InitFeature", ex); }
+            probe.modifiedState = cloned;
+            probe.state = probe.modifiedState;
+            try { probe.unitValue = item.unitValue; } catch { }
 
-        return probe;
+            try
+            {
+                probe.itemFeatures.RemoveAll(f => f != null && f.category == "CATEGORY_WATER_PURITY");
+            }
+            catch { }
+
+#if ITEMDETAILS_DIAG
+            var diagFeature = System.Diagnostics.Stopwatch.StartNew();
+#endif
+            try { WaterFeatureHelper.InitWaterFeature(probe); }
+            catch (Exception ex) { Log.Warn("WaterAdvice.InitFeature", ex); }
+#if ITEMDETAILS_DIAG
+            diagFeature.Stop();
+            _diagFeatureMs += diagFeature.Elapsed.TotalMilliseconds;
+#endif
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.ResetProbe", ex);
+            return false;
+        }
     }
 
     /// <summary>按 identifier 造副本并深拷贝全部标签/单件价值；失败返回 null。</summary>
@@ -358,15 +473,32 @@ internal static class WaterAdvice
             string id = source.identifier;
             if (string.IsNullOrEmpty(id)) return null;
 
+#if ITEMDETAILS_DIAG
+            var diagCreate = System.Diagnostics.Stopwatch.StartNew();
+#endif
             copy = DirectoryMaster.Create<GameItem>(id);
+#if ITEMDETAILS_DIAG
+            diagCreate.Stop();
+            _diagCloneCreateMs += diagCreate.Elapsed.TotalMilliseconds;
+#endif
             if (copy == null) return null;
 
+#if ITEMDETAILS_DIAG
+            var diagTags = System.Diagnostics.Stopwatch.StartNew();
+#endif
             var cloned = GameRead.DeepCloneTags(source.modifiedState);
+#if ITEMDETAILS_DIAG
+            diagTags.Stop();
+            _diagCloneTagsMs += diagTags.Elapsed.TotalMilliseconds;
+#endif
             if (cloned == null) { Log.Warn("WaterAdvice.Clone", "标签克隆失败，跳过"); copy.Destroy(); return null; }
 
             copy.modifiedState = cloned;
             copy.state = copy.modifiedState;
             try { copy.unitValue = source.unitValue; } catch { }
+#if ITEMDETAILS_DIAG
+            _diagCloneCount++;
+#endif
             return copy;
         }
         catch (Exception ex)
