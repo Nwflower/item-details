@@ -46,11 +46,6 @@
       <HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <!-- UnityEngine.Input 在这个模块里（双击检测需要） -->
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>$(ManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>

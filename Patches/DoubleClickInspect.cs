@@ -24,7 +24,6 @@ internal static class DoubleClickInspect
     private const string HarmonyId = "item_details.double_click";
     private static Harmony? _harmony;
     private static bool _patched;
-    private static GameObject? _go;
 
     internal static void Apply()
     {
@@ -38,7 +37,17 @@ internal static class DoubleClickInspect
                 Log.Warn("DoubleClick.Apply", "未找到 CreateAppraisalTooltip，提示文案保持原版");
                 return;
             }
+            var nativeDouble = AccessTools.Method(typeof(ItemMouseDoubleClickHandler), "DoubleClickAction",
+                new[] { typeof(GameItem), typeof(Vector2) });
+            if (nativeDouble == null)
+            {
+                Log.Warn("DoubleClick.Apply", "未找到原生双击入口，保留原版操作与提示");
+                return;
+            }
             _harmony = new Harmony(HarmonyId);
+            // 由游戏的输入调度器处理时间阈值、已消费的点击与拖动仲裁。
+            _harmony.Patch(nativeDouble,
+                prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
             _harmony.Patch(target, prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(TipPrefix)));
 
             // 原版还有一行「可使用放大镜进行检查」，来自 InspectableHelper（INSPECTABLE_TAG）。
@@ -55,21 +64,6 @@ internal static class DoubleClickInspect
                 Log.Warn("DoubleClick.Apply", "未找到 CreateInspectableTooltip，放大镜提示行将保留");
             }
 
-            // 复用游戏自己的双击判定：它已经校验了“同一物品 + 时间阈值 + 鼠标未拖动”。
-            // 旧 ticker 在第二次按下时重新 Raycast，第一次点击若引起选中/拖动/格子重建，
-            // 第二次就可能取不到同一件物品，表现为双击偶发失效。
-            var nativeDouble = AccessTools.Method(typeof(ItemMouseDoubleClickHandler), "DoubleClickAction",
-                new[] { typeof(GameItem), typeof(Vector2) });
-            if (nativeDouble != null)
-            {
-                _harmony.Patch(nativeDouble,
-                    prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
-            }
-            else
-            {
-                Log.Warn("DoubleClick.Apply", "未找到 ItemMouseDoubleClickHandler.DoubleClickAction，保留 ticker 兜底");
-            }
-
             _patched = true;
             Log.Msg("DoubleClickInspect: patched CreateAppraisalTooltip + CreateInspectableTooltip + DoubleClickAction");
         }
@@ -84,14 +78,6 @@ internal static class DoubleClickInspect
         try { _harmony?.UnpatchAll(HarmonyId); } catch { }
         _harmony = null;
         _patched = false;
-        StopTicker();
-    }
-
-    private static void StopTicker()
-    {
-        if (_go == null) return;
-        try { UnityEngine.Object.Destroy(_go); } catch { }
-        _go = null;
     }
 
     /// <summary>
@@ -170,7 +156,7 @@ internal static class DoubleClickInspect
     // ---------------- 双击检测 ----------------
 
     /// <summary>
-    /// 游戏原生双击判定的接管点。与原版共用“同一物品 + 时间窗口 + 未拖动”的判定，
+    /// 游戏原生双击判定的接管点，沿用原版的物品、时间与输入消费判定，
     /// 不再在第二次按下时重新 Raycast；返回 false 表示不再执行游戏的双击动作。
     /// </summary>
     private static bool NativeDoubleClickPrefix(GameItem newItem, Vector2 mousePosition)
@@ -215,64 +201,4 @@ internal static class DoubleClickInspect
         }
     }
 
-    internal static void Install()
-    {
-        if (_go != null) return;
-        try
-        {
-            _go = new GameObject("ItemDetails_DoubleClickInspect");
-            UnityEngine.Object.DontDestroyOnLoad(_go);
-            _go.AddComponent<Ticker>();
-            Log.Msg("DoubleClickInspect ticker installed");
-        }
-        catch (Exception ex)
-        {
-            Log.Error("DoubleClick.Install", ex);
-            StopTicker();
-        }
-    }
-
-    private sealed class Ticker : MonoBehaviour
-    {
-        private const float DoubleClickSeconds = 0.35f;
-
-        private GameItem? _lastItem;
-        private float _lastClickTime = -99f;
-
-        private void Update()
-        {
-            try
-            {
-                if (!ModSettings.DoubleClickInspect) return;
-
-                var ui = StoreUIManager.Instance;
-                if (ui == null) return;
-
-                // 放大镜模式内由游戏自己处理点击，不接管
-                if (ui.isMagnifyingMode) return;
-
-                if (!Input.GetMouseButtonDown(0)) return;
-                if (ItemPinHelper.BlocksClicks) return;
-
-                var item = RenderHandler.RaycastElement<GameItem>(Input.mousePosition);
-                if (item == null || !IsInspectableItem(item))
-                {
-                    _lastItem = null;
-                    return;
-                }
-
-                float now = Time.unscaledTime;
-                bool twice = ReferenceEquals(item, _lastItem) && now - _lastClickTime <= DoubleClickSeconds;
-                _lastItem = item;
-                _lastClickTime = now;
-                if (!twice) return;
-
-                TryInspect(item, "ticker");
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("DoubleClick.Tick", ex);
-            }
-        }
-    }
 }

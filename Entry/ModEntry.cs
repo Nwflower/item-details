@@ -124,11 +124,7 @@ public sealed partial class ModEntry : IMod
         Try("ResultPrefill", ResultPrefill.Apply);
         Try("CustomerAlertTicker", CustomerAlertTicker.Install);
         Try("LabelImpact", LabelImpact.Apply);
-        Try("DoubleClickInspect", () =>
-        {
-            DoubleClickInspect.Apply();
-            DoubleClickInspect.Install();
-        });
+        Try("DoubleClickInspect", DoubleClickInspect.Apply);
         Try("TooltipPipeline", TooltipPipeline.Apply);
         Try("MachineBattery", MachineBatteryInfo.Apply);
         Try("WaterWarmup", WaterWarmupPatch.Apply);
