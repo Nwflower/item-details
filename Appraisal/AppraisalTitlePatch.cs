@@ -25,7 +25,8 @@ internal static class AppraisalTitlePatch
     private static string _original = "";   // 注入前的原文
     private static string _applied = "";    // 我们写进去的文本（空 = 当前没有注入）
     private static bool _loggedOnce;        // 首次注入时打一条路径日志，方便排查"写错控件"
-    private static bool _reapplyScheduled;  // 已在下一帧补写一次
+    private static bool _reapplyScheduled;  // 已在后续几帧跟踪标题
+    private static int _lastValue;          // 本次鉴定的真实价值，供后续几帧重建标题
 
     internal static void Apply()
     {
@@ -98,6 +99,7 @@ internal static class AppraisalTitlePatch
                 return;
             }
 
+            _lastValue = value;
             string current = _titleTmp.text ?? "";
             // 我们没注入过、或游戏自己改写了标题 → 以当前文本为原文
             if (_applied.Length == 0 || current != _applied) _original = current;
@@ -105,8 +107,7 @@ internal static class AppraisalTitlePatch
             string desired = BuildTitle(_original, value);
             if (current == desired) return;
 
-            _titleTmp.text = desired;
-            _applied = desired;
+            ApplyTitle(_original, value);
 
             if (!_loggedOnce)
             {
@@ -114,8 +115,8 @@ internal static class AppraisalTitlePatch
                 Log.Msg($"AppraisalTitle: 注入到 '{Path(_titleTmp.transform)}' → {desired}");
             }
 
-            // 面板的 SetActive / 本地化组件可能在下一帧再把标题写一遍，
-            // 这时只在 OnInspectItem 里注入一次会被覆盖掉，表现为"标题后面什么都没有"。
+            // 标题常由 TMPLocalizer 异步本地化：开面板当帧可能还是预制体里的英文，
+            // 之后才换成中文。所以注入后要跟几帧，看过游戏的基线再重建一次。
             if (!_reapplyScheduled && insp != null)
             {
                 _reapplyScheduled = true;
@@ -146,9 +147,22 @@ internal static class AppraisalTitlePatch
     private static string BuildTitle(string original, int trueValue)
     {
         var (_, best) = AppraisalRanges.Perfect(trueValue);
-        return Locales.IsChinese
+        // 后缀语言跟着**标题基线**走，不跟着 locale 走：标题由本地化组件异步写入，
+        // 开面板当帧可能还是英文预制体文本，此时按 locale 拼中文会得到
+        // 「Appraisal Service 标价420，最优报价441」这种半中半英。
+        bool zh = BaseIsChinese(original);
+        return zh
             ? $"{original} 标价{trueValue}，最优报价{best}"
             : $"{original} List {trueValue}, best offer {best}";
+    }
+
+    /// <summary>标题基线是否中文（含 CJK/全角字符）。空串时回落到当前语言。</summary>
+    private static bool BaseIsChinese(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return Locales.IsChinese;
+        foreach (char c in s)
+            if (c >= 0x2E80) return true;
+        return false;
     }
 
     private static TextMeshProUGUI? FindTitle(Transform root)
@@ -197,18 +211,44 @@ internal static class AppraisalTitlePatch
         try { return ValueBreakdown.Analyze(item)?.Total ?? 0; } catch { return 0; }
     }
 
-    /// <summary>下一帧再核对一次：被游戏或本地化组件覆盖就补回去。</summary>
+    /// <summary>把标题写成「基线 + 后缀」并记下来；<paramref name="baseText"/> 是最新的游戏原文。</summary>
+    private static void ApplyTitle(string baseText, int value)
+    {
+        if (_titleTmp == null) return;
+        string desired = BuildTitle(baseText, value);
+        _original = baseText;
+        _applied = desired;
+        try { _titleTmp.text = desired; } catch { }
+    }
+
+    /// <summary>
+    /// 开面板后的几帧内盯住标题：游戏/本地化组件把标题改回原文时，**以它的新文本为基线重建**，
+    /// 而不是把我们那版（可能基于预制体英文）强塞回去。
+    /// </summary>
     private static System.Collections.IEnumerator ReapplyNextFrame()
     {
-        yield return null;
-        _reapplyScheduled = false;
-        if (_titleTmp == null || _applied.Length == 0) yield break;
         try
         {
-            if (_titleTmp.isActiveAndEnabled && _titleTmp.text != _applied)
-                _titleTmp.text = _applied;
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+                if (_titleTmp == null || _applied.Length == 0) yield break;
+
+                bool active;
+                try { active = _titleTmp.isActiveAndEnabled; } catch { active = false; }
+                if (!active) yield break;
+
+                string cur;
+                try { cur = _titleTmp.text ?? ""; } catch { break; }
+                if (cur == _applied) continue;
+
+                ApplyTitle(cur, _lastValue);
+            }
         }
-        catch { }
+        finally
+        {
+            _reapplyScheduled = false;
+        }
     }
 
     private static string Path(Transform t)
