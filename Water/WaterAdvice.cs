@@ -21,15 +21,14 @@ namespace ItemDetails;
 ///            （净水片就是「含 15ml 氯的可溶化学物品」，走同一条链，不再特判）
 ///   滤芯     WaterHelper.HandleFilter（逐液体，被去除量转成水；uv_filter 由其内部处理）
 ///
-/// 这条路径比其它模块贵得多，所以按「物品 + 净化前纯度」缓存。
-///
-/// 缓存必须是多槽的：玩家在几瓶水之间来回划时，单槽缓存会被 A/B 交替
-/// 直接踢掉，每一帧都重新扫描拥有物并跑完整净化模拟（实测单次可到 55ms）。
-/// 100 槽只是容量上限，条目仍受 10 秒 TTL 约束；水的纯度变化会改变 key，仍会立即重算。
+/// 这条路径比其它模块贵得多，所以按「液体组成 + 容器类型 + 净化前纯度」缓存。
+/// 不按物品实例缓存：玩家常有多瓶同纯度、同杂质的水，按实例会让每瓶首次悬停
+/// 都重跑一次完整模拟（实测单次 60ms 左右）。同组成的水共享结果，首次只付一次成本。
+/// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束；水的纯度/杂质变化会改变 key，仍会重算。
 /// </summary>
 internal static class WaterAdvice
 {
-    private const float CacheSeconds = 10f;
+    private const float CacheSeconds = 30f;
     // 容量只是上限：条目仍受 10 秒 TTL 约束。100 槽足以覆盖任何正常的水容器对比，
     // 线性扫描在工具提示频率下可忽略，真正防止卡顿的是不再让 A/B 互相淘汰。
     private const int MaxEntries = 100;
@@ -43,9 +42,7 @@ internal static class WaterAdvice
 
     private sealed class CacheEntry
     {
-        // UID 在读档后或对未入册的临时物品可能重复/为 0；实例引用保证只命中同一件真实物品。
-        internal GameItem? Item;
-        internal int ItemId;
+        internal long Signature;
         internal int Purity;
         internal float At;
         internal List<Method> Methods = new();
@@ -66,7 +63,7 @@ internal static class WaterAdvice
             int purity = SafePurity(item);
             if (purity < 0) return result;
 
-            int uid = GameRead.UniqueId(item);
+            long signature = CompositionSignature(item);
             float now = UnityEngine.Time.unscaledTime;
 
             // 过期项顺手清掉，其余按最近使用顺序从后往前找。
@@ -78,8 +75,7 @@ internal static class WaterAdvice
                     Cache.RemoveAt(i);
                     continue;
                 }
-                if (!ReferenceEquals(entry.Item, item)
-                    || entry.ItemId != uid || entry.Purity != purity) continue;
+                if (entry.Signature != signature || entry.Purity != purity) continue;
 
                 if (i != Cache.Count - 1)
                 {
@@ -152,8 +148,7 @@ internal static class WaterAdvice
 
             Cache.Add(new CacheEntry
             {
-                Item = item,
-                ItemId = uid,
+                Signature = signature,
                 Purity = purity,
                 At = now,
                 Methods = result,
@@ -165,6 +160,40 @@ internal static class WaterAdvice
         {
             Log.Warn("WaterAdvice.SimulateMethods", ex);
             return result;
+        }
+    }
+
+    /// <summary>
+    /// 水质组成指纹：容器类型 + 每种液体的 identifier/parts。
+    /// 两瓶同类型、同纯度、同杂质的水得到同一签名，共享净化建议；
+    /// 任何液体比例变化都会改变签名，不会返回过期建议。
+    /// </summary>
+    private static long CompositionSignature(GameItem item)
+    {
+        const long offset = unchecked((long)14695981039346656037UL);
+        const long prime = 1099511628211L;
+        unchecked
+        {
+            long h = offset;
+
+            try
+            {
+                string id = item.identifier ?? "";
+                for (int i = 0; i < id.Length; i++) h = (h ^ id[i]) * prime;
+            }
+            catch { }
+
+            foreach (var liquid in Liquid.Liquids)
+            {
+                if (liquid == null) continue;
+                string part = liquid.currentPart ?? "";
+                int parts = GameRead.TagInt(item, part) ?? 0;
+                if (parts <= 0) continue;
+
+                for (int i = 0; i < part.Length; i++) h = (h ^ part[i]) * prime;
+                h = (h ^ parts) * prime;
+            }
+            return h;
         }
     }
 
