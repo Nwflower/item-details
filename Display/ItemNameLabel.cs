@@ -372,7 +372,7 @@ internal static class ItemNameLabel
             float iconWidth = Mathf.Max(8f, maxX - minX);
             float iconHeight = Mathf.Max(8f, maxY - minY);
             float size = Mathf.Clamp(iconHeight * pct / 100f, 7f, 48f);
-            float height = size * 1.3f;
+            float height = size * 1.22f;
             float z = sprite.position.z;
 
             // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
