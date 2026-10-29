@@ -752,7 +752,7 @@ internal static partial class SelfTest
             if (safe == null) return "locked container gate: 无法创建容器样本";
             if (content == null) return "locked container gate: 无法创建内容样本";
 
-            int added = GraphUtils.TryAcceptAll(safe, content);
+            int remaining = GraphUtils.TryAcceptAll(safe, content);
             safe.EnableTag("LOCKED_CONTAINER_TAG");
             safe.ModifyTag("LOCK_ID", st => st.Enable().SetString("LOCK_ID_SEC"));
             safe.ModifyTag("LOCK_STATUS", st => st.Enable().SetBool(true));
@@ -764,11 +764,12 @@ internal static partial class SelfTest
             bool tooltipLeak = contains.Length > 0 && text.Contains(contains, StringComparison.Ordinal);
             bool leaked = storage.Count > 0 || tooltipLeak;
             bool sealedHasContent = sealedLines.Count > 0;
-            bool contentAdded = added > 0;
+            bool contentAdded = remaining == 0
+                && ReferenceEquals(content.parentInventory, safe.contentWindow?.child);
 
             ok = !leaked && sealedHasContent && contentAdded;
-            return $"locked container gate: added={added} storage={storage.Count} sealed={sealedLines.Count} " +
-                   $"tooltipLeak={tooltipLeak} (期望 >0/0/>0/False)";
+            return $"locked container gate: remaining={remaining} inserted={contentAdded} storage={storage.Count} sealed={sealedLines.Count} " +
+                   $"tooltipLeak={tooltipLeak} (期望 0/True/0/>0/False)";
         }
         catch (Exception ex)
         {
@@ -868,7 +869,7 @@ internal static partial class SelfTest
             if (battery == null) return "machine battery: 无法创建电池样本";
             try { GeneralHelper.SetItemOwned(battery, true); } catch { }
 
-            int added = GraphUtils.TryAcceptAll(slot, battery);
+            int remaining = GraphUtils.TryAcceptAll(slot, battery);
             var tooltip = new RichTextBuilder(80);
             MachineryHelper.CreateMachineryTooltip(tooltip, machine);
             string text = tooltip.Build()?.nakedText ?? "";
@@ -884,8 +885,9 @@ internal static partial class SelfTest
             int batteryAt = text.IndexOf(batteryLine, StringComparison.Ordinal);
             bool placedAfter = requiredAt >= 0 && batteryAt > requiredAt;
 
-            ok = added > 0 && placedAfter;
-            return $"machine battery: added={added} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
+            bool inserted = remaining == 0 && ReferenceEquals(slot.childItem, battery);
+            ok = inserted && placedAfter;
+            return $"machine battery: remaining={remaining} inserted={inserted} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
                    $"(期望电池行位于所需能量之后)";
         }
         catch (Exception ex)
