@@ -146,7 +146,7 @@ config.item_appraisal.tip,Combine authenticité, détail de la valeur, fourchett
 config.info_enhance,Informations enrichies
 config.info_enhance.tip,Combine valeur par case, impact des étiquettes/marché, valeurs des modules, batterie de machine, conteneurs, majoration de contrebande, loterie, descriptions atténuées et affichage prix de vente/achat.
 config.type_badge,Étiquettes de type
-config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool doré, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
+config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool noir, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
 config.container_name,Noms sur conteneurs et machines
 config.container_name.tip,Affiche les noms sous les conteneurs et machines. Position fixe en bas.
 config.container_name_bg,Fond des noms d'icônes

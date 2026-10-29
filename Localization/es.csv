@@ -146,7 +146,7 @@ config.item_appraisal.tip,Combina autenticidad, desglose de valor, rango de ofer
 config.info_enhance,Mejoras de información
 config.info_enhance.tip,Combina valor por celda, impacto de etiquetas/mercado, valores de módulos, batería de máquina, contenedores, sobreprecio de contrabando, lotería, descripciones atenuadas y precios de venta/compra.
 config.type_badge,Etiquetas de tipo
-config.type_badge.tip,"Muestra los tipos de objeto sobre el tooltip como placas de color con texto blanco: medicina/agua/drogas/venenos azul, tabaco/alcohol dorado, lujo rosa, comida verde, artículos del hogar cian, armas/armadura turquesa, herramientas/materiales violeta, prohibido/restringido rojo oscuro, resto gris. Desactívalo para volver a la línea [tipo] original."
+config.type_badge.tip,"Muestra los tipos de objeto sobre el tooltip como placas de color con texto blanco: medicina/agua/drogas/venenos azul, tabaco/alcohol negro, lujo rosa, comida verde, artículos del hogar cian, armas/armadura turquesa, herramientas/materiales violeta, prohibido/restringido rojo oscuro, resto gris. Desactívalo para volver a la línea [tipo] original."
 config.container_name,Nombres en contenedores y máquinas
 config.container_name.tip,Muestra nombres bajo contenedores y máquinas. Posición fija abajo.
 config.container_name_bg,Fondo de nombres de iconos

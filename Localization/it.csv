@@ -146,7 +146,7 @@ config.item_appraisal.tip,Combina autenticità, dettaglio del valore, intervallo
 config.info_enhance,Informazioni avanzate
 config.info_enhance.tip,Combina valore per cella, impatto etichette/mercato, valori dei moduli, batteria della macchina, contenitori, ricarico di contrabbando, lotteria, descrizioni attenuate e prezzi vendita/acquisto.
 config.type_badge,Etichette del tipo
-config.type_badge.tip,"Mostra i tipi di oggetto sopra il tooltip come placche colorate con testo bianco: medicina/acqua/droghe/veleni blu, tabacco/alcol oro, lusso rosa, cibo verde, articoli domestici ciano, armi/armature turchese, strumenti/materiali viola, proibito/limitato rosso scuro, altri grigio. Disattivalo per tornare alla riga [tipo] originale."
+config.type_badge.tip,"Mostra i tipi di oggetto sopra il tooltip come placche colorate con testo bianco: medicina/acqua/droghe/veleni blu, tabacco/alcol nero, lusso rosa, cibo verde, articoli domestici ciano, armi/armature turchese, strumenti/materiali viola, proibito/limitato rosso scuro, altri grigio. Disattivalo per tornare alla riga [tipo] originale."
 config.container_name,Nomi su contenitori e macchine
 config.container_name.tip,Mostra i nomi sotto contenitori e macchine. Posizione fissa in basso.
 config.container_name_bg,Sfondo nomi icone

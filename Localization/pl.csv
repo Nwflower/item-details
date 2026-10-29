@@ -146,7 +146,7 @@ config.item_appraisal.tip,Łączy autentyczność, skład wartości, przedział 
 config.info_enhance,Wzmocnienie informacji
 config.info_enhance.tip,Łączy wartość na komórkę, wpływ etykiet/rynku, wartości modułów, baterię maszyny, pojemniki, narzut czarnego rynku, loterię, przygaszone opisy i ceny sprzedaży/zakupu.
 config.type_badge,Etykiety typu
-config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol złote, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
+config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol czarne, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
 config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwy pod pojemnikami i maszynami. Pozycja stała na dole.
 config.container_name_bg,Tło nazw ikon

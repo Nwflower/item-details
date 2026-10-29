@@ -146,7 +146,7 @@ config.item_appraisal.tip,Kombiniert Echtheit, Wertaufschlüsselung, perfekte An
 config.info_enhance,Informationserweiterung
 config.info_enhance.tip,Kombiniert Wert pro Zelle, Etikett-/Markteinfluss, Modulwerte, Maschinenbatterie, Behälter, Schwarzmarktaufschlag, Lotterie, gedimmte Beschreibungen und Verkaufs-/Einkaufspreis-Anzeige.
 config.type_badge,Artikeltyp-Labels
-config.type_badge.tip,"Zeigt die Artikeltypen über dem Tooltip als farbige Platten mit weißer Schrift: Medizin/Wasser/Drogen/Gifte blau, Tabak/Alkohol gold, Luxus rosa, Essen grün, Haushaltswaren cyan, Waffen/Rüstung türkis, Werkzeuge/Materialien violett, verboten/eingeschränkt dunkelrot, sonst grau. Aus: ursprüngliche [Typ]-Zeile im Tooltip."
+config.type_badge.tip,"Zeigt die Artikeltypen über dem Tooltip als farbige Platten mit weißer Schrift: Medizin/Wasser/Drogen/Gifte blau, Tabak/Alkohol schwarz, Luxus rosa, Essen grün, Haushaltswaren cyan, Waffen/Rüstung türkis, Werkzeuge/Materialien violett, verboten/eingeschränkt dunkelrot, sonst grau. Aus: ursprüngliche [Typ]-Zeile im Tooltip."
 config.container_name,Namen an Behältern und Maschinen
 config.container_name.tip,Zeigt Namen unter Behältern und Maschinen. Position fest unten.
 config.container_name_bg,Hintergrund für Objektnamen

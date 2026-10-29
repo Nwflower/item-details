@@ -98,7 +98,7 @@ internal static class ModSettings
             TypeBadgeToggle.Define(_cfg, "show_type_badge", SecDisplayKey, SecDisplayEn,
                 Text("config.type_badge", "Item Type Badges"),
                 Text("config.type_badge.tip", "Shows the item's categories above the tooltip as colored plates with white text: " +
-                     "medical/water/drugs/poison blue, tobacco/alcohol gold, luxury pink, food green, household cyan, " +
+                     "medical/water/drugs/poison blue, tobacco/alcohol black, luxury pink, food green, household cyan, " +
                      "weapons/armor teal, tools/materials purple, contraband/restricted dark red, other gray."));
 
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,

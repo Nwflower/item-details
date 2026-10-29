@@ -146,7 +146,7 @@ config.item_appraisal.tip,合并真伪鉴定、价值构成、完美报价区间
 config.info_enhance,信息增强
 config.info_enhance.tip,合并性价比、标签与市场影响、模组效果实际值、机器电池、容器信息、黑市溢价、彩票信息、描述淡化与售价/进价显示优化。
 config.type_badge,物品分类标签
-config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒金、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
+config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒黑底白字、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
 config.container_name,容器和机器外显文本
 config.container_name.tip,只给容器和机器显示名称，位置固定底部。
 config.container_name_bg,外显文本半透明底
