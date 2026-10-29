@@ -191,6 +191,12 @@ internal static class ItemNameLabel
             label.Visible = true;
             label.Main.text.enabled = true;
             label.Shadow.text.enabled = true;
+            try
+            {
+                label.Main.text.ForceMeshUpdate();
+                label.Shadow.text.ForceMeshUpdate();
+            }
+            catch { }
         }
 
         if (label.Text != name)
@@ -320,10 +326,11 @@ internal static class ItemNameLabel
         text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
         text.overflowMode = TextOverflowModes.Ellipsis;   // 宽度不够就省略号，绝不缩字号
-        // 关键：不要开自适应。开着时 TMP 会为了塞进「图标宽度」把字号压小，
-        // 于是大图标字大、小图标字小（实测就是这个原因）。这里固定字号，放不下就截断。
-        text.enableAutoSizing = false;
-        text.fontSize = 14f;
+        // 用「自适应」通道但把上下限钉成同一个值：既走 TMP 会正常重建网格的路径，
+        // 又不会被为了塞进图标宽度而压小字号。放不下时靠 Ellipsis 截断。
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 12f;
+        text.fontSizeMax = 12f;
         text.raycastTarget = false;
     }
 
@@ -431,10 +438,19 @@ internal static class ItemNameLabel
             label.Background = bgOn;
             label.BackgroundAlpha = bgAlpha;
 
-            if (label.Main != null) label.Main.text.fontSize = size;
-            if (label.Shadow != null) label.Shadow.text.fontSize = size;
+            if (label.Main != null) { label.Main.text.fontSizeMin = size; label.Main.text.fontSizeMax = size; }
+            if (label.Shadow != null) { label.Shadow.text.fontSizeMin = size; label.Shadow.text.fontSizeMax = size; }
             SetRect(label.Main, textWidth, height, centerX, y, z, sx, sy);
             SetRect(label.Shadow, textWidth, height, centerX, y - 1f, z, sx, sy);
+
+            // 固定字号 + 刚启用节点时 TMP 不会自己重建网格，表现为"文字消失"。
+            // 这里只在参数真的变化后强制刷一次（0.2s 的补位会被上面的缓存挡掉）。
+            try
+            {
+                label.Main?.text?.ForceMeshUpdate();
+                label.Shadow?.text?.ForceMeshUpdate();
+            }
+            catch { }
 
             if (label.Bg != null && label.Bg.image != null)
             {
