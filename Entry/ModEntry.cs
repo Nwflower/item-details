@@ -127,6 +127,7 @@ public sealed partial class ModEntry : IMod
         Try("TooltipPipeline", TooltipPipeline.Apply);
         Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
         Try("TypeBadge", TypeBadge.Apply);
+        Try("ItemNameLabel", ItemNameLabel.Apply);
     }
 
     public void OnDisable()
@@ -146,6 +147,7 @@ public sealed partial class ModEntry : IMod
         Quiet(TooltipPipeline.Remove);
         Quiet(ConfigSectionRefresh.Remove);
         Quiet(TypeBadge.Remove);
+        Quiet(ItemNameLabel.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);
         _log?.Log("unsubscribed");

@@ -83,6 +83,7 @@ internal static class ModSettings
     private static readonly Toggle DoubleClickInspectToggle = new(true);
     private static readonly Toggle HideEstimateToggle = new(true);
     private static readonly Toggle DimDescriptionToggle = new(true);
+    private static readonly Toggle ItemNameToggle = new(true);       // 容器/机器图标底部常驻名称
 
     internal static void Init(string modId)
     {
@@ -221,6 +222,12 @@ internal static class ModSettings
                      "Renders item descriptions in gray so appraisal information stands out. " +
                      "Color only, no text changes."));
 
+            ItemNameToggle.Define(_cfg, "show_item_name", SecInteractionZh, SecInteractionEn,
+                Text("容器/机器图标显示名称", "Name on Container & Machine Icons"),
+                Text("在容器与机器类物品的图标底部常驻显示物品名，不必悬停。只影响这两类，避免格子里的物品被文字糊住。",
+                     "Shows the item name along the bottom of container and machine icons, without hovering. " +
+                     "Only those two kinds, so ordinary items stay clean."));
+
             _cfg.Save();
 
             // 这里**不读语言**：Init 跑在主菜单早期，而 LocHelper.GetCurrentLocaleCode()
@@ -307,6 +314,7 @@ internal static class ModSettings
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool HideEstimate => HideEstimateToggle.Value;
     internal static bool DimDescription => DimDescriptionToggle.Value;
+    internal static bool ItemName => ItemNameToggle.Value;
 
     /// <summary>
     /// 单个开关：默认值只声明一次，Define 用它注册，Init 之前或失败时也用它兜底。
