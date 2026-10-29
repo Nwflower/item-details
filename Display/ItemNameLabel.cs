@@ -9,7 +9,7 @@ namespace ItemDetails;
 /// <summary>
 /// 物品图标上常驻显示名字（不必悬停）。
 ///
-/// 显示范围由设置决定：无 / 容器名（容器与机器，默认）/ 仅改名物品（用标签打印机改过名的）。
+/// 显示范围由设置决定：无（默认）/ 容器名（容器与机器）/ 仅改名物品（用标签打印机改过名的）。
 ///
 /// 实现要点：
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
@@ -202,7 +202,9 @@ internal static class ItemNameLabel
             if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
             if (want)
             {
-                try { name = element.GetDisplayName() ?? ""; }
+                // preferCustomName：改过名的容器优先显示改后的名字。
+                // 用无参版本会走回 name 字段，标签打印机改的名字被忽略（「我的保险箱」又变回「保险箱」）。
+                try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
                 catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
             }
         }

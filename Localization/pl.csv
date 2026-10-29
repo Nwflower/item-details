@@ -1,4 +1,15 @@
 # Item Details Polski (pl)
+auth.amount,Usterka nominału
+auth.body,Uszkodzenie korpusu
+auth.box,Usterka pudełka
+auth.chip,Usterka chipu
+auth.color,Usterka koloru
+auth.indicator,Usterka wskaźnika
+auth.label,Usterka etykiety
+auth.lettering,Usterka nadruku
+auth.logo,Usterka logo
+auth.seal,Usterka plomby
+auth.serial,Usterka numeru seryjnego
 # key,value
 alert.aug_tier,Poziom augmentacji: {0}
 alert.bounty," (nagroda {0})"
@@ -59,7 +70,7 @@ config.customer_alert.tip,"Powiadamia, gdy przychodzi poszukiwany lub augmentowa
 config.dim_description,Przygaszenie opisu przedmiotu
 config.dim_description.tip,"Wyświetla opisy przedmiotów na szaro, by informacje z wyceny były wyraźniejsze. Tylko kolor, bez zmian tekstu."
 config.double_click_inspect,Dwuklik otwiera wycenę
-config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny otwiera panel wyceny bez lupy. Zmienia tekst podpowiedzi; wyłącz, by wrócić do trybu podstawowej gry."
+config.double_click_inspect.tip,Otwiera panel oględzin przedmiotów do wyceny lub weryfikacji autentyczności (iniektory, papierosy, znaczki itp.) po dwukliku, bez lupy. Zmienia też tekst podpowiedzi; wyłącz, aby przywrócić oryginalny przebieg.
 config.hidden_truth,Ujawnianie kamuflażu i prawdziwych statystyk
 config.hidden_truth.tip,"Pokazuje prawdziwe różnice stanu, rzeczywistą wytrzymałość oraz czystość sztabek/chemikaliów. Wprost zdradza podróbki i ułatwia wycenę."
 config.hide_estimate_value,Ukryj szacunek z podstawowej gry
@@ -88,6 +99,8 @@ config.section.customer,Alerty o klientach
 config.section.display,Wyświetlanie
 config.section.interaction,Obsługa i wygląd
 config.section.reveal,Ujawnianie
+config.type_badge,Etykiety typu
+config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol złote, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
 config.value,Wartość i szczegóły wyceny
 config.value.tip,"Dla przedmiotów do wyceny: łączna wartość, przedział idealnej oferty, rozbicie źródeł i powody podróbki; tytuł wyceny pokazuje też prawdziwą cenę. Nieznane lub modowe typy wyceny używają rozbicia z pomiaru."
 config.value_enhance,Wartość na kratkę (poza wyceną)
@@ -161,10 +174,9 @@ value.perfect_range," | idealnie {0}-{1}"
 value.total,Razem: {0} × {1} = {2}
 value.total_line,Razem: {0}
 water.head,Woda: {0}% {1}
-water.impurities,Zanieczyszczenia {0}%
-water.list_head,": "
+water.impurities,"Zanieczyszczenia: "
 water.mismatch," (niezgodność etykiety)"
-water.none,: brak
+water.none,brak
 water.trace,śladowe (poniżej progu wyświetlania)
 wine.aging,Bonus leżakowania: +{0}/dzień (razem +{1})
 wine.composition,"Skład: ekstrakt {0}‰, zanieczyszczenia {1}‰"
@@ -177,3 +189,8 @@ wine.state,Wino: {0}
 wine.tier,", próg {0}"
 wine.unknown_state,Nieznane({0})
 wine.yeast_power,Moc drożdży: {0}/takt
+config.result_prefill,Wstępne wypełnianie wyniku
+config.result_prefill.tip,Przy otwarciu panelu oględzin zaznacza rzeczywiste wady podróbki i wpisuje najlepszą ofertę wyceny. Wypełnia tylko pola; nigdy nie wysyła ani nie potwierdza. Domyślnie wyłączone.
+config.machine_battery,Bateria maszyny
+config.machine_battery.tip,Pokazuje pozostałą energię zainstalowanej baterii i szacowane dni pracy bezpośrednio pod wierszem dziennego zużycia energii maszyny. Maszyny bez baterii są pomijane.
+machine.battery_line,Pozostała energia: {0} ({1} dni)

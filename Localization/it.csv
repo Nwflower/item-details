@@ -1,4 +1,15 @@
 # Item Details Italiano (it)
+auth.amount,Difetto del valore
+auth.body,Corpo danneggiato
+auth.box,Difetto della confezione
+auth.chip,Difetto del chip
+auth.color,Difetto di colore
+auth.indicator,Difetto dell'indicatore
+auth.label,Difetto dell'etichetta
+auth.lettering,Difetto della scritta
+auth.logo,Difetto del logo
+auth.seal,Difetto del sigillo
+auth.serial,Difetto del numero di serie
 # key,value
 alert.aug_tier,Livello di potenziamento: {0}
 alert.bounty," (taglia {0})"
@@ -59,7 +70,7 @@ config.customer_alert.tip,"Avvisa quando arriva un cliente ricercato o potenziat
 config.dim_description,Attenua la descrizione dell'oggetto
 config.dim_description.tip,"Mostra le descrizioni in grigio per far risaltare le informazioni di perizia. Cambia solo il colore, non il testo."
 config.double_click_inspect,Doppio clic per ispezionare
-config.double_click_inspect.tip,Fai doppio clic su un oggetto da periziare per aprire il pannello senza la lente. Cambia il testo di aiuto; disattivalo per tornare al flusso originale.
+config.double_click_inspect.tip,Apre l'ispezione di oggetti da periziare o autenticare (iniettori, sigarette, francobolli, ecc.) con doppio clic, senza lente. Cambia anche il testo del suggerimento; disattivalo per ripristinare il flusso originale.
 config.hidden_truth,Rivela travestimenti e stat reali
 config.hidden_truth.tip,"Mostra le differenze reali di condizione, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera i falsi e abbassa molto la difficoltà della perizia."
 config.hide_estimate_value,Nascondi la riga di stima del gioco base
@@ -88,6 +99,8 @@ config.section.customer,Avvisi clienti
 config.section.display,Visualizzazione
 config.section.interaction,Interazione e aspetto
 config.section.reveal,Rivelazione
+config.type_badge,Etichette del tipo
+config.type_badge.tip,"Mostra i tipi di oggetto sopra il tooltip come placche colorate con testo bianco: medicina/acqua/droghe/veleni blu, tabacco/alcol oro, lusso rosa, cibo verde, articoli domestici ciano, armi/armature turchese, strumenti/materiali viola, proibito/limitato rosso scuro, altri grigio. Disattivalo per tornare alla riga [tipo] originale."
 config.value,Valore e dati di perizia
 config.value.tip,"Per gli oggetti da periziare: valore totale, intervallo di offerta perfetto, ripartizione per origine e motivi del falso; il titolo della perizia mostra anche il prezzo reale. I tipi di perizia sconosciuti o aggiunti da mod usano una ripartizione misurata."
 config.value_enhance,Valore per cella (non perizia)
@@ -161,10 +174,9 @@ value.perfect_range," | perfetto {0}-{1}"
 value.total,Totale: {0} × {1} = {2}
 value.total_line,Totale: {0}
 water.head,Acqua: {0}% {1}
-water.impurities,Impurità {0}%
-water.list_head,": "
+water.impurities,"Impurità: "
 water.mismatch," (etichetta non corrispondente)"
-water.none,: nessuna
+water.none,nessuna
 water.trace,tracce (sotto la soglia di visualizzazione)
 wine.aging,Bonus di affinamento: +{0}/giorno (totale +{1})
 wine.composition,"Composizione: estratto {0}‰, contaminante {1}‰"
@@ -177,3 +189,8 @@ wine.state,Vino: {0}
 wine.tier,", livello {0}"
 wine.unknown_state,Sconosciuto({0})
 wine.yeast_power,Potenza del lievito: {0}/ciclo
+config.result_prefill,Precompila risultato
+config.result_prefill.tip,All'apertura del pannello di ispezione, seleziona i difetti reali di contraffazione e inserisce la migliore offerta di perizia. Compila solo i controlli; non invia né conferma. Disattivato per impostazione predefinita.
+config.machine_battery,Batteria della macchina
+config.machine_battery.tip,Mostra l'energia rimanente della batteria installata e i giorni stimati direttamente sotto la riga dell'energia giornaliera della macchina. Le macchine senza batteria vengono saltate.
+machine.battery_line,Energia rimanente: {0} ({1} giorni)

@@ -1,4 +1,15 @@
 # Item Details 日本語 (ja)
+auth.amount,額面異常
+auth.body,本体の損傷
+auth.box,箱の異常
+auth.chip,チップ異常
+auth.color,色異常
+auth.indicator,インジケーター異常
+auth.label,ラベル異常
+auth.lettering,印字異常
+auth.logo,ロゴ異常
+auth.seal,封印異常
+auth.serial,シリアル番号異常
 # key,value
 alert.aug_tier,改造体レベル：{0}
 alert.bounty,（懸賞金 {0}）
@@ -59,7 +70,7 @@ config.customer_alert.tip,指名手配犯や改造体の客が来店した時に
 config.dim_description,説明文を暗く
 config.dim_description.tip,アイテム説明をグレー表示にして鑑定情報を目立たせます。色のみ変更しテキストは変えません。
 config.double_click_inspect,ダブルクリックで鑑定
-config.double_click_inspect.tip,鑑定対象をダブルクリックで鑑定パネルを開けます（虫眼鏡不要）。ヒント文も切替。オフでバニラ動作に戻ります。
+config.double_click_inspect.tip,鑑定対象や真偽確認対象（注射器・タバコ・切手など）をダブルクリックで虫眼鏡なしに検査画面へ開きます。ヒント文も変更します。オフで元の操作に戻ります。
 config.hidden_truth,偽装と真の性能を暴露
 config.hidden_truth.tip,偽装前の真の状態差、真の耐久、インゴット/薬品の真の純度を表示。偽物が露見し鑑定が易しくなります。
 config.hide_estimate_value,バニラの推定価格行を隠す
@@ -88,6 +99,8 @@ config.section.customer,客への警告
 config.section.display,表示内容
 config.section.interaction,操作と外観
 config.section.reveal,透視
+config.type_badge,アイテム分類ラベル
+config.type_badge.tip,"ツールチップ上部にアイテム分類を色付きの底板と白文字で表示します：医療/水/薬物/毒は青、煙草/酒は金、奢侈品はピンク、食料は緑、日用品はシアン、武器/防具は青緑、道具/材料は紫、違法/制限は暗赤、その他は灰色。オフにすると元の [分類] 行に戻ります。"
 config.value,価値構成と鑑定情報
 config.value.tip,鑑定品は総額、完璧な提示額レンジ、内訳、偽物の理由を表示。鑑定サービスの見出しには真の価格も付きます。未知やMOD追加の鑑定種別は実測内訳を使います。
 config.value_enhance,マス当たり価値（非鑑定品）
@@ -161,10 +174,9 @@ value.perfect_range," ｜ 完璧 {0}–{1}"
 value.total,総額：{0} × {1} = {2}
 value.total_line,総額：{0}
 water.head,水質：{0}% {1}
-water.impurities,不純物 {0}%
-water.list_head,：
+water.impurities,不純物：
 water.mismatch,（ラベル不一致）
-water.none,：なし
+water.none,なし
 water.trace,微量（表示閾値未満）
 wine.aging,熟成ボーナス：+{0}/日（計 +{1}）
 wine.composition,成分：糖度 {0}‰、汚染物質 {1}‰
@@ -177,3 +189,8 @@ wine.state,ワイン：{0}
 wine.tier,、第 {0} 段階
 wine.unknown_state,不明（{0}）
 wine.yeast_power,酵母の力：{0}/回
+config.result_prefill,結果を事前入力
+config.result_prefill.tip,鑑定パネルを開いたとき、実際の偽造箇所を選択し、鑑定価格に最適な提示額を入力します。入力欄を埋めるだけで、送信や確定は行いません。既定ではオフです。
+config.machine_battery,マシンのバッテリー
+config.machine_battery.tip,搭載バッテリーの残りエネルギーと推定稼働日数を、機械の1日あたりエネルギー行の直下に表示します。バッテリーのない機械は表示しません。
+machine.battery_line,残りエネルギー：{0}（{1}日）

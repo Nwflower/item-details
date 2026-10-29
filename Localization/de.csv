@@ -1,4 +1,15 @@
 # Item Details Deutsch (de)
+auth.amount,Wertfehler
+auth.body,Gehäuseschaden
+auth.box,Schachtelfehler
+auth.chip,Chipfehler
+auth.color,Farbfehler
+auth.indicator,Indikatorfehler
+auth.label,Etikettenfehler
+auth.lettering,Beschriftungsfehler
+auth.logo,Logofehler
+auth.seal,Versiegelungsfehler
+auth.serial,Seriennummerfehler
 # key,value
 alert.aug_tier,Augmentierungsstufe: {0}
 alert.bounty," (Kopfgeld {0})"
@@ -59,7 +70,7 @@ config.customer_alert.tip,"Meldet gesuchte oder augmentierte Kunden bei Ankunft,
 config.dim_description,Artikelbeschreibung abdunkeln
 config.dim_description.tip,"Zeigt Artikelbeschreibungen grau, damit die Schätzinfos herausstechen. Nur Farbe, kein Text geändert."
 config.double_click_inspect,Doppelklick zum Prüfen
-config.double_click_inspect.tip,Doppelklick auf einen Schätzartikel öffnet das Schätzfenster ohne Lupe. Ändert den Hinweistext; ausschalten stellt den Standardablauf wieder her.
+config.double_click_inspect.tip,Öffnet Prüf- und Schätzobjekte (Injektoren, Zigaretten, Marken usw.) per Doppelklick ohne Lupe. Ändert auch den Hinweistext; deaktivieren stellt den Originalablauf wieder her.
 config.hidden_truth,Tarnung & echte Werte zeigen
 config.hidden_truth.tip,"Zeigt echte Zustandsunterschiede, echte Haltbarkeit und Barren-/Chemikalienreinheit. Entlarvt Fälschungen direkt und senkt die Schätzschwierigkeit."
 config.hide_estimate_value,Schätzzeile des Basisspiels ausblenden
@@ -88,6 +99,8 @@ config.section.customer,Kundenwarnungen
 config.section.display,Anzeige
 config.section.interaction,Bedienung & Optik
 config.section.reveal,Einblick
+config.type_badge,Artikeltyp-Labels
+config.type_badge.tip,"Zeigt die Artikeltypen über dem Tooltip als farbige Platten mit weißer Schrift: Medizin/Wasser/Drogen/Gifte blau, Tabak/Alkohol gold, Luxus rosa, Essen grün, Haushaltswaren cyan, Waffen/Rüstung türkis, Werkzeuge/Materialien violett, verboten/eingeschränkt dunkelrot, sonst grau. Aus: ursprüngliche [Typ]-Zeile im Tooltip."
 config.value,Wert & Schätz-Details
 config.value.tip,"Bei Schätzartikeln: Gesamtwert, perfekte Angebotsspanne, Quellenaufschlüsselung und Fälschungsgründe; der Schätztitel zeigt auch den echten Preis. Unbekannte oder gemoddete Schätzarten nutzen eine gemessene Aufschlüsselung."
 config.value_enhance,Wert pro Feld (ohne Schätzung)
@@ -161,10 +174,9 @@ value.perfect_range," | perfekt {0}-{1}"
 value.total,Gesamt: {0} × {1} = {2}
 value.total_line,Gesamt: {0}
 water.head,Wasser: {0}% {1}
-water.impurities,Verunreinigungen {0}%
-water.list_head,": "
+water.impurities,"Verunreinigungen: "
 water.mismatch," (Etikett passt nicht)"
-water.none,: keine
+water.none,keine
 water.trace,Spur (unter der Anzeigeschwelle)
 wine.aging,Reifebonus: +{0}/Tag (gesamt +{1})
 wine.composition,"Zusammensetzung: Extrakt {0}‰, Schadstoff {1}‰"
@@ -177,3 +189,8 @@ wine.state,Wein: {0}
 wine.tier,", Stufe {0}"
 wine.unknown_state,Unbekannt({0})
 wine.yeast_power,Hefestärke: {0}/Tick
+config.result_prefill,Ergebnis vorausfüllen
+config.result_prefill.tip,Füllt beim Öffnen der Prüfansicht die tatsächlichen Fälschungsmerkmale und den besten Schätzpreis vor. Es werden nur die Bedienelemente ausgefüllt, nichts wird gesendet oder bestätigt. Standardmäßig aus.
+config.machine_battery,Maschinenbatterie
+config.machine_battery.tip,Zeigt die Restenergie der eingelegten Batterie und die geschätzten Betriebstage direkt unter der täglichen Energiezeile der Maschine. Maschinen ohne Batterie werden übersprungen.
+machine.battery_line,Restenergie: {0} ({1} Tage)

@@ -1,4 +1,15 @@
 # Item Details Português (Brasil) (ptbr)
+auth.amount,Defeito no valor
+auth.body,Corpo danificado
+auth.box,Defeito na caixa
+auth.chip,Defeito no chip
+auth.color,Defeito na cor
+auth.indicator,Defeito no indicador
+auth.label,Defeito no rótulo
+auth.lettering,Defeito na impressão
+auth.logo,Defeito no logotipo
+auth.seal,Defeito no selo
+auth.serial,Defeito no número de série
 # key,value
 alert.aug_tier,Nível de aumento: {0}
 alert.bounty," (recompensa {0})"
@@ -59,7 +70,7 @@ config.customer_alert.tip,"Avisa quando chega um cliente procurado ou aumentado,
 config.dim_description,Escurecer descrição do item
 config.dim_description.tip,"Exibe as descrições dos itens em cinza para destacar as informações de avaliação. Só muda a cor, não o texto."
 config.double_click_inspect,Clique duplo para inspecionar
-config.double_click_inspect.tip,Dê clique duplo em um item de avaliação para abrir o painel sem a lupa. Altera o texto da dica; desative para voltar ao fluxo do jogo base.
+config.double_click_inspect.tip,Abre a inspeção de itens de avaliação ou autenticidade (injetores, cigarros, selos etc.) com clique duplo, sem lupa. Também altera o texto de ajuda; desative para restaurar o fluxo original.
 config.hidden_truth,Revelar disfarces e atributos reais
 config.hidden_truth.tip,"Mostra as diferenças reais de estado, a durabilidade real e a pureza de lingotes/produtos químicos. Expõe falsificações diretamente e reduz a dificuldade da avaliação."
 config.hide_estimate_value,Ocultar linha de estimativa do jogo base
@@ -88,6 +99,8 @@ config.section.customer,Alertas de clientes
 config.section.display,Exibição
 config.section.interaction,Interação e visual
 config.section.reveal,Revelação
+config.type_badge,Etiquetas de tipo
+config.type_badge.tip,"Mostra os tipos do item acima da dica como placas coloridas com texto branco: medicina/água/drogas/venenos azul, tabaco/álcool dourado, luxo rosa, comida verde, artigos domésticos ciano, armas/armadura turquesa, ferramentas/materiais roxo, proibido/restrito vermelho escuro, outros cinza. Desative para voltar à linha [tipo] original."
 config.value,Detalhes de valor e avaliação
 config.value.tip,"Em itens de avaliação: valor total, faixa de oferta perfeita, detalhamento por origem e motivos de falsificação; o título da avaliação também mostra o preço real. Tipos de avaliação desconhecidos ou de mods usam um detalhamento medido."
 config.value_enhance,Valor por célula (não avaliação)
@@ -161,10 +174,9 @@ value.perfect_range," | perfeito {0}-{1}"
 value.total,Total: {0} × {1} = {2}
 value.total_line,Total: {0}
 water.head,Água: {0}% {1}
-water.impurities,Impurezas {0}%
-water.list_head,": "
+water.impurities,"Impurezas: "
 water.mismatch," (rótulo não confere)"
-water.none,: nenhum
+water.none,nenhum
 water.trace,traço (abaixo do limite de exibição)
 wine.aging,Bônus de envelhecimento: +{0}/dia (total +{1})
 wine.composition,"Composição: extrato {0}‰, contaminante {1}‰"
@@ -177,3 +189,8 @@ wine.state,Vinho: {0}
 wine.tier,", faixa {0}"
 wine.unknown_state,Desconhecido({0})
 wine.yeast_power,Força da levedura: {0}/ciclo
+config.result_prefill,Preencher resultado
+config.result_prefill.tip,Ao abrir o painel de inspeção, marca os defeitos reais de falsificação e preenche a melhor oferta de avaliação. Apenas preenche os controles; nunca envia nem confirma. Desativado por padrão.
+config.machine_battery,Bateria da máquina
+config.machine_battery.tip,Mostra a energia restante da bateria instalada e os dias estimados diretamente abaixo da linha de energia diária da máquina. Máquinas sem bateria são ignoradas.
+machine.battery_line,Energia restante: {0} ({1} dias)

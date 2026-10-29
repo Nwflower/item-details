@@ -64,6 +64,11 @@ internal static class StorageInfo
             try { isMachine = item.IsGameItemType("MACHINE"); } catch { }
             if (isMachine) return lines;
 
+            // 上锁容器必须交给 SealedBoxInfo 的独立透视开关。
+            // 这里只按 contentWindow 判断容器；保险箱（LOCK_TYPE）和物资箱
+            // （LOCKED_CONTAINER_TAG + LOCK_STATUS）都要排除，解锁后恢复普通显示。
+            if (LockedContainer.IsLocked(item)) return lines;
+
             AddRatio(item, grid, lines);
             AddContents(grid, lines);
 

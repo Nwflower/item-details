@@ -49,10 +49,7 @@ internal static class SealedBoxInfo
         {
             if (item == null) return lines;
 
-            bool locked;
-            try { locked = item.IsTag("LOCK_TYPE"); }
-            catch { return lines; }
-            if (!locked) return lines;
+            if (!LockedContainer.IsLocked(item)) return lines;
 
             GameGridInventory? grid = null;
             try

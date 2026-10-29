@@ -1,4 +1,15 @@
 # Item Details Français (fr)
+auth.amount,Défaut de valeur
+auth.body,Corps endommagé
+auth.box,Défaut de boîte
+auth.chip,Défaut de puce
+auth.color,Défaut de couleur
+auth.indicator,Défaut d’indicateur
+auth.label,Défaut d’étiquette
+auth.lettering,Défaut d’inscription
+auth.logo,Défaut de logo
+auth.seal,Défaut de scellé
+auth.serial,Défaut de numéro de série
 # key,value
 alert.aug_tier,Niveau d'augmentation: {0}
 alert.bounty," (prime {0})"
@@ -59,7 +70,7 @@ config.customer_alert.tip,"Alerte quand un client recherché ou augmenté arrive
 config.dim_description,Description atténuée
 config.dim_description.tip,"Affiche les descriptions en gris pour faire ressortir l'expertise. Couleur seulement, aucun texte modifié."
 config.double_click_inspect,Double-clic pour expertiser
-config.double_click_inspect.tip,Double-cliquez un objet à expertiser pour ouvrir le panneau sans loupe. Modifie le texte d'aide; désactivez pour revenir au flux d'origine.
+config.double_click_inspect.tip,Ouvre l’inspection des objets à expertiser ou à authentifier (injecteurs, cigarettes, timbres, etc.) par double-clic, sans loupe. Modifie aussi le texte d’aide ; désactivez pour revenir au flux d’origine.
 config.hidden_truth,Révéler déguisements et vraies stats
 config.hidden_truth.tip,"Affiche les vrais écarts d'état, la vraie durabilité et la pureté réelle des lingots/produits chimiques. Expose les faux et baisse la difficulté d'expertise."
 config.hide_estimate_value,Masquer la ligne d'estimation d'origine
@@ -88,6 +99,8 @@ config.section.customer,Alertes clients
 config.section.display,Affichage
 config.section.interaction,Interaction et affichage
 config.section.reveal,Révélation
+config.type_badge,Étiquettes de type
+config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool doré, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
 config.value,Valeur et détails d'expertise
 config.value.tip,"Pour les objets à expertiser: valeur totale, fourchette d'offre parfaite, détail des sources et raisons de contrefaçon; le titre d'expertise affiche aussi le vrai prix. Types inconnus ou moddés: décomposition mesurée."
 config.value_enhance,Valeur par case (hors expertise)
@@ -161,10 +174,9 @@ value.perfect_range," | parfait {0}-{1}"
 value.total,Total: {0} × {1} = {2}
 value.total_line,Total: {0}
 water.head,Eau: {0}% {1}
-water.impurities,Impuretés {0}%
-water.list_head,": "
+water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
-water.none,: aucun
+water.none,aucune
 water.trace,trace (sous le seuil d'affichage)
 wine.aging,Bonus de vieillissement: +{0}/jour (total +{1})
 wine.composition,"Composition: extrait {0}‰, contaminant {1}‰"
@@ -177,3 +189,8 @@ wine.state,Vin: {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu({0})
 wine.yeast_power,Force de la levure: {0}/cycle
+config.result_prefill,Préremplir le résultat
+config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les défauts réels de contrefaçon et remplit la meilleure offre d'expertise. Remplit uniquement les contrôles ; ne valide jamais. Désactivé par défaut.
+config.machine_battery,Batterie de machine
+config.machine_battery.tip,Affiche l'énergie restante de la batterie installée et les jours estimés directement sous la ligne d'énergie quotidienne de la machine. Les machines sans batterie sont ignorées.
+machine.battery_line,Énergie restante : {0} ({1} jours)

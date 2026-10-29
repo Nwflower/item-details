@@ -27,7 +27,7 @@ internal static class WaterInfo
     internal const int PurityGood = 9800;
     internal const int PurityFair = 9000;
 
-    /// <summary>杂质显示下限：低于此值的量按 "0.#" 会显示成 0ml，直接不列。</summary>
+    /// <summary>杂质显示下限：低于此值的量在两位小数下通常只剩 0.00%，直接不列。</summary>
     internal const int MinVisibleParts = 50;
 
     internal sealed class Result

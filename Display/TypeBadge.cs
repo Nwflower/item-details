@@ -8,14 +8,18 @@ using UnityEngine.UI;
 namespace ItemDetails;
 
 /// <summary>
-/// 物品分类显示成 tooltip 上方的一排独立小框（每个分类一个框），
+/// 物品分类显示成 tooltip 上方的一排独立小标签（每个分类一个），
 /// 不再占用 tooltip 正文的第一行。
 ///
 /// 设计要点：
-///   - 分类来源全部走游戏数据：GetGameItemType() + TypeHelper.GetTypeDisplayName()；
-///     文字配色走 TypeHelper.GetTypeColor()（医疗/奢侈品/工具/武器等各有原版颜色），
-///     不硬编码任何类型名与色值。
-///   - 底板从 tooltip 自身的 Image 克隆，保持圆角与描边风格一致。
+///   - 分类来源全部走游戏数据：GetGameItemType() + TypeHelper.GetTypeDisplayName()。
+///   - 所有分类统一“有色实底 + 白字 + 浅色描边”，颜色按语义分组：
+///     医疗/水/药物蓝、烟酒金、奢侈品粉、食物绿、日用品青、
+///     武器/护甲青绿、工具/材料紫、违禁/受限暗红、其余灰色。
+///     底板必须使用无 sprite 的纯白 quad；复用 tooltip 的深色花纹 sprite 会乘色，
+///     把粉色/灰色压成暗红/棕色。
+///   - 开关：设置里的「物品分类标签」（`show_type_badge`）。关闭后本模块不再抑制
+///     原版正文里的「[类型]」，也不会创建标签，等于完全回到原版。
 ///   - 显隐跟随 OverlayHandler.ShowTooltip / HideTooltip。
 ///   - 记录时机在 GetTooltipBasic 前缀（见 TooltipPipeline.BasicPrefix）：原版分类行在
 ///     构建早期就写进正文，晚了既抑制不到，也会让浮窗用到上一件物品的残留。
@@ -57,7 +61,7 @@ internal static class TypeBadge
     private const string HarmonyId = "item_details.type_badge";
     private const string BadgeName = "ItemDetailsTypeBadge";
     private const float ChipGap = 4f;
-    private const float PadX = 6f;
+    private const float PadX = 6f;    // 带底板时左右留白，避免文字贴边
     private const float PadY = 2f;
     private const float StaleSeconds = 0.5f;
 
@@ -70,7 +74,6 @@ internal static class TypeBadge
     private static bool _patched;
     private static Harmony? _harmony;
     private static GameObject? _badge;          // 容器（无渲染组件）
-    private static Image? _chipTemplate;        // 底板模板（tooltip 自身背景）
     private static TMP_Text? _textTemplate;     // 文本模板
 
     private static readonly List<Entry> Pending = new();
@@ -150,6 +153,8 @@ internal static class TypeBadge
         {
             Pending.Clear();
             _pendingAt = UnityEngine.Time.unscaledTime;
+            // 开关关闭：不记录分类，也就不会抑制原版正文里的「[类型]」。
+            if (!ModSettings.TypeBadge) return;
             if (item == null) return;
 
             var types = item.GetGameItemType();
@@ -180,6 +185,7 @@ internal static class TypeBadge
     {
         try
         {
+            if (!ModSettings.TypeBadge) return true;   // 关闭后放行原版「[类型]」
             if (!TooltipPipeline.IsBuilding || Pending.Count == 0) return true;
             if (_textTemplate == null) return true;   // 还渲染不了浮窗时不要删掉原版分类行
             if (string.IsNullOrEmpty(__0)) return true;
@@ -200,6 +206,8 @@ internal static class TypeBadge
         bool laidOut = false;
         try
         {
+            if (!ModSettings.TypeBadge) { Hide(); return; }
+
             // 超过 StaleSeconds 没有重新构建，说明这是缓存 tooltip，分类可能过期——不显示
             if (Pending.Count == 0 || UnityEngine.Time.unscaledTime - _pendingAt > StaleSeconds)
             {
@@ -274,16 +282,10 @@ internal static class TypeBadge
         var parent = tooltipRect.parent;
         if (parent == null) return false;
 
-        // Unity 的"假 null"：界面重建后这些引用会变成已销毁对象，必须重新取
+        // Unity 的"假 null"：界面重建后这些引用会变成已销毁对象，必须重新取。
         if (_textTemplate == null)
-        {
             _textTemplate = tooltipRect.GetComponentInChildren<TMP_Text>(true);
-            _chipTemplate = null;          // 与文本模板同源，一起失效
-        }
         if (_textTemplate == null) { Log.Warn("TypeBadge.Template", "tooltip 内未找到 TMP 文本"); return false; }
-
-        if (_chipTemplate == null)
-            _chipTemplate = FindBackgroundTemplate(tooltipRect);
 
         if (_badge == null)
         {
@@ -298,7 +300,7 @@ internal static class TypeBadge
         var container = _badge.GetComponent<RectTransform>();
 
         // tooltip 每次重建都会走到这里。分类没变时整排复用，避免反复 Instantiate/Destroy；
-        // 分类变化时也只增减必要节点，并更新现有 Image/TMP。
+        // 分类变化时也只增减必要节点，并更新现有 TMP。
         if (container.parent == parent && ReferenceEquals(_builtParent, parent)
             && container.childCount == Pending.Count && SameContent())
             return true;
@@ -373,46 +375,23 @@ internal static class TypeBadge
         return true;
     }
 
-    private static Image? FindBackgroundTemplate(RectTransform tooltipRect)
-    {
-        try
-        {
-            Image? best = null;
-            foreach (var img in tooltipRect.GetComponentsInChildren<Image>(true))
-            {
-                if (img == null || img.sprite == null) continue;
-                if (img.gameObject.name == BadgeName) continue;
-                if (best == null ||
-                    img.rectTransform.rect.width * img.rectTransform.rect.height >
-                    best.rectTransform.rect.width * best.rectTransform.rect.height)
-                    best = img;
-            }
-            return best;
-        }
-        catch { return null; }
-    }
-
-    /// <summary>一个分类框：底板（克隆 tooltip 背景）+ 居中文字（颜色取游戏类型色）。</summary>
+    /// <summary>一个分类标签：纯色底 + 白字 + 浅色描边。</summary>
     private static GameObject? CreateChip(Entry e)
     {
         GameObject chip;
         try
         {
-            if (_chipTemplate != null && _chipTemplate.sprite != null)
+            chip = new GameObject(BadgeName + "_Chip", typeof(RectTransform), typeof(Image));
+            var img = chip.GetComponent<Image>();
+            if (img != null)
             {
-                chip = UnityEngine.Object.Instantiate(_chipTemplate.gameObject);
-                chip.name = BadgeName + "_Chip";
-                for (int i = chip.transform.childCount - 1; i >= 0; i--)
-                    try { UnityEngine.Object.Destroy(chip.transform.GetChild(i).gameObject); } catch { }
-                var img0 = chip.GetComponent<Image>();
-                if (img0 != null) img0.raycastTarget = false;
-            }
-            else
-            {
-                chip = new GameObject(BadgeName + "_Chip", typeof(RectTransform), typeof(Image));
-                var img1 = chip.GetComponent<Image>();
-                img1.color = new Color(0.16f, 0.14f, 0.20f, 0.95f);
-                img1.raycastTarget = false;
+                // 不使用 tooltip 的深色花纹 sprite：Image.color 会与纹理相乘，
+                // 导致粉色/灰色整体变暗偏红。sprite=null 时 UI 使用白色 1x1 纹理，
+                // 颜色就是这里的 bg 本身。
+                img.sprite = null;
+                img.type = Image.Type.Simple;
+                img.fillCenter = true;
+                img.raycastTarget = false;
             }
         }
         catch (Exception ex)
@@ -437,8 +416,8 @@ internal static class TypeBadge
         tr.anchorMin = Vector2.zero;
         tr.anchorMax = Vector2.one;
         tr.pivot = new Vector2(0.5f, 0.5f);
-        tr.offsetMin = new Vector2(1f, PadY * 0.5f);
-        tr.offsetMax = new Vector2(-1f, -PadY * 0.5f);
+        tr.offsetMin = new Vector2(2f, PadY * 0.5f);
+        tr.offsetMax = new Vector2(-2f, -PadY * 0.5f);
 
         ConfigureChip(chip, e);
         return chip;
@@ -446,15 +425,22 @@ internal static class TypeBadge
 
     private static void ConfigureChip(GameObject chip, Entry e)
     {
-        // 配色：类型色作背景，文字白色；背景过亮时文字转黑
-        Color bg = new Color(0.16f, 0.14f, 0.20f, 0.95f);
-        try { bg = TypeHelper.GetTypeColor(e.TypeConst); } catch { }
-        bg.a = 1f;
+        // 所有分类统一“有色实底 + 白字 + 浅色描边”，不再沿用游戏类型色。
+        // 颜色按语义分组：医疗/水/药物蓝、烟酒金、奢侈品粉、食物绿、
+        // 日用品青、武器/护甲青绿、工具/材料紫，违禁/受限暗红，其余灰色。
+        ChipColors(e.TypeConst, out Color bg, out Color border);
+        Color fg = Color.white;
 
-        var chipImage = chip.GetComponent<Image>();
-        if (chipImage != null) chipImage.color = bg;
+        var img = chip.GetComponent<Image>();
+        if (img != null)
+        {
+            img.sprite = null;
+            img.type = Image.Type.Simple;
+            img.fillCenter = true;
+            img.color = bg;
+            img.raycastTarget = false;
+        }
 
-        Color fg = Luminance(bg) > 0.6f ? Color.black : Color.white;
         var tmp = chip.GetComponentInChildren<TMP_Text>(true);
         if (tmp != null)
         {
@@ -468,14 +454,103 @@ internal static class TypeBadge
             if (tmp.text != e.Display) tmp.text = e.Display;
         }
 
-        // 边框与文字同色
         var outline = chip.GetComponent<Outline>();
         if (outline == null) outline = chip.AddComponent<Outline>();
         if (outline != null)
         {
-            outline.effectColor = fg;
+            outline.effectColor = border;
             outline.effectDistance = new Vector2(1f, 1f);
             outline.useGraphicAlpha = false;
+        }
+    }
+
+    private static readonly Color BlueBg = new Color32(21, 101, 192, 250);
+    private static readonly Color BlueBorder = new Color32(115, 192, 255, 255);
+    private static readonly Color PinkBg = new Color32(196, 44, 122, 250);
+    private static readonly Color PinkBorder = new Color32(255, 154, 213, 255);
+    private static readonly Color GoldBg = new Color32(122, 90, 22, 250);
+    private static readonly Color GoldBorder = new Color32(242, 210, 122, 255);
+    private static readonly Color CyanBg = new Color32(0, 124, 145, 250);
+    private static readonly Color CyanBorder = new Color32(92, 225, 242, 255);
+    private static readonly Color FoodGreenBg = new Color32(46, 125, 50, 250);
+    private static readonly Color FoodGreenBorder = new Color32(130, 217, 139, 255);
+    private static readonly Color WeaponTealBg = new Color32(0, 105, 92, 250);
+    private static readonly Color WeaponTealBorder = new Color32(99, 216, 204, 255);
+    private static readonly Color PurpleBg = new Color32(85, 58, 133, 250);
+    private static readonly Color PurpleBorder = new Color32(195, 166, 255, 255);
+    private static readonly Color WarningBg = new Color32(87, 26, 28, 250);
+    private static readonly Color WarningBorder = new Color32(255, 148, 133, 255);
+    private static readonly Color NeutralBg = new Color32(85, 85, 85, 250);
+    private static readonly Color NeutralBorder = new Color32(192, 192, 192, 255);
+
+    private static void ChipColors(string typeConst, out Color bg, out Color border)
+    {
+        switch ((typeConst ?? "").ToUpperInvariant())
+        {
+            case "CONTRABAND":
+            case "RESTRICTED_1":
+            case "RESTRICTED_2":
+            case "RESTRICTED_3":
+                bg = WarningBg; border = WarningBorder; return;
+
+            case "MEDICAL":
+            case "MEDICAL_TOOL":
+            case "ORGAN":
+            case "WATER":
+            case "WATER_RATION":
+            case "WATER_PURIFICATION_SUPPLY":
+            case "SUBSTANCE":
+            case "POISON":
+                bg = BlueBg; border = BlueBorder; return;
+
+            case "LUXURY_ITEM":
+            case "ART":
+                bg = PinkBg; border = PinkBorder; return;
+
+            case "ALCOHOL":
+            case "NARCOTIC":
+                bg = GoldBg; border = GoldBorder; return;
+
+            case "HOUSEHOLD_GOOD":
+                bg = CyanBg; border = CyanBorder; return;
+
+            case "FOOD":
+            case "FRESH_FOOD":
+            case "PROCESSED_FOOD":
+            case "TREAT":
+            case "BREVAGE":
+            case "FARMING_SUPPLIES":
+            case "SEED":
+            case "MODIFIED_SEED":
+                bg = FoodGreenBg; border = FoodGreenBorder; return;
+
+            case "WEAPON":
+            case "MELEE_WEAPON":
+            case "FIREARM":
+            case "MODDABLE":
+            case "GUN_MOD":
+            case "AMMUNITION":
+            case "MUNITION":
+            case "ARMOR":
+                bg = WeaponTealBg; border = WeaponTealBorder; return;
+
+            case "TOOL":
+            case "MACHINE":
+            case "MATERIAL":
+            case "BASIC_MATERIAL":
+            case "REFINED_MATERIAL":
+            case "ENERGY_CELL":
+            case "MODULE":
+            case "NODE":
+            case "HYDROPONIC_MODULE":
+            case "ALARM_MODULE":
+            case "PRINTER_MODULE":
+            case "EVAPORATOR_MODULE":
+            case "FILTER":
+                bg = PurpleBg; border = PurpleBorder; return;
+
+            default:
+                bg = NeutralBg; border = NeutralBorder; return;
         }
     }
 
@@ -505,7 +580,6 @@ internal static class TypeBadge
     }
 
     /// <summary>感知亮度（0..1），用于决定文字用白还是黑。</summary>
-    private static float Luminance(Color c) => 0.299f * c.r + 0.587f * c.g + 0.114f * c.b;
     private static void Hide()
     {
         try { if (_badge != null) _badge.SetActive(false); } catch { }
@@ -515,7 +589,6 @@ internal static class TypeBadge
     {
         try { if (_badge != null) UnityEngine.Object.Destroy(_badge); } catch { }
         _badge = null;
-        _chipTemplate = null;
         _textTemplate = null;
         _builtParent = null;
         Pending.Clear();

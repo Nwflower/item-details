@@ -207,13 +207,11 @@ public sealed partial class ModEntry
         if (!r.HasData) return false;
 
         double purityPct = r.Purity / 100.0;
-        int impurity = WaterInfo.ImpurityPermille(r);
-        double impurityPct = impurity / 100.0;
 
-        // 第一行：实测纯度 + 游戏档位名。
+        // 第一行：实测纯度 + 游戏档位名；水相关百分比统一两位小数。
         // 标签行由 LabelImpact 原样输出，此处不重复标签信息。
         string head = Loc.T("water.head", "Water: {0}% {1}",
-            purityPct.ToString("0.#"), r.Tier);
+            purityPct.ToString("0.00"), r.Tier);
 
         var headColor = r.Purity >= WaterInfo.PurityGood ? RenderHandler.ColorPalette.LightGreen
                       : r.Purity >= WaterInfo.PurityFair ? RenderHandler.ColorPalette.LightYellow
@@ -229,30 +227,33 @@ public sealed partial class ModEntry
             builder.Add(Loc.T("water.mismatch", " (label mismatch)"), RenderHandler.ColorPalette.Gray);
         builder.NextLine();
 
-        // 第二行：杂质构成
+        // 第二行：逐项杂质占比（不显示总杂质百分比和 ml）。
         var sb = new StringBuilder();
-        sb.Append(Loc.T("water.impurities", "Impurities {0}%", impurityPct.ToString("0.#")));
-        if (r.Impurities.Count == 0)
+        sb.Append(Loc.T("water.impurities", "Impurities: "));
+        bool any = false;
+        for (int i = 0; i < r.Impurities.Count; i++)
         {
-            sb.Append(Loc.T("water.none", ": none"));
+            var part = r.Impurities[i];
+            if (part.Parts < WaterInfo.MinVisibleParts) continue;
+
+            double partPct = part.Parts * 100.0 / r.TotalParts;
+            // 两位小数下会显示成 0.00% 的项不列，避免“有杂质但看起来是 0”。
+            if (partPct < 0.005) continue;
+
+            if (any) sb.Append(' ');
+            any = true;
+            sb.Append(part.Name).Append(' ').Append(partPct.ToString("0.00")).Append('%');
         }
-        else
+        if (!any)
         {
-            // 只列非零杂质：少于 MinVisibleParts 的按 0.# 显示会变成 "0ml"，直接跳过
-            sb.Append(Loc.T("water.list_head", ": "));
-            bool any = false;
-            for (int i = 0; i < r.Impurities.Count; i++)
-            {
-                if (r.Impurities[i].Parts < WaterInfo.MinVisibleParts) continue;
-                if (any) sb.Append(Loc.T("list.sep", ", "));
-                any = true;
-                sb.Append(r.Impurities[i].Name).Append(' ').Append(WaterInfo.Ml(r.Impurities[i].Parts)).Append("ml");
-            }
-            if (!any) sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
+            if (r.Impurities.Count == 0) sb.Append(Loc.T("water.none", "none"));
+            else sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
         }
 
         AddLine(builder, sb.ToString(),
-            impurity == 0 ? RenderHandler.ColorPalette.LightGreen : RenderHandler.ColorPalette.LightRed);
+            r.TotalParts == r.WaterParts
+                ? RenderHandler.ColorPalette.LightGreen
+                : RenderHandler.ColorPalette.LightRed);
         return true;
     }
 

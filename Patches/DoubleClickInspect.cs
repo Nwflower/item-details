@@ -55,8 +55,23 @@ internal static class DoubleClickInspect
                 Log.Warn("DoubleClick.Apply", "未找到 CreateInspectableTooltip，放大镜提示行将保留");
             }
 
+            // 复用游戏自己的双击判定：它已经校验了“同一物品 + 时间阈值 + 鼠标未拖动”。
+            // 旧 ticker 在第二次按下时重新 Raycast，第一次点击若引起选中/拖动/格子重建，
+            // 第二次就可能取不到同一件物品，表现为双击偶发失效。
+            var nativeDouble = AccessTools.Method(typeof(ItemMouseDoubleClickHandler), "DoubleClickAction",
+                new[] { typeof(GameItem), typeof(Vector2) });
+            if (nativeDouble != null)
+            {
+                _harmony.Patch(nativeDouble,
+                    prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
+            }
+            else
+            {
+                Log.Warn("DoubleClick.Apply", "未找到 ItemMouseDoubleClickHandler.DoubleClickAction，保留 ticker 兜底");
+            }
+
             _patched = true;
-            Log.Msg("DoubleClickInspect: patched CreateAppraisalTooltip + CreateInspectableTooltip");
+            Log.Msg("DoubleClickInspect: patched CreateAppraisalTooltip + CreateInspectableTooltip + DoubleClickAction");
         }
         catch (Exception ex)
         {
@@ -79,16 +94,45 @@ internal static class DoubleClickInspect
         _go = null;
     }
 
-    /// <summary>跳过原版「可使用放大镜进行检查」（仅鉴定物品且双击功能开启时）。</summary>
-    private static bool InspectablePrefix(GameItem item)
+    /// <summary>
+    /// 跳过原版「可使用放大镜进行检查」。价格鉴定的提示由 TipPrefix 写；
+    /// 真伪鉴定/其它可检视物品在这里补同样的双击提示。
+    /// </summary>
+    private static bool InspectablePrefix(RichTextBuilder builder, GameItem item)
     {
         try
         {
             if (!ModSettings.DoubleClickInspect) return true;
             if (item == null) return true;
-            return !GameRead.IsTag(item, "APPRAISAL_ITEM");
+
+            // 价格鉴定走 CreateAppraisalTooltip，由 TipPrefix 统一写提示，避免重复。
+            if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
+
+            if (!IsInspectableItem(item)) return true;
+
+            if (builder != null)
+            {
+                builder.AddLine(
+                    Loc.T("hint.double_click",
+                        "Double-click to inspect; double-click another item to switch"),
+                    true, RenderHandler.ColorPalette.LightOrange);
+            }
+            return false;
         }
         catch { return true; }
+    }
+
+    /// <summary>价格鉴定、真伪鉴定和其它 INSPECTABLE 物品都允许双击打开检视面板。</summary>
+    private static bool IsInspectableItem(GameItem? item)
+    {
+        if (item == null) return false;
+        try
+        {
+            if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return true;
+            if (GameRead.IsTag(item, "INSPECTABLE_TAG")) return true;
+            return Authenticity.DetectKind(item) != Authenticity.ItemKind.None;
+        }
+        catch { return false; }
     }
 
     /// <summary>返回 false 表示接管原方法，自己写提示行。</summary>
@@ -124,6 +168,52 @@ internal static class DoubleClickInspect
     }
 
     // ---------------- 双击检测 ----------------
+
+    /// <summary>
+    /// 游戏原生双击判定的接管点。与原版共用“同一物品 + 时间窗口 + 未拖动”的判定，
+    /// 不再在第二次按下时重新 Raycast；返回 false 表示不再执行游戏的双击动作。
+    /// </summary>
+    private static bool NativeDoubleClickPrefix(GameItem newItem, Vector2 mousePosition)
+    {
+        try
+        {
+            if (!ModSettings.DoubleClickInspect) return true;
+            if (!IsInspectableItem(newItem)) return true;
+            if (ItemPinHelper.BlocksClicks) return true;
+
+            // 可检视物品的双击必须由本功能消费，即使面板初始化失败也不能
+            // 回落到原版 ClickAction（商店里会变成购买/激活）。失败时宁可不响应。
+            TryInspect(newItem, "native");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("DoubleClick.Native", ex);
+            return true;
+        }
+    }
+
+    /// <summary>打开鉴定面板；成功（含已经打开同一件）返回 true。</summary>
+    private static bool TryInspect(GameItem item, string source)
+    {
+        try
+        {
+            var insp = InspectionUIManager.Instance;
+            if (insp == null) return false;
+
+            var current = insp.currentInspectingItem;
+            if (ReferenceEquals(current, item)) return true;   // 不重复重置正在查看的同一件物品
+
+            insp.OnInspectItem(item);
+            Log.Msg($"DoubleClickInspect: {source} -> {GameRead.ItemName(item)}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("DoubleClick.Inspect", ex);
+            return false;
+        }
+    }
 
     internal static void Install()
     {
@@ -165,7 +255,7 @@ internal static class DoubleClickInspect
                 if (ItemPinHelper.BlocksClicks) return;
 
                 var item = RenderHandler.RaycastElement<GameItem>(Input.mousePosition);
-                if (item == null || !GameRead.IsTag(item, "APPRAISAL_ITEM"))
+                if (item == null || !IsInspectableItem(item))
                 {
                     _lastItem = null;
                     return;
@@ -177,29 +267,11 @@ internal static class DoubleClickInspect
                 _lastClickTime = now;
                 if (!twice) return;
 
-                Inspect(item);
+                TryInspect(item, "ticker");
             }
             catch (Exception ex)
             {
                 Log.Warn("DoubleClick.Tick", ex);
-            }
-        }
-
-        private static void Inspect(GameItem item)
-        {
-            try
-            {
-                var insp = InspectionUIManager.Instance;
-                if (insp == null) return;
-
-                var current = insp.currentInspectingItem;
-                if (ReferenceEquals(current, item)) return;   // 不重复重置正在查看的同一件物品
-
-                insp.OnInspectItem(item);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("DoubleClick.Inspect", ex);
             }
         }
     }

@@ -1,4 +1,15 @@
 # Item Details 简体中文 (zh)
+auth.amount,面额异常
+auth.body,瓶体损伤
+auth.box,盒体异常
+auth.chip,芯片异常
+auth.color,颜色异常
+auth.indicator,指示灯异常
+auth.label,标签异常
+auth.lettering,印字异常
+auth.logo,标志异常
+auth.seal,封口异常
+auth.serial,序列号异常
 # key,value
 alert.aug_tier,改造体等级：{0}
 alert.bounty,（举报奖励 {0}）
@@ -59,7 +70,7 @@ config.customer_alert.tip,顾客到店时提示是否为通缉犯或改造体，
 config.dim_description,描述文本淡化
 config.dim_description.tip,把物品描述改成灰色，降低视觉权重，让鉴定信息更突出。只改颜色不改文本。
 config.double_click_inspect,双击待鉴定物品直接鉴定
-config.double_click_inspect.tip,双击待鉴定物品直接打开鉴定面板，不必先拿放大镜再拖动；提示文案同步改成双击提示。关掉则恢复原版流程与原文案。
+config.double_click_inspect.tip,双击待鉴定物品或真伪鉴定物品（注射器/香烟/粮票等）直接打开检视面板，不必先用放大镜；提示文案同步改为双击提示。关闭则恢复原版流程与原文案。
 config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装前的真实条件差异、真实耐久与锭/化学品真实纯度。会直接暴露假货，明显降低鉴定难度。
 config.hide_estimate_value,隐藏原版「预估价值」行
@@ -88,6 +99,8 @@ config.section.customer,顾客提示
 config.section.display,显示内容
 config.section.interaction,交互与外观
 config.section.reveal,透视
+config.type_badge,物品分类标签
+config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒金、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
 config.value,价值构成与鉴定信息
 config.value.tip,鉴定物品显示总价、完美报价区间、来源明细与赝品原因；鉴定服务标题附带真实价格。未知或模组新增的鉴定类型使用实测分解。
 config.value_enhance,性价比（非鉴定物品）
@@ -161,10 +174,9 @@ value.perfect_range," ｜ 完美 {0}–{1}"
 value.total,总价：{0} × {1} = {2}
 value.total_line,总价：{0}
 water.head,水质：{0}% {1}
-water.impurities,杂质 {0}%
-water.list_head,：
+water.impurities,杂质：
 water.mismatch,（不匹配）
-water.none,：无
+water.none,无
 water.trace,微量（低于显示阈值）
 wine.aging,陈化加成：+{0}/天（共 +{1}）
 wine.composition,成分：糖度 {0}‰、污染物 {1}‰
@@ -177,3 +189,8 @@ wine.state,酒：{0}
 wine.tier,，第 {0} 档
 wine.unknown_state,未知({0})
 wine.yeast_power,酵母力度：{0}/次
+config.result_prefill,结果预填
+config.result_prefill.tip,打开鉴定面板时自动勾选赝品的实际问题，并把鉴定价格填成最优报价。只预填控件，不自动提交或确认。默认关闭。
+config.machine_battery,机器电池
+config.machine_battery.tip,显示机器电池的剩余能量和按当前每日耗能估算的可运行天数，直接列在「所需能量」行下面；未装电池的机器不显示。
+machine.battery_line,剩余能量：{0}（{1}天）

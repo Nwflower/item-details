@@ -65,10 +65,15 @@ def pure_keys(text: str) -> dict[str, str]:
     这些键不经过 Loc.T 调用点：
       - ValueFormula.Pure.cs：`new("appraisal.xxx", "English {0}", amount, ...)`
       - RibwichReasons.Pure.cs：Key() 与 English() 两个同序 switch
+      - Authenticity.cs：`new("ISSUE_SERIAL", "auth.serial", "Serial fault")`
     不扫它们，校验器会给出「全部齐全」的假结论。
     """
     out: dict[str, str] = {}
     for m in re.finditer(r'new\(\s*"((?:appraisal|ribwich)\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"', text):
+        out.setdefault(m.group(1), m.group(2))
+
+    # 真伪检查项的键是第二个参数，不是第一个；漏扫会让赝品括号里的问题名全部回落英文。
+    for m in re.finditer(r'new\(\s*"[A-Z0-9_]+"\s*,\s*"(auth\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"', text):
         out.setdefault(m.group(1), m.group(2))
 
     marker_key = "internal static string Key"

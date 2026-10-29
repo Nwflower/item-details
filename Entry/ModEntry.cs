@@ -121,6 +121,7 @@ public sealed partial class ModEntry : IMod
 
         Try("Subscribe", () => ModHook.OnCreateTooltipLate += cb);
         Try("AppraisalTitlePatch", AppraisalTitlePatch.Apply);
+        Try("ResultPrefill", ResultPrefill.Apply);
         Try("CustomerAlertTicker", CustomerAlertTicker.Install);
         Try("LabelImpact", LabelImpact.Apply);
         Try("DoubleClickInspect", () =>
@@ -129,6 +130,7 @@ public sealed partial class ModEntry : IMod
             DoubleClickInspect.Install();
         });
         Try("TooltipPipeline", TooltipPipeline.Apply);
+        Try("MachineBattery", MachineBatteryInfo.Apply);
         Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
         Try("TypeBadge", TypeBadge.Apply);
         Try("ItemNameLabel", ItemNameLabel.Apply);
@@ -146,6 +148,7 @@ public sealed partial class ModEntry : IMod
 #endif
 
         Quiet(AppraisalTitlePatch.Remove);
+        Quiet(ResultPrefill.Remove);
         Quiet(CustomerAlertTicker.Stop);
         Quiet(WaterAdvice.Stop);
         Quiet(ItemValueCache.Reset);
@@ -156,6 +159,7 @@ public sealed partial class ModEntry : IMod
         Quiet(LabelImpact.Remove);
         Quiet(DoubleClickInspect.Remove);
         Quiet(TooltipPipeline.Remove);
+        Quiet(MachineBatteryInfo.Remove);
         Quiet(ConfigSectionRefresh.Remove);
         Quiet(TypeBadge.Remove);
         Quiet(ItemNameLabel.Remove);

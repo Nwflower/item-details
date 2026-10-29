@@ -1,4 +1,15 @@
 # Item Details Español (es)
+auth.amount,Fallo del valor
+auth.body,Daño en el cuerpo
+auth.box,Fallo de la caja
+auth.chip,Fallo del chip
+auth.color,Fallo de color
+auth.indicator,Fallo del indicador
+auth.label,Fallo de etiqueta
+auth.lettering,Fallo de rotulación
+auth.logo,Fallo del logotipo
+auth.seal,Fallo de precinto
+auth.serial,Fallo de número de serie
 # key,value
 alert.aug_tier,Nivel de potenciación: {0}
 alert.bounty," (recompensa {0})"
@@ -59,7 +70,7 @@ config.customer_alert.tip,"Avisa cuando llega un cliente buscado o potenciado, c
 config.dim_description,Atenuar la descripción del objeto
 config.dim_description.tip,"Muestra las descripciones en gris para que destaque la información de tasación. Solo cambia el color, no el texto."
 config.double_click_inspect,Doble clic para inspeccionar
-config.double_click_inspect.tip,Haz doble clic en un objeto de tasación para abrir el panel sin la lupa. Cambia el texto de ayuda; desactívalo para volver al flujo original.
+config.double_click_inspect.tip,Abre la inspección de objetos de tasación o autenticidad (inyectores, cigarrillos, sellos, etc.) con doble clic, sin lupa. También cambia el texto de ayuda; desactívalo para restaurar el flujo original.
 config.hidden_truth,Revelar disfraces y atributos reales
 config.hidden_truth.tip,"Muestra las diferencias reales de estado, la durabilidad real y la pureza real de lingotes y productos químicos. Delata los falsos y facilita mucho la tasación."
 config.hide_estimate_value,Ocultar la línea de estimación del juego base
@@ -88,6 +99,8 @@ config.section.customer,Avisos de clientes
 config.section.display,Visualización
 config.section.interaction,Interacción y aspecto
 config.section.reveal,Revelación
+config.type_badge,Etiquetas de tipo
+config.type_badge.tip,"Muestra los tipos de objeto sobre el tooltip como placas de color con texto blanco: medicina/agua/drogas/venenos azul, tabaco/alcohol dorado, lujo rosa, comida verde, artículos del hogar cian, armas/armadura turquesa, herramientas/materiales violeta, prohibido/restringido rojo oscuro, resto gris. Desactívalo para volver a la línea [tipo] original."
 config.value,Valor y datos de tasación
 config.value.tip,"En objetos de tasación: valor total, rango de oferta perfecta, desglose por origen y motivos del falso; el título de tasación también muestra el precio real. Los tipos de tasación desconocidos o de mods usan un desglose medido."
 config.value_enhance,Valor por celda (sin tasación)
@@ -161,10 +174,9 @@ value.perfect_range," | perfecto {0}-{1}"
 value.total,Total: {0} × {1} = {2}
 value.total_line,Total: {0}
 water.head,Agua: {0}% {1}
-water.impurities,Impurezas {0}%
-water.list_head,": "
+water.impurities,"Impurezas: "
 water.mismatch," (etiqueta no coincide)"
-water.none,: ninguna
+water.none,ninguna
 water.trace,trazas (bajo el umbral de visualización)
 wine.aging,Bono de crianza: +{0}/día (total +{1})
 wine.composition,"Composición: extracto {0}‰, contaminante {1}‰"
@@ -177,3 +189,8 @@ wine.state,Vino: {0}
 wine.tier,", nivel {0}"
 wine.unknown_state,Desconocido({0})
 wine.yeast_power,Potencia de levadura: {0}/ciclo
+config.result_prefill,Rellenar resultado
+config.result_prefill.tip,Al abrir el panel de inspección, marca los defectos reales de falsificación y rellena el mejor precio de tasación. Solo rellena los controles; nunca envía ni confirma. Desactivado por defecto.
+config.machine_battery,Batería de máquina
+config.machine_battery.tip,Muestra la energía restante de la batería instalada y los días estimados directamente bajo la línea de energía diaria de la máquina. Las máquinas sin batería se omiten.
+machine.battery_line,Energía restante: {0} ({1} días)

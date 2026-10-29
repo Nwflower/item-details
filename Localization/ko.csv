@@ -1,4 +1,15 @@
 # Item Details 한국어 (ko)
+auth.amount,액면 이상
+auth.body,본체 손상
+auth.box,상자 이상
+auth.chip,칩 이상
+auth.color,색상 이상
+auth.indicator,표시등 이상
+auth.label,라벨 이상
+auth.lettering,인쇄 이상
+auth.logo,로고 이상
+auth.seal,봉인 이상
+auth.serial,일련번호 이상
 # key,value
 alert.aug_tier,개조 등급：{0}
 alert.bounty,（현상금 {0}）
@@ -59,7 +70,7 @@ config.customer_alert.tip,수배범이나 개조 고객이 오면 알립니다�
 config.dim_description,설명문 흐리게
 config.dim_description.tip,아이템 설명을 회색으로 표시해 감정 정보가 돋보이게 합니다。색상만 바꾸고 텍스트는 그대로입니다。
 config.double_click_inspect,더블클릭으로 감정
-config.double_click_inspect.tip,감정 대상 아이템을 더블클릭하면 감정 창이 열립니다（돋보기 불필요）。안내 문구도 함께 바뀝니다。끄면 원본 흐름으로 돌아갑니다。
+config.double_click_inspect.tip,감정 또는 진위 확인 대상(주사기·담배·우표 등)을 더블클릭해 돋보기 없이 검사 화면을 엽니다. 안내 문구도 바뀝니다. 끄면 원래 흐름으로 돌아갑니다.
 config.hidden_truth,위장과 실제 능력치 공개
 config.hidden_truth.tip,위장 전 실제 상태 차이、실제 내구도、주괴/화학품의 실제 순도를 표시합니다。가짜가 바로 드러나 감정 난이도가 내려갑니다。
 config.hide_estimate_value,원본 예상 가치 줄 숨기기
@@ -88,6 +99,8 @@ config.section.customer,고객 알림
 config.section.display,표시 내용
 config.section.interaction,조작 및 외형
 config.section.reveal,투시
+config.type_badge,아이템 분류 라벨
+config.type_badge.tip,"툴팁 위에 아이템 분류를 색상 판과 흰색 글자로 표시합니다: 의료/물/약물/독극물 파랑, 담배/주류 금색, 사치품 핑크, 음식 초록, 생활용품 하늘색, 무기/방어구 청록, 도구/재료 보라, 위법/제한 암적, 기타 회색. 끄면 원래의 [분류] 줄로 돌아갑니다."
 config.value,가치 구성과 감정 정보
 config.value.tip,감정 아이템은 총액、완벽 제시가 구간、출처 내역、위조 사유를 표시합니다。감정 서비스 제목에는 실제 가격도 붙습니다。알 수 없거나 모드가 추가한 감정 유형은 실측 내역을 사용합니다。
 config.value_enhance,칸당 가치（비감정품）
@@ -161,10 +174,9 @@ value.perfect_range," ｜ 완벽 {0}–{1}"
 value.total,총액：{0} × {1} = {2}
 value.total_line,총액：{0}
 water.head,수질：{0}% {1}
-water.impurities,불순물 {0}%
-water.list_head,：
+water.impurities,불순물：
 water.mismatch,（라벨 불일치）
-water.none,：없음
+water.none,없음
 water.trace,미량（표시 임계값 미만）
 wine.aging,숙성 보너스：+{0}/일（총 +{1}）
 wine.composition,성분：당도 {0}‰、오염물 {1}‰
@@ -177,3 +189,8 @@ wine.state,와인：{0}
 wine.tier,、{0} 단계
 wine.unknown_state,알 수 없음（{0}）
 wine.yeast_power,효모 강도：{0}/회
+config.result_prefill,결과 미리 채우기
+config.result_prefill.tip,감정 패널을 열 때 실제 위조 항목을 선택하고 감정 가격을 최적 제시가로 채웁니다. 입력란만 채우며 제출하거나 확인하지 않습니다. 기본값은 꺼짐입니다.
+config.machine_battery,기계 배터리
+config.machine_battery.tip,장착된 배터리의 남은 에너지와 예상 작동 일수를 기계의 일일 에너지 줄 바로 아래에 표시합니다. 배터리가 없는 기계는 표시하지 않습니다.
+machine.battery_line,남은 에너지: {0} ({1}일)

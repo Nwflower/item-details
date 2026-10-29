@@ -469,6 +469,227 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>
+    /// 用存档里的真实水容器验证多槽缓存：A/B 交替后再次访问 A/B，
+    /// 必须返回各自第一次的同一个结果实例，而不是重建出新的列表。
+    /// </summary>
+    private static string CheckWaterAdviceCache(out bool ok)
+    {
+        ok = false;
+        var picked = new List<GameItem>();
+        var first = new List<List<WaterAdvice.Method>>();
+        var firstMs = new List<double>();
+        try
+        {
+            var owned = EmporiumEntry.Instance?.GetAllOwnedItems();
+            if (owned == null) return "water advice cache: 无法读取拥有物";
+
+            foreach (var item in owned)
+            {
+                if (item == null) continue;
+                if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) continue;
+                if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) continue;
+                if (WaterAdvice.SafePurity(item) < 0) continue;
+                if (picked.Exists(p => ReferenceEquals(p, item))) continue;
+                picked.Add(item);
+                if (picked.Count >= 3) break;
+            }
+
+            if (picked.Count < 2)
+                return $"water advice cache: 存档内只有 {picked.Count} 件含水容器，至少需要 2 件";
+
+            // 从干净缓存开始，测量每种水的首次真实模拟成本。
+            WaterAdvice.Stop();
+            foreach (var item in picked)
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                var result = WaterAdvice.SimulateMethods(item);
+                sw.Stop();
+                first.Add(result);
+                firstMs.Add(sw.Elapsed.TotalMilliseconds);
+            }
+
+            // A/B 两轮交替：单槽缓存会在第二次访问 A 时重建，引用必然不同。
+            int calls = 0, hits = 0;
+            double hitMaxMs = 0;
+            for (int round = 0; round < 2; round++)
+            {
+                for (int i = 0; i < picked.Count; i++)
+                {
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    var result = WaterAdvice.SimulateMethods(picked[i]);
+                    sw.Stop();
+                    calls++;
+                    if (ReferenceEquals(result, first[i])) hits++;
+                    if (sw.Elapsed.TotalMilliseconds > hitMaxMs) hitMaxMs = sw.Elapsed.TotalMilliseconds;
+                }
+            }
+
+            ok = hits == calls;
+            string firstText = string.Join("/", firstMs.ConvertAll(ms => ms.ToString("0.00")));
+            return $"water advice cache: items={picked.Count} firstMs={firstText} " +
+                   $"hits={hits}/{calls} hitMax={hitMaxMs:0.00}ms " +
+                   $"(期望 hits 等于 calls，即交替悬停不重算)";
+        }
+        catch (Exception ex)
+        {
+            return "water advice cache: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            WaterAdvice.Stop();
+        }
+    }
+
+    /// <summary>
+    /// 走游戏原生的双击回调验证补丁：应打开鉴定面板并把目标物品设为当前鉴定物。
+    /// 不依赖鼠标坐标，直接验证“游戏判定为双击后”的接管逻辑。
+    /// </summary>
+    private static string CheckDoubleClickInspect(out bool ok)
+    {
+        ok = false;
+        GameItem? item = null;
+        GameItem? injector = null;
+        try
+        {
+            item = TryCreate("plasma_fuel");
+            if (item == null) return "double click inspect: 无法创建鉴定样本";
+            PlasmaHelper.InitPlasmaItem(item);
+
+            injector = TryCreate("food_stamp");
+            if (injector == null) return "double click inspect: 无法创建真伪样本";
+            InsStampHelper.Init(injector);
+            if (Authenticity.DetectKind(injector) == Authenticity.ItemKind.None)
+                return "double click inspect: 粮票样本不是真伪鉴定类型";
+
+            var handler = ItemMouseDoubleClickHandler.current;
+            var insp = InspectionUIManager.Instance;
+            if (handler == null) return "double click inspect: ItemMouseDoubleClickHandler 未就绪";
+            if (insp == null) return "double click inspect: InspectionUIManager 未就绪";
+
+            var method = typeof(ItemMouseDoubleClickHandler).GetMethod(
+                "DoubleClickAction",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (method == null) return "double click inspect: 找不到 DoubleClickAction";
+
+            method.Invoke(handler, new object[] { item, UnityEngine.Vector2.zero });
+            bool openedAppraisal = ReferenceEquals(insp.currentInspectingItem, item);
+
+            method.Invoke(handler, new object[] { injector, UnityEngine.Vector2.zero });
+            bool openedAuthenticity = ReferenceEquals(insp.currentInspectingItem, injector);
+
+            ok = openedAppraisal && openedAuthenticity;
+            return $"double click inspect: appraisal={openedAppraisal} authenticity={openedAuthenticity} " +
+                   "(期望 true/true，价格鉴定与真伪鉴定都能打开面板)";
+        }
+        catch (Exception ex)
+        {
+            return "double click inspect: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            try { InspectionUIManager.Instance?.CloseUI(); } catch { }
+            if (injector != null) { try { injector.Destroy(); } catch { } }
+            if (item != null) { try { item.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
+    /// 上锁容器不能被“容器信息”路径展示；密封箱模块仍应能独立读到内容。
+    /// 直接造一个带内容的安全箱并上锁，分别跑两个采集器和完整 tooltip。
+    /// </summary>
+    private static string CheckLockedContainerGating(out bool ok)
+    {
+        ok = false;
+        GameItem? safe = null;
+        GameItem? content = null;
+        try
+        {
+            // trashcan 是自检已确认可创建的网格容器。手动加物资箱的第二套锁标签，
+            // 模拟 sec_box 的 LOCKED_CONTAINER_TAG + LOCK_STATUS，不依赖目录里是否有 sec_box。
+            safe = TryCreate("trashcan");
+            content = TryCreate("scrap_metal");
+            if (safe == null) return "locked container gate: 无法创建容器样本";
+            if (content == null) return "locked container gate: 无法创建内容样本";
+
+            int added = GraphUtils.TryAcceptAll(safe, content);
+            safe.EnableTag("LOCKED_CONTAINER_TAG");
+            safe.ModifyTag("LOCK_ID", st => st.Enable().SetString("LOCK_ID_SEC"));
+            safe.ModifyTag("LOCK_STATUS", st => st.Enable().SetBool(true));
+
+            var storage = StorageInfo.Collect(safe);
+            var sealedLines = SealedBoxInfo.Collect(safe);
+            string text = ModEntry.RenderTooltipText(safe) ?? "";
+            string contains = Loc.T("storage.contains", "Contains: ");
+            bool tooltipLeak = contains.Length > 0 && text.Contains(contains, StringComparison.Ordinal);
+            bool leaked = storage.Count > 0 || tooltipLeak;
+            bool sealedHasContent = sealedLines.Count > 0;
+            bool contentAdded = added > 0;
+
+            ok = !leaked && sealedHasContent && contentAdded;
+            return $"locked container gate: added={added} storage={storage.Count} sealed={sealedLines.Count} " +
+                   $"tooltipLeak={tooltipLeak} (期望 >0/0/>0/False)";
+        }
+        catch (Exception ex)
+        {
+            return "locked container gate: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            if (content != null) { try { content.Destroy(); } catch { } }
+            if (safe != null) { try { safe.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>机器电池槽装满电电池时，应输出一行 current/max/percent。</summary>
+    private static string CheckMachineBattery(out bool ok)
+    {
+        ok = false;
+        GameItem? machine = null;
+        GameItem? battery = null;
+        try
+        {
+            machine = TryCreate("water_purifier");
+            if (machine == null) return "machine battery: 无法创建机器样本";
+
+            var slot = MachineHelper.GetBatterySlot(machine);
+            if (slot == null) return "machine battery: 样本机器没有电池槽";
+
+            battery = PreBuiltItemHelper.EnergyCredit(100);
+            if (battery == null) return "machine battery: 无法创建电池样本";
+            try { GeneralHelper.SetItemOwned(battery, true); } catch { }
+
+            int added = GraphUtils.TryAcceptAll(slot, battery);
+            var tooltip = new RichTextBuilder(80);
+            MachineryHelper.CreateMachineryTooltip(tooltip, machine);
+            string text = tooltip.Build()?.nakedText ?? "";
+
+            int drawn = GameRead.TagInt(machine, "machinery_drawn_power") ?? 0;
+            int days = drawn > 0 ? 100 / drawn : 0;
+            string required = "";
+            try { required = LocHelper.GetLocalizedMechanic("mech_machinery_required_energy") ?? ""; } catch { }
+            string batteryLine = Loc.T("machine.battery_line",
+                "Remaining energy: {0} ({1} days)", 100, days);
+
+            int requiredAt = required.Length > 0 ? text.IndexOf(required, StringComparison.Ordinal) : -1;
+            int batteryAt = text.IndexOf(batteryLine, StringComparison.Ordinal);
+            bool placedAfter = requiredAt >= 0 && batteryAt > requiredAt;
+
+            ok = added > 0 && placedAfter;
+            return $"machine battery: added={added} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
+                   $"(期望电池行位于所需能量之后)";
+        }
+        catch (Exception ex)
+        {
+            return "machine battery: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            if (battery != null) { try { battery.Destroy(); } catch { } }
+            if (machine != null) { try { machine.Destroy(); } catch { } }
+        }
+    }
+
     private static bool HasLine(List<TooltipLine> lines, string keyword)
     {
         foreach (var l in lines)

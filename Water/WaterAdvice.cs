@@ -21,11 +21,18 @@ namespace ItemDetails;
 ///            （净水片就是「含 15ml 氯的可溶化学物品」，走同一条链，不再特判）
 ///   滤芯     WaterHelper.HandleFilter（逐液体，被去除量转成水；uv_filter 由其内部处理）
 ///
-/// 这条路径比其它模块贵得多，所以按「物品 + 净化前纯度」缓存 2 秒。
+/// 这条路径比其它模块贵得多，所以按「物品 + 净化前纯度」缓存。
+///
+/// 缓存必须是多槽的：玩家在几瓶水之间来回划时，单槽缓存会被 A/B 交替
+/// 直接踢掉，每一帧都重新扫描拥有物并跑完整净化模拟（实测单次可到 55ms）。
+/// 100 槽只是容量上限，条目仍受 10 秒 TTL 约束；水的纯度变化会改变 key，仍会立即重算。
 /// </summary>
 internal static class WaterAdvice
 {
-    private const float CacheSeconds = 2f;
+    private const float CacheSeconds = 10f;
+    // 容量只是上限：条目仍受 10 秒 TTL 约束。100 槽足以覆盖任何正常的水容器对比，
+    // 线性扫描在工具提示频率下可忽略，真正防止卡顿的是不再让 A/B 互相淘汰。
+    private const int MaxEntries = 100;
 
     /// <summary>某种手段的模拟结果。</summary>
     internal sealed class Method
@@ -34,10 +41,17 @@ internal static class WaterAdvice
         internal double GainPct;      // 纯度提升（百分点）
     }
 
-    private static List<Method>? _cache;
-    private static int _cacheId = int.MinValue;
-    private static int _cachePurity = -1;
-    private static float _cacheAt = float.MinValue;
+    private sealed class CacheEntry
+    {
+        // UID 在读档后或对未入册的临时物品可能重复/为 0；实例引用保证只命中同一件真实物品。
+        internal GameItem? Item;
+        internal int ItemId;
+        internal int Purity;
+        internal float At;
+        internal List<Method> Methods = new();
+    }
+
+    private static readonly List<CacheEntry> Cache = new();
 
     internal static List<Method> SimulateMethods(GameItem? item)
     {
@@ -53,9 +67,34 @@ internal static class WaterAdvice
             if (purity < 0) return result;
 
             int uid = GameRead.UniqueId(item);
-            if (_cache != null && _cacheId == uid && _cachePurity == purity
-                && UnityEngine.Time.unscaledTime - _cacheAt <= CacheSeconds)
-                return _cache;
+            float now = UnityEngine.Time.unscaledTime;
+
+            // 过期项顺手清掉，其余按最近使用顺序从后往前找。
+            for (int i = Cache.Count - 1; i >= 0; i--)
+            {
+                var entry = Cache[i];
+                if (now - entry.At > CacheSeconds)
+                {
+                    Cache.RemoveAt(i);
+                    continue;
+                }
+                if (!ReferenceEquals(entry.Item, item)
+                    || entry.ItemId != uid || entry.Purity != purity) continue;
+
+                if (i != Cache.Count - 1)
+                {
+                    Cache.RemoveAt(i);
+                    Cache.Add(entry);
+                }
+#if ITEMDETAILS_DIAG
+                TrackCache(hit: true, now);
+#endif
+                return entry.Methods;
+            }
+
+#if ITEMDETAILS_DIAG
+            TrackCache(hit: false, now);
+#endif
 
             var owned = PurifySources.Scan();
             var usedNames = new HashSet<string>(StringComparer.Ordinal);
@@ -111,10 +150,15 @@ internal static class WaterAdvice
             result.RemoveAll(m => m.GainPct < 0.01);
             result.Sort((a, b) => b.GainPct.CompareTo(a.GainPct));
 
-            _cache = result;
-            _cacheId = uid;
-            _cachePurity = purity;
-            _cacheAt = UnityEngine.Time.unscaledTime;
+            Cache.Add(new CacheEntry
+            {
+                Item = item,
+                ItemId = uid,
+                Purity = purity,
+                At = now,
+                Methods = result,
+            });
+            if (Cache.Count > MaxEntries) Cache.RemoveAt(0);
             return result;
         }
         catch (Exception ex)
@@ -126,12 +170,37 @@ internal static class WaterAdvice
 
     internal static void Stop()
     {
-        _cache = null;
-        _cacheId = int.MinValue;
-        _cachePurity = -1;
-        _cacheAt = float.MinValue;
+        Cache.Clear();
+#if ITEMDETAILS_DIAG
+        _diagHits = 0;
+        _diagMisses = 0;
+        _diagAt = 0f;
+#endif
         PurifySources.Reset();
     }
+
+#if ITEMDETAILS_DIAG
+    private static int _diagHits;
+    private static int _diagMisses;
+    private static float _diagAt;
+
+    /// <summary>
+    /// 每 2 秒汇总一次缓存命中/重算。重算次数才是水质建议的真实成本来源：
+    /// 在几瓶水之间来回划时，单槽缓存会 1:1 交替 miss。
+    /// </summary>
+    private static void TrackCache(bool hit, float now)
+    {
+        if (hit) _diagHits++;
+        else _diagMisses++;
+        if (_diagAt <= 0f) _diagAt = now + 2f;
+        if (now < _diagAt) return;
+
+        Log.Msg($"[perf] 水质建议缓存（2秒）: 命中={_diagHits} 重算={_diagMisses} 槽位={Cache.Count}");
+        _diagHits = 0;
+        _diagMisses = 0;
+        _diagAt = now + 2f;
+    }
+#endif
 
     private delegate void PurifyAction(GameItem probe, GameItem source);
 
