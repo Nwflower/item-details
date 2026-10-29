@@ -58,19 +58,33 @@ public sealed partial class ModEntry
         return true;
     }
 
-    /// <summary>来源明细单行输出；标签已缩短，避免原版定宽折行把数字拆断。</summary>
+    /// <summary>
+    /// 来源明细单行输出；标签已缩短，避免原版定宽折行把数字拆断。
+    ///
+    /// 符号与分隔符合一：正值写「+加固60」，负值写「-破裂150」并用红字。
+    /// 旧写法把符号塞进数值（「+破裂-150」），一个负项会出现两个符号，既难读也占宽。
+    /// </summary>
     private void AppendParts(RichTextBuilder builder, ValueBreakdown.Result r)
     {
-        var sb = new StringBuilder(L("来源：", "From: "));
-        bool first = true;
+        builder.Add(L("来源：", "From: "), RenderHandler.ColorPalette.White);
+
         foreach (var p in r.Parts)
         {
-            if (!first) sb.Append('+');
-            first = false;
             string label = _zh ? ShortenLabel(p.Zh) : p.En;
-            sb.Append(p.IsBase ? $"{label}{p.Amount}" : $"{label}{p.Amount:+0;-0;+0}");
+
+            if (p.IsBase)
+            {
+                builder.Add($"{label}{p.Amount}", RenderHandler.ColorPalette.White);
+                continue;
+            }
+
+            if (p.Amount < 0)
+                builder.Add($"-{label}{-p.Amount}", RenderHandler.ColorPalette.LightRed);
+            else
+                builder.Add($"+{label}{p.Amount}", RenderHandler.ColorPalette.White);
         }
-        AddLine(builder, sb.ToString(), RenderHandler.ColorPalette.White);
+
+        builder.NextLine();
     }
 
     /// <summary>
