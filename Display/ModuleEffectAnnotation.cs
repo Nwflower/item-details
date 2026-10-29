@@ -84,8 +84,19 @@ internal static class ModuleEffectAnnotation
                 return "";
 
             case 'q':
+                // 水分收集器的品质不是百分比：GetOutputQuality 用「质量加成 + 50」当分数，
+                // 再按 50/100/150/200 分档，所以 +16 只是把 50 推到 66，档位仍是幽灵水。
+                // 写成 +0.5% 会是编的，这里显示档位 + 当前分数/下一档。
                 string tier = "";
                 try { tier = MachineMoistureFarm.GetOutputQualityDisplay(item) ?? ""; } catch { }
+
+                var qualityBonus = GameRead.TagInt(item, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT");
+                if (tier.Length > 0 && qualityBonus is int qb)
+                {
+                    int score = qb + 50;          // 与游戏 GetOutputQuality 同一口径
+                    int next = NextQualityStep(score);
+                    return Wrap(zh ? $"{tier} {score}/{next}" : $"{tier} {score}/{next}");
+                }
                 return tier.Length > 0 ? Wrap(tier) : "";
         }
 
@@ -102,6 +113,15 @@ internal static class ModuleEffectAnnotation
     private static string Signed(int delta) => delta <= 0 ? "-" + (-delta) : "+" + delta;
 
     private static string Wrap(string body) => "(" + body + ")";
+
+    /// <summary>下一档品质阈值：游戏 `GetOutputQuality` 用 50/100/150/200 分档。</summary>
+    private static int NextQualityStep(int score)
+    {
+        if (score < 50) return 50;
+        if (score < 100) return 100;
+        if (score < 150) return 150;
+        return 200;
+    }
 
     /// <summary>三项加成的标签名走游戏本地化；换语言后自动重建。</summary>
     private static void EnsureLabels()
