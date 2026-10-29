@@ -112,14 +112,15 @@ pwsh -NoProfile -File tools/test_selftest_fixtures.ps1
 实现约定：
 
 - **英文文案写在代码里**（`Loc.T("key", "English …")`），它就是兜底值；其余语言放在
-  `Localization/<语言码>.csv`。缺文件、漏词条、翻译写坏时都回落到英文，
-  绝不会把 `price.sell` 这类内部键名显示给玩家。
+  `Localization/<语言码>.csv`。缺文件、漏词条时使用英文；译文格式化失败时，
+  用相同参数格式化英文兜底。界面显示文案，不显示 `price.sell` 这类内部键名。
 - 换语言即时生效（语言码缓存 0.25 秒），不需要重启。
 - 想加一门语言：复制 `Localization/zh.csv` 改名为目标语言码（必须与游戏
   `SelectedLocale.Identifier.Code` 一致），按 `key,value` 逐行翻译即可被自动载入。
   **首尾带空格或含逗号的值要用双引号整体包住**，`{0}` 这类占位符不能删改。
 - 改完跑一次 `python tools/check_localization.py`：校验键是否齐全、有无孤儿词条、
-  占位符是否与英文一致。
+  占位符编号是否与英文一致，并拒绝重复键、格式错误的行与空翻译目录。
+  支持 `{0:D2}`、对齐参数和转义花括号；`--strict-placeholders` 保留为同一校验的兼容参数。
 
 > 除简体中文与英文外，其余 9 种语言为机器翻译初稿，措辞欢迎提 PR 修正。
 
