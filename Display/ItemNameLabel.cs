@@ -118,7 +118,7 @@ internal static class ItemNameLabel
             label.Shadow.text.text = name;
         }
 
-        Place(label);
+        Place(element, label);
     }
 
     private static void Hide(GameItemElement element)
@@ -157,7 +157,9 @@ internal static class ItemNameLabel
 
         try
         {
-            var parent = element.handler;
+            // handler 的 rect 实测是 0×0（sizeDelta=(0,0)），锚点贴底会得到零高度 → 标签永远不可见。
+            // middle 才是物品的真实矩形（实测 112×96），且位于 rotator 之上，不会随物品旋转。
+            var parent = element.middle;
             if (parent == null) return null;
 
             // 先投影后本体：与游戏堆叠数字同样的两层文字，像素图上才看得清
@@ -205,7 +207,7 @@ internal static class ItemNameLabel
         var text = node.text;
         text.color = color;
         text.fontStyle = FontStyles.Bold;
-        text.alignment = TextAlignmentOptions.Bottom;
+        text.alignment = TextAlignmentOptions.Center;
         text.enableWordWrapping = false;
         text.overflowMode = TextOverflowModes.Truncate;
         text.enableAutoSizing = true;   // 长名字自动缩小，不撑出格子
@@ -215,27 +217,35 @@ internal static class ItemNameLabel
     }
 
     /// <summary>
-    /// 只用锚点定位：横向拉满父矩形、纵向贴在底边内侧。
-    /// 不依赖父节点的局部原点/缩放约定（第一版按像素偏移猜，结果压在图标中间）。
+    /// 贴在物品矩形（middle）的底边内侧。
+    ///
+    /// 实测坐标系：middle 的局部原点与 pivot 在左上、Y 朝下（rect 为 x:0, y:-96, 112×96），
+    /// 所以锚点用左上角、按「物品像素高度 − 行高 − 内缩」下移即可，不依赖任何缩放约定。
+    /// 第一版挂在 handler 上：handler 的 rect 是 0×0，锚点贴底得到零高度，标签根本不可见。
     /// </summary>
-    private static void Place(Label label)
+    private static void Place(GameItemElement element, Label label)
     {
         try
         {
+            float width = Mathf.Max(8f, element.widthPixels);
+            float height = Mathf.Max(8f, element.heightPixels);
+            float top = -(height - LabelHeight - LabelBottomInset);
+
             foreach (var node in new[] { label.Shadow, label.Main })
             {
                 if (node == null) continue;
                 var rt = node.rectTransform;
 
-                rt.anchorMin = new Vector2(0f, 0f);
-                rt.anchorMax = new Vector2(1f, 0f);
-                rt.pivot = new Vector2(0.5f, 0f);
-                rt.sizeDelta = new Vector2(0f, LabelHeight);
-                rt.anchoredPosition = new Vector2(0f, LabelBottomInset);
+                rt.anchorMin = new Vector2(0f, 1f);
+                rt.anchorMax = new Vector2(0f, 1f);
+                rt.pivot = new Vector2(0f, 1f);
+                rt.sizeDelta = new Vector2(width, LabelHeight);
+                rt.anchoredPosition = new Vector2(0f, top);
             }
 
+            // 投影下移 1px，形成描边感（与游戏堆叠数字的叠法一致）
             if (label.Shadow != null)
-                label.Shadow.rectTransform.anchoredPosition = new Vector2(0f, LabelBottomInset - 1f);
+                label.Shadow.rectTransform.anchoredPosition = new Vector2(0f, top - 1f);
         }
         catch (Exception ex)
         {
