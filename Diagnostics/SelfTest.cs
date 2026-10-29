@@ -301,6 +301,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：机器净化模拟不得改动真实机器（99.0% 那个 bug 的回归护栏）
+        {
+            string line = CheckMachineSimIsolation(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         Log.Msg($"[SelfTest] DONE {(fail == 0 ? "OK" : "FAILED")} pass={pass} fail={fail} total={pass + fail}");
 
         try

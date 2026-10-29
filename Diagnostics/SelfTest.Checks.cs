@@ -93,6 +93,66 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>
+    /// 机器净化模拟不得动到真实机器。PurifyContainer 内部用 <c>GetTagReadonly</c> 读
+    /// <c>TOTAL_PERCENTAGE_*_BONUS_INT</c>，而 TagSystem.GetTag 缺键即插入 0 ——
+    /// 直接传真实机器会把品质加成钉死，净水器从此只能净化到 99.0%。
+    /// 这里拿一台真实机器跑一次模拟，比对标签快照。
+    /// </summary>
+    private static string CheckMachineSimIsolation(out bool ok)
+    {
+        ok = false;
+        GameItem? machine = null;
+        GameItem? container = null;
+        try
+        {
+            machine = TryCreate("water_purifier");
+            container = TryCreate("water_tank");
+            if (machine == null || container == null) return "machine sim isolation: 无法创建样本";
+
+            // 一杯脏水：900ml 水 + 100ml 重金属
+            container.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(900000));
+            container.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), st => st.Enable().SetInt(100000));
+
+            var before = TagSnapshot(machine);
+            int purityBefore = WaterAdvice.SafePurity(container);
+
+            // 容器用探针，避免测量本身改动样本
+            var probe = DirectoryMaster.Create<GameItem>("water_tank");
+            if (probe == null) return "machine sim isolation: 无法创建容器探针";
+            try
+            {
+                var cloned = GameRead.DeepCloneTags(container.modifiedState);
+                if (cloned == null) return "machine sim isolation: 标签克隆失败";
+                probe.modifiedState = cloned;
+                probe.state = probe.modifiedState;
+                WaterFeatureHelper.InitWaterFeature(probe);
+
+                WaterAdvice.ApplyMachine(probe, machine);
+            }
+            finally { try { probe.Destroy(); } catch { } }
+
+            var after = TagSnapshot(machine);
+            int changed = 0;
+            foreach (var kv in before)
+                if (!after.TryGetValue(kv.Key, out string? v2) || v2 != kv.Value) changed++;
+            int added = 0;
+            foreach (var kv in after) if (!before.ContainsKey(kv.Key)) added++;
+
+            ok = changed == 0 && added == 0;
+            return $"machine sim isolation: changed={changed} added={added} purityBefore={purityBefore} (期望 0/0)";
+        }
+        catch (Exception ex)
+        {
+            return "machine sim isolation: 异常 " + ex.GetType().Name;
+        }
+        finally
+        {
+            if (machine != null) { try { machine.Destroy(); } catch { } }
+            if (container != null) { try { container.Destroy(); } catch { } }
+        }
+    }
+
     private static Dictionary<string, string> TagSnapshot(GameItem item)
     {
         var map = new Dictionary<string, string>(StringComparer.Ordinal);

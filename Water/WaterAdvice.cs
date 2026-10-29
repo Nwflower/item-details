@@ -10,7 +10,8 @@ namespace ItemDetails;
 /// 安全边界：
 ///   - 容器探针 = DirectoryMaster.Create + 逐条 TagState.Clone（见 GameRead.DeepCloneTags）；
 ///   - 滤芯/化学剂同样深拷贝，保留真实耐久与全部标签，绝不用「满耐久默认品」代替；
-///   - 机器只读（PurifyContainer 只读机器的性能/品质加成，不改机器）；
+///   - 机器同样深拷贝：PurifyContainer 内部会用 GetTagReadonly 读加成标签，
+///     缺键时 TagSystem.GetTag 会插入 0，把真实机器的品质加成钉死（净水器只能到 99.0%）；
 ///   - 所有探针在 finally 中销毁，创建/调用失败一律不产出建议。
 ///
 /// 效果口径全部复用原版函数，不自己写公式：
@@ -57,12 +58,14 @@ internal static class WaterAdvice
             var owned = PurifySources.Scan();
             var usedNames = new HashSet<string>(StringComparer.Ordinal);
 
-            // 1) 机器：黑盒试 PurifyContainer（只读机器，自带模块/品质加成）
+            // 1) 机器：黑盒试 PurifyContainer。机器必须走深拷贝——函数内部用
+            //    GetTagReadonly 读品质/性能加成，而 TagSystem.GetTag 对缺键会插入 0，
+            //    那会把真实机器的加成钉死，净水器从此只能净化到 99.0%（GetPurityMult(0)=1.0）。
             foreach (var machine in owned.Machines)
             {
                 GameItem m = machine;
                 RunOnProbe(item, m, usedNames, result,
-                    (probe, _) => MachinePurifier.PurifyContainer(m, probe));
+                    (probe, _) => ApplyMachine(probe, m));
             }
 
             // 2) 便携净水器
@@ -129,6 +132,28 @@ internal static class WaterAdvice
     }
 
     private delegate void PurifyAction(GameItem probe, GameItem source);
+
+    /// <summary>
+    /// 在探针容器上跑一次机器净化。机器同样深拷贝：<c>MachinePurifier.PurifyContainer</c>
+    /// 会通过 <c>GetTagReadonly</c> 读 <c>TOTAL_PERCENTAGE_*_BONUS_INT</c>，而
+    /// <c>TagSystem.GetTag</c> 缺键即插入 0 —— 直接传真实机器会把它的加成永久钉成 0，
+    /// 表现为净水器只能净化到 99.0%。
+    /// </summary>
+    internal static void ApplyMachine(GameItem probe, GameItem machine)
+    {
+        GameItem? clone = null;
+        try
+        {
+            clone = CloneItem(machine);
+            if (clone == null) return;
+            MachinePurifier.PurifyContainer(clone, probe);
+        }
+        catch (Exception ex) { Log.Warn("WaterAdvice.ApplyMachine", ex); }
+        finally
+        {
+            if (clone != null) { try { clone.Destroy(); } catch { } }
+        }
+    }
 
     /// <summary>单容器手段：造探针 → 跑一次 → 比较纯度。任何一步失败都不产出建议。</summary>
     private static void RunOnProbe(GameItem container, GameItem source,
