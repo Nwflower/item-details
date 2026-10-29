@@ -34,6 +34,7 @@ internal static class ItemNameLabel
     private static Harmony? _harmony;
     private static bool _patched;
     private static bool _geometryLogged;
+    private static int _placementLogged;
 
     private static readonly ConditionalWeakTable<GameItemElement, Label> Labels = new();
 
@@ -217,11 +218,11 @@ internal static class ItemNameLabel
     }
 
     /// <summary>
-    /// 贴在物品矩形（middle）的底边内侧，并留一点边距。
+    /// 用**世界坐标**把标签放在物品外接框的底边内侧。
     ///
-    /// 尺寸必须取 <c>middle.rect</c> 的**实际**矩形，不能用 <c>widthPixels/heightPixels</c>：
-    /// 旋转/翻转后 <c>modifiedShape</c> 描述的仍是未旋转的占格，而 middle 的矩形才是屏幕上的外接框——
-    /// 用占格算会让旋转物品的名字跑到图标侧面（实测：旋转过的容器名字贴在右上角、宽度也不对）。
+    /// 为什么不再用局部锚点：旋转/翻转后 <c>middle</c> 的 pivot、anchoredPosition 与占格都不再对齐，
+    /// 按局部坐标算会出现「名字跑到图标右侧」「工具箱子名压到隔壁机器」这种情况（实测）。
+    /// GetWorldCorners 给的是屏幕上的四个角，取 min/max 直接得到外接框，与旋转无关。
     /// </summary>
     private static void Place(GameItemElement element, Label label)
     {
@@ -230,26 +231,45 @@ internal static class ItemNameLabel
             var middle = element.middle;
             if (middle == null) return;
 
-            Rect r = middle.rectTransform.rect;
-            float width = Mathf.Max(8f, r.width);
-            float height = Mathf.Max(8f, r.height);
-            float top = -(height - LabelHeight - LabelBottomInset);
+            var rect = middle.rectTransform;
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+
+            float minX = corners[0].x, maxX = corners[0].x, minY = corners[0].y;
+            for (int i = 1; i < 4; i++)
+            {
+                if (corners[i].x < minX) minX = corners[i].x;
+                if (corners[i].x > maxX) maxX = corners[i].x;
+                if (corners[i].y < minY) minY = corners[i].y;
+            }
+
+            float width = Mathf.Max(8f, maxX - minX);
+            float centerX = (minX + maxX) * 0.5f;
+            float y = minY + LabelBottomInset;
+            float z = rect.position.z;
 
             foreach (var node in new[] { label.Shadow, label.Main })
             {
                 if (node == null) continue;
                 var rt = node.rectTransform;
 
-                rt.anchorMin = new Vector2(0f, 1f);
-                rt.anchorMax = new Vector2(0f, 1f);
-                rt.pivot = new Vector2(0f, 1f);
+                rt.anchorMin = new Vector2(0.5f, 0.5f);
+                rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.pivot = new Vector2(0.5f, 0f);
                 rt.sizeDelta = new Vector2(width, LabelHeight);
-                rt.anchoredPosition = new Vector2(0f, top);
+                rt.position = new Vector3(centerX, y, z);
             }
 
             // 投影下移 1px，形成描边感（与游戏堆叠数字的叠法一致）
             if (label.Shadow != null)
-                label.Shadow.rectTransform.anchoredPosition = new Vector2(0f, top - 1f);
+                label.Shadow.rectTransform.position = new Vector3(centerX, y - 1f, z);
+
+            if (_placementLogged < 3)
+            {
+                _placementLogged++;
+                Log.Msg($"NameLabel place '{label.Text}': world=({minX:0},{minY:0})-({maxX:0}) " +
+                        $"w={width:0} -> pos=({centerX:0},{y:0}) localScale={rect.lossyScale.x:0.##}");
+            }
         }
         catch (Exception ex)
         {
