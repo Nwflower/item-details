@@ -30,10 +30,13 @@ namespace ItemDetails;
 ///     会跟随当前语言。
 ///   - **分组标题不是** Func：ModConfig.Define 把 section 直接存进 ConfigEntry.Section
 ///     （纯字符串，internal set），ModConfigWindow.Open 里原样交给 AddHeader。
-///     而 Init 发生在主菜单早期，此时 LocalizationSettings.SelectedLocale 可能还是 null
-///     （GetCurrentLocaleCode() 返回 ""），标题就会被永久固定成那一刻的语言。
 ///     所以标题必须允许事后重写：见 <see cref="RefreshSections"/>，由
-///     <see cref="ConfigSectionRefresh"/> 在面板每次打开前调用。
+///     <see cref="ConfigSectionRefresh"/> 在面板每次打开前调用；注册时先给英文，
+///     打开面板时再换成当前语言。
+///   - **Init 阶段不读语言**：Init 跑在主菜单早期，任何 `LocHelper.GetCurrentLocaleCode()`
+///     都会落到 `LocalizationSettings.SelectedLocale` → `GetSelectedLocale()`，
+///     结果未就绪时会同步 `WaitForCompletion()`，等于在启动/本地化初始化途中逼一次
+///     阻塞等待。分组标题和条目文案都不需要它（一个是面板打开时重写，一个是 Func）。
 ///
 /// 默认值只在 <see cref="Toggle"/> 构造时声明一次：Define 用它注册，Init 之前
 /// 或 Init 失败时也用它兜底。
@@ -208,17 +211,23 @@ internal static class ModSettings
 
             _cfg.Save();
 
-            // Init 在主菜单早期执行，locale 可能还没就绪；把当时的判定结果记下来，
-            // 出问题时能直接从日志区分"没读到 locale"和"语言判断错了"。
-            Log.Msg($"ModSettings initialized: {_cfg.Entries.Count} entries, " +
-                    $"locale='{Locales.Code}' zh={Locales.IsChinese} " +
-                    $"section='{(Sections.Count > 0 ? Sections[0].Entry.Section : "?")}'");
+            // 这里**不读语言**：Init 跑在主菜单早期，而 LocHelper.GetCurrentLocaleCode()
+            // 最终是 LocalizationSettings.SelectedLocale → GetSelectedLocale()，在选择结果
+            // 未就绪时会同步 WaitForCompletion()。模组 Init 正处于启动/本地化初始化途中，
+            // 为了一行日志去逼一次同步等待不值得（多人装模组时表现为语言卡在英文、
+            // 启动链上的后续步骤被拖死）。语言在这里也没有用处：分组标题由
+            // RefreshSections 在面板打开时按当前语言重写，标签/说明本来就是 Func<string>。
+            Log.Msg($"ModSettings initialized: {_cfg.Entries.Count} entries " +
+                    $"({Sections.Count} sections); 语言在打开设置面板时再判定");
         }
         catch (Exception ex)
         {
             Log.Error("ModSettings.Init", ex);
         }
     }
+
+    /// <summary>首次重写时记一次语言判定结果：这是本模组第一次、也是唯一一次主动读 locale。</summary>
+    private static bool _localeLogged;
 
     /// <summary>
     /// 按当前语言重写分组标题。ConfigEntry.Section 的 setter 是 internal，
@@ -228,6 +237,17 @@ internal static class ModSettings
     internal static void RefreshSections()
     {
         if (Sections.Count == 0) return;
+
+        if (!_localeLogged)
+        {
+            _localeLogged = true;
+            try
+            {
+                Log.Msg($"settings opened: locale='{Locales.Code}' zh={Locales.IsChinese} " +
+                        $"section='{Sections[0].Entry.Section}'");
+            }
+            catch { }
+        }
 
         MethodInfo? setter = null;
         foreach (var (entry, zh, en) in Sections)
@@ -289,7 +309,9 @@ internal static class ModSettings
         internal void Define(ModConfig cfg, string key, string sectionZh, string sectionEn,
             Func<string> label, Func<string> tip)
         {
-            _entry = cfg.Define(key, _default, Locales.L(sectionZh, sectionEn), label, tip);
+            // 注册时一律用英文分组名，不在这里读语言（见 Init 里关于 Init 阶段不碰本地化的说明）。
+            // 玩家能看到的标题由 RefreshSections 在面板打开前重写成当前语言。
+            _entry = cfg.Define(key, _default, sectionEn, label, tip);
             Sections.Add((_entry, sectionZh, sectionEn));
         }
 
