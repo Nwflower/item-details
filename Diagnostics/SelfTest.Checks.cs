@@ -702,10 +702,8 @@ internal static partial class SelfTest
             var real = new TagSystem();
             real.EnableTag("TEST_TAG_ISO").GetTag("TEST_TAG_ISO").SetInt(5);
 
-            // 与 WaterAdvice.DeepCloneTags 相同的做法：逐条 Clone
-            var clone = new TagSystem();
-            foreach (var kv in real.dict)
-                if (kv.Value != null) clone.dict[kv.Key] = kv.Value.Clone();
+            var clone = GameRead.DeepCloneTags(real);
+            if (clone == null) return "tag isolation: production clone failed";
 
             clone.EnableTag("TEST_TAG_ISO").GetTag("TEST_TAG_ISO").SetInt(9);
 
