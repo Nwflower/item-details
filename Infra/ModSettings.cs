@@ -83,7 +83,13 @@ internal static class ModSettings
     private static readonly Toggle DoubleClickInspectToggle = new(true);
     private static readonly Toggle HideEstimateToggle = new(true);
     private static readonly Toggle DimDescriptionToggle = new(true);
-    private static readonly Toggle ItemNameToggle = new(true);       // 容器/机器图标底部常驻名称
+    private static ConfigEntry<string>? _nameMode;                     // 图标名显示范围：无 / 容器名 / 仅改名物品
+
+    // 图标名外观（非布尔，单独存条目）
+    private static ConfigEntry<string>? _namePos;
+    private static ConfigEntry<float>? _nameSize;
+    private static ConfigEntry<bool>? _nameBg;
+    private static ConfigEntry<float>? _nameBgAlpha;
 
     internal static void Init(string modId)
     {
@@ -224,11 +230,29 @@ internal static class ModSettings
                      "Renders item descriptions in gray so appraisal information stands out. " +
                      "Color only, no text changes."));
 
-            ItemNameToggle.Define(_cfg, "show_item_name", SecInteractionZh, SecInteractionEn,
-                Text("容器/机器图标显示名称", "Name on Container & Machine Icons"),
-                Text("在容器与机器类物品的图标底部常驻显示物品名，不必悬停。只影响这两类，避免格子里的物品被文字糊住。",
-                     "Shows the item name along the bottom of container and machine icons, without hovering. " +
-                     "Only those two kinds, so ordinary items stay clean."));
+            _nameMode = _cfg.Define("name_label_mode", "容器名 (Containers)", SecInteractionZh,
+                Text("图标显示名称", "Name Labels on Icons"),
+                new[] { "无 (Off)", "容器名 (Containers)", "仅改名物品 (Renamed only)" },
+                Text("无：不显示。容器名：只给容器与机器。仅改名物品：只显示用标签打印机改过名的物品。",
+                     "Off: hide labels. Containers: only containers and machines. Renamed only: only items renamed with the label printer."));
+
+            _namePos = _cfg.Define("name_label_position", "底部 (Bottom)", SecInteractionZh,
+                Text("图标名位置", "Name Label Position"),
+                new[] { "底部 (Bottom)", "中间 (Middle)", "顶部 (Top)" },
+                Text("名字贴在物品图标的下/中/上哪一侧。", "Where the name sits on the item icon."));
+            _nameSize = _cfg.Define("name_label_size", 9f, SecInteractionZh,
+                Text("图标名字号", "Name Label Size"),
+                5f, 20f,
+                Text("字号（屏幕像素），5–20。", "Font size in screen pixels, 5-20."));
+            _nameBg = _cfg.Define("name_label_background", false, SecInteractionZh,
+                Text("图标名半透明底", "Name Label Background"),
+                Text("给名字垫一层半透明黑底，压在花纹复杂的图标上更清楚。",
+                     "Draws a translucent black plate behind the name for busy icons."),
+                false);
+            _nameBgAlpha = _cfg.Define("name_label_background_alpha", 0.55f, SecInteractionZh,
+                Text("底色不透明度", "Background Alpha"),
+                0f, 1f,
+                Text("半透明底的不透明度（0–1）。", "Opacity of the background plate, 0-1."));
 
             _cfg.Save();
 
@@ -316,7 +340,11 @@ internal static class ModSettings
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool HideEstimate => HideEstimateToggle.Value;
     internal static bool DimDescription => DimDescriptionToggle.Value;
-    internal static bool ItemName => ItemNameToggle.Value;
+    internal static string ItemNameMode => _nameMode?.Value ?? "容器名 (Containers)";
+    internal static string ItemNamePosition => _namePos?.Value ?? "底部 (Bottom)";
+    internal static float ItemNameSize => _nameSize?.Value ?? 9f;
+    internal static bool ItemNameBackground => _nameBg?.Value ?? false;
+    internal static float ItemNameBackgroundAlpha => _nameBgAlpha?.Value ?? 0.55f;
 
     /// <summary>
     /// 单个开关：默认值只声明一次，Define 用它注册，Init 之前或失败时也用它兜底。

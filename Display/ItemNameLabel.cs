@@ -7,27 +7,24 @@ using UnityEngine;
 namespace ItemDetails;
 
 /// <summary>
-/// 容器与机器类物品：在图标底部常驻显示物品名（不必悬停）。
+/// 物品图标上常驻显示名字（不必悬停）。
 ///
-/// 为什么只做这两类：容器（储藏区、保险箱、枪柜…）和机器的图标大量复用同一套像素图，
-/// 玩家在一堆格子里很难凭外观分辨哪个是哪个；其余物品悬停 tooltip 就够，逐格加字反而糊屏。
+/// 显示范围由设置决定：无 / 容器名（容器与机器，默认）/ 仅改名物品（用标签打印机改过名的）。
 ///
-/// 实现：
+/// 实现要点：
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
 ///     图钉与外观，物品身份变化/换格子都会走到这里；
 ///   - 文字用 <c>TreeNodeRender.InstantiateText()</c> 生成两层（本体 + 深色投影），
 ///     与游戏的堆叠数字同款；父节点挂在 <c>middle</c>（未旋转的矩形），避免随物品旋转颠倒；
 ///   - 定位用**世界坐标外接框**（GetWorldCorners），并把节点 localScale 取父级缩放的倒数，
-///     于是 sizeDelta 与字号都以屏幕像素为单位。之前直接拿世界宽度当 sizeDelta：
-///     实测父级 lossyScale=2，于是标签被放大成两倍宽、横向糊满相邻格子；
+///     于是 sizeDelta 与字号都以屏幕像素为单位（实测父级 lossyScale=2，直接写世界宽度会宽一倍）；
 ///   - ValidateSelect 早于布局生效，所以另有 0.2s 节流补位（<see cref="ItemNameTicker"/>）；
 ///   - 每个元素只建一次、挂在元素节点下随其销毁，用弱引用表记录，不持有已销毁元素。
 /// </summary>
 internal static class ItemNameLabel
 {
     private const string HarmonyId = "item_details.item_name_label";
-    private const float LabelHeight = 11f;      // 屏幕像素
-    private const float LabelBottomInset = 3f;  // 屏幕像素
+    private const float LabelBottomInset = 3f;   // 屏幕像素
 
     private static Harmony? _harmony;
     private static bool _patched;
@@ -42,6 +39,7 @@ internal static class ItemNameLabel
     {
         internal TreeNodeRender? Main;
         internal TreeNodeRender? Shadow;
+        internal TreeNodeRender? Bg;
         internal string Text = "";
         internal bool Visible;
     }
@@ -129,17 +127,43 @@ internal static class ItemNameLabel
     {
         if (element == null) return;
 
-        bool want = ModSettings.ItemName && ShouldShow(element);
-        if (!want)
+        string mode = ModSettings.ItemNameMode;
+        if (mode.StartsWith("无", StringComparison.Ordinal) || mode.StartsWith("Off", StringComparison.OrdinalIgnoreCase))
         {
             Hide(element);
             return;
         }
 
+        bool renamedOnly = mode.StartsWith("仅", StringComparison.Ordinal)
+                        || mode.StartsWith("Renamed", StringComparison.OrdinalIgnoreCase);
+
         string name = "";
-        try { name = element.GetDisplayName() ?? ""; }
-        catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
-        if (name.Length == 0)
+        bool want = false;
+
+        if (renamedOnly)
+        {
+            // 只认「用标签打印机改过名」的物品，显示改后的名字
+            try
+            {
+                if (GeneralHelper.HasCustomName(element))
+                {
+                    want = true;
+                    name = GeneralHelper.GetCustomName(element) ?? "";
+                }
+            }
+            catch (Exception ex) { Log.Warn("NameLabel.CustomName", ex); }
+        }
+        else
+        {
+            want = ShouldShowContainer(element);
+            if (want)
+            {
+                try { name = element.GetDisplayName() ?? ""; }
+                catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
+            }
+        }
+
+        if (!want || name.Length == 0)
         {
             Hide(element);
             return;
@@ -172,10 +196,11 @@ internal static class ItemNameLabel
         label.Visible = false;
         label.Main.text.enabled = false;
         label.Shadow.text.enabled = false;
+        if (label.Bg?.image != null) label.Bg.image.enabled = false;
     }
 
     /// <summary>容器（有内嵌库存）或机器；判定失败一律不显示，不猜。</summary>
-    private static bool ShouldShow(GameItemElement item)
+    private static bool ShouldShowContainer(GameItemElement item)
     {
         try
         {
@@ -205,8 +230,18 @@ internal static class ItemNameLabel
             var parent = element.middle;
             if (parent == null) return null;
 
+            // 半透明底（可选）：无 sprite 的 Image 就是纯色方块，先建它保证画在文字下面
+            var bg = TreeNodeRender.Instantiate().SetParent(parent);
             var shadow = TreeNodeRender.InstantiateText().SetParent(parent);
             var main = TreeNodeRender.InstantiateText().SetParent(parent);
+
+            try
+            {
+                var img = bg.image;
+                if (img != null) { img.sprite = null; img.raycastTarget = false; img.enabled = false; }
+                bg.rectTransform.localScale = Vector3.one;
+            }
+            catch { }
 
             Configure(shadow, new Color(0f, 0f, 0f, 0.85f));
             Configure(main, Color.white);
@@ -229,7 +264,7 @@ internal static class ItemNameLabel
                 catch { }
             }
 
-            var label = new Label { Main = main, Shadow = shadow };
+            var label = new Label { Main = main, Shadow = shadow, Bg = bg };
             Labels.Add(element, label);
             Tracked.Add(new WeakReference<GameItemElement>(element));
             return label;
@@ -254,14 +289,20 @@ internal static class ItemNameLabel
         text.overflowMode = TextOverflowModes.Truncate;
         text.enableAutoSizing = true;
         text.fontSizeMin = 5f;
-        text.fontSizeMax = 9f;   // 屏幕像素（节点 localScale 已抵消父级缩放）
+        text.fontSizeMax = 9f;   // 屏幕像素，每次 Place 会按设置覆盖
         text.raycastTarget = false;
     }
 
-    /// <summary>
-    /// 世界外接框的底边 + 3px，宽度取外接框宽度；
-    /// 节点 localScale 取父级缩放的倒数，这样 sizeDelta 与字号都直接是屏幕像素。
-    /// </summary>
+    /// <summary>上/中/下三档位置：按设置把标签放在外接框的对应一侧（屏幕像素）。</summary>
+    private static float RowY(string mode, float minY, float maxY, float height)
+    {
+        if (mode.StartsWith("顶", StringComparison.Ordinal) || mode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
+            return maxY - height - LabelBottomInset;
+        if (mode.StartsWith("中", StringComparison.Ordinal) || mode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
+            return (minY + maxY) * 0.5f - height * 0.5f;
+        return minY + LabelBottomInset;   // 默认底部
+    }
+
     private static void Place(GameItemElement element, Label label)
     {
         try
@@ -273,31 +314,49 @@ internal static class ItemNameLabel
             var corners = new Vector3[4];
             rect.GetWorldCorners(corners);
 
-            float minX = corners[0].x, maxX = corners[0].x, minY = corners[0].y;
+            float minX = corners[0].x, maxX = corners[0].x, minY = corners[0].y, maxY = corners[0].y;
             for (int i = 1; i < 4; i++)
             {
                 if (corners[i].x < minX) minX = corners[i].x;
                 if (corners[i].x > maxX) maxX = corners[i].x;
                 if (corners[i].y < minY) minY = corners[i].y;
+                if (corners[i].y > maxY) maxY = corners[i].y;
             }
 
             var scale = rect.lossyScale;
             float sx = Mathf.Abs(scale.x) < 0.001f ? 1f : Mathf.Abs(scale.x);
             float sy = Mathf.Abs(scale.y) < 0.001f ? 1f : Mathf.Abs(scale.y);
 
-            float width = Mathf.Max(8f, maxX - minX);   // 世界（= 屏幕）像素
+            float size = Mathf.Clamp(ModSettings.ItemNameSize, 5f, 20f);
+            float height = size + 2f;
+            float width = Mathf.Max(8f, maxX - minX);
             float centerX = (minX + maxX) * 0.5f;
-            float y = minY + LabelBottomInset;
+            float y = RowY(ModSettings.ItemNamePosition, minY, maxY, height);
             float z = rect.position.z;
 
-            SetRect(label.Main, width, LabelHeight, centerX, y, z, sx, sy);
-            SetRect(label.Shadow, width, LabelHeight, centerX, y - 1f, z, sx, sy);
+            if (label.Main != null) label.Main.text.fontSizeMax = size;
+            if (label.Shadow != null) label.Shadow.text.fontSizeMax = size;
+
+            SetRect(label.Main, width, height, centerX, y, z, sx, sy);
+            SetRect(label.Shadow, width, height, centerX, y - 1f, z, sx, sy);
+
+            bool bgOn = ModSettings.ItemNameBackground;
+            if (label.Bg != null && label.Bg.image != null)
+            {
+                label.Bg.image.enabled = bgOn;
+                if (bgOn)
+                {
+                    float a = Mathf.Clamp01(ModSettings.ItemNameBackgroundAlpha);
+                    label.Bg.image.color = new Color(0f, 0f, 0f, a);
+                    SetRect(label.Bg, width + 2f, height + 2f, centerX, y - 1f, z, sx, sy);
+                }
+            }
 
             if (_placementLogged < 3)
             {
                 _placementLogged++;
                 Log.Msg($"NameLabel place '{label.Text}': world w={width:0} y={y:0} " +
-                        $"lossyScale=({scale.x:0.##},{scale.y:0.##}) local=({width / sx:0} x {LabelHeight / sy:0.##})");
+                        $"lossyScale=({scale.x:0.##},{scale.y:0.##}) size={size:0.#}");
             }
         }
         catch (Exception ex)
