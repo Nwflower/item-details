@@ -351,9 +351,31 @@ internal static class ItemNameLabel
             float size = Mathf.Clamp(ModSettings.ItemNameSize, 5f, 24f);
             float height = size + 2f;
             float iconWidth = Mathf.Max(8f, maxX - minX);
-            float centerX = (minX + maxX) * 0.5f;
-            float y = RowY(ModSettings.ItemNamePosition, minY, maxY, height);
             float z = sprite.position.z;
+
+            // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
+            // 再按上/中/下档位偏移。旋转 90/180/270 或任意角度时都跟着图标走，
+            // 不会停在旋转前的格子上。
+            int bottomEdge = 0;
+            float bottomMidY = float.MaxValue;
+            for (int i = 0; i < 4; i++)
+            {
+                float midY = (corners[i].y + corners[(i + 1) % 4].y) * 0.5f;
+                if (midY < bottomMidY) { bottomMidY = midY; bottomEdge = i; }
+            }
+
+            Vector3 e0 = corners[bottomEdge];
+            Vector3 e1 = corners[(bottomEdge + 1) % 4];
+            float centerX = (e0.x + e1.x) * 0.5f;
+
+            float y;
+            var posMode = ModSettings.ItemNamePosition;
+            if (posMode.StartsWith("顶", StringComparison.Ordinal) || posMode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
+                y = maxY - height - LabelBottomInset;
+            else if (posMode.StartsWith("中", StringComparison.Ordinal) || posMode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
+                y = (minY + maxY) * 0.5f - height * 0.5f;
+            else
+                y = bottomMidY + LabelBottomInset;
 
             // 文字宽度按实际文本量：底板跟着文字走，不跟着容器宽度走
             float textWidth = iconWidth;
