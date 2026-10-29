@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace ItemDetails;
 
@@ -210,11 +211,17 @@ public sealed partial class ModEntry : IMod
     /// </summary>
     private void RunRenderers(RichTextBuilder builder, GameItem item)
     {
+        // 单次 tooltip 超过这个耗时才记一条，限频 2 秒一次：用来定位"悬停掉帧"。
+        const double PerfLogThresholdMs = 4.0;
+        double totalMs = 0;
+        StringBuilder? slow = null;
+
         for (int i = 0; i < Renderers.Length; i++)
         {
             if (_rendererFailures[i] >= RendererFailureLimit) continue;
 
             RendererDef def = Renderers[i];
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
             try
             {
                 def.Append(this, builder, item);
@@ -234,6 +241,26 @@ public sealed partial class ModEntry : IMod
                         $"其它模块不受影响。{ex.GetType().Name} - {ex.Message}");
                 }
             }
+
+            double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0
+                        / System.Diagnostics.Stopwatch.Frequency;
+            totalMs += ms;
+            if (ms >= 1.0)
+            {
+                slow ??= new StringBuilder();
+                if (slow.Length > 0) slow.Append(' ');
+                slow.Append(def.Name).Append('=').Append(ms.ToString("0.0")).Append("ms");
+            }
+        }
+
+        if (totalMs >= PerfLogThresholdMs && UnityEngine.Time.unscaledTime >= _nextPerfLogAt)
+        {
+            _nextPerfLogAt = UnityEngine.Time.unscaledTime + 2f;
+            string detail = slow == null ? "" : " 明细: " + slow;
+            Log.Msg($"[perf] tooltip 构建 {totalMs:0.0}ms（{item?.identifier}）{detail}");
         }
     }
+
+    /// <summary>性能日志限频用；不参与任何功能判断。</summary>
+    private static float _nextPerfLogAt;
 }

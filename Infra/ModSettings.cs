@@ -126,11 +126,13 @@ internal static class ModSettings
             ModuleEffectsToggle.Define(_cfg, "show_module_effects", SecDisplayZh, SecDisplayEn,
                 Text("模组效果的实际变更", "Module Effect Deltas"),
                 Text("机器装模块后，原版只写「性能/效率/质量 +16%」这类百分比。" +
-                     "这里直接在该行后面补上实际影响：性能给产量变化、效率给耗电变化、质量给当前品质档，" +
-                     "例如「效率: +16%(-0能量/天)」。数值直接取游戏结果，不自己复算。",
+                     "这里直接在该行后面补上游戏算好的实际值：性能=加工速度变化、效率=耗电变化、" +
+                     "质量=品质折算值（仅限设置了品质比率的机器）。三项都按物品标签推导，" +
+                     "没有对应数据的机器保留原版百分比。",
                      "Vanilla only lists percentages such as performance/efficiency/quality +16%. " +
-                     "This appends the real impact on the same line: output change for performance, " +
-                     "power change for efficiency, quality tier for quality, e.g. \"Efficiency: +16%(-0 power/day)\"."));
+                     "This appends the values the game computed: processing speed for performance, power " +
+                     "draw for efficiency, adjusted quality for quality (machines with a quality ratio only). " +
+                     "All derived from item tags; machines without the data keep the vanilla line."));
 
             ContainerToggle.Define(_cfg, "show_container", SecDisplayZh, SecDisplayEn,
                 Text("容器信息", "Container Details"),
