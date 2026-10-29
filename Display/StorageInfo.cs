@@ -168,6 +168,7 @@ internal static class StorageInfo
             var counts = new Dictionary<string, int>(StringComparer.Ordinal);
             var order = new List<string>();
             long totalValue = 0;
+            bool completeValue = true;
 
             foreach (var it in items)
             {
@@ -189,7 +190,7 @@ internal static class StorageInfo
                     // 容器套容器时成本不可控。这类物品只计数、不计价。
                     bool nestedContainer = false;
                     try { nestedContainer = it.contentWindow != null; } catch { }
-                    if (nestedContainer) continue;
+                    if (nestedContainer) { completeValue = false; continue; }
 
                     long unit = it.GetCurrentValue(useRetailMarkup: false, withChild: true,
                                                    includeEvents: true, forceMarkup: false);
@@ -197,13 +198,13 @@ internal static class StorageInfo
                     long stackTotal = unit;
                     if (stack > 1)
                     {
-                        if (unit > (long.MaxValue - totalValue) / stack) continue;
+                        if (unit > (long.MaxValue - totalValue) / stack) { completeValue = false; continue; }
                         stackTotal = unit * stack;
                     }
-                    if (stackTotal > long.MaxValue - totalValue) continue;
+                    if (stackTotal > long.MaxValue - totalValue) { completeValue = false; continue; }
                     totalValue += stackTotal;
                 }
-                catch { }
+                catch { completeValue = false; }
             }
 
             if (order.Count == 0) { StoreCache(); return; }
@@ -224,7 +225,8 @@ internal static class StorageInfo
 
             built.Add(new TooltipLine(sb.ToString(), Color));
 
-            if (totalValue > 0)
+            // 跳过嵌套容器或读取失败时，不把不完整的小计写成总价。
+            if (completeValue && totalValue > 0)
             {
                 built.Add(new TooltipLine(
                     Loc.T("storage.total_value", "Total value: {0}", totalValue),

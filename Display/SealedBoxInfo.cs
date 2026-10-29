@@ -95,6 +95,7 @@ internal static class SealedBoxInfo
             var contents = new StringBuilder();
             int shown = 0, total = items.Count;
             long sum = 0;
+            bool completeValue = true;
             try
             {
                 foreach (var child in items)
@@ -114,8 +115,9 @@ internal static class SealedBoxInfo
                             unit = child.GetCurrentValue(useRetailMarkup: false, withChild: true,
                                                          includeEvents: true, forceMarkup: false);
                         }
-                        catch { unit = 0; }
+                        catch { completeValue = false; }
                     }
+                    else completeValue = false;
                     // 嵌套容器仍列名称，但不递归求值，避免箱套箱时成本不可控。
 
                     if (unit > 0 && StackValue.TryTotal(unit, stack, out long lineTotal)
@@ -123,6 +125,7 @@ internal static class SealedBoxInfo
                     {
                         sum += lineTotal;
                     }
+                    else if (unit > 0) completeValue = false;
 
                     if (shown >= MaxItems) continue;
                     if (shown > 0) contents.Append(Loc.T("list.sep", ", "));
@@ -153,7 +156,7 @@ internal static class SealedBoxInfo
             }
 
             // ---------- 箱内总价值 ----------
-            if (sum > 0)
+            if (completeValue && sum > 0)
                 lines.Add(new TooltipLine(Loc.T("sealed.total", "Total inside: {0}", sum), Color));
 
             StoreCache();
