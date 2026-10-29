@@ -17,17 +17,23 @@ namespace ItemDetails;
 ///     图钉与外观，物品身份变化/换格子都会走到这里；
 ///   - 文字用 <c>TreeNodeRender.InstantiateText()</c> 生成两个节点（本体 + 深色投影），
 ///     与游戏的堆叠数字同款；父节点挂在 <c>handler</c>（未旋转），避免随物品旋转颠倒；
+///   - 定位只用锚点（父矩形底边拉伸），不猜父节点的局部原点/缩放约定；
 ///   - 每个元素只建一次，挂在元素自身节点下，元素销毁时随之销毁；
 ///     用 <see cref="ConditionalWeakTable{TKey,TValue}"/> 记录，不持有已销毁元素的强引用。
+///
+/// 历史：第一版按「handler 原点在左上、Y 朝下」的像素偏移放置，实测名字压在图标中间并溢出到
+/// 相邻格子（min/max 字号也没生效），所以改为纯锚点定位 + Truncate，并第一次创建时打一条
+/// geometry 日志，方便按实机数据继续调。
 /// </summary>
 internal static class ItemNameLabel
 {
     private const string HarmonyId = "item_details.item_name_label";
-    private const float LabelHeight = 12f;
+    private const float LabelHeight = 10f;
     private const float LabelBottomInset = 1f;
 
     private static Harmony? _harmony;
     private static bool _patched;
+    private static bool _geometryLogged;
 
     private static readonly ConditionalWeakTable<GameItemElement, Label> Labels = new();
 
@@ -112,7 +118,7 @@ internal static class ItemNameLabel
             label.Shadow.text.text = name;
         }
 
-        Place(element, label);
+        Place(label);
     }
 
     private static void Hide(GameItemElement element)
@@ -165,6 +171,20 @@ internal static class ItemNameLabel
             shadow.text.enabled = false;
             main.text.enabled = false;
 
+            if (!_geometryLogged)
+            {
+                _geometryLogged = true;
+                try
+                {
+                    var h = element.handler.rectTransform;
+                    var m = element.rectTransform;
+                    Log.Msg($"NameLabel geometry: handler sizeDelta={h.sizeDelta} rect={h.rect} pivot={h.pivot} " +
+                            $"anchor=({h.anchorMin},{h.anchorMax}); middle sizeDelta={m.sizeDelta} rect={m.rect}; " +
+                            $"item={element.widthPixels}x{element.heightPixels} grid={UISettings.current.gridSize}");
+                }
+                catch { }
+            }
+
             var label = new Label { Main = main, Shadow = shadow };
             Labels.Add(element, label);
             return label;
@@ -179,46 +199,43 @@ internal static class ItemNameLabel
     private static void Configure(TreeNodeRender node, Color color)
     {
         var rt = node.rectTransform;
-        rt.anchorMin = new Vector2(0f, 1f);
-        rt.anchorMax = new Vector2(0f, 1f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
         rt.localScale = Vector3.one;
+        rt.localEulerAngles = Vector3.zero;
 
         var text = node.text;
         text.color = color;
         text.fontStyle = FontStyles.Bold;
-        text.alignment = TextAlignmentOptions.Center;
+        text.alignment = TextAlignmentOptions.Bottom;
         text.enableWordWrapping = false;
-        text.overflowMode = TextOverflowModes.Overflow;
-        text.enableAutoSizing = true;   // 长名字（「储藏区（扩建）」）自动缩小，不撑出格子
-        text.fontSizeMin = 6f;
-        text.fontSizeMax = 10f;
+        text.overflowMode = TextOverflowModes.Truncate;
+        text.enableAutoSizing = true;   // 长名字自动缩小，不撑出格子
+        text.fontSizeMin = 5f;
+        text.fontSizeMax = 9f;
         text.raycastTarget = false;
     }
 
-    /// <summary>贴在图标下沿内侧：handler 的局部原点在左上、Y 朝下（与 middle.anchoredPosition 一致）。</summary>
-    private static void Place(GameItemElement element, Label label)
+    /// <summary>
+    /// 只用锚点定位：横向拉满父矩形、纵向贴在底边内侧。
+    /// 不依赖父节点的局部原点/缩放约定（第一版按像素偏移猜，结果压在图标中间）。
+    /// </summary>
+    private static void Place(Label label)
     {
         try
         {
-            int gridSize = UISettings.current.gridSize;
-            float width = Mathf.Max(8f, element.widthPixels);
-            float height = Mathf.Max(8f, element.heightPixels);
-            float y = -(height - LabelHeight * 0.5f - LabelBottomInset);
-
             foreach (var node in new[] { label.Shadow, label.Main })
             {
                 if (node == null) continue;
                 var rt = node.rectTransform;
-                rt.sizeDelta = new Vector2(width, LabelHeight);
-                rt.anchoredPosition = new Vector2(width * 0.5f, y);
+
+                rt.anchorMin = new Vector2(0f, 0f);
+                rt.anchorMax = new Vector2(1f, 0f);
+                rt.pivot = new Vector2(0.5f, 0f);
+                rt.sizeDelta = new Vector2(0f, LabelHeight);
+                rt.anchoredPosition = new Vector2(0f, LabelBottomInset);
             }
 
-            // 投影右移 1px、下移 1px，形成描边感（与堆叠数字的叠法一致）
             if (label.Shadow != null)
-                label.Shadow.rectTransform.anchoredPosition = new Vector2(width * 0.5f + 1f, y - 1f);
-
-            _ = gridSize;   // 尺寸已用像素属性表达，gridSize 仅用于将来对齐留用
+                label.Shadow.rectTransform.anchoredPosition = new Vector2(0f, LabelBottomInset - 1f);
         }
         catch (Exception ex)
         {
