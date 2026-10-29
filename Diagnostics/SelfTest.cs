@@ -1,3 +1,4 @@
+#if ITEMDETAILS_SELFTEST
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -390,3 +391,4 @@ internal static partial class SelfTest
         }
     }
 }
+#endif

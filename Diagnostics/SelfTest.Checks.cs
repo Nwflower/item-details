@@ -1,3 +1,4 @@
+#if ITEMDETAILS_SELFTEST
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -378,3 +379,4 @@ internal static partial class SelfTest
         item.ModifyTag(tag, st => st.Enable().SetInt(value));
     }
 }
+#endif

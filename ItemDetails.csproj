@@ -8,6 +8,12 @@
     <!-- 游戏根目录：优先 -p:GameDir=...，其次环境变量 PS_GAME_DIR；都没给就在构建时报错 -->
     <GameDir Condition="'$(GameDir)' == '' and '$(PS_GAME_DIR)' != ''">$(PS_GAME_DIR)</GameDir>
     <ManagedDir Condition="'$(GameDir)' != ''">$(GameDir)\Probably Stolen_Data\Managed</ManagedDir>
+    <!-- 自检代码默认不进产物；需要实机自检时用 -p:SelfTest=true -->
+    <SelfTest Condition="'$(SelfTest)' == ''">false</SelfTest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SelfTest)' == 'true'">
+    <DefineConstants>$(DefineConstants);ITEMDETAILS_SELFTEST</DefineConstants>
   </PropertyGroup>
 
   <Target Name="CheckGameDir" BeforeTargets="ResolveAssemblyReferences">

@@ -99,9 +99,11 @@ public sealed partial class ModEntry : IMod
         _log.Log($"{manifest.Name} v{manifest.ModVersion} initialized.");
 
         // 无头自检：命令行 -itemdetails-selftest，或工具放入的一次性 selftest.flag；
-        // 正常游玩两者都没有，不受影响
+        // 正常游玩两者都没有，不受影响。仅 -p:SelfTest=true 构建时编入。
+#if ITEMDETAILS_SELFTEST
         try { SelfTest.MaybeStart(manifest.ID); }
         catch (Exception ex) { Log.Error("SelfTest", ex); }
+#endif
     }
 
     public void OnEnable()

@@ -50,6 +50,15 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="D:\Steam\steamapps\common
 输出在 `bin/Release/netstandard2.1/`，含 `ItemDetails.dll` 与随包资源。
 引用的是游戏自带的 `Assembly-CSharp.dll`、Unity 与 `0Harmony.dll`（全部 `Private=false`，不会被打进产物）。
 
+诊断构建（可选）：模组内自带的无头自检默认**不编译进产物**，需要时显式打开：
+
+```powershell
+dotnet build ItemDetails.csproj -c Release -p:GameDir="..." -p:SelfTest=true
+# 启动游戏时带 -itemdetails-selftest，或在 ModData/item_details/ 放一个 selftest.flag
+```
+
+自检会在载入存档后跑一轮用例并退出，用于验证 tooltip 渲染、探针隔离与公式一致性。
+
 ## 设置
 
 模组菜单内可逐项开关，全部即时生效并持久化：真伪、价值构成、赝品原因、缺陷价值、
