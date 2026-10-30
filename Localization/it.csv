@@ -106,9 +106,9 @@ scratcher.progress_part,", grattato {0}/3"
 scratcher.win,Gratta e vinci: vince {0} ({1} uguali)
 sealed.contents,Contenuto: {0}{1}
 sealed.empty,Contenuto: vuoto
-sealed.more," ... {0} oggetti in totale"
-sealed.contents_total,Contenuto (totale {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …{0} oggetti in totale"
+sealed.contents_total,Contenuto (valore {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Tratti (non analizzati): {0}
 seed.more,... e altri {0}
 seed.trait_rank,{0} (rango {1})

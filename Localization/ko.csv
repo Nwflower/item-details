@@ -106,9 +106,9 @@ scratcher.progress_part,", 긁은 칸 {0}/3"
 scratcher.win,스크래치 복권: 당첨 {0} ({1}개 일치)
 sealed.contents,내용물: {0}{1}
 sealed.empty,내용물: 없음
-sealed.more," … 총 {0}개"
-sealed.contents_total,내용물 (합계 {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …총 {0}개"
+sealed.contents_total,내용물(가치 {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,형질 (미분석): {0}
 seed.more,…외 {0} 항목
 seed.trait_rank,{0} (등급 {1})

@@ -106,9 +106,9 @@ scratcher.progress_part,", zdrapano {0}/3"
 scratcher.win,Zdrapka: wygrana {0} ({1} zgodnych)
 sealed.contents,W środku: {0}{1}
 sealed.empty,W środku: pusto
-sealed.more," ... łącznie przedmiotów: {0}"
-sealed.contents_total,W środku (razem {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …łącznie {0} szt."
+sealed.contents_total,W środku (wartość {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Cechy (niezbadane): {0}
 seed.more,... i jeszcze {0}
 seed.trait_rank,{0} (ranga {1})

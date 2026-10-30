@@ -104,11 +104,11 @@ ribwich.reason_year_range,生产年份 {0} 不在 425–429 或 432–438 之内
 scratcher.no_prize,刮刮乐：不中奖
 scratcher.progress_part,，已刮开 {0}/3
 scratcher.win,刮刮乐：中奖 {0}（{1} 个相同）
-sealed.contents,箱内：{0}{1}
-sealed.empty,箱内：空
-sealed.more," 等，共 {0} 件"
-sealed.contents_total,箱内（合计 {0}）：{1}{2}
-sealed.unit,（{0}）
+sealed.contents,箱内: {0}{1}
+sealed.empty,箱内: 空
+sealed.more," …共{0}件"
+sealed.contents_total,箱内(价值{0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,性状（未分析）：{0}
 seed.more,…另有 {0} 项
 seed.trait_rank,{0}（等级 {1}）

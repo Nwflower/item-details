@@ -106,9 +106,9 @@ scratcher.progress_part,", raspado {0}/3"
 scratcher.win,Raspadinha: ganha {0} ({1} iguais)
 sealed.contents,Conteúdo: {0}{1}
 sealed.empty,Conteúdo: vazio
-sealed.more," ... {0} itens no total"
-sealed.contents_total,Conteúdo (total {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …{0} itens no total"
+sealed.contents_total,Conteúdo (valor {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Características (não analisadas): {0}
 seed.more,... e mais {0}
 seed.trait_rank,{0} (nível {1})

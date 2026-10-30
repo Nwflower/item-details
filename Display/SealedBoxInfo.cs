@@ -113,8 +113,10 @@ internal static class SealedBoxInfo
     private static void BuildLines(List<GameItem> items, float now, Entry? entry,
                                    List<TooltipLine> lines)
     {
-        var contents = new StringBuilder();
-        int shown = 0;
+        // 价格不再逐件显示，同名物品合并成一个「名称[件数]」条目；顺序按首次出现。
+        var names = new List<string>();
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        int pieces = 0;
         int skipped = 0;
         long sum = 0;
 
@@ -122,7 +124,9 @@ internal static class SealedBoxInfo
         {
             if (child == null) { skipped++; continue; }
 
-            int stack = ContainerItemSignature.ReadStack(child);
+            int stack = Math.Max(1, ContainerItemSignature.ReadStack(child));
+            pieces += stack;
+
             bool nestedContainer = child.contentWindow != null;
 
             long unit = 0;
@@ -151,28 +155,41 @@ internal static class SealedBoxInfo
                 }
             }
 
-            if (shown >= MaxItems) continue;
-            if (shown > 0) contents.Append(Loc.T("list.sep", ", "));
-            contents.Append(ContainerItemSignature.DisplayName(child));
-            if (read && unit > 0) contents.Append(Loc.T("sealed.unit", " ({0})", unit));
-            shown++;
+            string name = ContainerItemSignature.DisplayName(child);
+            if (counts.TryGetValue(name, out int already)) counts[name] = already + stack;
+            else
+            {
+                names.Add(name);
+                counts[name] = stack;
+            }
         }
 
-        if (shown == 0)
+        if (names.Count == 0)
         {
             lines.Add(new TooltipLine(Loc.T("sealed.empty", "Inside: empty"), Color));
             return;
         }
 
-        string more = items.Count > shown
-            ? Loc.T("sealed.more", " ... {0} items in total", items.Count)
+        var contents = new StringBuilder();
+        int shown = 0;
+        foreach (string name in names)
+        {
+            if (shown >= MaxItems) break;
+            if (shown > 0) contents.Append(Loc.T("list.sep", ", "));
+            int count = counts[name];
+            contents.Append(count > 1 ? Loc.T("sealed.count", "{0}[{1}]", name, count) : name);
+            shown++;
+        }
+
+        string more = names.Count > shown
+            ? Loc.T("sealed.more", " ... {0} items in total", pieces)
             : "";
         if (sum > 0 || skipped > 0)
         {
             // 合计写在清单之前；“+”只表示仍有物品未计入，不把这个下限额伪装成完整总价。
             string value = skipped > 0 ? sum.ToString() + "+" : sum.ToString();
             lines.Add(new TooltipLine(
-                Loc.T("sealed.contents_total", "Inside (total {0}): {1}{2}", value, contents.ToString(), more),
+                Loc.T("sealed.contents_total", "Inside (value {0}): {1}{2}", value, contents.ToString(), more),
                 Color));
         }
         else

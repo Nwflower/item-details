@@ -106,9 +106,9 @@ scratcher.progress_part,", rascado {0}/3"
 scratcher.win,Rasca y Gana: gana {0} ({1} coincidencias)
 sealed.contents,Contenido: {0}{1}
 sealed.empty,Contenido: vacío
-sealed.more," ... {0} objetos en total"
-sealed.contents_total,Contenido (total {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …{0} objetos en total"
+sealed.contents_total,Contenido (valor {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Rasgos (sin analizar): {0}
 seed.more,... y {0} más
 seed.trait_rank,{0} (rango {1})

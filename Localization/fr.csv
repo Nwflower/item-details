@@ -104,11 +104,11 @@ ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
 scratcher.progress_part,", gratté {0}/3"
 scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
-sealed.contents,Contenu : {0}{1}
-sealed.empty,Contenu : vide
-sealed.more," ... {0} objets au total"
-sealed.contents_total,Contenu (total {0}) : {1}{2}
-sealed.unit," ({0})"
+sealed.contents,Contenu: {0}{1}
+sealed.empty,Contenu: vide
+sealed.more," …{0} objets au total"
+sealed.contents_total,Contenu (valeur {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Traits (non analysés) : {0}
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})

@@ -104,11 +104,11 @@ ribwich.reason_year_range,製造年 {0} が 425–429 / 432–438 の範囲外
 scratcher.no_prize,スクラッチカード：はずれ
 scratcher.progress_part,、削り済み {0}/3
 scratcher.win,スクラッチカード：当たり {0}（{1}個一致）
-sealed.contents,中身：{0}{1}
-sealed.empty,中身：空
+sealed.contents,中身: {0}{1}
+sealed.empty,中身: 空
 sealed.more," …計{0}点"
-sealed.contents_total,中身（合計 {0}）：{1}{2}
-sealed.unit,（{0}）
+sealed.contents_total,中身(価値{0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,形質（未分析）：{0}
 seed.more,…ほか {0} 件
 seed.trait_rank,{0}（ランク {1}）

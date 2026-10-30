@@ -106,9 +106,9 @@ scratcher.progress_part,", gerubbelt {0}/3"
 scratcher.win,Rubbellos: gewinnt {0} ({1} Treffer)
 sealed.contents,Inhalt: {0}{1}
 sealed.empty,Inhalt: leer
-sealed.more," ... insgesamt {0} Gegenstände"
-sealed.contents_total,Inhalt (gesamt {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …insgesamt {0} Stück"
+sealed.contents_total,Inhalt (Wert {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Merkmale (unanalysiert): {0}
 seed.more,... und {0} weitere
 seed.trait_rank,{0} (Rang {1})

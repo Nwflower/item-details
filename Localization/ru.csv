@@ -106,9 +106,9 @@ scratcher.progress_part,", стёрто {0}/3"
 scratcher.win,Скретч-карта: выигрыш {0} (совпадений: {1})
 sealed.contents,Внутри: {0}{1}
 sealed.empty,Внутри: пусто
-sealed.more," ... всего предметов: {0}"
-sealed.contents_total,Внутри (всего {0}): {1}{2}
-sealed.unit," ({0})"
+sealed.more," …всего {0} шт."
+sealed.contents_total,Внутри (стоимость {0}): {1}{2}
+sealed.count,{0}[{1}]
 seed.line,Признаки (не проанализированы): {0}
 seed.more,... и ещё {0}
 seed.trait_rank,{0} (ранг {1})
