@@ -28,7 +28,7 @@ CALL_PATTERNS = (
     re.compile(r'(?<![A-Za-z0-9_])Text\(\s*"([a-z][a-z0-9_.]*)"\s*,\s*((?:\$?"(?:[^"\\]|\\.)*"\s*(?:\+\s*)?)+)'),
 )
 LIT = re.compile(r'\$?"((?:[^"\\]|\\.)*)"')
-PLACEHOLDER = re.compile(r"\{(\d+)\}")
+PLACEHOLDER = re.compile(r"\{(\d+)(?:,[+-]?\d+)?(?::[^{}]*)?\}")
 
 # 间接引用的键：常量传给 RefreshSections 的循环变量，字面量不出现在 Loc.T(...) 里。
 # 少了它们，设置面板的分组标题在非英语下仍是英文，而校验器还会说「齐全」。
@@ -96,7 +96,7 @@ def pure_keys(text: str) -> dict[str, str]:
     return out
 
 
-def parse_csv(path: Path) -> dict[str, str]:
+def parse_csv(path: Path) -> tuple[dict[str, str], int]:
     """与运行时 Loc.Table 相同的解析规则：只按第一个逗号切分。"""
     rows: dict[str, str] = {}
     dupes: list[str] = []
@@ -118,13 +118,13 @@ def parse_csv(path: Path) -> dict[str, str]:
         rows[key] = value
     if dupes:
         print(f"{path.name}: 重复键 {sorted(set(dupes))}")
-    return rows
+    return rows, len(set(dupes))
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict-placeholders", action="store_true",
-                    help="占位符必须完全一致（默认只要求编号集合相同）")
+                    help="兼容旧命令；所有模式都按编号检查缺失和多余占位符")
     args = ap.parse_args()
 
     if not LOC_DIR.is_dir():
@@ -142,7 +142,8 @@ def main() -> int:
     print(f"源码键：{len(keys)}   语言文件：{len(csvs)}（{', '.join(csvs) or '无'}）")
 
     for code, path in csvs.items():
-        rows = parse_csv(path)
+        rows, duplicates = parse_csv(path)
+        problems += duplicates
         missing = sorted(set(keys) - set(rows))
         orphans = sorted(set(rows) - set(keys))
 
@@ -152,16 +153,13 @@ def main() -> int:
             print(f"[{code}] 孤儿词条（源码里已没有这个键）：{key}")
 
         for key in sorted(set(keys) & set(rows)):
-            want = sorted(set(PLACEHOLDER.findall(keys[key])))
-            got = sorted(set(PLACEHOLDER.findall(rows[key])))
+            want = sorted({int(index) for index in PLACEHOLDER.findall(keys[key])})
+            got = sorted({int(index) for index in PLACEHOLDER.findall(rows[key])})
             if not rows[key].strip():
                 print(f"[{code}] 空译文：{key}")
                 problems += 1
-            elif args.strict_placeholders and want != got:
+            elif want != got:
                 print(f"[{code}] 占位符不一致：{key} 期望 {want} 实际 {got}")
-                problems += 1
-            elif set(got) - set(want):
-                print(f"[{code}] 多出占位符：{key} 期望 {want} 实际 {got}")
                 problems += 1
 
         if not missing and not orphans:
