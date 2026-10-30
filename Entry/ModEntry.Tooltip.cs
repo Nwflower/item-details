@@ -208,55 +208,84 @@ public sealed partial class ModEntry
         var r = WaterInfo.Analyze(item);
         if (!r.HasData) return false;
 
-        double purityPct = r.Purity / 100.0;
+        bool wrote = false;
 
-        // 第一行：实测纯度 + 游戏档位名；水相关百分比统一两位小数。
-        // 标签行由 LabelImpact 原样输出，此处不重复标签信息。
-        string head = Loc.T("water.head", "Water: {0}% {1}",
-            purityPct.ToString("0.00"), r.Tier);
-
-        var headColor = r.Purity >= WaterInfo.PurityGood ? RenderHandler.ColorPalette.LightGreen
-                      : r.Purity >= WaterInfo.PurityFair ? RenderHandler.ColorPalette.LightYellow
-                      : RenderHandler.ColorPalette.LightRed;
-
-        // 标签写着的水质与实测档位不一致时，用灰字标注
-        bool mismatch = !string.IsNullOrEmpty(r.Label)
-                     && !string.IsNullOrEmpty(r.Tier)
-                     && !string.Equals(r.Label, r.Tier, StringComparison.Ordinal);
-
-        builder.Add(head.Trim(), headColor);
-        if (mismatch)
-            builder.Add(Loc.T("water.mismatch", " (doesn't match label)"), RenderHandler.ColorPalette.Gray);
-        builder.NextLine();
-
-        // 第二行：逐项杂质占比（不显示总杂质百分比和 ml）。
-        var sb = new StringBuilder();
-        sb.Append(Loc.T("water.impurities", "Impurities: "));
-        bool any = false;
-        for (int i = 0; i < r.Impurities.Count; i++)
+        // 第一行：水质纯度。无水时（纯药物/溶剂混合物）没有“纯度”可言，只列成分。
+        if (r.WaterParts > 0)
         {
-            var part = r.Impurities[i];
-            if (part.Parts < WaterInfo.MinVisibleParts) continue;
+            double purityPct = r.Purity / 100.0;
 
-            double partPct = part.Parts * 100.0 / r.TotalParts;
-            // 两位小数下会显示成 0.00% 的项不列，避免“有杂质但看起来是 0”。
-            if (partPct < 0.005) continue;
+            // 水相关百分比统一两位小数；标签行由 LabelImpact 原样输出，此处不重复。
+            string head = Loc.T("water.head", "Water: {0}% {1}",
+                purityPct.ToString("0.00"), r.Tier);
 
-            if (any) sb.Append(' ');
-            any = true;
-            sb.Append(part.Name).Append(' ').Append(partPct.ToString("0.00")).Append('%');
-        }
-        if (!any)
-        {
-            if (r.Impurities.Count == 0) sb.Append(Loc.T("water.none", "none"));
-            else sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
+            var headColor = r.Purity >= WaterInfo.PurityGood ? RenderHandler.ColorPalette.LightGreen
+                          : r.Purity >= WaterInfo.PurityFair ? RenderHandler.ColorPalette.LightYellow
+                          : RenderHandler.ColorPalette.LightRed;
+
+            // 标签写着的水质与实测档位不一致时，用灰字标注
+            bool mismatch = !string.IsNullOrEmpty(r.Label)
+                         && !string.IsNullOrEmpty(r.Tier)
+                         && !string.Equals(r.Label, r.Tier, StringComparison.Ordinal);
+
+            builder.Add(head.Trim(), headColor);
+            if (mismatch)
+                builder.Add(Loc.T("water.mismatch", " (doesn't match label)"), RenderHandler.ColorPalette.Gray);
+            builder.NextLine();
+            wrote = true;
         }
 
-        AddLine(builder, sb.ToString(),
-            r.TotalParts == r.WaterParts
-                ? RenderHandler.ColorPalette.LightGreen
-                : RenderHandler.ColorPalette.LightRed);
-        return true;
+        // 第二行：药物活性成分。游戏按绝对量判定效果（致死/中毒/兴奋等级/戒断/避孕），
+        // 百分比无法表达 600 µl 与 602 µl 的差异，因此这里给精确用量。
+        if (r.Actives.Count > 0)
+        {
+            var actives = new StringBuilder();
+            actives.Append(Loc.T("water.actives", "Actives: "));
+            for (int i = 0; i < r.Actives.Count; i++)
+            {
+                if (i > 0) actives.Append(Loc.T("list.sep", ", "));
+                var active = r.Actives[i];
+                actives.Append(active.Name).Append(' ').Append(WaterInfo.Amount(active.Parts));
+            }
+            AddLine(builder, actives.ToString(), RenderHandler.ColorPalette.LightYellow);
+            wrote = true;
+        }
+
+        // 第三行：杂质与试剂仍按占比；显示阈值只用于这一类，不裁掉小剂量药物。
+        if (r.WaterParts > 0 || r.Impurities.Count > 0)
+        {
+            var sb = new StringBuilder();
+            // 无水混合物里酒精/提取液不是“杂质”，仍按占比但换个更准确的说法。
+            if (r.WaterParts > 0) sb.Append(Loc.T("water.impurities", "Impurities: "));
+            else sb.Append(Loc.T("water.other", "Other: "));
+            bool any = false;
+            for (int i = 0; i < r.Impurities.Count; i++)
+            {
+                var part = r.Impurities[i];
+                if (part.Parts < WaterInfo.MinVisibleParts) continue;
+
+                double partPct = part.Parts * 100.0 / r.TotalParts;
+                // 两位小数下会显示成 0.00% 的项不列，避免“有杂质但看起来是 0”。
+                if (partPct < 0.005) continue;
+
+                if (any) sb.Append(' ');
+                any = true;
+                sb.Append(part.Name).Append(' ').Append(partPct.ToString("0.00")).Append('%');
+            }
+            if (!any)
+            {
+                if (r.Impurities.Count == 0) sb.Append(Loc.T("water.none", "none"));
+                else sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
+            }
+
+            AddLine(builder, sb.ToString(),
+                r.TotalParts == r.WaterParts
+                    ? RenderHandler.ColorPalette.LightGreen
+                    : RenderHandler.ColorPalette.LightRed);
+            wrote = true;
+        }
+
+        return wrote;
     }
 
     // ---------------- 密封箱预览（透视，默认关闭） ----------------
