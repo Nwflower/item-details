@@ -17,23 +17,48 @@ python tools/check_localization.py --strict-placeholders
 
 ## 构建
 
-游戏目录不写死在工程里，构建时传入，或设置环境变量 `PS_GAME_DIR`：
+需要 PowerShell 7.4+ 和 .NET SDK 8 或更高版本；离线公式测试还需要 .NET 8 运行时
+（SDK 8 已包含，较新 SDK 可与它并存）。校验脚本使用 Python 3.11+。
+
+游戏目录在构建时传入，或设置环境变量 `PS_GAME_DIR`。推荐使用统一入口：
 
 ```powershell
-dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>"
+pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>"
 ```
 
-输出在 `bin/Release/netstandard2.1/`，包含 `ItemDetails.dll` 与随包资源。引用的游戏程序集、Unity 与 Harmony 都不会被打进产物。发布包只需要 DLL、`manifest.xml` 和资源目录。
+默认编译 Release，并生成 `dist/item_details-<ModVersion>.zip`。
+ZIP 内是 `item_details/`，包含 DLL、manifest、当前源码中的资源和许可/说明文件。
+资源从源码目录收集，旧 `bin/` 里遗留的文件不会进入发布包；PDB、deps.json 和 `.gitkeep` 也不打包。
+游戏、Unity 和 Harmony 程序集只作为本地引用，不分发。
 
 需要排查问题时可以打开诊断构建：
 
 ```powershell
 # 信息、性能与界面诊断日志
-dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:Diag=true
+pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>" -Variant Diag
 
 # 实机自检：载入存档后跑一轮用例并退出（同时包含诊断日志）
-dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:SelfTest=true
+pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>" -Variant SelfTest
 ```
+
+三种构建分别输出到 `bin/Release/netstandard2.1/`、`bin/Diag/netstandard2.1/` 和
+`bin/SelfTest/netstandard2.1/`。每次显式设置诊断标志，只有 Release 生成 ZIP。
+`ItemDetails.csproj` 仍可用 `dotnet build -p:GameDir=...` 直接编译。
+
+## 检查
+
+```powershell
+# 无需游戏或 Unity Editor：公式、本地化、诊断报告与配置恢复回归
+pwsh -NoProfile -File scripts/test.ps1
+
+# 有游戏程序集时：另编译三种构建，检查原生契约、包内容和能力扫描
+pwsh -NoProfile -File scripts/test.ps1 -GameDir "<游戏目录>"
+```
+
+带游戏目录的检查会编译自检构建；游戏内用例仍需按下文启动参数运行。
+单个回归检查保留在 `tools/` 中，可按需单独运行。
+
+## 游戏内自检
 
 自检会调用真实售水等行为，先创建可丢弃的专用测试存档。用 `save_<id>.es3` 文件中的内部编号选择槽位，
 不是存档列表的显示顺序。启动参数为 `-itemdetails-selftest -itemdetails-selftest-slot <id>`，
@@ -44,19 +69,16 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:SelfTe
 每次运行先写入新的 `selftest.txt`，状态为 `RUNNING`，完成后以相同 run ID 写入 `PASS` 或 `FAIL`。
 退出码 0 表示成功，1 表示失败；检查结果时同时核对状态与 run ID。编译自检构建不代表运行过游戏内用例。
 
-无需 Unity Editor 的离线检查（公式项目需 .NET 8 SDK 或更高版本，脚本使用 PowerShell 7）：
-
-```powershell
-dotnet run --project tools/FormulaTests/FormulaTests.csproj -c Release
-python -B -m unittest discover -s tools -p test_check_localization.py
-pwsh -NoProfile -File tools/test_localization_runtime.ps1
-pwsh -NoProfile -File tools/test_selftest_results.ps1
-pwsh -NoProfile -File tools/test_selftest_fixtures.ps1
-# 编译 Release 后，使用实际游戏程序集验证剂量格式、指纹和容器签名
-pwsh -NoProfile -File tools/test_upstream_contracts.ps1 -GameDir "<游戏目录>"
-```
-
 渲染器快照只包含模组追加内容；原版 tooltip 的抑制与改写由原生入口用例检查。
+
+## 目录
+
+- 原有功能目录与 `Pure/`：模组代码与共享公式。
+- `scripts/`：构建、打包和检查入口。
+- `tools/`：校验器及各项回归检查。
+- `bin/<Variant>/netstandard2.1/`：各构建的 DLL 与资源；`obj/` 为编译中间文件。
+- `dist/`：安装用 Release ZIP。生成目录不提交到 Git。
+- `Localization/`、`Textures/`、`Sounds/`、`LootTables/`、`Books/`：官方加载方式使用的资源目录；空目录的占位文件仅保留在源码中。
 
 ## 写代码时
 

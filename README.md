@@ -63,7 +63,8 @@
 ## 安装
 
 - **创意工坊**：[订阅](https://steamcommunity.com/sharedfiles/filedetails/?id=3828868413)后在游戏「模组」菜单中启用，按提示重启游戏。
-- **手动**：把发布包放进游戏目录的 `Mods/item_details/`，在「模组」菜单中启用并重启。
+- **手动**：将发布 ZIP 解压到游戏的 `Mods/` 目录，得到 `Mods/item_details/ItemDetails.dll` 和
+  `Mods/item_details/manifest.xml`，再在「模组」菜单中启用并重启。
 
 需要游戏正式版（运行时版本 0.46D）。遇到问题时按 `F8` 打开控制台，输入 `mod-scan item_details` 查看加载状态。
 
@@ -116,7 +117,7 @@ Ordinary containers list contents without a separate total; a sealed-container a
 Active-liquid amounts retain individual µL in the scanner's µL/mL/L units.
 Developer self-tests require an explicitly selected disposable save; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-**Install** — [subscribe on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3828868413), or copy the release into `Mods/item_details/`, then enable it in the Mods menu and restart. Requires the full release of the game (runtime version 0.46D).
+**Install** — [subscribe on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3828868413), or extract the release ZIP into `Mods/` (it contains the `item_details/` folder), then enable it in the Mods menu and restart. Requires the full release of the game (runtime version 0.46D).
 
 **Languages** — follows the game language; all 11 bundled languages are supported. Translations other than Chinese and English are reviewed machine translations — improvements are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
