@@ -67,6 +67,8 @@ hidden.durability,Durabilidad: {0}/{1}
 hidden.durability_faked,"Durabilidad real: {0}/{1} (muestra {2}/{3}, probablemente manipulada)"
 hidden.purity,Pureza: {0}
 hidden.purity_faked,"Pureza real: {0} (muestra {1}, probablemente falsificada)"
+hidden.purity_level,Pureza: {0}/10
+hidden.purity_level_faked,Pureza real: {0}/10 (muestra {1}/10, probablemente falsa)
 hint.double_click,Haz doble clic para inspeccionar el objeto.
 list.sep,", "
 lottery.matched_none,Acertados {0}/6 -> sin premio

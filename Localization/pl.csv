@@ -67,6 +67,8 @@ hidden.durability,Trwałość: {0}/{1}
 hidden.durability_faked,"Prawdziwa trwałość: {0}/{1} (pokazuje {2}/{3}, prawdopodobnie zmanipulowana)"
 hidden.purity,Czystość: {0}
 hidden.purity_faked,"Prawdziwa czystość: {0} (pokazuje {1}, prawdopodobnie fałszywa)"
+hidden.purity_level,Czystość: {0}/10
+hidden.purity_level_faked,Rzeczywista czystość: {0}/10 (wyświetla {1}/10, prawdopodobnie sfałszowana)
 hint.double_click,"Kliknij dwukrotnie, by sprawdzić"
 list.sep,", "
 lottery.matched_none,Trafiono {0}/6 -> brak nagrody

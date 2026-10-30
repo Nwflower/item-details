@@ -67,6 +67,8 @@ hidden.durability,Haltbarkeit: {0}/{1}
 hidden.durability_faked,"Echte Haltbarkeit: {0}/{1} (angezeigt {2}/{3}, vermutlich manipuliert)"
 hidden.purity,Reinheit: {0}
 hidden.purity_faked,"Echte Reinheit: {0} (angezeigt {1}, vermutlich gefälscht)"
+hidden.purity_level,Reinheit: {0}/10
+hidden.purity_level_faked,Tatsächliche Reinheit: {0}/10 (angezeigt: {1}/10, vermutlich gefälscht)
 hint.double_click,Zum Untersuchen doppelklicken
 list.sep,", "
 lottery.matched_none,Treffer {0}/6 -> kein Gewinn

@@ -67,6 +67,8 @@ hidden.durability,Прочность: {0}/{1}
 hidden.durability_faked,"Реальная прочность: {0}/{1} (показано {2}/{3}, вероятно, подделано)"
 hidden.purity,Чистота: {0}
 hidden.purity_faked,"Реальная чистота: {0} (показано {1}, вероятно, подделка)"
+hidden.purity_level,Чистота: {0}/10
+hidden.purity_level_faked,Реальная чистота: {0}/10 (отображается {1}/10, вероятно подделка)
 hint.double_click,"Выполните двойной щелчок, чтобы осмотреть"
 list.sep,", "
 lottery.matched_none,Совпало {0}/6 -> без приза

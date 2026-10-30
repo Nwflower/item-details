@@ -67,6 +67,8 @@ hidden.durability,耐久度：{0}/{1}
 hidden.durability_faked,真实耐久度：{0}/{1}（显示 {2}/{3}，疑似篡改）
 hidden.purity,纯度：{0}
 hidden.purity_faked,真实纯度：{0}（显示为 {1}，疑似造假）
+hidden.purity_level,纯度：{0}/10
+hidden.purity_level_faked,真实纯度：{0}/10（显示为 {1}/10，疑似造假）
 hint.double_click,双击以鉴定
 list.sep,、
 lottery.matched_none,命中 {0}/6 → 未中奖

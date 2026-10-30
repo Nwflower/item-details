@@ -67,6 +67,8 @@ hidden.durability,耐久性：{0}/{1}
 hidden.durability_faked,真の耐久性：{0}/{1}（表示は{2}/{3}、改ざんの疑い）
 hidden.purity,純度：{0}
 hidden.purity_faked,真の純度：{0}（表示は{1}、偽装の疑い）
+hidden.purity_level,純度：{0}/10
+hidden.purity_level_faked,実際の純度：{0}/10（表示は {1}/10、偽装の疑い）
 hint.double_click,ダブルクリックで鑑定
 list.sep,、
 lottery.matched_none,一致 {0}/6 -> はずれ

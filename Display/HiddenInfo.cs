@@ -80,6 +80,25 @@ internal static class HiddenInfo
 
             bool faked = !string.IsNullOrWhiteSpace(fake) && fake != real;
             string realText = PurityDisplay(real);
+            int realLevel = PurityLevel(real);
+            int fakeLevel = PurityLevel(fake);
+
+            Log.MarkOk("Hidden.IngotPurity");
+
+            // 锭纯度是 6 档枚举（无百分比），档位数字直接决定水罐增容，原版 tooltip 不显示。
+            if (realLevel > 0)
+            {
+                lines.Add(new TooltipLine(
+                    faked && fakeLevel > 0
+                        ? Loc.T("hidden.purity_level_faked",
+                            "True purity: {0}/10 (shows {1}/10, likely faked)",
+                            realLevel, fakeLevel)
+                        : Loc.T("hidden.purity_level", "Purity: {0}/10", realLevel),
+                    faked ? Warn : Info));
+                return;
+            }
+
+            // 未登记的纯度（第三方扩展）：退回名称，不硬编造档位数字。
             lines.Add(new TooltipLine(
                 faked
                     ? Loc.T("hidden.purity_faked",
@@ -89,6 +108,20 @@ internal static class HiddenInfo
                 faked ? Warn : Info));
         }
         catch (Exception ex) { Log.Warn("Hidden.IngotPurity", ex); }
+    }
+
+    /// <summary>
+    /// 锭纯度档位（5–10，与价值修正、水罐增容一一对应）；未登记的纯度返回 0。
+    /// </summary>
+    private static int PurityLevel(string purity)
+    {
+        try
+        {
+            if (IngotPurityHelper.ingotPurities.TryGetValue(purity, out var info) && info != null)
+                return info.PurityLevel;
+        }
+        catch { }
+        return 0;
     }
 
     /// <summary>

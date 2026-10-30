@@ -67,6 +67,8 @@ hidden.durability,내구도: {0}/{1}
 hidden.durability_faked,"실제 내구도: {0}/{1} (표시 {2}/{3}, 조작 의심)"
 hidden.purity,순도: {0}
 hidden.purity_faked,"실제 순도: {0} (표시 {1}, 위조 의심)"
+hidden.purity_level,순도: {0}/10
+hidden.purity_level_faked,실제 순도: {0}/10 (표시 {1}/10, 위조 의심)
 hint.double_click,더블클릭하여 감정
 list.sep,", "
 lottery.matched_none,적중 {0}/6 -> 미당첨

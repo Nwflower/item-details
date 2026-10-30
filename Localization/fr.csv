@@ -67,6 +67,8 @@ hidden.durability,Durabilité : {0}/{1}
 hidden.durability_faked,"Vraie durabilité : {0}/{1} (affichée {2}/{3}, probablement trafiquée)"
 hidden.purity,Pureté : {0}
 hidden.purity_faked,"Vraie pureté : {0} (affichée {1}, probablement falsifiée)"
+hidden.purity_level,Pureté : {0}/10
+hidden.purity_level_faked,Pureté réelle : {0}/10 (affiche {1}/10, probablement falsifiée)
 hint.double_click,Double-clic pour analyser
 list.sep,", "
 lottery.matched_none,Bons numéros {0}/6 -> aucun gain
