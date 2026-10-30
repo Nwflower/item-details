@@ -24,12 +24,19 @@ internal static class GenericBreakdown
     private const int MaxTags = 24;
     private const int MaxCacheEntries = 256;
     private const int MaxBaselineTypes = 64;
+    private const float SuccessCacheSeconds = 5f;
     private const float FailureCacheSeconds = 5f;
 
     private static readonly HashSet<string> Curated = new(StringComparer.Ordinal)
     { "hand", "ribwich", "plasma_fuel" };
 
-    private static readonly Dictionary<string, List<string>> Cache = new(StringComparer.Ordinal);
+    private sealed class CacheEntry
+    {
+        internal float At;
+        internal List<string> Lines = new();
+    }
+
+    private static readonly Dictionary<string, CacheEntry> Cache = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, float> FailureCache = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, Dictionary<string, Record>> BaselineCache =
         new(StringComparer.Ordinal);
@@ -110,13 +117,17 @@ internal static class GenericBreakdown
 
             // 显示文本随语言变化，缓存键必须带语言码，不能复用上一次语言的字符串。
             string key = Loc.Code + "|" + CacheKey(type, item);
+            float now = UnityEngine.Time.unscaledTime;
             if (Cache.TryGetValue(key, out var cached))
             {
-                FailureCache.Remove(key);
-                return cached;
+                if (now - cached.At <= SuccessCacheSeconds)
+                {
+                    FailureCache.Remove(key);
+                    return cached.Lines;
+                }
+                Cache.Remove(key);
             }
 
-            float now = UnityEngine.Time.unscaledTime;
             if (FailureCache.TryGetValue(key, out float failedAt))
             {
                 if (now - failedAt <= FailureCacheSeconds) return lines;
@@ -135,7 +146,7 @@ internal static class GenericBreakdown
 
             FailureCache.Remove(key);
             if (Cache.Count >= MaxCacheEntries) Cache.Clear();
-            Cache[key] = built;
+            Cache[key] = new CacheEntry { At = now, Lines = built };
             if (built.Count > 0) Log.MarkOk("GenericBreakdown");
             return built;
         }
@@ -440,7 +451,22 @@ internal static class GenericBreakdown
         // 用实例身份隔离成功/失败缓存，再保留类型与物品 ID 便于诊断键冲突。
         sb.Append(type.id).Append('|').Append(type.itemId).Append('|').Append(type.source).Append('|')
           .Append(item.identifier).Append('|').Append(GameRead.UniqueId(item)).Append('|')
-          .Append(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)).Append('|');
+          .Append(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)).Append('|')
+          .Append(item.unitCount).Append('|').Append(item.unitValue).Append('|')
+          .Append(item.lateUnitValue).Append('|').Append(item.unitBaseValue).Append('|')
+          .Append(item.backupUnitValue).Append('|');
+
+        // 常见非标签定价输入也立即失效；其余第三方私有依赖由成功缓存的短 TTL 兜底。
+        if (item.itemFeatures != null)
+        {
+            foreach (var feature in item.itemFeatures)
+            {
+                if (feature == null) continue;
+                sb.Append("F:").Append(feature.identifier).Append('|').Append(feature.category).Append('|')
+                  .Append((int)feature.featureType).Append('|').Append(feature.isDisabled ? 1 : 0).Append('|')
+                  .Append((int)feature.GetValueStage()).Append('|').Append(feature.GetCurrentValueMod()).Append(';');
+            }
+        }
 
         var keys = new List<string>();
         foreach (var kv in TagRecords(item))
