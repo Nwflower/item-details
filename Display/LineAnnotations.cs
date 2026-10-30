@@ -45,12 +45,8 @@ internal static class LineAnnotations
 
     // ---------------- 表 ----------------
 
-    private static readonly Rule[] Rules =
-    {
-        // Pen的自学习强化机：「当晚训练：N 次」后补「（0/2 个模组已学满）」
-        new(new[] { "Pen_mod_selflearning.machine", "pen_selflearning.machine" },
-            "Pen_mod_selflearning", "training_preview", PenSelfLearning.MaxedSuffix),
-    };
+    // Pen的自学习强化机原先在「当晚训练：N 次」后补学满数，现由 MachineAdapters.Learning 的进度条代替。
+    private static readonly Rule[] Rules = { };
 
     private static readonly Dictionary<string, List<Rule>> ById = Index();
 
@@ -119,69 +115,3 @@ internal static class LineAnnotations
     }
 }
 
-/// <summary>
-/// Pen的自学习强化机（Pen_mod_selflearning 1.0.5）：机器里有几个模组已经学满。
-/// 判定照抄它的 NightService.AdvanceOne / HasLearningTrait：
-///   - 带「自学习算法」词条，或带任一 LEARNING_ALGO_MAX_* 标签的模组才会被推进；
-///   - 每项加成：有上限标签就推到上限；没有上限、但有词条且为负值时推到 0；其余不推；
-///   - 三项都推不动 = 学满。
-/// 没有词条的模组只计入总数，单独说明有几个，不算学满。
-/// </summary>
-internal static class PenSelfLearning
-{
-    private const string LearningEffect = "MODULE_EFFECT_LEARNING_ALGORITHM";
-    private static readonly string[] Attrs = { "PERFORMANCE", "EFFICIENCY", "QUALITY" };
-
-    internal static string? MaxedSuffix(GameItem machine)
-    {
-        var modules = MachineHelper.GetModules(machine);
-        if (modules == null) return null;
-
-        int total = 0, maxed = 0, untrained = 0;
-        foreach (var module in modules)
-        {
-            if (module == null) continue;
-            total++;
-            if (!HasLearningTrait(module)) untrained++;
-            else if (!CanAdvance(module)) maxed++;
-        }
-        if (total == 0) return null;
-
-        return untrained > 0
-            ? Loc.T("pen.learning_maxed_untrained", " ({0}/{1} modules maxed, {2} without Self-Learning)",
-                maxed, total, untrained)
-            : Loc.T("pen.learning_maxed", " ({0}/{1} modules maxed)", maxed, total);
-    }
-
-    private static bool HasLearningTrait(GameItem module)
-    {
-        if (IsLearningEffect(module, "MODULE_EFFECT1_TAG") || IsLearningEffect(module, "MODULE_EFFECT2_TAG")) return true;
-        foreach (string attr in Attrs)
-            if (GameRead.TagEnabled(module, "LEARNING_ALGO_MAX_" + attr + "_INT")) return true;
-        return false;
-    }
-
-    private static bool IsLearningEffect(GameItem module, string tag)
-        => GameRead.TagEnabled(module, tag)
-           && string.Equals(GameRead.TagString(module, tag), LearningEffect, StringComparison.Ordinal);
-
-    /// <summary>只在已确认有词条时调用。</summary>
-    private static bool CanAdvance(GameItem module)
-    {
-        foreach (string attr in Attrs)
-        {
-            string bonusTag = "BONUS_PERCENTAGE_" + attr + "_INT";
-            if (!GameRead.TagEnabled(module, bonusTag)) continue;
-            int bonus = GameRead.TagInt(module, bonusTag) ?? 0;
-
-            string maxTag = "LEARNING_ALGO_MAX_" + attr + "_INT";
-            int max;
-            if (GameRead.TagEnabled(module, maxTag)) max = GameRead.TagInt(module, maxTag) ?? 0;
-            else if (bonus < 0) max = 0;
-            else continue;
-
-            if (bonus < max) return true;
-        }
-        return false;
-    }
-}

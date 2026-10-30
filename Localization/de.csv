@@ -207,10 +207,9 @@ inner.energy,{0}: Energie {1}/{2}
 learning.progress,Lernfortschritt: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} ausgelernt
-learning.machine,"Lernen: {0} Modul(e), bis zu {1} Punkt(e) offen"
-learning.machine_full,Lernen: alle {0} Modul(e) ausgelernt
-pen.learning_maxed," ({0}/{1} Module ausgelernt)"
-pen.learning_maxed_untrained," ({0}/{1} Module ausgelernt, {2} ohne Selbstlernen)"
+learning.machine,Lernen: {0}/{1} Modul(e) lernen
+learning.bar_left,{0}: noch {1} Punkt(e)
+learning.bar_full,ausgelernt
 module.days_faster,", etwa {0} Tag(e) schneller"
 module.output,{0} ml/Tag
 module.attract,{0} % Attraktivität

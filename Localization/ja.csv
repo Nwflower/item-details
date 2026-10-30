@@ -207,10 +207,9 @@ inner.energy,{0}：エネルギー {1}/{2}
 learning.progress,学習進度：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}は上限
-learning.machine,自己学習：{0} 個のモジュールが学習中、最大あと {1}
-learning.machine_full,自己学習：{0} 個すべて上限
-pen.learning_maxed,（{0}/{1} 個のモジュールが学習完了）
-pen.learning_maxed_untrained,（{0}/{1} 個のモジュールが学習完了、{2} 個は自己学習なし）
+learning.machine,自己学習：{0}/{1} 個のモジュールが学習中
+learning.bar_left,{0}：あと {1}
+learning.bar_full,上限
 module.days_faster,、約 {0} 日短縮
 module.output,{0}ml/日
 module.attract,{0}%魅力

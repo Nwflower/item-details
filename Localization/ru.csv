@@ -207,10 +207,9 @@ inner.energy,{0}: энергия {1}/{2}
 learning.progress,Обучение: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} — максимум
-learning.machine,"Обучение: модулей {0}, осталось до {1} ед."
-learning.machine_full,Обучение: все модули ({0}) на максимуме
-pen.learning_maxed," ({0}/{1} модулей обучено полностью)"
-pen.learning_maxed_untrained," ({0}/{1} модулей обучено полностью, {2} без самообучения)"
+learning.machine,Обучение: учатся {0}/{1} модулей
+learning.bar_left,{0}: осталось {1} ед.
+learning.bar_full,максимум
 module.days_faster,", примерно на {0} дн. быстрее"
 module.output,{0} мл в день
 module.attract,{0}% привлекательности

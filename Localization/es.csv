@@ -207,10 +207,9 @@ inner.energy,{0}: energía {1}/{2}
 learning.progress,Aprendizaje: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
-learning.machine,"Aprendizaje: {0} módulo(s), faltan hasta {1} punto(s)"
-learning.machine_full,Aprendizaje: los {0} módulo(s) al máximo
-pen.learning_maxed," ({0}/{1} módulos al máximo)"
-pen.learning_maxed_untrained," ({0}/{1} módulos al máximo, {2} sin autoaprendizaje)"
+learning.machine,Aprendizaje: {0}/{1} módulo(s) aprendiendo
+learning.bar_left,{0}: faltan {1} punto(s)
+learning.bar_full,al máximo
 module.days_faster,", unos {0} día(s) antes"
 module.output,{0} ml al día
 module.attract,{0}% de atractivo

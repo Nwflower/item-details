@@ -404,8 +404,26 @@ public sealed partial class ModEntry
     private static bool AppendLines(RichTextBuilder builder, List<TooltipLine> lines)
     {
         foreach (var ln in lines)
-            AddLine(builder, ln.Text, ln.Color);
+        {
+            if (ln.HasBar) AddBarLine(builder, ln);
+            else AddLine(builder, ln.Text, ln.Color);
+        }
         return lines.Count > 0;
+    }
+
+    /// <summary>与原版护甲行同样的写法：前缀 → AddProgressBar → AddLine(后缀)。</summary>
+    private static void AddBarLine(RichTextBuilder builder, TooltipLine ln)
+    {
+        try
+        {
+            if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
+            builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, null, " ");
+            AddLine(builder, ln.Tail ?? "", ln.Color);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("AddBarLine", ex);
+        }
     }
 
     /// <summary>输出同色的一组纯文本行（未做本地化的模块用）。</summary>

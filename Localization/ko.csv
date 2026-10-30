@@ -207,10 +207,9 @@ inner.energy,{0}: 에너지 {1}/{2}
 learning.progress,학습 진행: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} 최대
-learning.machine,"자가 학습: 모듈 {0}개 학습 중, 최대 {1} 남음"
-learning.machine_full,자가 학습: 모듈 {0}개 모두 최대
-pen.learning_maxed," ({0}/{1}개 모듈 학습 완료)"
-pen.learning_maxed_untrained," ({0}/{1}개 모듈 학습 완료, {2}개는 자가 학습 없음)"
+learning.machine,자가 학습: {0}/{1}개 모듈 학습 중
+learning.bar_left,{0}: {1} 남음
+learning.bar_full,최대
 module.days_faster,", 약 {0}일 단축"
 module.output,{0}ml/일
 module.attract,{0}% 매력

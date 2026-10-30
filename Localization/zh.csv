@@ -207,10 +207,9 @@ inner.energy,{0}：能量 {1}/{2}
 learning.progress,学习进度：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}已学满
-learning.machine,自学习：{0} 个模组在学，最多还差 {1} 点
-learning.machine_full,自学习：{0} 个模组均已学满
-pen.learning_maxed,（{0}/{1} 个模组已学满）
-pen.learning_maxed_untrained,（{0}/{1} 个模组已学满，{2} 个无自学习词条）
+learning.machine,自学习：{0}/{1} 个模组学习中
+learning.bar_left,{0}，还差 {1} 点
+learning.bar_full,已学满
 module.days_faster,，约快 {0} 天
 module.output,{0}毫升/天
 module.attract,{0}%吸引力

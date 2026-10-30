@@ -200,33 +200,53 @@ internal static class MachineAdapters
             lines.Add(Paused(NoPower));
     }
 
-    // ---------------- 自学习算法模块：还差多少 ----------------
+    // ---------------- 自学习算法模块：学习进度 ----------------
+
+    /// <summary>学习进度条格数：比原版的 10 格短，给条后的模组名留位置。</summary>
+    private const int LearningBar = 6;
 
     /// <summary>
-    /// 模块舱里有「自学习算法」模块时，汇总还差多少点学满（上限只读标签，见 <see cref="ModuleLearning"/>）。
+    /// 模块舱里有「自学习算法」模块时：「1/3 个模组学习中」（分母是全部模组），
+    /// 下面每个会学习的模组一条进度条（上限只读标签，见 <see cref="ModuleLearning"/>）；不会学习的模组不画。
+    /// 进度 = 各项加成之和 / 各项上限之和；在学的条后写模组名和最多还差几点，学满写已学满。
     /// 哪天运转以及每晚推进几次取决于具体机器；没有显式规则时不折算天数。
     /// </summary>
     private static void Learning(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        int learning = 0, remaining = 0;
+        var bars = new List<TooltipLine>();
+        int learning = 0, total = 0;
         foreach (var module in ctx.Modules)
         {
-            int r = ModuleLearning.Remaining(module);
-            if (r < 0) continue;
-            learning++;
-            remaining = Math.Max(remaining, r);
-        }
-        if (learning == 0) return;
+            if (module == null) continue;
+            total++;
+            var stats = ModuleLearning.Read(module);
+            if (stats.Count == 0) continue;
 
-        if (remaining == 0)
-        {
-            lines.Add(new TooltipLine(Loc.T("learning.machine_full", "Learning: all {0} module(s) maxed", learning), Good));
-            return;
+            int cur = 0, max = 0, remaining = 0;
+            foreach (var s in stats)
+            {
+                cur += Math.Clamp(s.Current, 0, s.Max);
+                max += s.Max;
+                remaining = Math.Max(remaining, s.Remaining);
+            }
+            if (remaining == 0)
+            {
+                bars.Add(new TooltipLine(" ", 1f, LearningBar, Loc.T("learning.bar_full", "Maxed"),
+                    Good, RenderHandler.ColorPalette.VeryDarkGreen));
+                continue;
+            }
+
+            learning++;
+            bars.Add(new TooltipLine(" ", (float)cur / max, LearningBar,
+                Loc.T("learning.bar_left", "{0}: {1} point(s) to go", ContainerItemSignature.DisplayName(module), remaining),
+                Info, RenderHandler.ColorPalette.VeryDarkCyan));
         }
+        if (bars.Count == 0) return;
 
         lines.Add(new TooltipLine(
-            Loc.T("learning.machine", "Learning: {0} module(s), up to {1} point(s) to go", learning, remaining),
-            Info));
+            Loc.T("learning.machine", "Learning: {0}/{1} module(s) training", learning, total),
+            learning == 0 ? Good : Info));
+        lines.AddRange(bars);
     }
 
     // ---------------- 共用 ----------------
