@@ -134,7 +134,7 @@ internal static class TooltipPipeline
     {
         try
         {
-            if (!ModSettings.HideEstimate) return false;
+            if (!ModSettings.HideEstimate || !ModSettings.Value) return false;
             if (!GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
             // 显式提供方接管原版类型时，也只有它实际给出总价才隐藏，避免"两边都没有"。
             if (ThirdPartyProviders.HasAppraisal(item)) return ThirdPartyProviders.Appraisal(item) != null;

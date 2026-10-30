@@ -232,3 +232,4 @@ module.residual,Rückstand ×{0}
 history.empty,Noch keine Unterhaltung.
 history.earlier,…{0} frühere Zeilen
 history.unknown,Kunde
+appraisal.minimum_adjustment,Mindestwertanpassung

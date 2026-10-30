@@ -220,7 +220,7 @@ internal static partial class SelfTest
             _ = WaterInfo.Analyze(item);
             _ = WaterAdvice.SimulateMethods(item);
 
-            // 清掉建议缓存，再让完整渲染器独立跑一次，覆盖玩家实际悬停路径。
+            // 清掉建议缓存，再让模组渲染器独立跑一次；原版 tooltip 补丁由集成用例覆盖。
             WaterAdvice.Stop();
             _ = ModEntry.RenderTooltipText(item);
 
@@ -376,9 +376,11 @@ internal static partial class SelfTest
     private static string CheckWineInfo(out bool ok)
     {
         ok = false;
+        GameItem? normal = null;
+        GameItem? fake = null;
         try
         {
-            var normal = WineHelper.CreateFinishedWineForDebug(5);
+            normal = WineHelper.CreateFinishedWineForDebug(5);
             var nLines = WineInfo.Collect(normal);
             // 断言用本地化后的前缀，不写死中文：模组已支持多语种，中文文案只在 zh 下成立。
             string scoreHead = Loc.T("wine.score_part", ", score {0}", "");
@@ -386,7 +388,7 @@ internal static partial class SelfTest
             bool hasScore = HasLine(nLines, scoreHead);
             bool normalClean = !HasLine(nLines, fakeHead);
 
-            var fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
+            fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
             var fLines = WineInfo.Collect(fake);
             bool fakeMarked = HasLine(fLines, fakeHead);
 
@@ -396,6 +398,11 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             return "wine: 异常 " + ex.GetType().Name;
+        }
+        finally
+        {
+            if (fake != null) { try { fake.Destroy(); } catch { } }
+            if (normal != null) { try { normal.Destroy(); } catch { } }
         }
     }
 
@@ -436,7 +443,7 @@ internal static partial class SelfTest
     }
 
     /// <summary>
-    /// 用存档里的真实水容器验证多槽缓存：A/B 交替后再次访问 A/B，
+    /// 用确定组成的独立样本验证多槽缓存：A/B 交替后再次访问 A/B，
     /// 必须返回各自第一次的同一个结果实例，而不是重建出新的列表。
     /// </summary>
     private static string CheckWaterAdviceCache(out bool ok)
@@ -447,22 +454,17 @@ internal static partial class SelfTest
         var firstMs = new List<double>();
         try
         {
-            var owned = EmporiumEntry.Instance?.GetAllOwnedItems();
-            if (owned == null) return "water advice cache: 无法读取拥有物";
-
-            foreach (var item in owned)
+            foreach (int waterParts in new[] { 735000, 720000 })
             {
-                if (item == null) continue;
-                if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) continue;
-                if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) continue;
-                if (WaterAdvice.SafePurity(item) < 0) continue;
-                if (picked.Exists(p => ReferenceEquals(p, item))) continue;
+                var item = TryCreate("bottled_water");
+                if (item == null) return "water advice cache: 无法创建含水样本";
                 picked.Add(item);
-                if (picked.Count >= 3) break;
+                foreach (var liquid in Liquid.Liquids)
+                    item.ModifyTag(liquid.currentPart, state => state.Enable().SetInt(0));
+                item.ModifyTag(Liquid.GetCurrentPartFromId("water"), state => state.Enable().SetInt(waterParts));
+                item.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), state => state.Enable().SetInt(750000 - waterParts));
+                WaterFeatureHelper.InitWaterFeature(item);
             }
-
-            if (picked.Count < 2)
-                return $"water advice cache: 存档内只有 {picked.Count} 件含水容器，至少需要 2 件";
 
             // 从干净缓存开始，测量每种水的首次真实模拟成本。
             WaterAdvice.Stop();
@@ -504,6 +506,7 @@ internal static partial class SelfTest
         finally
         {
             WaterAdvice.Stop();
+            foreach (var item in picked) { try { item.Destroy(); } catch { } }
         }
     }
 
@@ -752,7 +755,7 @@ internal static partial class SelfTest
             if (safe == null) return "locked container gate: 无法创建容器样本";
             if (content == null) return "locked container gate: 无法创建内容样本";
 
-            int added = GraphUtils.TryAcceptAll(safe, content);
+            int remaining = GraphUtils.TryAcceptAll(safe, content);
             safe.EnableTag("LOCKED_CONTAINER_TAG");
             safe.ModifyTag("LOCK_ID", st => st.Enable().SetString("LOCK_ID_SEC"));
             safe.ModifyTag("LOCK_STATUS", st => st.Enable().SetBool(true));
@@ -764,11 +767,12 @@ internal static partial class SelfTest
             bool tooltipLeak = contains.Length > 0 && text.Contains(contains, StringComparison.Ordinal);
             bool leaked = storage.Count > 0 || tooltipLeak;
             bool sealedHasContent = sealedLines.Count > 0;
-            bool contentAdded = added > 0;
+            bool contentAdded = remaining == 0
+                && ReferenceEquals(content.parentInventory, safe.contentWindow?.child);
 
             ok = !leaked && sealedHasContent && contentAdded;
-            return $"locked container gate: added={added} storage={storage.Count} sealed={sealedLines.Count} " +
-                   $"tooltipLeak={tooltipLeak} (期望 >0/0/>0/False)";
+            return $"locked container gate: remaining={remaining} inserted={contentAdded} storage={storage.Count} sealed={sealedLines.Count} " +
+                   $"tooltipLeak={tooltipLeak} (期望 0/True/0/>0/False)";
         }
         catch (Exception ex)
         {
@@ -868,7 +872,7 @@ internal static partial class SelfTest
             if (battery == null) return "machine battery: 无法创建电池样本";
             try { GeneralHelper.SetItemOwned(battery, true); } catch { }
 
-            int added = GraphUtils.TryAcceptAll(slot, battery);
+            int remaining = GraphUtils.TryAcceptAll(slot, battery);
             var tooltip = new RichTextBuilder(80);
             MachineryHelper.CreateMachineryTooltip(tooltip, machine);
             string text = tooltip.Build()?.nakedText ?? "";
@@ -884,8 +888,9 @@ internal static partial class SelfTest
             int batteryAt = text.IndexOf(batteryLine, StringComparison.Ordinal);
             bool placedAfter = requiredAt >= 0 && batteryAt > requiredAt;
 
-            ok = added > 0 && placedAfter;
-            return $"machine battery: added={added} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
+            bool inserted = remaining == 0 && ReferenceEquals(slot.childItem, battery);
+            ok = inserted && placedAfter;
+            return $"machine battery: remaining={remaining} inserted={inserted} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
                    $"(期望电池行位于所需能量之后)";
         }
         catch (Exception ex)
@@ -1094,10 +1099,8 @@ internal static partial class SelfTest
             var real = new TagSystem();
             real.EnableTag("TEST_TAG_ISO").GetTag("TEST_TAG_ISO").SetInt(5);
 
-            // 与 WaterAdvice.DeepCloneTags 相同的做法：逐条 Clone
-            var clone = new TagSystem();
-            foreach (var kv in real.dict)
-                if (kv.Value != null) clone.dict[kv.Key] = kv.Value.Clone();
+            var clone = GameRead.DeepCloneTags(real);
+            if (clone == null) return "tag isolation: production clone failed";
 
             clone.EnableTag("TEST_TAG_ISO").GetTag("TEST_TAG_ISO").SetInt(9);
 

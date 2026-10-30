@@ -12,10 +12,11 @@ namespace ItemDetails;
 /// 触发方式有两种，正常游玩都不受影响：
 ///   - 命令行 <c>-itemdetails-selftest</c>；
 ///   - 工具写入的一次性 <c>ModData/item_details/selftest.flag</c>（启动游戏不带参数，
-///     Steam 不会弹「用自定义参数启动游戏」确认框）。
+///     文件内容必须是专用测试存档的槽位 ID）。命令行还需指定
+///     <c>-itemdetails-selftest-slot ID</c>。
 ///
 /// 关键是物品目录是 MonoBehaviour，主菜单阶段 <c>DirectoryMaster.Create</c> 必然返回 null，
-/// 所以要等存档加载完成后再跑，并由 <see cref="AutoLoader"/> 自动读最近存档。
+/// 所以要等存档加载完成后再跑，并由 <see cref="AutoLoader"/> 读取明确指定的测试存档。
 ///
 /// 用例与探针断言在 <c>SelfTest.Checks.cs</c>；本文件只管"什么时候跑、跑完怎么退出"。
 /// </summary>
@@ -23,15 +24,15 @@ internal static partial class SelfTest
 {
     private const string Flag = "-itemdetails-selftest";
     private const string TriggerFile = "selftest.flag";
-
-    internal static bool Requested { get; private set; }
+    private static bool _runnerStarted;
 
     internal static void MaybeStart(string modId)
     {
         try
         {
             bool viaArgs = false;
-            foreach (string a in Environment.GetCommandLineArgs())
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (string a in args)
             {
                 if (string.Equals(a, Flag, StringComparison.OrdinalIgnoreCase))
                 {
@@ -42,10 +43,17 @@ internal static partial class SelfTest
 
             // 也可以由工具放一个一次性标志文件触发：这样启动游戏完全不带参数，
             // Steam 不会弹「用自定义参数启动游戏」确认框，才能无人值守。
-            bool viaFile = ConsumeTriggerFile(modId);
+            bool viaFile = ModHelper.ModDataFileExists(modId, TriggerFile);
             if (!viaArgs && !viaFile) return;
 
-            Requested = true;
+            BeginRun(modId);
+            string? trigger = viaFile ? ConsumeTriggerFile(modId) : null;
+            if (!TryReadSlot(args, trigger, out _saveSlot, out string error))
+            {
+                Finish(false, error);
+                return;
+            }
+            _runnerStarted = false;
             Log.Msg($"[SelfTest] armed by {(viaArgs ? "command line" : "trigger file")}");
 
             // 物品目录是 MonoBehaviour（Directory<T>），只有游戏场景加载后才注册，
@@ -54,8 +62,7 @@ internal static partial class SelfTest
             ModHook.OnGameLoadedLate += Arm;
             Log.Msg("[SelfTest] armed, will run after a save is loaded");
 
-            // 主菜单不会触发 OnGameLoadedLate，这里自动点一次「继续游戏」，
-            // 让自检完全免人工。失败就保持原状，仍可手动载入存档。
+            // 主菜单不会触发 OnGameLoadedLate，自动载入指定槽位。
             var go = new GameObject("ItemDetails_SelfTestAutoLoad");
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.AddComponent<AutoLoader>();
@@ -63,28 +70,20 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             Log.Error("SelfTest.MaybeStart", ex);
+            if (Requested) Finish(false, "Startup failed: " + ex);
         }
     }
 
-    /// <summary>读取并删除一次性触发文件；存在即视为请求自检。</summary>
-    private static bool ConsumeTriggerFile(string modId)
+    /// <summary>读取专用测试槽位并删除一次性触发文件。</summary>
+    private static string ConsumeTriggerFile(string modId)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(modId)) return false;
-            if (!ModHelper.ModDataFileExists(modId, TriggerFile)) return false;
-            ModHelper.DeleteModDataFile(modId, TriggerFile);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("SelfTest.Flag", ex);
-            return false;
-        }
+        string text = ModHelper.ReadModDataFileText(modId, TriggerFile) ?? "";
+        ModHelper.DeleteModDataFile(modId, TriggerFile);
+        return text;
     }
 
     /// <summary>
-    /// 主菜单自动读一次「最近存档」，让自检无需人工。
+    /// 主菜单自动读取明确指定的测试槽位。
     ///
     /// 走过的两条弯路，别再踩：
     ///   - `MainMenuUIController.OnContinueClick()` 是**新游戏**（天赋/难度）流程，不读档；
@@ -120,7 +119,7 @@ internal static partial class SelfTest
                 if (loaded)      // 已经进游戏（可能自动续档）
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] save already loaded, skip auto-load");
+                    Arm();
                     return;
                 }
 
@@ -132,17 +131,15 @@ internal static partial class SelfTest
                 if (_tries >= 3)
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] DONE FAILED: 自动读档连续失败");
-                    try { Application.Quit(); } catch { }
+                    Finish(false, "Automatic save loading failed.");
                     return;
                 }
 
                 var slots = SaveUIManager.GetOrderedSlotIds();
-                if (slots == null || slots.Count == 0)
+                if (slots == null || !slots.Contains(_saveSlot))
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] DONE FAILED: 没有可读的存档");
-                    try { Application.Quit(); } catch { }
+                    Finish(false, $"Requested self-test save slot {_saveSlot} does not exist.");
                     return;
                 }
 
@@ -150,7 +147,7 @@ internal static partial class SelfTest
                 var newGame = NewGameData.Instance;
                 if (menu == null || newGame == null) return;   // 场景还没就绪，下次再试
 
-                int slotId = slots[0];   // 已按最近优先排序
+                int slotId = _saveSlot;
                 _tries++;
                 _requested = true;
                 _requestedAt = Time.unscaledTime;
@@ -160,7 +157,7 @@ internal static partial class SelfTest
                 newGame.saveFile = null;
                 menu.StartNewGameClick();
 
-                Log.Msg($"[SelfTest] loading latest save slot {slotId} (try {_tries})");
+                Log.Msg($"[SelfTest] loading selected test save slot {slotId} (try {_tries})");
             }
             catch (Exception ex)
             {
@@ -174,6 +171,13 @@ internal static partial class SelfTest
         try
         {
             ModHook.OnGameLoadedLate -= Arm;
+            if (!Requested || _runnerStarted) return;
+            if (PlayerStore.Instance.saveSlotId != _saveSlot)
+            {
+                Finish(false, $"Loaded save slot {PlayerStore.Instance.saveSlotId} differs from requested test slot {_saveSlot}.");
+                return;
+            }
+            _runnerStarted = true;
             var go = new GameObject("ItemDetails_SelfTest");
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.AddComponent<Runner>();
@@ -182,6 +186,7 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             Log.Error("SelfTest.Arm", ex);
+            Finish(false, "Could not start the test runner: " + ex);
         }
     }
 
@@ -203,21 +208,24 @@ internal static partial class SelfTest
                 if (_elapsed > 40f)
                 {
                     _done = true;
-                    Log.Msg("[SelfTest] DONE FAILED: item directory never became ready");
-                    Quit();
+                    Finish(false, "Item directory never became ready.");
                 }
                 return;
             }
             try { probe.Destroy(); } catch { }
 
             _done = true;
-            RunAll();
-            Quit();
-        }
-
-        private void Quit()
-        {
-            try { Application.Quit(); } catch { }
+            try
+            {
+                bool success;
+                string report;
+                using (new TestSettings()) success = RunAll(out report);
+                Finish(success, report);
+            }
+            catch (Exception ex)
+            {
+                Finish(false, "Test execution failed: " + ex);
+            }
         }
     }
 
@@ -230,7 +238,7 @@ internal static partial class SelfTest
         internal int? Expected;
     }
 
-    private static void RunAll()
+    private static bool RunAll(out string reportText)
     {
         var cases = new List<Case>();
         try
@@ -242,8 +250,8 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             Log.Error("SelfTest.BuildCases", ex);
-            Log.Msg("[SelfTest] DONE FAILED: 用例构造异常 " + ex.GetType().Name);
-            return;
+            reportText = "Case construction failed: " + ex;
+            return false;
         }
 
         int pass = 0, fail = 0;
@@ -325,7 +333,7 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        // 额外验证：相符的水经完整 tooltip 后不得被自动交易系统改判为错标签
+        // 额外验证：相符的水经模组渲染器后不得被自动交易系统改判为错标签
         {
             string line = CheckWaterSaleStateIsolation(out bool ok);
             if (ok) pass++; else fail++;
@@ -336,6 +344,14 @@ internal static partial class SelfTest
         // 额外验证：直接执行游戏真实售水结算，必须出水、入账且无误标声誉损失
         {
             string line = CheckWaterFountainTransaction(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 独立酒样本应显示分数，并区分正常酒与非法酵母赝品。
+        {
+            string line = CheckWineInfo(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -357,9 +373,23 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 原生 tooltip 入口与缓存上下文的集成回归。
+        {
+            string line = CheckWaterAdviceInstalledFilter(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：滤芯/设备状态必须使缓存 key 失效
         {
             string line = CheckCacheKeyFreshness(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckAppraisalDisabledPrice(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -372,10 +402,22 @@ internal static partial class SelfTest
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
+        {
+            string line = CheckNativeCalorieOrigin(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
 
         // 额外验证：第三方鉴定分解只在显式注册期间生效
         {
             string line = CheckAppraisalInjection(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+        {
+            string line = CheckPartialContainerTotals(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -445,17 +487,8 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        Log.Msg($"[SelfTest] DONE {(fail == 0 ? "OK" : "FAILED")} pass={pass} fail={fail} total={pass + fail}");
-
-        try
-        {
-            ModHelper.WriteModDataFileText("item_details", "selftest.txt",
-                $"pass={pass} fail={fail} total={pass + fail}{Environment.NewLine}{report}");
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("SelfTest.WriteReport", ex);
-        }
+        reportText = $"pass={pass} fail={fail} total={pass + fail}{Environment.NewLine}{report}";
+        return fail == 0;
     }
 
     /// <summary>

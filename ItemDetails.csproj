@@ -66,6 +66,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="tools\**\*.cs;out\**\*.cs;obj\**\*.cs;bin\**\*.cs" />
     <None Update="manifest.xml;Textures\**\*;Sounds\**\*;Localization\**\*;LootTables\**\*;Books\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

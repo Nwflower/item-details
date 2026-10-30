@@ -17,25 +17,53 @@ python tools/check_localization.py --strict-placeholders
 
 ## 构建
 
-游戏目录不写死在工程里，构建时传入，或设置环境变量 `PS_GAME_DIR`：
+需要 PowerShell 7.4+、.NET SDK 6 或更高版本，以及 Python 3.11+。
+
+游戏目录在构建时传入，或设置环境变量 `PS_GAME_DIR`。推荐使用统一入口：
 
 ```powershell
-dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>"
+pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>"
 ```
 
-输出在 `bin/Release/netstandard2.1/`，包含 `ItemDetails.dll` 与随包资源。引用的游戏程序集、Unity 与 Harmony 都不会被打进产物。发布包只需要 DLL、`manifest.xml` 和资源目录。
+默认编译 Release，并生成 `dist/item_details-<ModVersion>.zip`。
+ZIP 内是 `item_details/`，包含 DLL、manifest、当前源码中的资源和许可/说明文件。
+资源从源码目录收集，旧 `bin/` 里遗留的文件不会进入发布包；PDB、deps.json 和 `.gitkeep` 也不打包。
+游戏、Unity 和 Harmony 程序集只作为本地引用，不分发。
 
 需要排查问题时可以打开诊断构建：
 
 ```powershell
 # 信息、性能与界面诊断日志
-dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:Diag=true
+pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>" -Variant Diag
 
 # 实机自检：载入存档后跑一轮用例并退出（同时包含诊断日志）
-dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:SelfTest=true
+pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>" -Variant SelfTest
 ```
 
-自检构建在启动参数带 `-itemdetails-selftest`，或 `ModData/item_details/` 下有 `selftest.flag` 时运行。
+三种构建分别输出到 `bin/Release/netstandard2.1/`、`bin/Diag/netstandard2.1/` 和
+`bin/SelfTest/netstandard2.1/`。每次显式设置诊断标志，只有 Release 生成 ZIP。
+`ItemDetails.csproj` 仍可用 `dotnet build -p:GameDir=...` 直接编译。
+
+## 检查
+
+```powershell
+# 无需游戏或 Unity Editor：公式、本地化、诊断报告与配置恢复回归
+pwsh -NoProfile -File scripts/test.ps1
+
+# 有游戏程序集时：另编译三种构建，检查原生契约、包内容和能力扫描
+pwsh -NoProfile -File scripts/test.ps1 -GameDir "<游戏目录>"
+```
+
+带游戏目录的检查会编译自检构建；游戏内用例仍需按下文启动参数运行。
+单个回归检查保留在 `tools/` 中，可按需单独运行。
+
+## 游戏内自检
+
+自检会调用真实售水等行为，先创建可丢弃的专用测试存档。用 `save_<id>.es3` 文件中的内部编号选择槽位，
+不是存档列表的显示顺序。启动参数为 `-itemdetails-selftest -itemdetails-selftest-slot <id>`，
+或在 `ModData/item_details/selftest.flag` 中写入该编号。空文件、无效编号、编号冲突和不存在的存档均报错退出，
+不选择最近存档。自检临时开启所需设置，结束或出错时恢复，不写入配置。
+`ModData/item_details/selftest.txt` 记录本次 run ID 与 `RUNNING`/`PASS`/`FAIL` 状态；失败退出码为 1。
 
 ## 第三方模组接入
 
@@ -95,6 +123,27 @@ public void OnDisable()
 - 净水手段注册键是物品的 `identifier`，种类决定水质建议用哪个原版函数模拟：`Machine` → `MachinePurifier.PurifyContainer`，`Portable` → `WaterHelper.PurifyToBaseWater`，`ChemicalAgent` → `ChemicalHelper.DissolveInto` 加反应链。不注册也会自动识别回调直接调用这些函数的物品（化学剂还要在标准试验水里确实提纯），注册后以注册为准；净化逻辑是自己写的、不走这些函数时，不要注册，水质建议也不会模拟它。
 - 回调在游戏主线程、构建 tooltip 时执行，应保持只读和轻量。第三方私有状态与缓存由提供方自己管理。
 - 只需要追加独立 tooltip 行时，直接使用游戏官方 `ModHook.OnCreateTooltipLate` 即可，不必注册到这里。
+
+渲染器快照只包含模组追加内容；原版 tooltip 的抑制与改写由原生入口用例检查。
+
+## CI
+
+`.github/workflows/ci.yml` 在 push、pull request 和手动触发时运行 Windows 离线检查，
+执行的入口与本地相同：`scripts/test.ps1`。工作流安装 .NET 6 和 Python 3.13；
+Action 引用固定到提交 SHA，仓库令牌只读且不保留 checkout 凭据。
+
+GitHub 托管 runner 没有游戏程序集，因此完整模组编译、原生契约与发布包检查由本地
+`scripts/test.ps1 -GameDir "<游戏目录>"` 执行。游戏 DLL 不提交到仓库或上传为 CI 产物。
+工作流使用方式见 [GitHub 的 .NET CI 说明](https://docs.github.com/en/actions/tutorials/build-and-test-code/net)。
+
+## 目录
+
+- 原有功能目录与 `Pure/`：模组代码与共享公式。
+- `scripts/`：构建、打包和检查入口。
+- `tools/`：校验器及各项回归检查。
+- `bin/<Variant>/netstandard2.1/`：各构建的 DLL 与资源；`obj/` 为编译中间文件。
+- `dist/`：安装用 Release ZIP。生成目录不提交到 Git。
+- `Localization/`、`Textures/`、`Sounds/`、`LootTables/`、`Books/`：官方加载方式使用的资源目录；空目录的占位文件仅保留在源码中。
 
 ## 写代码时
 

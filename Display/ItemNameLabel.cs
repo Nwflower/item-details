@@ -245,6 +245,7 @@ internal static class ItemNameLabel
     {
         if (!Labels.TryGetValue(element, out var label) || !label.Visible) return;
         label.Visible = false;
+        label.HasPlacement = false;
         if (label.Main != null) label.Main.text.enabled = false;
         if (label.Shadow != null) label.Shadow.text.enabled = false;
         if (label.Bg != null && label.Bg.image != null) label.Bg.image.enabled = false;

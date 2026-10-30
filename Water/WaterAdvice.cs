@@ -55,6 +55,8 @@ internal static class WaterAdvice
     {
         internal long Signature;
         internal int Purity;
+        internal string FilterName = "";
+        internal string Locale = "";
         internal float At;
         internal List<Method> Methods = new();
     }
@@ -92,6 +94,8 @@ internal static class WaterAdvice
             GameItem? installedFilter = null;
             try { installedFilter = WaterHelper.GetFilterItem(item); } catch { }
             bool signatureValid = TrySimulationSignature(item, owned, installedFilter, out long signature);
+            string filterName = GameRead.ItemName(installedFilter);
+            string locale = Loc.Code;
             float now = UnityEngine.Time.unscaledTime;
 
             // 过期项顺手清掉，其余按最近使用顺序从后往前找。
@@ -104,6 +108,7 @@ internal static class WaterAdvice
                     continue;
                 }
                 if (!signatureValid || entry.Signature != signature || entry.Purity != purity) continue;
+                if (entry.FilterName != filterName || entry.Locale != locale) continue;
 
                 if (i != Cache.Count - 1)
                 {
@@ -211,6 +216,8 @@ internal static class WaterAdvice
                 {
                     Signature = signature,
                     Purity = purity,
+                    FilterName = filterName,
+                    Locale = locale,
                     At = now,
                     Methods = result,
                 });

@@ -232,3 +232,4 @@ module.residual,残留上限×{0}
 history.empty,まだ会話がありません。
 history.earlier,…さらに前の {0} 件
 history.unknown,顧客
+appraisal.minimum_adjustment,最低価値の補正

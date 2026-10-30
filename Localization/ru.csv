@@ -232,3 +232,4 @@ module.residual,остаток ×{0}
 history.empty,Разговора ещё не было.
 history.earlier,…ещё {0} реплик
 history.unknown,Клиент
+appraisal.minimum_adjustment,Поправка до минимальной стоимости
