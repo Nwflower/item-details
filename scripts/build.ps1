@@ -9,11 +9,13 @@ $repo = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 if (-not $GameDir) { throw 'Pass -GameDir or set PS_GAME_DIR to the installed game directory.' }
 $game = (Resolve-Path -LiteralPath $GameDir).Path
 $output = Join-Path $repo "bin/$Variant/netstandard2.1"
+$intermediate = Join-Path $repo "obj/$Variant/"
 $diag = ($Variant -ne 'Release').ToString().ToLowerInvariant()
 $selfTest = ($Variant -eq 'SelfTest').ToString().ToLowerInvariant()
 
 & dotnet build (Join-Path $repo 'ItemDetails.csproj') -c Release "-p:GameDir=$game" `
-    "-p:Diag=$diag" "-p:SelfTest=$selfTest" "-p:OutputPath=$output/"
+    "-p:Diag=$diag" "-p:SelfTest=$selfTest" "-p:OutputPath=$output/" `
+    "-p:BaseIntermediateOutputPath=$intermediate"
 if ($LASTEXITCODE -ne 0) { throw "The $Variant build failed with exit code $LASTEXITCODE." }
 $dll = Join-Path $output 'ItemDetails.dll'
 Write-Output "DLL: $dll"

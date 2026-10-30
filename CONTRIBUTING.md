@@ -129,8 +129,8 @@ public void OnDisable()
 ## CI
 
 `.github/workflows/ci.yml` 在 push、pull request 和手动触发时运行 Windows 离线检查，
-执行的入口与本地相同：`scripts/test.ps1`。工作流安装 .NET 10 和 .NET 8（供公式测试运行）、
-Python 3.13；Action 引用固定到提交 SHA，仓库令牌只读且不保留 checkout 凭据。
+执行的入口与本地相同：`scripts/test.ps1`。工作流安装 .NET 6 和 Python 3.13；
+Action 引用固定到提交 SHA，仓库令牌只读且不保留 checkout 凭据。
 
 GitHub 托管 runner 没有游戏程序集，因此完整模组编译、原生契约与发布包检查由本地
 `scripts/test.ps1 -GameDir "<游戏目录>"` 执行。游戏 DLL 不提交到仓库或上传为 CI 产物。

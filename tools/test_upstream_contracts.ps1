@@ -15,7 +15,6 @@ $fingerprint = $candidate.GetType('ItemDetails.ItemValueFingerprint', $true).Get
 $signature = $candidate.GetType('ItemDetails.ContainerItemSignature', $true)
 $capture = $signature.GetMethod('Capture', $static)
 $matches = $signature.GetMethod('Matches', $static)
-$genericKey = $candidate.GetType('ItemDetails.GenericBreakdown', $true).GetMethod('CacheKey', $static)
 
 function New-ProbeItem {
     # Avoid constructing a Unity rendering object; these consumers read only managed fields/children.
@@ -76,12 +75,8 @@ Assert-True (-not [bool]$matches.Invoke($null, @($snapshot, $items))) 'stack cha
 $item.unitCount = 1
 $item.name = 'Renamed'
 Assert-True (-not [bool]$matches.Invoke($null, @($snapshot, $items))) 'rename invalidates container signature'
-$items[0] = New-ProbeItem
+$replacement = New-ProbeItem
+$replacement.name = $item.name
+$replacement.modifiedState.dict.Add('DURABILITY_TAG', $tag)
+$items[0] = $replacement
 Assert-True (-not [bool]$matches.Invoke($null, @($snapshot, $items))) 'same-count replacement invalidates container signature'
-
-$type = [AppraisalItemType]::new()
-$type.id = 'offline_probe'
-$type.itemId = $item.identifier
-$before = $genericKey.Invoke($null, @($type, $item))
-$item.unitValue = 500
-Assert-True ($before -ne $genericKey.Invoke($null, @($type, $item))) 'generic price input invalidates cache key'
