@@ -176,7 +176,9 @@ config.scratcher.tip,"Prima di grattare, mostra se un gratta e vinci è vincente
 config.sealed_box,Raggi X per contenitori chiusi
 config.sealed_box.tip,"Elenca contenuto e valore totale dei contenitori chiusi a chiave (casseforti, armadietti per armi) prima di aprirli. Equivale a saltare la serratura, quindi è disattivato per impostazione predefinita."
 config.result_prefill,Precompila esito ispezione
-config.result_prefill.tip,All'apertura del pannello di ispezione, seleziona i difetti reali di contraffazione e inserisce la migliore offerta di perizia. Compila solo i controlli; non invia né conferma. Disattivato per impostazione predefinita.
+config.result_prefill.tip,All'apertura del pannello di ispezione spunta i difetti reali di contraffazione e compila il prezzo di perizia con il valore reale o l'offerta migliore, secondo la scelta qui sotto. Compila solo i campi, non invia né conferma. Disattivato per impostazione predefinita.
+config.result_prefill_source,Prezzo precompilato
+config.result_prefill_source.tip,Valore reale = il valore reale del gioco; offerta migliore = il limite superiore dell'intervallo perfetto mostrato nel tooltip.
 machine.eta,Circa {0} giorno/i al completamento
 machine.eta_battery," (batteria per {0})"
 machine.eta_battery_short," (batteria insufficiente)"

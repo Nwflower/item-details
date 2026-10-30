@@ -81,6 +81,11 @@ internal static class ModSettings
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
     private static readonly Toggle ResultPrefillToggle = new(false);     // 鉴定结果预填
 
+    /// <summary>「鉴定结果预填」下面那项：预填哪种价格。选项是纯字符串，中英并列。</summary>
+    private static ConfigEntry<string>? _prefillPrice;
+    private const string PrefillTrueValueChoice = "真实估价 (True value)";
+    private const string PrefillBestOfferChoice = "最优报价 (Best offer)";
+
     internal static void Init(string modId)
     {
         try
@@ -170,8 +175,16 @@ internal static class ModSettings
             ResultPrefillToggle.Define(_cfg, "show_result_prefill", SecRevealKey, SecRevealEn,
                 Text("config.result_prefill", "Prefill Inspection Result"),
                 Text("config.result_prefill.tip", "When the inspection panel opens, ticks the actual counterfeit issues " +
-                     "and enters the best appraisal offer. It only fills in the controls and never submits or confirms. " +
-                     "Off by default."));
+                     "and fills the appraisal price with the true value or the best offer, as chosen below. It only " +
+                     "fills in the controls and never submits or confirms. Off by default."));
+
+            // 下拉框的选项是纯字符串（ModConfig 不做本地化），沿用本工程既有写法：中英并列。
+            _prefillPrice = _cfg.Define("result_prefill_price", PrefillBestOfferChoice, SecRevealEn,
+                Text("config.result_prefill_source", "Prefilled Price"),
+                new[] { PrefillTrueValueChoice, PrefillBestOfferChoice },
+                Text("config.result_prefill_source.tip",
+                     "True value fills the game's real value; best offer fills the top of the perfect range. " +
+                     "Same rule the tooltip shows."));
 
             _cfg.Save();
 
@@ -302,6 +315,11 @@ internal static class ModSettings
     internal static bool Scratcher => ScratcherToggle.Value;
     internal static bool SealedBox => SealedBoxToggle.Value;
     internal static bool ResultPrefill => ResultPrefillToggle.Value;
+
+    /// <summary>预填价格用「最优报价」；为 false 时用真实估价。</summary>
+    internal static bool PrefillBestOffer =>
+        !string.Equals(_prefillPrice?.Value, PrefillTrueValueChoice, StringComparison.Ordinal);
+
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;

@@ -176,7 +176,9 @@ config.scratcher.tip,"Antes de rascar, muestra si un Rasca y Gana tiene premio, 
 config.sealed_box,Rayos X de contenedores cerrados
 config.sealed_box.tip,"Muestra el contenido y el valor total de los contenedores cerrados (cajas fuertes, armeros) antes de abrirlos. Equivale a saltarse la cerradura, por eso está desactivado por defecto."
 config.result_prefill,Rellenar resultado de inspección
-config.result_prefill.tip,Al abrir el panel de inspección, marca los defectos reales de falsificación y rellena el mejor precio de tasación. Solo rellena los controles; nunca envía ni confirma. Desactivado por defecto.
+config.result_prefill.tip,Al abrir el panel de inspección, marca los defectos reales de falsificación y rellena el precio de tasación con el valor real o la mejor oferta, según lo elegido abajo. Solo rellena los controles; nunca envía ni confirma. Desactivado por defecto.
+config.result_prefill_source,Precio rellenado
+config.result_prefill_source.tip,Valor real = el valor real del juego; mejor oferta = el límite superior del rango perfecto que muestra la descripción.
 machine.eta,Faltan unos {0} día(s) para terminar
 machine.eta_battery," (batería para {0})"
 machine.eta_battery_short," (batería insuficiente)"

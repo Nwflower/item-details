@@ -176,7 +176,9 @@ config.scratcher.tip,"Przed zdrapaniem pokazuje, czy zdrapka wygrywa, ile i jak 
 config.sealed_box,Prześwietlanie zamkniętych pojemników
 config.sealed_box.tip,"Pokazuje zawartość i łączną wartość zamkniętych pojemników (sejfy, szafki na broń) przed otwarciem. To pomija zamek, więc domyślnie jest wyłączone."
 config.result_prefill,Wstępne wypełnianie oględzin
-config.result_prefill.tip,Przy otwarciu panelu oględzin zaznacza rzeczywiste wady podróbki i wpisuje najlepszą ofertę wyceny. Wypełnia tylko pola; nigdy nie wysyła ani nie potwierdza. Domyślnie wyłączone.
+config.result_prefill.tip,Po otwarciu panelu inspekcji zaznacza rzeczywiste wady podróbki i wypełnia cenę wyceny prawdziwą wartością lub najlepszą ofertą, zgodnie z wyborem poniżej. Wypełnia tylko pola, nigdy nie wysyła ani nie zatwierdza. Domyślnie wyłączone.
+config.result_prefill_source,Wypełniana cena
+config.result_prefill_source.tip,Prawdziwa wartość = rzeczywista wartość z gry; najlepsza oferta = górna granica idealnego przedziału z podpowiedzi.
 machine.eta,Do końca około dni: {0}
 machine.eta_battery," (bateria na dni: {0})"
 machine.eta_battery_short," (za mało baterii)"

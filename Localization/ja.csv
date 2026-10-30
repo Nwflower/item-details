@@ -176,7 +176,9 @@ config.scratcher.tip,削る前に、スクラッチカードの当たり外れ�
 config.sealed_box,施錠コンテナ透視
 config.sealed_box.tip,施錠されたコンテナ（金庫、銃保管庫など）の中身と合計価値を、開錠前に一覧表示します。開錠の手間を飛ばすことになるため、既定ではオフです。
 config.result_prefill,鑑定結果の事前入力
-config.result_prefill.tip,検査パネルを開くと、実際の偽造箇所にチェックを入れ、鑑定額に最適な提示額を入力します。入力するだけで、送信や確定は行いません。既定ではオフです。
+config.result_prefill.tip,検査パネルを開いたとき、実際の偽造不具合にチェックを入れ、査定価格を下の選択に従って実価値か最高提示額で埋めます。入力のみで、送信や確定はしません。既定はオフ。
+config.result_prefill_source,埋める価格
+config.result_prefill_source.tip,実価値＝ゲームが算出する真の価値、最高提示額＝ツールチップに出る完璧範囲の上限。
 machine.eta,完了まで約 {0} 日
 machine.eta_battery,（電池は {0} 日分）
 machine.eta_battery_short,（電池が足りない）

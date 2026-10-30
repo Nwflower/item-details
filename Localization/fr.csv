@@ -176,7 +176,9 @@ config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant
 config.sealed_box,Radiographie des conteneurs verrouillés
 config.sealed_box.tip,"Liste le contenu et la valeur totale des conteneurs verrouillés (coffres-forts, armoires à armes) avant l'ouverture. Cela contourne la serrure, d'où sa désactivation par défaut."
 config.result_prefill,Préremplir l'analyse
-config.result_prefill.tip,"À l'ouverture du panneau d'analyse, coche les vrais défauts de contrefaçon et saisit la meilleure offre d'estimation. Remplit seulement les champs ; ne valide jamais rien. Désactivé par défaut."
+config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les vrais défauts de contrefaçon et remplit le prix d'expertise avec la valeur réelle ou la meilleure offre, selon le choix ci-dessous. Ne remplit que les champs, sans jamais valider. Désactivé par défaut.
+config.result_prefill_source,Prix prérempli
+config.result_prefill_source.tip,Valeur réelle = la valeur réelle du jeu ; meilleure offre = le haut de la fourchette parfaite affichée dans l'infobulle.
 machine.eta,Fin dans environ {0} jour(s)
 machine.eta_battery," (batterie pour {0} j)"
 machine.eta_battery_short," (batterie insuffisante)"

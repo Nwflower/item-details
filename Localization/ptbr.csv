@@ -176,7 +176,9 @@ config.scratcher.tip,"Antes de raspar, mostra se a raspadinha é premiada, quant
 config.sealed_box,Raio-X de contêineres trancados
 config.sealed_box.tip,"Lista o conteúdo e o valor total de contêineres trancados (cofres, armários de armas) antes de destrancar. Isso pula a fechadura, por isso vem desativado por padrão."
 config.result_prefill,Preencher resultado da inspeção
-config.result_prefill.tip,Ao abrir o painel de inspeção, marca os defeitos reais de falsificação e preenche a melhor oferta de avaliação. Apenas preenche os controles; nunca envia nem confirma. Desativado por padrão.
+config.result_prefill.tip,Ao abrir o painel de inspeção, marca os defeitos reais de falsificação e preenche o preço de avaliação com o valor real ou a melhor oferta, conforme a escolha abaixo. Apenas preenche os campos, nunca envia nem confirma. Desativado por padrão.
+config.result_prefill_source,Preço preenchido
+config.result_prefill_source.tip,Valor real = o valor real do jogo; melhor oferta = o limite superior da faixa perfeita mostrada na dica.
 machine.eta,Faltam cerca de {0} dia(s) para terminar
 machine.eta_battery," (bateria para {0})"
 machine.eta_battery_short," (bateria insuficiente)"

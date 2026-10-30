@@ -176,7 +176,9 @@ config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewin
 config.sealed_box,Röntgenblick für verschlossene Behälter
 config.sealed_box.tip,"Listet Inhalt und Gesamtwert verschlossener Behälter (Safes, Waffenschränke) schon vor dem Öffnen auf. Das umgeht das Schloss, daher standardmäßig aus."
 config.result_prefill,Prüfergebnis vorausfüllen
-config.result_prefill.tip,"Füllt beim Öffnen der Untersuchungsansicht die tatsächlichen Fälschungsmerkmale und das beste Gutachtenangebot vor. Es wird nur ausgefüllt, nichts gesendet oder bestätigt. Standardmäßig aus."
+config.result_prefill.tip,Öffnet das Prüffenster, hakt die tatsächlichen Fälschungsmängel ab und trägt den Prüfpreis ein – echter Wert oder bestes Angebot, wie unten gewählt. Füllt nur die Felder aus, sendet oder bestätigt nichts. Standardmäßig aus.
+config.result_prefill_source,Vorausgefüllter Preis
+config.result_prefill_source.tip,Echter Wert = der reale Wert des Spiels; bestes Angebot = die Obergrenze des perfekten Bereichs aus dem Tooltip.
 machine.eta,Fertig in etwa {0} Tag(en)
 machine.eta_battery," (Batterie reicht {0} Tag(e))"
 machine.eta_battery_short," (Batterie reicht nicht)"

@@ -176,7 +176,9 @@ config.scratcher.tip,"긁기 전에 스크래치 복권의 당첨 여부, 당첨
 config.sealed_box,잠긴 컨테이너 투시
 config.sealed_box.tip,"잠긴 컨테이너(금고, 총기 보관함 등)의 내용물과 총가치를 열기 전에 보여줍니다. 잠금 해제 과정을 건너뛰는 셈이라 기본값은 꺼짐입니다."
 config.result_prefill,감정 결과 미리 채우기
-config.result_prefill.tip,검사 패널을 열면 실제 위조 항목을 체크하고 감정가를 최적 제시가로 채웁니다. 입력만 하며 제출하거나 확정하지 않습니다. 기본값은 꺼짐입니다.
+config.result_prefill.tip,검사 패널을 열면 실제 위조 결함을 체크하고, 아래 선택에 따라 감정 가격을 실제 가치나 최적 제안가로 채웁니다. 입력만 하며 제출이나 확인은 하지 않습니다. 기본값은 꺼짐.
+config.result_prefill_source,채울 가격
+config.result_prefill_source.tip,실제 가치 = 게임이 계산한 진짜 가치, 최적 제안가 = 툴팁에 표시되는 완벽 범위의 상한.
 machine.eta,완료까지 약 {0}일
 machine.eta_battery," (배터리 {0}일분)"
 machine.eta_battery_short," (배터리 부족)"

@@ -176,7 +176,9 @@ config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多�
 config.sealed_box,带锁容器透视
 config.sealed_box.tip,带锁容器（保险箱、枪柜等）未开锁时也列出箱内物品与总价值。相当于跳过开锁环节，因此默认关闭。
 config.result_prefill,鉴定结果预填
-config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并把鉴定报价填为最优报价。只填写控件，不会提交或确认。默认关闭。
+config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并按下面的选项把鉴定报价填为真实估价或最优报价。只填写控件，不会提交或确认。默认关闭。
+config.result_prefill_source,预填价格
+config.result_prefill_source.tip,真实估价＝游戏算出的真实价值；最优报价＝完美区间上沿，也就是 tooltip 里显示的那个上限。
 machine.eta,预计还需 {0} 天完成
 machine.eta_battery,（电量只够 {0} 天）
 machine.eta_battery_short,（电力不足）
