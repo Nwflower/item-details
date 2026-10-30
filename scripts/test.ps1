@@ -1,6 +1,8 @@
 #Requires -Version 7.4
 param([string]$GameDir)
 $ErrorActionPreference = 'Stop'
+# GitHub Windows runners default to cp1252; keep Chinese validator output readable and non-throwing.
+$env:PYTHONUTF8 = '1'
 $repo = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 if ($GameDir) { $GameDir = (Resolve-Path -LiteralPath $GameDir).Path }
 Push-Location -LiteralPath $repo
