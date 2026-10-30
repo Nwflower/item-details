@@ -160,8 +160,10 @@ public sealed partial class ModEntry
     // ---------------- 储存容器：压缩率 + 内容物 ----------------
     private bool TryAppendStorage(RichTextBuilder builder, GameItem item)
     {
-        if (!ModSettings.Container) return false;
-        return AppendLines(builder, StorageInfo.Collect(item));
+        if (!ModSettings.ValueEnhance && !ModSettings.Container) return false;
+        return AppendLines(builder, StorageInfo.Collect(item,
+            includeRatio: ModSettings.ValueEnhance,
+            includeContents: ModSettings.Container));
     }
 
     // ---------------- 瑕疵/状态对价值的影响 ----------------

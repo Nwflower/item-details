@@ -17,7 +17,7 @@ namespace ItemDetails;
 /// 原版 ContainerHelper.CreateContainerTooltip 只输出一句通用提示，不列内容物，更无压缩率。
 ///
 /// 只读；仅对带网格内部库存的容器显示；槽位型容器（无宽高）跳过。
-/// 压缩率与内容物由同一个开关控制（ModSettings.Container），这里不再分两个参数。
+/// 压缩率归“性价比”开关，内容物清单归“容器内容”开关，两者可独立关闭。
 /// </summary>
 internal static class StorageInfo
 {
@@ -40,7 +40,7 @@ internal static class StorageInfo
         _contentsAt = float.MinValue;
     }
 
-    internal static List<TooltipLine> Collect(GameItem? item)
+    internal static List<TooltipLine> Collect(GameItem? item, bool includeRatio = true, bool includeContents = true)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -69,8 +69,8 @@ internal static class StorageInfo
             // （LOCKED_CONTAINER_TAG + LOCK_STATUS）都要排除，解锁后恢复普通显示。
             if (LockedContainer.IsLocked(item)) return lines;
 
-            AddRatio(item, grid, lines);
-            AddContents(grid, lines);
+            if (includeRatio) AddRatio(item, grid, lines);
+            if (includeContents) AddContents(grid, lines);
 
             if (lines.Count > 0) Log.MarkOk("StorageInfo");
         }

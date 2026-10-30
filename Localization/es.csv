@@ -142,11 +142,15 @@ wine.yeast_power,Potencia de levadura: {0}/ciclo
 machine.battery_line,Energía restante: {0} ({1} días)
 config.section.display,Optimización de visualización
 config.item_appraisal,Tasación de objetos
-config.item_appraisal.tip,Combina autenticidad, desglose de valor, rango de oferta perfecta, motivos de falsificación e información de plantas.
+config.item_appraisal.tip,"Muestra conclusiones de tasación e información de valor según el tipo de objeto."
+config.cost_performance,Relación calidad-precio
+config.cost_performance.tip,"Muestra el valor por celda y la compresión de contenedores."
+config.container_contents,Contenido del contenedor
+config.container_contents.tip,"Enumera el contenido y el valor total de un contenedor."
 config.info_enhance,Mejoras de información
-config.info_enhance.tip,Combina valor por celda, impacto de etiquetas/mercado, valores de módulos, batería de máquina, contenedores, sobreprecio de contrabando, lotería, descripciones atenuadas y precios de venta/compra.
-config.type_badge,Etiquetas de tipo
-config.type_badge.tip,"Muestra los tipos de objeto sobre el tooltip como placas de color con texto blanco: medicina/agua/drogas/venenos azul, tabaco/alcohol negro, lujo rosa, comida verde, artículos del hogar cian, armas/armadura turquesa, herramientas/materiales violeta, prohibido/restringido rojo oscuro, resto gris. Desactívalo para volver a la línea [tipo] original."
+config.info_enhance.tip,"Añade información adicional según el objeto, como etiquetas, módulos, baterías, mercado, lotería y términos de precio."
+config.type_badge,"Etiquetas de tipo<br><color=#8C8C8C>Medicina/agua/drogas azul · Tabaco/alcohol negro · Lujo rosa · Comida verde · Hogar cian · Armas turquesa · Herramientas violeta · Prohibido rojo · Otros gris</color>"
+config.type_badge.tip,"Muestra las categorías del objeto sobre el tooltip."
 config.container_name,Nombres en contenedores y máquinas
 config.container_name.tip,Muestra nombres bajo contenedores y máquinas. Posición fija abajo.
 config.container_name_bg,Fondo de nombres de iconos
@@ -160,7 +164,7 @@ config.section.reveal,Revelación
 config.hidden_truth,Revelar discrepancias
 config.hidden_truth.tip,"Muestra las diferencias reales de estado, la durabilidad real y la pureza real de lingotes y productos químicos. Delata los falsos y facilita mucho la tasación."
 config.water_wine,Análisis de agua
-config.water_wine.tip,Combina pureza, impurezas y consejos de purificación del agua con la puntuación y composición del vino. No requiere probador de agua.
+config.water_wine.tip,"Muestra análisis de agua y vino según el contenido del recipiente."
 config.scratcher,Vista previa de rasca
 config.scratcher.tip,Muestra el premio (o que no hay) y el progreso rascado antes de rascar. Es un recálculo de solo lectura; nunca rasca por ti. Desactívalo para ocultar el resultado.
 config.sealed_box,Rayos X de contenedores

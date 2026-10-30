@@ -142,11 +142,15 @@ wine.yeast_power,Hefestärke: {0}/Tick
 machine.battery_line,Restenergie: {0} ({1} Tage)
 config.section.display,Anzeige optimieren
 config.item_appraisal,Gegenstandsprüfung
-config.item_appraisal.tip,Kombiniert Echtheit, Wertaufschlüsselung, perfekte Angebotsspanne, Fälschungsgründe und Pflanzeninformationen.
+config.item_appraisal.tip,"Zeigt Prüfergebnisse und Wertinformationen je nach Gegenstandstyp."
+config.cost_performance,Preis-Leistung
+config.cost_performance.tip,"Zeigt Wert pro Zelle und das Kompressionsverhältnis von Behältern."
+config.container_contents,Behälterinhalt
+config.container_contents.tip,"Listet den Inhalt und den Gesamtwert eines Behälters auf."
 config.info_enhance,Informationserweiterung
-config.info_enhance.tip,Kombiniert Wert pro Zelle, Etikett-/Markteinfluss, Modulwerte, Maschinenbatterie, Behälter, Schwarzmarktaufschlag, Lotterie, gedimmte Beschreibungen und Verkaufs-/Einkaufspreis-Anzeige.
-config.type_badge,Artikeltyp-Labels
-config.type_badge.tip,"Zeigt die Artikeltypen über dem Tooltip als farbige Platten mit weißer Schrift: Medizin/Wasser/Drogen/Gifte blau, Tabak/Alkohol schwarz, Luxus rosa, Essen grün, Haushaltswaren cyan, Waffen/Rüstung türkis, Werkzeuge/Materialien violett, verboten/eingeschränkt dunkelrot, sonst grau. Aus: ursprüngliche [Typ]-Zeile im Tooltip."
+config.info_enhance.tip,"Ergänzt je nach Gegenstand zusätzliche Informationen wie Etiketten, Module, Batterien, Markt, Lotterie und Preisbegriffe."
+config.type_badge,"Artikeltyp-Plaketten<br><color=#8C8C8C>Medizin/Wasser/Drogen blau · Tabak/Alkohol schwarz · Luxus rosa · Essen grün · Haushalt cyan · Waffen türkis · Werkzeuge violett · Verboten rot · Standard grau</color>"
+config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
 config.container_name,Namen an Behältern und Maschinen
 config.container_name.tip,Zeigt Namen unter Behältern und Maschinen. Position fest unten.
 config.container_name_bg,Hintergrund für Objektnamen
@@ -160,7 +164,7 @@ config.section.reveal,Einblick
 config.hidden_truth,Fälschungen aufdecken
 config.hidden_truth.tip,"Zeigt echte Zustandsunterschiede, echte Haltbarkeit und Barren-/Chemikalienreinheit. Entlarvt Fälschungen direkt und senkt die Schätzschwierigkeit."
 config.water_wine,Wasseranalyse
-config.water_wine.tip,Kombiniert Wasserreinheit, Verunreinigungen und Aufbereitungsempfehlungen mit Weinbewertung und -zusammensetzung. Kein Wassertester nötig.
+config.water_wine.tip,"Zeigt Wasser- und Weianalyse je nach Behälterinhalt."
 config.scratcher,Rubbellos-Vorschau
 config.scratcher.tip,Zeigt vor dem Rubbeln Gewinn (oder keinen) und Fortschritt. Nur Neuberechnung ohne Eingriff; rubbt nie für dich. Ausschalten blendet das Ergebnis aus.
 config.sealed_box,Behälter-Röntgen

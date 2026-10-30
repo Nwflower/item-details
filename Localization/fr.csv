@@ -142,11 +142,15 @@ wine.yeast_power,Force de la levure: {0}/cycle
 machine.battery_line,Énergie restante : {0} ({1} jours)
 config.section.display,Optimisation de l'affichage
 config.item_appraisal,Expertise d'objet
-config.item_appraisal.tip,Combine authenticité, détail de la valeur, fourchette d'offre parfaite, raisons de contrefaçon et infos sur les plantes.
+config.item_appraisal.tip,"Affiche les conclusions d'expertise et les informations de valeur selon le type d'objet."
+config.cost_performance,Rapport qualité-prix
+config.cost_performance.tip,"Affiche la valeur par case et le taux de compression des conteneurs."
+config.container_contents,Contenu du conteneur
+config.container_contents.tip,"Liste le contenu et la valeur totale d'un conteneur."
 config.info_enhance,Informations enrichies
-config.info_enhance.tip,Combine valeur par case, impact des étiquettes/marché, valeurs des modules, batterie de machine, conteneurs, majoration de contrebande, loterie, descriptions atténuées et affichage prix de vente/achat.
-config.type_badge,Étiquettes de type
-config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool noir, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
+config.info_enhance.tip,"Ajoute des informations selon l'objet : étiquettes, modules, batteries, marché, loterie et termes de prix."
+config.type_badge,"Badges de type<br><color=#8C8C8C>Médecine/eau/drogues bleu · Tabac/alcool noir · Luxe rose · Nourriture vert · Maison cyan · Armes turquoise · Outils violet · Interdit rouge · Défaut gris</color>"
+config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.container_name,Noms sur conteneurs et machines
 config.container_name.tip,Affiche les noms sous les conteneurs et machines. Position fixe en bas.
 config.container_name_bg,Fond des noms d'icônes
@@ -160,7 +164,7 @@ config.section.reveal,Révélation
 config.hidden_truth,Révéler les écarts
 config.hidden_truth.tip,"Affiche les vrais écarts d'état, la vraie durabilité et la pureté réelle des lingots/produits chimiques. Expose les faux et baisse la difficulté d'expertise."
 config.water_wine,Analyse de l'eau
-config.water_wine.tip,Combine pureté, impuretés et conseils de purification de l'eau avec le score et la composition du vin. Aucun testeur d'eau requis.
+config.water_wine.tip,"Affiche l'analyse de l'eau et du vin selon le contenu du récipient."
 config.scratcher,Aperçu du ticket à gratter
 config.scratcher.tip,Affiche le prix (ou l'absence de prix) et la progression avant de gratter. Recalcul en lecture seule; ne gratte jamais à votre place. Désactivez pour masquer le résultat.
 config.sealed_box,Radiographie des conteneurs

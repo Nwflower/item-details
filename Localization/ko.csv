@@ -142,11 +142,15 @@ wine.yeast_power,효모 강도：{0}/회
 machine.battery_line,남은 에너지: {0} ({1}일)
 config.section.display,표시 최적화
 config.item_appraisal,아이템 감정
-config.item_appraisal.tip,진위 판정, 가치 구성, 완벽 제시가 구간, 위조 사유, 식물 정보를 함께 표시합니다.
+config.item_appraisal.tip,"아이템 감정 결과와 가치 정보를 종류에 따라 표시합니다."
+config.cost_performance,가성비
+config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시합니다."
+config.container_contents,컨테이너 내용
+config.container_contents.tip,"컨테이너 안의 아이템과 총가치를 나열합니다."
 config.info_enhance,정보 강화
-config.info_enhance.tip,칸당 가치, 라벨/시장 영향, 모듈 실제 값, 기계 배터리, 컨테이너 정보, 암시장 할증, 복권 정보, 설명 흐리게, 판매가/매입가 표시를 함께 제공합니다.
-config.type_badge,아이템 분류 라벨
-config.type_badge.tip,"툴팁 위에 아이템 분류를 색상 판과 흰색 글자로 표시합니다: 의료/물/약물/독극물 파랑, 담배/주류 검정, 사치품 핑크, 음식 초록, 생활용품 하늘색, 무기/방어구 청록, 도구/재료 보라, 위법/제한 암적, 기타 회색. 끄면 원래의 [분류] 줄로 돌아갑니다."
+config.info_enhance.tip,"라벨, 모듈, 배터리, 시장, 복권, 가격 용어 등 아이템에 따라 달라지는 추가 정보를 표시합니다."
+config.type_badge,"아이템 분류 배지<br><color=#8C8C8C>의료/물/약물 파랑 · 담배/주류 검정 · 사치품 핑크 · 음식 초록 · 생활용품 하늘색 · 무기 청록 · 도구 보라 · 위법 빨강 · 기타 회색</color>"
+config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
 config.container_name,컨테이너/기계 표시 이름
 config.container_name.tip,컨테이너와 기계 아래에 이름을 표시합니다. 위치는 하단 고정입니다.
 config.container_name_bg,표시 이름 반투명 배경
@@ -160,7 +164,7 @@ config.section.reveal,투시
 config.hidden_truth,불일치·위조 공개
 config.hidden_truth.tip,위장 전 실제 상태 차이、실제 내구도、주괴/화학품의 실제 순도를 표시합니다。가짜가 바로 드러나 감정 난이도가 내려갑니다。
 config.water_wine,수질 분석
-config.water_wine.tip,물의 순도·불순물·정화 조언과 와인의 점수·성분 분석을 함께 표시합니다. 수질 검사 키트가 필요 없습니다.
+config.water_wine.tip,"용기 내용에 따라 수질·와인 분석을 표시합니다."
 config.scratcher,긁기 카드 미리보기
 config.scratcher.tip,긁기 전에 당첨 금액（또는 꽝）과 진행도를 표시합니다。같은 규칙으로 읽기만 하는 재계산이며 대신 긁지 않습니다。끄면 결과를 숨깁니다。
 config.sealed_box,밀봉 상자 투시

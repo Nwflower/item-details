@@ -142,11 +142,15 @@ wine.yeast_power,酵母の力：{0}/回
 machine.battery_line,残りエネルギー：{0}（{1}日）
 config.section.display,表示最適化
 config.item_appraisal,アイテム鑑定
-config.item_appraisal.tip,真偽判定、価値構成、完璧な提示額レンジ、偽物の理由、植物情報をまとめて表示します。
+config.item_appraisal.tip,"アイテムの鑑定結果と価値情報を、種類に応じて表示します。"
+config.cost_performance,コスト効率
+config.cost_performance.tip,"セル当たりの価値とコンテナの圧縮率を表示します。"
+config.container_contents,コンテナ内容
+config.container_contents.tip,"コンテナ内の物品と合計価値を一覧表示します。"
 config.info_enhance,情報強化
-config.info_enhance.tip,セル当たり価値、ラベル/市場影響、モジュール実値、機械バッテリー、コンテナ情報、闇市場上乗せ、宝くじ情報、説明の淡色化、売値/仕入値表示をまとめます。
-config.type_badge,アイテム分類ラベル
-config.type_badge.tip,"ツールチップ上部にアイテム分類を色付きの底板と白文字で表示します：医療/水/薬物/毒は青、煙草/酒は黒、奢侈品はピンク、食料は緑、日用品はシアン、武器/防具は青緑、道具/材料は紫、違法/制限は暗赤、その他は灰色。オフにすると元の [分類] 行に戻ります。"
+config.info_enhance.tip,"ラベル、モジュール、バッテリー、市場、宝くじ、価格用語など、アイテムに応じた補足情報を表示します。"
+config.type_badge,"アイテム分類バッジ<br><color=#8C8C8C>医療/水/薬物 青 · 煙草/酒 黒 · 奢侈品 ピンク · 食料 緑 · 日用品 シアン · 武器 青緑 · 道具 紫 · 違法 赤 · その他 灰</color>"
+config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
 config.container_name,コンテナ/機械の外観名
 config.container_name.tip,コンテナと機械の下に名前を表示します。位置は下部固定です。
 config.container_name_bg,外観名の半透明背景
@@ -160,7 +164,7 @@ config.section.reveal,透視
 config.hidden_truth,偽物・不一致を暴く
 config.hidden_truth.tip,偽装前の真の状態差、真の耐久、インゴット/薬品の真の純度を表示。偽物が露見し鑑定が易しくなります。
 config.water_wine,水質分析
-config.water_wine.tip,水の純度・不純物・浄化提案と、ワインのスコア・成分分析をまとめます。水質検査キットは不要です。
+config.water_wine.tip,"容器の内容に応じて水質・ワイン分析を表示します。"
 config.scratcher,スクラッチカードの事前確認
 config.scratcher.tip,削る前に当たり額（またははずれ）と進行度を表示。同一ルールの読み取り専用再計算で、代わりに削りはしません。オフで非表示。
 config.sealed_box,密封コンテナ透視

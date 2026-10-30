@@ -142,11 +142,15 @@ wine.yeast_power,Moc drożdży: {0}/takt
 machine.battery_line,Pozostała energia: {0} ({1} dni)
 config.section.display,Optymalizacja wyświetlania
 config.item_appraisal,Wycena przedmiotu
-config.item_appraisal.tip,Łączy autentyczność, skład wartości, przedział idealnej oferty, powody podróbki i informacje o roślinach.
+config.item_appraisal.tip,"Pokazuje wyniki wyceny i informacje o wartości zależnie od typu przedmiotu."
+config.cost_performance,Wydajność kosztowa
+config.cost_performance.tip,"Pokazuje wartość na komórkę i stopień kompresji pojemników."
+config.container_contents,Zawartość pojemnika
+config.container_contents.tip,"Wyświetla zawartość i łączną wartość pojemnika."
 config.info_enhance,Wzmocnienie informacji
-config.info_enhance.tip,Łączy wartość na komórkę, wpływ etykiet/rynku, wartości modułów, baterię maszyny, pojemniki, narzut czarnego rynku, loterię, przygaszone opisy i ceny sprzedaży/zakupu.
-config.type_badge,Etykiety typu
-config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol czarne, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
+config.info_enhance.tip,"Dodaje informacje zależne od przedmiotu, np. etykiety, moduły, baterie, rynek, loterię i terminy cenowe."
+config.type_badge,"Etykiety typu<br><color=#8C8C8C>Medycyna/woda/narkotyki niebieski · Tytoń/alkohol czarny · Luksus różowy · Żywność zielony · Dom cyjan · Broń turkusowy · Narzędzia fioletowy · Zakazane czerwony · Domyślny szary</color>"
+config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
 config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwy pod pojemnikami i maszynami. Pozycja stała na dole.
 config.container_name_bg,Tło nazw ikon
@@ -160,7 +164,7 @@ config.section.reveal,Ujawnianie
 config.hidden_truth,Ujawniaj niezgodności
 config.hidden_truth.tip,"Pokazuje prawdziwe różnice stanu, rzeczywistą wytrzymałość oraz czystość sztabek/chemikaliów. Wprost zdradza podróbki i ułatwia wycenę."
 config.water_wine,Analiza wody
-config.water_wine.tip,Łączy czystość, zanieczyszczenia i porady oczyszczania wody z oceną i składem wina. Nie wymaga testera wody.
+config.water_wine.tip,"Pokazuje analizę wody i wina zależnie od zawartości pojemnika."
 config.scratcher,Podgląd zdrapki
 config.scratcher.tip,"Pokazuje nagrodę (lub jej brak) i postęp zdrapywania przed zdrapaniem. Tylko odczyt i przeliczenie; nigdy nie zdrapuje za ciebie. Wyłącz, by ukryć wynik."
 config.sealed_box,Prześwietlanie skrzyń

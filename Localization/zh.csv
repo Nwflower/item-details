@@ -142,11 +142,15 @@ wine.yeast_power,酵母力度：{0}/次
 machine.battery_line,剩余能量：{0}（{1}天）
 config.section.display,显示优化
 config.item_appraisal,物品鉴定
-config.item_appraisal.tip,合并真伪鉴定、价值构成、完美报价区间、赝品原因与植物信息。
+config.item_appraisal.tip,"显示物品鉴定结论与价值信息，随物品类型变化。"
+config.cost_performance,性价比
+config.cost_performance.tip,"显示占格价值与容器压缩率。"
+config.container_contents,容器内容
+config.container_contents.tip,"列出容器内的物品与合计价值。"
 config.info_enhance,信息增强
-config.info_enhance.tip,合并性价比、标签与市场影响、模组效果实际值、机器电池、容器信息、黑市溢价、彩票信息、描述淡化与售价/进价显示优化。
-config.type_badge,物品分类标签
-config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒黑底白字、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
+config.info_enhance.tip,"补充随物品类型变化的附加信息，如标签、模组、电池、市场、彩票和价格用词。"
+config.type_badge,"物品分类标签<br><color=#8C8C8C>医疗/水/药物蓝 · 烟酒黑 · 奢侈品粉 · 食物绿 · 日用品青 · 武器青绿 · 工具紫 · 违禁红 · 默认灰</color>"
+config.type_badge.tip,"在 tooltip 上方显示物品分类标签。"
 config.container_name,容器和机器外显文本
 config.container_name.tip,只给容器和机器显示名称，位置固定底部。
 config.container_name_bg,外显文本半透明底
@@ -160,7 +164,7 @@ config.section.reveal,透视
 config.hidden_truth,揭示货不对板
 config.hidden_truth.tip,显示被伪装前的真实条件差异、真实耐久与锭/化学品真实纯度。会直接暴露假货，明显降低鉴定难度。
 config.water_wine,水质鉴定
-config.water_wine.tip,合并水质纯度、杂质与净化建议，以及酒的分数和成分分析；开启时不需要水质检测仪。
+config.water_wine.tip,"显示水质与酒类分析，随容器内容变化。"
 config.scratcher,刮刮卡提前看
 config.scratcher.tip,未刮开就给出中奖金额（或不中奖）与已刮进度。按游戏同一套规则只读复算，不替玩家刮开；关闭后则不显示结果。
 config.sealed_box,密封箱透视

@@ -60,7 +60,9 @@ internal static class ModSettings
 
     // ---- 显示优化 ----
     private static readonly Toggle ItemAppraisalToggle = new(true);      // 真伪 + 价值构成 + 植物
-    private static readonly Toggle InfoEnhanceToggle = new(true);        // 性价比/标签/模块/电池/容器/黑市/彩票/描述/价格
+    private static readonly Toggle CostPerformanceToggle = new(true);    // 性价比 + 压缩率
+    private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
+    private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
@@ -86,20 +88,26 @@ internal static class ModSettings
             // ================= 显示优化 =================
             ItemAppraisalToggle.Define(_cfg, "show_item_appraisal", SecDisplayKey, SecDisplayEn,
                 Text("config.item_appraisal", "Item Appraisal"),
-                Text("config.item_appraisal.tip", "Combines authenticity, value breakdown, perfect offer range, " +
-                     "counterfeit reasons, berry quality and seed traits."));
+                Text("config.item_appraisal.tip", "Shows appraisal conclusions and value details, adapted to the item type."));
+
+            CostPerformanceToggle.Define(_cfg, "show_cost_performance", SecDisplayKey, SecDisplayEn,
+                Text("config.cost_performance", "Cost Performance"),
+                Text("config.cost_performance.tip", "Shows value per cell and container compression ratio."));
+
+            ContainerContentsToggle.Define(_cfg, "show_container_contents", SecDisplayKey, SecDisplayEn,
+                Text("config.container_contents", "Container Contents"),
+                Text("config.container_contents.tip", "Lists what a container holds and the total value inside."));
 
             InfoEnhanceToggle.Define(_cfg, "show_info_enhance", SecDisplayKey, SecDisplayEn,
                 Text("config.info_enhance", "Information Enhancements"),
-                Text("config.info_enhance.tip", "Combines value per cell, label/market impact, module effect deltas, " +
-                     "machine battery, container details, contraband markup, lottery info, dimmed descriptions " +
-                     "and sell/cost price display."));
+                Text("config.info_enhance.tip", "Adds extra information that varies by item, such as labels, modules, " +
+                     "batteries, market modifiers, lottery data, dimmed descriptions and price terms."));
 
             TypeBadgeToggle.Define(_cfg, "show_type_badge", SecDisplayKey, SecDisplayEn,
-                Text("config.type_badge", "Item Type Badges"),
-                Text("config.type_badge.tip", "Shows the item's categories above the tooltip as colored plates with white text: " +
-                     "medical/water/drugs/poison blue, tobacco/alcohol black, luxury pink, food green, household cyan, " +
-                     "weapons/armor teal, tools/materials purple, contraband/restricted dark red, other gray."));
+                Text("config.type_badge", "Item Type Badges\n" +
+                     "<color=#8C8C8C>Medical/water/drugs blue · Tobacco/alcohol black · Luxury pink · Food green · " +
+                     "Household cyan · Weapons teal · Tools purple · Contraband red · Default gray</color>"),
+                Text("config.type_badge.tip", "Shows the item's categories above the tooltip."));
 
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,
                 Text("config.container_name", "Container & Machine Icon Names"),
@@ -128,8 +136,7 @@ internal static class ModSettings
 
             WaterWineToggle.Define(_cfg, "show_water_purity", SecRevealKey, SecRevealEn,
                 Text("config.water_wine", "Water & Wine Analysis"),
-                Text("config.water_wine.tip", "Combines water purity/impurities/advice with wine score and composition. " +
-                     "No water tester is required."));
+                Text("config.water_wine.tip", "Shows water and wine analysis without needing a tester."));
 
             ScratcherToggle.Define(_cfg, "show_scratcher", SecRevealKey, SecRevealEn,
                 Text("config.scratcher", "Scratcher Preview"),
@@ -258,11 +265,11 @@ internal static class ModSettings
     internal static bool Value => ItemAppraisalToggle.Value;
     internal static bool Plant => ItemAppraisalToggle.Value;
     internal static bool InfoEnhance => InfoEnhanceToggle.Value;
-    internal static bool ValueEnhance => InfoEnhanceToggle.Value;
+    internal static bool ValueEnhance => CostPerformanceToggle.Value;
+    internal static bool Container => ContainerContentsToggle.Value;
     internal static bool ModuleEffects => InfoEnhanceToggle.Value;
     internal static bool MachineBattery => InfoEnhanceToggle.Value;
     internal static bool PriceImpact => InfoEnhanceToggle.Value;
-    internal static bool Container => InfoEnhanceToggle.Value;
     internal static bool Contraband => InfoEnhanceToggle.Value;
     internal static bool Lottery => InfoEnhanceToggle.Value;
     internal static bool HideEstimate => InfoEnhanceToggle.Value;
