@@ -1,6 +1,9 @@
 using System;
+using System.Reflection;
 using System.Text;
 using HarmonyLib;
+using TMPro;
+using UnityEngine;
 
 namespace ItemDetails;
 
@@ -26,6 +29,16 @@ internal static class ManufacturerInline
     private static RichTextBuilder? _pendingBuilder;
     private static string _pendingCompany = "";
 
+    // 右对齐对齐的是文本节点宽度，而该节点比内框多出左右内边距（tooltipElement.SetPadding(8,8,8,8)）。
+    // 用 TMP 的右边距把靠右文字收回内框：右对齐只受 margin.z 影响，左对齐行起点不变。
+    // 边距必须在**每次 SetRichText 时按内容重设**（合并过的设 16，其它一律清零），
+    // 否则会残留到共用同一个 tooltipElement 的其它提示框，看起来像「所有提示框都多了内边距」。
+    // Validate/Show 只重设 sizeDelta，不会清 margin，所以在 SetRichText 后设是有效的。
+    private static FieldInfo? _textNodeField;
+    private static FieldInfo? _leftPadField;
+    private static FieldInfo? _rightPadField;
+    private static PropertyInfo? _textProp;
+
     internal static void Apply()
     {
         if (_patched) return;
@@ -40,9 +53,20 @@ internal static class ManufacturerInline
                 return;
             }
 
+            var setRich = AccessTools.Method(typeof(RichTextElement), "SetRichText",
+                new[] { typeof(RichText), typeof(int) });
+            _textNodeField = AccessTools.Field(typeof(RichTextElement), "textNode");
+            _leftPadField = AccessTools.Field(typeof(RichTextElement), "leftPadding");
+            _rightPadField = AccessTools.Field(typeof(RichTextElement), "rightPadding");
+            _textProp = AccessTools.Property(typeof(TreeNodeRender), "text");
+
             _harmony = new Harmony(HarmonyId);
             _harmony.Patch(display, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterDisplay)));
             _harmony.Patch(build, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterBuild)));
+            bool ok = setRich != null && _textNodeField != null && _leftPadField != null
+                      && _rightPadField != null && _textProp != null;
+            if (ok) _harmony.Patch(setRich, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterSetRichText)));
+            else Log.Warn("ManufacturerInline.Margin", "未找到 SetRichText/边距字段，公司名右对齐可能贴边");
             _patched = true;
             Log.Msg("ManufacturerInline patched GameItem.DisplayManufacturer/RichTextBuilder.Build");
         }
@@ -102,18 +126,46 @@ internal static class ManufacturerInline
         }
     }
 
+    /// <summary>
+    /// 每次设置文本后重设右边距：合并过的提示框用「左右内边距之和」把靠右的公司名收回内框，
+    /// 其它提示框一律清零。这样切换物品时不会把上一次的边距残留下来。
+    /// </summary>
+    private static void AfterSetRichText(RichTextElement __instance, RichText richText)
+    {
+        try
+        {
+            object? node = _textNodeField?.GetValue(__instance);
+            if (node == null || _textProp!.GetValue(node) is not TMP_Text tmp) return;
+
+            string fg = richText?.richTextForeground ?? "";
+            bool ours = fg.IndexOf("<align=right>", StringComparison.Ordinal) >= 0
+                        && fg.IndexOf("<line-height=0>", StringComparison.Ordinal) >= 0;
+            float right = 0f;
+            if (ours)
+                right = (int)(_leftPadField!.GetValue(__instance) ?? 0) + (int)(_rightPadField!.GetValue(__instance) ?? 0);
+
+            Vector4 margin = tmp.margin;
+            if (margin.x != 0f || margin.y != 0f || margin.w != 0f || margin.z != right)
+                tmp.margin = new Vector4(0f, 0f, right, 0f);
+        }
+        catch (Exception ex) { Log.Warn("ManufacturerInline.Margin", ex); }
+    }
+
     private static RichText? Inline(RichTextBuilder builder, RichText r, string company)
     {
         string[] fg = r.richTextForeground.Split('\n');
         string[] bg = (r.richTextBackground ?? "").Split('\n');
         if (fg.Length != bg.Length) return null;
 
-        int c = Array.FindIndex(fg, line => string.Equals(Visible(line), company, StringComparison.Ordinal));
+        // 原版公司行前面带一个空格（DisplayManufacturer 先 Add(" ")），比较时要去掉。
+        int c = Array.FindIndex(fg, line => string.Equals(Visible(line).Trim(), company, StringComparison.Ordinal));
         if (c < 1 || c + 1 >= fg.Length) return null;
-        if (VisibleLength(fg[c - 1]) + Gap + company.Length > WrapWidth(builder)) return null;
+        if (CellWidth(Visible(fg[c - 1])) + Gap + CellWidth(company) > WrapWidth(builder)) return null;
 
+        // 名称行末尾补一段全透明的「间隔 + 公司名」，保证本行至少有这么宽，靠右的公司名不会压住名称。
+        string companyLine = fg[c].TrimStart(' ');
         fg[c - 1] += "<alpha=#00>" + new string(' ', Gap) + company + "<alpha=#FF><line-height=0>";
-        fg[c] = "</line-height><align=right>" + fg[c];
+        fg[c] = "</line-height><align=right>" + companyLine;
         fg[c + 1] = "</align>" + fg[c + 1];
         bg[c - 1] += "<line-height=0>";
         bg[c] = "</line-height>" + bg[c];
@@ -144,6 +196,14 @@ internal static class ManufacturerInline
     }
 
     private static int VisibleLength(string text) => Visible(text).Length;
+
+    /// <summary>按显示宽度估算格数：中日韩等全角字符算 2 格，其余算 1 格。</summary>
+    private static int CellWidth(string text)
+    {
+        int n = 0;
+        foreach (char ch in text) n += ch >= (char)0x2E80 ? 2 : 1;
+        return n;
+    }
 
     /// <summary>跳过富文本标签与控制字符，按显示文本匹配公司行。</summary>
     private static string Visible(string text)
