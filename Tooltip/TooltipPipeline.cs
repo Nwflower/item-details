@@ -369,6 +369,9 @@ internal static class TooltipPipeline
     /// <summary>当前是否正在构建物品 tooltip（供其它模块判断"这次 Add 属于 tooltip"）。</summary>
     internal static bool IsBuilding => _current != null;
 
+    /// <summary>正在构建 tooltip 的物品（未在构建时为 null）。</summary>
+    internal static GameItem? Current => _current;
+
     /// <summary>每次外层 tooltip 构建递增，供其它模块记"本次 tooltip 已写过某行"。</summary>
     internal static int BuildId => _buildId;
 

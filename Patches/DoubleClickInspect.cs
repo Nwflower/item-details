@@ -22,6 +22,10 @@ namespace ItemDetails;
 /// 前导空格 + 浅蓝色），让同一类“双击做某事”的提示在 tooltip 里长得一样。
 ///
 /// 只读 + 调用游戏自己的公开方法，不改存档。
+///
+/// 例外：**已购买**（`IS_OWNED_TAG`）的鉴定物不接管双击。原版双击对这些物品还会
+/// 执行 ActivateSlotItem（食品券兑换食品额度就是这条），我们的前缀一旦拦住双击，
+/// 兑换就按不出来了。已购买物品维持原版的放大镜流程。
 /// </summary>
 internal static class DoubleClickInspect
 {
@@ -136,6 +140,11 @@ internal static class DoubleClickInspect
         try
         {
             if (!ModSettings.DoubleClickInspect || string.IsNullOrEmpty(text)) return true;
+
+            // 已购买的鉴定物不接管双击：提示保留原版的「可使用放大镜」，别写成双击。
+            var cur = TooltipPipeline.Current;
+            if (cur != null && GameRead.IsTag(cur, "IS_OWNED_TAG")) return true;
+
             EnsureHintSources();
             bool vanilla = string.Equals(text, _appraisalTip, StringComparison.Ordinal)
                         || string.Equals(text, _inspectableTip, StringComparison.Ordinal);
@@ -160,12 +169,19 @@ internal static class DoubleClickInspect
         _hintLocale = locale;
     }
 
-    /// <summary>价格鉴定、真伪鉴定和其它 INSPECTABLE 物品都允许双击打开检视面板。</summary>
+    /// <summary>
+    /// 价格鉴定、真伪鉴定和其它 INSPECTABLE 物品都允许双击打开检视面板。
+    ///
+    /// 已购买（<c>IS_OWNED_TAG</c>）的鉴定物除外：这些物品的原版双击有正经用途——
+    /// 食品券就是靠 <c>ActivateSlotItem</c> 兑换，收购后的鉴定物也可能带着自己的激活动作。
+    /// 我们的前缀会吞掉整个双击，等于把兑换按掉了，所以这类物品一律交还原版。
+    /// </summary>
     private static bool IsInspectableItem(GameItem? item)
     {
         if (item == null) return false;
         try
         {
+            if (GameRead.IsTag(item, "IS_OWNED_TAG")) return false;
             if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return true;
             if (GameRead.IsTag(item, "INSPECTABLE_TAG")) return true;
             return Authenticity.DetectKind(item) != Authenticity.ItemKind.None;
