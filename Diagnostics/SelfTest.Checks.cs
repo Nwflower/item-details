@@ -542,6 +542,132 @@ internal static partial class SelfTest
     }
 
     /// <summary>
+    /// 药物与杂质分流：活性成分按精确量，acid/base 这类试剂必须留在百分比一类，
+    /// 避免把腐蚀性试剂误报成药物剂量。
+    /// </summary>
+    private static string CheckLiquidRoles(out bool ok)
+    {
+        ok = false;
+        GameItem? bottle = null;
+        try
+        {
+            bool Classified(string id, LiquidRole expected)
+            {
+                var liquid = Liquid.GetLiquidFromId(id);
+                return liquid != null && LiquidRoleClassifier.Classify(liquid) == expected;
+            }
+
+            bool water = Classified("water", LiquidRole.Water);
+            bool zyanide = Classified("zyanide", LiquidRole.Active);
+            bool synaprest = Classified("synaprest", LiquidRole.Active);
+            bool contraceptive = Classified("contraceptive", LiquidRole.Active);
+            bool caffeine = Classified("caffeine", LiquidRole.Active);
+            bool heavyMetal = Classified("heavy_metal", LiquidRole.Other);
+            bool acid = Classified("acid", LiquidRole.Other);
+            bool baseLiquid = Classified("base", LiquidRole.Other);
+            bool alcohol = Classified("alcohol", LiquidRole.Other);
+
+            // 700 ml 水 + 600 µl 氰化物 + 5 ml 重金属：药物单独成项并保留精确 parts。
+            bottle = TryCreate("bottled_water");
+            if (bottle == null) return "liquid roles: 无法创建容器样本";
+            bottle.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(700000));
+            bottle.ModifyTag(Liquid.GetCurrentPartFromId("zyanide"), st => st.Enable().SetInt(600));
+            bottle.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), st => st.Enable().SetInt(5000));
+            var r = WaterInfo.Analyze(bottle);
+
+            bool activeOk = r.Actives.Count == 1 && r.Actives[0].Parts == 600;
+            bool impurityOk = r.Impurities.Exists(p => p.Parts == 5000);
+            bool amountOk = WaterInfo.Amount(600) == "600 uL";
+
+            ok = water && zyanide && synaprest && contraceptive && caffeine
+                 && heavyMetal && acid && baseLiquid && alcohol
+                 && activeOk && impurityOk && amountOk;
+            return $"liquid roles: water={water} zya={zyanide} syn={synaprest} bc={contraceptive} " +
+                   $"caf={caffeine} imp={heavyMetal} acid={acid} base={baseLiquid} alc={alcohol} " +
+                   $"actives={r.Actives.Count}/{activeOk} impOk={impurityOk} uL={amountOk} (期望全 True)";
+        }
+        catch (Exception ex)
+        {
+            return "liquid roles: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            if (bottle != null) { try { bottle.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>缓存 key 必须区分已安装滤芯、设备状态和 unitValue，防止返回另一状态的旧结果。</summary>
+    private static string CheckCacheKeyFreshness(out bool ok)
+    {
+        ok = false;
+        GameItem? water = null;
+        GameItem? filterA = null;
+        GameItem? filterB = null;
+        GameItem? appraisal = null;
+        try
+        {
+            water = TryCreate("bottled_water");
+            filterA = TryCreate("water_filter");
+            filterB = TryCreate("water_filter_adv");
+            appraisal = TryCreate("plasma_fuel");
+            if (water == null || filterA == null || filterB == null || appraisal == null)
+                return "cache key freshness: 无法创建样本";
+
+            var waterMethod = typeof(WaterAdvice).GetMethod("TrySimulationSignature",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var report = new PurifySources.Report
+            {
+                SignaturesValid = true,
+                CommonSignature = 111,
+                FiltersSignature = 222,
+            };
+            long WaterKey(GameItem filter)
+            {
+                object[] args = { water, report, filter, 0L };
+                bool valid = waterMethod != null
+                    && (bool)waterMethod.Invoke(null, args)!;
+                return valid ? (long)args[3] : 0L;
+            }
+
+            long filterKeyA = WaterKey(filterA);
+            long filterKeyAAgain = WaterKey(filterA);
+            long filterKeyB = WaterKey(filterB);
+            report.CommonSignature = 333;
+            long equipmentKey = WaterKey(filterA);
+            bool waterOk = filterKeyA != 0 && filterKeyA == filterKeyAAgain
+                && filterKeyA != filterKeyB && filterKeyA != equipmentKey;
+
+            var genericMethod = typeof(GenericBreakdown).GetMethod("CacheKey",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var type = new AppraisalItemType
+            {
+                id = "itemdetails_selftest",
+                itemId = "plasma_fuel",
+                source = "itemdetails_selftest",
+            };
+            appraisal.unitValue = 100;
+            string before = genericMethod?.Invoke(null, new object[] { type, appraisal }) as string ?? "";
+            appraisal.unitValue = 500;
+            string after = genericMethod?.Invoke(null, new object[] { type, appraisal }) as string ?? "";
+            bool genericOk = before.Length > 0 && before != after;
+
+            ok = waterOk && genericOk;
+            return $"cache key freshness: water={waterOk} genericValue={genericOk} (期望 True/True)";
+        }
+        catch (Exception ex)
+        {
+            return "cache key freshness: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            if (water != null) { try { water.Destroy(); } catch { } }
+            if (filterA != null) { try { filterA.Destroy(); } catch { } }
+            if (filterB != null) { try { filterB.Destroy(); } catch { } }
+            if (appraisal != null) { try { appraisal.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
     /// 走游戏原生的双击回调验证补丁：应打开鉴定面板并把目标物品设为当前鉴定物。
     /// 不依赖鼠标坐标，直接验证“游戏判定为双击后”的接管逻辑。
     /// </summary>
@@ -638,6 +764,70 @@ internal static partial class SelfTest
         {
             if (content != null) { try { content.Destroy(); } catch { } }
             if (safe != null) { try { safe.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
+    /// 容器缓存必须识别堆叠变化和同数量替换；密封箱完整估价不带加号，
+    /// 遇到只计数不计价的嵌套容器时，总价必须用“+”表示仍有未计入部分。
+    /// </summary>
+    private static string CheckContainerCacheRefresh(out bool ok)
+    {
+        ok = false;
+        GameItem? box = null;
+        GameItem? content = null;
+        GameItem? nested = null;
+        try
+        {
+            box = TryCreate("trashcan");
+            content = TryCreate("scrap_metal");
+            nested = TryCreate("trashcan");
+            if (box == null || content == null || nested == null)
+                return "container cache refresh: 无法创建样本";
+
+            int added = GraphUtils.TryAcceptAll(box, content);
+            if (added <= 0) return "container cache refresh: 内容物放入失败";
+
+            StorageInfo.Stop();
+            _ = StorageInfo.Collect(box, includeRatio: false, includeContents: true);
+            content.unitCount = 2;
+            var stacked = StorageInfo.Collect(box, includeRatio: false, includeContents: true);
+            string stackedText = string.Join("\n", stacked.ConvertAll(l => l.Text));
+            bool stackRefreshed = stackedText.Contains("×2", StringComparison.Ordinal);
+
+            box.EnableTag("LOCKED_CONTAINER_TAG");
+            box.ModifyTag("LOCK_ID", st => st.Enable().SetString("LOCK_ID_SEC"));
+            box.ModifyTag("LOCK_STATUS", st => st.Enable().SetBool(true));
+            SealedBoxInfo.Stop();
+            var complete = SealedBoxInfo.Collect(box);
+            string completeTotal = complete.Count > 0 ? complete[^1].Text : "";
+            bool completeHasNoPlus = completeTotal.Length > 0
+                && !completeTotal.EndsWith("+", StringComparison.Ordinal);
+
+            var grid = box.contentWindow?.child as GameGridInventory;
+            bool removed = grid != null && grid.Expel(content);
+            int nestedAdded = removed ? GraphUtils.TryAcceptAll(box, nested) : 0;
+            var partial = SealedBoxInfo.Collect(box);
+            string partialTotal = partial.Count > 0 ? partial[^1].Text : "";
+            bool replacementRefreshed = partialTotal.EndsWith("+", StringComparison.Ordinal)
+                && partial.Exists(l => l.Text.Contains(
+                    ContainerItemSignature.DisplayName(nested), StringComparison.Ordinal));
+
+            ok = stackRefreshed && completeHasNoPlus && replacementRefreshed;
+            return $"container cache refresh: stack={stackRefreshed} completeNoPlus={completeHasNoPlus} " +
+                   $"replacementPlus={replacementRefreshed} (期望 True/True/True)";
+        }
+        catch (Exception ex)
+        {
+            return "container cache refresh: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            StorageInfo.Stop();
+            SealedBoxInfo.Stop();
+            if (content != null) { try { content.Destroy(); } catch { } }
+            if (nested != null) { try { nested.Destroy(); } catch { } }
+            if (box != null) { try { box.Destroy(); } catch { } }
         }
     }
 

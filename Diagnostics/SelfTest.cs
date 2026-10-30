@@ -357,6 +357,22 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：药物活性成分给精确量、杂质与试剂给百分比
+        {
+            string line = CheckLiquidRoles(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：滤芯/设备状态与 unitValue 必须使缓存 key 失效
+        {
+            string line = CheckCacheKeyFreshness(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：游戏原生双击回调应直接打开鉴定面板
         {
             string line = CheckDoubleClickInspect(out bool ok);
@@ -376,6 +392,14 @@ internal static partial class SelfTest
         // 额外验证：上锁容器不能被“容器信息”路径展示，密封箱模块仍独立可见
         {
             string line = CheckLockedContainerGating(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：容器签名刷新，以及密封箱部分估价的“+”标记
+        {
+            string line = CheckContainerCacheRefresh(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
