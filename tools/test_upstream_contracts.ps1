@@ -42,9 +42,9 @@ try {
     [System.Globalization.CultureInfo]::CurrentCulture = [System.Globalization.CultureInfo]::InvariantCulture
     foreach ($case in @(
         @(49, '49 uL'), @(50, '50 uL'), @(600, '600 uL'), @(602, '602 uL'),
-        @(999, '999 uL'), @(1000, '1 mL'), @(1001, '1.001 mL'),
-        @(2999, '2.999 mL'), @(3000, '3 mL'),
-        @(1000000, '1 L'), @(1000001, '1.000001 L'), @([int]::MaxValue, '2147.483647 L')
+        @(999, '999 uL'), @(1000, '1.00 mL'), @(1001, '1.00 mL'),
+        @(2999, '3.00 mL'), @(3000, '3.00 mL'),
+        @(1000000, '1.00 L'), @(1000001, '1.00 L'), @([int]::MaxValue, '2147.48 L')
     )) {
         $actual = $amount.Invoke($null, @([int]$case[0]))
         Assert-True ($actual -eq $case[1]) ('active dose ' + $case[0] + ' => ' + $actual)
