@@ -64,6 +64,7 @@ internal static class ModSettings
     private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
     private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
+    private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
@@ -96,7 +97,7 @@ internal static class ModSettings
 
             ContainerContentsToggle.Define(_cfg, "show_container_contents", SecDisplayKey, SecDisplayEn,
                 Text("config.container_contents", "Container Contents"),
-                Text("config.container_contents.tip", "Lists what a container holds and the total value inside."));
+                Text("config.container_contents.tip", "Lists unlocked container contents; no separate total value."));
 
             InfoEnhanceToggle.Define(_cfg, "show_info_enhance", SecDisplayKey, SecDisplayEn,
                 Text("config.info_enhance", "Extra Item Info"),
@@ -104,10 +105,13 @@ internal static class ModSettings
                      "life, market modifiers, lottery results, dimmed descriptions and clearer price labels."));
 
             TypeBadgeToggle.Define(_cfg, "show_type_badge", SecDisplayKey, SecDisplayEn,
-                Text("config.type_badge", "Item Type Badges\n" +
-                     "<color=#8C8C8C>Medical/water/drugs blue · Tobacco/alcohol black · Luxury pink · Food green · " +
-                     "Household cyan · Weapons teal · Tools purple · Contraband red · Default gray</color>"),
+                Text("config.type_badge", "Item Type Badges"),
                 Text("config.type_badge.tip", "Shows the item's categories above the tooltip."));
+
+            TypeBadgeMutedToggle.Define(_cfg, "mute_type_badge_colors", SecDisplayKey, SecDisplayEn,
+                Text("config.type_badge_muted", "Muted Badge Colors"),
+                Text("config.type_badge_muted.tip", "Non-contraband badges use the tooltip's dark background and a " +
+                     "brightened category color. Contraband keeps its red warning text."));
 
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,
                 Text("config.container_name", "Container & Machine Labels"),
@@ -287,6 +291,7 @@ internal static class ModSettings
     internal static bool ResultPrefill => ResultPrefillToggle.Value;
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
+    internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
     internal static string ItemNameMode => ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
     internal static string ItemNamePosition => "底部 (Bottom)";
     internal static bool ItemNameBackground => ContainerNameBgToggle.Value;

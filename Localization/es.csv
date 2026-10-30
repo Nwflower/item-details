@@ -120,13 +120,14 @@ seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
 storage.more_kinds," ... {0} tipos en total"
 storage.ratio,Compresión: {0} ({1}/{2} celdas)
-storage.total_value,Valor total: {0}
 title.appraisal_suffix,"{0} Precio {1}, mejor oferta {2}"
 value.from,"Origen: "
 value.per_cell,Valor por celda: {0} ({1}/{2} celdas)
 value.perfect_range," | perfecto {0}-{1}"
 value.total,Total: {0} × {1} = {2}
 value.total_line,Total: {0}
+water.actives,"Principios activos: "
+water.other,"Otros: "
 water.head,Agua: {0}% {1}
 water.impurities,"Impurezas: "
 water.mismatch," (etiqueta no coincide)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,Muestra el veredicto de autenticidad y el desglose del
 config.cost_performance,Valor por celda
 config.cost_performance.tip,Muestra el valor por celda del inventario y la compresión de los contenedores.
 config.container_contents,Contenido del contenedor
-config.container_contents.tip,"Enumera el contenido y el valor total de un contenedor."
+config.container_contents.tip,"Enumera el contenido de contenedores desbloqueados, sin un valor total aparte."
 config.info_enhance,Información adicional
 config.info_enhance.tip,"Añade datos según el objeto: efectos de etiquetas y módulos, carga de baterías, modificadores de mercado, resultados de lotería, descripciones atenuadas y etiquetas de precio más claras."
 config.type_badge,Etiquetas de categoría
 config.type_badge.tip,Muestra las categorías del objeto sobre la descripción emergente.
+config.type_badge_muted,Atenuar colores de etiquetas
+config.type_badge_muted.tip,Las etiquetas no prohibidas usan el fondo oscuro del tooltip y un color de categoría aclarado; el contrabando mantiene el texto rojo de aviso.
 config.container_name,Nombres de contenedores y máquinas
 config.container_name.tip,Muestra el nombre en la parte inferior del icono de contenedores y máquinas.
 config.container_name_bg,Fondo de los nombres

@@ -120,13 +120,14 @@ seed.trait_rank,{0} (Rang {1})
 storage.contains,"Enthält: "
 storage.more_kinds," ... insgesamt {0} Sorten"
 storage.ratio,Kompressionsrate: {0} ({1}/{2} Felder)
-storage.total_value,Gesamtwert: {0}
 title.appraisal_suffix,"{0} Preis {1}, bestes Angebot {2}"
 value.from,"Quelle: "
 value.per_cell,Wert pro Feld: {0} ({1}/{2} Felder)
 value.perfect_range," | perfekt {0}-{1}"
 value.total,Gesamt: {0} × {1} = {2}
 value.total_line,Gesamt: {0}
+water.actives,"Wirkstoffe: "
+water.other,"Sonstige: "
 water.head,Wasser: {0}% {1}
 water.impurities,"Verunreinigungen: "
 water.mismatch," (Etikett passt nicht)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,"Zeigt Echtheitsurteil und Wertaufschlüsselung, abges
 config.cost_performance,Wert pro Feld
 config.cost_performance.tip,Zeigt den Wert pro Inventarfeld und das Kompressionsverhältnis von Behältern.
 config.container_contents,Behälterinhalt
-config.container_contents.tip,"Listet den Inhalt und den Gesamtwert eines Behälters auf."
+config.container_contents.tip,"Listet den Inhalt unverschlossener Behälter auf, ohne separaten Gesamtwert."
 config.info_enhance,Zusätzliche Gegenstandsinfos
 config.info_enhance.tip,"Ergänzt je nach Gegenstand Etiketten- und Moduleffekte, Batterielaufzeit, Marktmodifikatoren, Lotterieergebnisse, abgedunkelte Beschreibungen und klarere Preisangaben."
 config.type_badge,Kategorie-Plaketten
 config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
+config.type_badge_muted,Plakettenfarben dämpfen
+config.type_badge_muted.tip,Plaketten außer Schmuggelware nutzen den dunklen Tooltip-Hintergrund und eine aufgehellte Kategoriefarbe; Schmuggelware behält roten Warntext.
 config.container_name,Behälter- & Maschinennamen
 config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
 config.container_name_bg,Namenshintergrund

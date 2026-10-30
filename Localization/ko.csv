@@ -120,13 +120,14 @@ seed.trait_rank,{0} (등급 {1})
 storage.contains,"포함: "
 storage.more_kinds," 등 총 {0}종"
 storage.ratio,압축률: {0} ({1}/{2} 칸)
-storage.total_value,합계 가치: {0}
 title.appraisal_suffix,"{0} 정가{1}, 최고 제시가{2}"
 value.from,"출처: "
 value.per_cell,칸당 가치: {0} ({1}/{2} 칸)
 value.perfect_range," | 완벽 {0}–{1}"
 value.total,총액: {0} × {1} = {2}
 value.total_line,총액: {0}
+water.actives,유효 성분：
+water.other,기타：
 water.head,수질: {0}% {1}
 water.impurities,"불순물: "
 water.mismatch," (라벨과 불일치)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,아이템 종류에 맞춰 진위 판정과 가치 내
 config.cost_performance,칸당 가치
 config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시합니다."
 config.container_contents,컨테이너 내용
-config.container_contents.tip,"컨테이너 안의 아이템과 총가치를 나열합니다."
+config.container_contents.tip,"잠기지 않은 컨테이너의 내용물을 표시하며 총가치는 따로 표시하지 않습니다."
 config.info_enhance,추가 아이템 정보
 config.info_enhance.tip,"라벨·모듈 효과, 배터리 잔량, 시장 보정, 복권 결과, 흐리게 표시한 설명, 더 명확한 가격 표기 등 아이템별 정보를 추가합니다."
-config.type_badge,"아이템 분류 배지<br><color=#8C8C8C>의료/물/약물 파랑 · 담배/주류 검정 · 사치품 핑크 · 음식 초록 · 생활용품 하늘색 · 무기 청록 · 도구 보라 · 위법 빨강 · 기타 회색</color>"
+config.type_badge,아이템 분류 배지
 config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
+config.type_badge_muted,배지 색상 줄이기
+config.type_badge_muted.tip,금지·제한 품목 외에는 툴팁의 어두운 배경과 밝게 조정한 분류 색을 사용합니다. 금지·제한 품목은 빨간 경고 텍스트를 유지합니다.
 config.container_name,컨테이너/기계 이름표
 config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
 config.container_name_bg,이름표 배경

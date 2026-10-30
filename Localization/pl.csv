@@ -120,13 +120,14 @@ seed.trait_rank,{0} (ranga {1})
 storage.contains,"Zawiera: "
 storage.more_kinds," ... łącznie rodzajów: {0}"
 storage.ratio,Kompresja: {0} ({1}/{2} kratek)
-storage.total_value,Łączna wartość: {0}
 title.appraisal_suffix,"{0} cena {1}, najlepsza oferta {2}"
 value.from,"Źródło: "
 value.per_cell,Wartość na kratkę: {0} ({1}/{2} kratek)
 value.perfect_range," | idealnie {0}-{1}"
 value.total,Razem: {0} × {1} = {2}
 value.total_line,Razem: {0}
+water.actives,"Substancje czynne: "
+water.other,"Pozostałe: "
 water.head,Woda: {0}% {1}
 water.impurities,"Zanieczyszczenia: "
 water.mismatch," (niezgodność etykiety)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,Pokazuje werdykt autentyczności i rozbicie wartości 
 config.cost_performance,Wartość na kratkę
 config.cost_performance.tip,Pokazuje wartość na kratkę ekwipunku i stopień kompresji pojemników.
 config.container_contents,Zawartość pojemnika
-config.container_contents.tip,"Wyświetla zawartość i łączną wartość pojemnika."
+config.container_contents.tip,"Wyświetla zawartość odblokowanych pojemników bez osobnej łącznej wartości."
 config.info_enhance,Dodatkowe informacje
 config.info_enhance.tip,"Dodaje szczegóły zależne od przedmiotu: działanie etykiet i modułów, energię baterii, modyfikatory rynkowe, wyniki loterii, przygaszone opisy i czytelniejsze oznaczenia cen."
 config.type_badge,Plakietki kategorii
 config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
+config.type_badge_muted,Stonowane kolory plakietek
+config.type_badge_muted.tip,Etykiety poza kontrabandą używają ciemnego tła podpowiedzi i rozjaśnionego koloru kategorii; kontrabanda zachowuje czerwony tekst ostrzegawczy.
 config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
 config.container_name_bg,Tło nazw

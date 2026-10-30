@@ -120,13 +120,14 @@ seed.trait_rank,{0} (nível {1})
 storage.contains,"Contém: "
 storage.more_kinds," ... {0} tipos no total"
 storage.ratio,Compressão: {0} ({1}/{2} células)
-storage.total_value,Valor total: {0}
 title.appraisal_suffix,"{0} Preço pedido {1}, melhor oferta {2}"
 value.from,"Origem: "
 value.per_cell,Valor por célula: {0} ({1}/{2} células)
 value.perfect_range," | perfeito {0}-{1}"
 value.total,Total: {0} × {1} = {2}
 value.total_line,Total: {0}
+water.actives,"Princípios ativos: "
+water.other,"Outros: "
 water.head,Água: {0}% {1}
 water.impurities,"Impurezas: "
 water.mismatch," (rótulo não confere)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,Mostra o veredito de autenticidade e o detalhamento do
 config.cost_performance,Valor por célula
 config.cost_performance.tip,Mostra o valor por célula do inventário e a compressão dos contêineres.
 config.container_contents,Conteúdo do contêiner
-config.container_contents.tip,"Lista o conteúdo e o valor total de um contêiner."
+config.container_contents.tip,"Lista o conteúdo de contêineres desbloqueados, sem um valor total separado."
 config.info_enhance,Informações extras
 config.info_enhance.tip,"Adiciona detalhes conforme o item: efeitos de rótulos e módulos, carga de baterias, modificadores de mercado, resultados da loteria, descrições esmaecidas e rótulos de preço mais claros."
 config.type_badge,Selos de categoria
 config.type_badge.tip,"Mostra as categorias do item acima da dica."
+config.type_badge_muted,Cores de selos suavizadas
+config.type_badge_muted.tip,Etiquetas fora do contrabando usam o fundo escuro da dica e uma cor de categoria clareada; o contrabando mantém o texto vermelho de alerta.
 config.container_name,Nomes de contêineres e máquinas
 config.container_name.tip,Mostra o nome na parte inferior do ícone de contêineres e máquinas.
 config.container_name_bg,Fundo dos nomes

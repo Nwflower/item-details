@@ -120,13 +120,14 @@ seed.trait_rank,{0}（ランク {1}）
 storage.contains,中身：
 storage.more_kinds," など計{0}種"
 storage.ratio,圧縮率：{0}（{1}/{2} マス）
-storage.total_value,合計価値：{0}
 title.appraisal_suffix,{0} 定価{1}、最良提示{2}
 value.from,出所：
 value.per_cell,マス単価：{0}（{1}/{2} マス）
 value.perfect_range," ｜ 完璧 {0}–{1}"
 value.total,総額：{0} × {1} = {2}
 value.total_line,総額：{0}
+water.actives,有効成分：
+water.other,その他：
 water.head,水質：{0}% {1}
 water.impurities,不純物：
 water.mismatch,（ラベルと不一致）
@@ -150,11 +151,13 @@ config.item_appraisal.tip,アイテムの種類に応じて、真偽の判定と
 config.cost_performance,マス単価
 config.cost_performance.tip,1マスあたりの価値とコンテナの圧縮率を表示します。
 config.container_contents,コンテナ内容
-config.container_contents.tip,"コンテナ内の物品と合計価値を一覧表示します。"
+config.container_contents.tip,"ロックされていないコンテナの中身を表示し、合計価値は別途表示しません。"
 config.info_enhance,追加アイテム情報
 config.info_enhance.tip,ラベルやモジュールの効果、バッテリー残量、市場補正、宝くじの結果、説明文の淡色表示、分かりやすい価格表記など、アイテムに応じた情報を追加します。
-config.type_badge,"アイテム分類バッジ<br><color=#8C8C8C>医療/水/薬物 青 · 煙草/酒 黒 · 奢侈品 ピンク · 食料 緑 · 日用品 シアン · 武器 青緑 · 道具 紫 · 違法 赤 · その他 灰</color>"
+config.type_badge,アイテム分類バッジ
 config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
+config.type_badge_muted,バッジの色を控えめに
+config.type_badge_muted.tip,違法・制限品以外はツールチップの暗い背景と明るくした分類色を使います。違法・制限品は赤い警告文字のままです。
 config.container_name,コンテナ/機械の名前ラベル
 config.container_name.tip,コンテナと機械のアイコン下部に名前を表示します。
 config.container_name_bg,名前ラベルの背景

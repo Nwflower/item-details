@@ -120,13 +120,14 @@ seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
 storage.more_kinds," ... {0} tipi in totale"
 storage.ratio,Compressione: {0} ({1}/{2} celle)
-storage.total_value,Valore totale: {0}
 title.appraisal_suffix,"{0} Prezzo {1}, offerta migliore {2}"
 value.from,"Origine: "
 value.per_cell,Valore per cella: {0} ({1}/{2} celle)
 value.perfect_range," | perfetto {0}-{1}"
 value.total,Totale: {0} × {1} = {2}
 value.total_line,Totale: {0}
+water.actives,"Principi attivi: "
+water.other,"Altri: "
 water.head,Acqua: {0}% {1}
 water.impurities,"Impurità: "
 water.mismatch," (etichetta non corrispondente)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,Mostra il verdetto di autenticità e la ripartizione d
 config.cost_performance,Valore per cella
 config.cost_performance.tip,Mostra il valore per cella dell'inventario e la compressione dei contenitori.
 config.container_contents,Contenuto del contenitore
-config.container_contents.tip,"Elenca il contenuto e il valore totale di un contenitore."
+config.container_contents.tip,"Elenca il contenuto dei contenitori sbloccati, senza un valore totale separato."
 config.info_enhance,Informazioni extra
 config.info_enhance.tip,"Aggiunge dettagli specifici per oggetto: effetti di etichette e moduli, carica delle batterie, modificatori di mercato, risultati della lotteria, descrizioni attenuate ed etichette di prezzo più chiare."
 config.type_badge,Badge di categoria
 config.type_badge.tip,Mostra le categorie dell'oggetto sopra il riquadro informativo.
+config.type_badge_muted,Colori dei badge attenuati
+config.type_badge_muted.tip,I badge non di contrabbando usano lo sfondo scuro del tooltip e un colore di categoria schiarito; il contrabbando mantiene il testo rosso di avviso.
 config.container_name,Nomi di contenitori e macchine
 config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
 config.container_name_bg,Sfondo dei nomi

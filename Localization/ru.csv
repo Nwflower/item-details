@@ -120,13 +120,14 @@ seed.trait_rank,{0} (ранг {1})
 storage.contains,"Содержит: "
 storage.more_kinds," ... всего видов: {0}"
 storage.ratio,Сжатие: {0} ({1}/{2} клеток)
-storage.total_value,Общая стоимость: {0}
 title.appraisal_suffix,"{0} цена {1}, лучшее предложение {2}"
 value.from,"Источник: "
 value.per_cell,Стоимость за клетку: {0} ({1}/{2} клеток)
 value.perfect_range," | идеально {0}-{1}"
 value.total,Итого: {0} × {1} = {2}
 value.total_line,Итого: {0}
+water.actives,"Активные вещества: "
+water.other,"Прочее: "
 water.head,Вода: {0}% {1}
 water.impurities,"Примеси: "
 water.mismatch," (несовпадение этикетки)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,Показывает вердикт о подлинн�
 config.cost_performance,Стоимость за клетку
 config.cost_performance.tip,Показывает стоимость за клетку инвентаря и степень сжатия контейнеров.
 config.container_contents,Содержимое контейнера
-config.container_contents.tip,"Показывает содержимое контейнера и общую стоимость."
+config.container_contents.tip,"Показывает содержимое незапертых контейнеров без отдельной общей стоимости."
 config.info_enhance,Доп. сведения о предметах
 config.info_enhance.tip,"Добавляет сведения в зависимости от предмета: эффекты этикеток и модулей, заряд батарей, рыночные модификаторы, результаты лотереи, приглушённые описания и понятные ценовые подписи."
 config.type_badge,Плашки категорий
 config.type_badge.tip,"Показывает категории предмета над подсказкой."
+config.type_badge_muted,Приглушённые цвета плашек
+config.type_badge_muted.tip,Плашки кроме контрабанды используют тёмный фон подсказки и осветлённый цвет категории; контрабанда сохраняет красный предупреждающий текст.
 config.container_name,Подписи контейнеров и машин
 config.container_name.tip,Показывает название внизу значка контейнера или машины.
 config.container_name_bg,Фон подписей

@@ -120,13 +120,14 @@ seed.trait_rank,{0} (rang {1})
 storage.contains,"Contient : "
 storage.more_kinds," ... {0} types au total"
 storage.ratio,Compression : {0} ({1}/{2} cases)
-storage.total_value,Valeur totale : {0}
 title.appraisal_suffix,"{0} Prix {1}, meilleure offre {2}"
 value.from,"Source : "
 value.per_cell,Valeur par case : {0} ({1}/{2} cases)
 value.perfect_range," | parfait {0}-{1}"
 value.total,Total : {0} × {1} = {2}
 value.total_line,Total : {0}
+water.actives,"Principes actifs : "
+water.other,"Autres : "
 water.head,Eau : {0}% {1}
 water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
@@ -150,11 +151,13 @@ config.item_appraisal.tip,Affiche le verdict d'authenticité et la décompositio
 config.cost_performance,Valeur par case
 config.cost_performance.tip,Affiche la valeur par case d'inventaire et le taux de compression des conteneurs.
 config.container_contents,Contenu du conteneur
-config.container_contents.tip,"Liste le contenu et la valeur totale d'un conteneur."
+config.container_contents.tip,"Liste le contenu des conteneurs déverrouillés, sans valeur totale distincte."
 config.info_enhance,Infos supplémentaires
 config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets des étiquettes et modules, autonomie des batteries, modificateurs de marché, résultats de loterie, descriptions atténuées et libellés de prix plus clairs."
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
+config.type_badge_muted,Couleurs de badges atténuées
+config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
 config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms
