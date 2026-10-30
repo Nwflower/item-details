@@ -211,6 +211,6 @@ module.harvest,{0}%収穫量
 module.next_tier,あと+{0}%で次の段階
 module.top_tier,最高段階
 module.residual,残留上限×{0}
-history.empty,今回の接客ではまだ会話がありません。
+history.empty,まだ会話がありません。
 history.earlier,…さらに前の {0} 件
 history.unknown,顧客

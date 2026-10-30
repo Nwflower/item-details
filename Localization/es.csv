@@ -211,6 +211,6 @@ module.harvest,{0}% de cosecha
 module.next_tier,+{0}% para el siguiente nivel
 module.top_tier,nivel máximo
 module.residual,residuo ×{0}
-history.empty,Todavía no hay diálogo en esta visita.
+history.empty,Todavía no hay diálogo.
 history.earlier,…{0} líneas anteriores
 history.unknown,Cliente

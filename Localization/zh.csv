@@ -211,6 +211,6 @@ module.harvest,{0}%收获数量
 module.next_tier,再+{0}%升一档
 module.top_tier,已是最高档
 module.residual,残留下限×{0}
-history.empty,本次接待还没有对话。
+history.empty,还没有对话。
 history.earlier,…更早 {0} 条
 history.unknown,顾客

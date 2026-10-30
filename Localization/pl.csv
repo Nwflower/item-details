@@ -211,6 +211,6 @@ module.harvest,{0}% plonu
 module.next_tier,+{0}% do następnego progu
 module.top_tier,najwyższy próg
 module.residual,pozostałość ×{0}
-history.empty,W tej wizycie nie było jeszcze rozmowy.
+history.empty,Nie było jeszcze rozmowy.
 history.earlier,…{0} wcześniejszych kwestii
 history.unknown,Klient

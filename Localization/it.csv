@@ -211,6 +211,6 @@ module.harvest,{0}% di raccolto
 module.next_tier,+{0}% per il livello successivo
 module.top_tier,livello massimo
 module.residual,residuo ×{0}
-history.empty,In questa visita non ci sono ancora battute.
+history.empty,Ancora nessuna battuta.
 history.earlier,…{0} battute precedenti
 history.unknown,Cliente

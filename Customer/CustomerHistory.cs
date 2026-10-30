@@ -160,7 +160,7 @@ internal static class CustomerHistory
 
         if (Lines.Count == 0)
         {
-            sb.Append('\n').Append(Loc.T("history.empty", "No dialogue yet this visit."));
+            sb.Append('\n').Append(Loc.T("history.empty", "No dialogue yet."));
             return sb.ToString();
         }
 
