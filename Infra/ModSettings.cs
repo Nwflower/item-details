@@ -11,12 +11,19 @@ namespace ItemDetails;
 ///
 /// 分组与粒度原则（2026-10 整理）：
 ///   "显示内容"   —— tooltip 里补充的客观信息，同一件事只留一个开关
+///   "顾客提示"   —— 顾客维度的提示
 ///   "透视"       —— 揭示本应靠鉴定/分析才能知道的东西（会降低难度）
 ///   "交互与外观" —— 操作方式与视觉权重
 ///
-/// 真伪、价值构成和植物信息共用 show_item_appraisal；性价比与容器内容
-/// 分别使用 show_cost_performance 和 show_container_contents。
-/// 设置按下方 Define 的键读取，不读取已废弃的旧键。
+/// 合并过的项（旧键已废弃，读取时回落到默认）：
+///   show_berry            + show_seed_traits      → show_plant
+///   show_lock_preview     + show_scratcher（现已按分级拆回独立开关，默认值不同）
+///   show_storage_ratio    + show_container_contents → show_container
+///   show_label_impact     + show_condition_impact  → show_price_impact
+///   show_value + show_perfect_range + show_ribwich_reasons
+///               + show_generic_breakdown + show_appraisal_title → show_value
+///   show_feature_reveal   + show_hidden_real       → show_hidden_truth
+///   show_water_purity     + show_water_advice      → show_water_purity
 ///
 /// 实现注意：
 ///   - Define 的 label/tooltip 是 Func&lt;string&gt;，游戏渲染面板时才调用，所以条目文案
@@ -55,12 +62,16 @@ internal static class ModSettings
     private static readonly Toggle ItemAppraisalToggle = new(true);      // 真伪 + 价值构成 + 植物
     private static readonly Toggle CostPerformanceToggle = new(true);    // 性价比 + 压缩率
     private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
+    private static readonly Toggle ContentsGridToggle = new(true);       // 内容物图标格
     private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
     private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
+    private static readonly Toggle BlockProgressBarToggle = new(true);   // 方块进度条
+    private static readonly Toggle ManufacturerInlineToggle = new(true); // 生产公司并入名称行
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
+    private static readonly Toggle CustomerHistoryToggle = new(true);    // 顾客对话历史（悬停）
 
     // ---- 操作优化 ----
     private static readonly Toggle DoubleClickInspectToggle = new(true);
@@ -71,6 +82,11 @@ internal static class ModSettings
     private static readonly Toggle ScratcherToggle = new(false);         // 刮刮乐预知
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
     private static readonly Toggle ResultPrefillToggle = new(false);     // 鉴定结果预填
+
+    /// <summary>「鉴定结果预填」下面那项：预填哪种价格。选项是纯字符串，中英并列。</summary>
+    private static ConfigEntry<string>? _prefillPrice;
+    private const string PrefillTrueValueChoice = "真实估价 (True value)";
+    private const string PrefillBestOfferChoice = "最优报价 (Best offer)";
 
     internal static void Init(string modId)
     {
@@ -92,6 +108,12 @@ internal static class ModSettings
                 Text("config.container_contents", "Container Contents"),
                 Text("config.container_contents.tip", "Lists unlocked container contents; no separate total value."));
 
+            ContentsGridToggle.Define(_cfg, "show_contents_grid", SecDisplayKey, SecDisplayEn,
+                Text("config.contents_grid", "Contents Icon Grid"),
+                Text("config.contents_grid.tip", "Shows container contents as item icons with counts in a panel " +
+                     "beside the tooltip, and shortens the text list to a one-line summary. Locked containers " +
+                     "also need Locked Container X-Ray."));
+
             InfoEnhanceToggle.Define(_cfg, "show_info_enhance", SecDisplayKey, SecDisplayEn,
                 Text("config.info_enhance", "Extra Item Info"),
                 Text("config.info_enhance.tip", "Adds item-specific details such as label and module effects, battery " +
@@ -106,6 +128,16 @@ internal static class ModSettings
                 Text("config.type_badge_muted.tip", "Non-contraband badges use the tooltip's dark background and a " +
                      "brightened category color. Contraband keeps its red warning text."));
 
+            BlockProgressBarToggle.Define(_cfg, "block_progress_bar", SecDisplayKey, SecDisplayEn,
+                Text("config.block_progress_bar", "Block Progress Bars"),
+                Text("config.block_progress_bar.tip", "Draws tooltip progress bars (capacity, durability, health and " +
+                     "so on) as solid blocks, with the unfilled part in a darker shade, instead of [=====     ]."));
+
+            ManufacturerInlineToggle.Define(_cfg, "manufacturer_inline", SecDisplayKey, SecDisplayEn,
+                Text("config.manufacturer_inline", "Manufacturer Beside Name"),
+                Text("config.manufacturer_inline.tip", "Shows the manufacturer at the right end of the item name line " +
+                     "instead of on its own line. It keeps its own line when the name is too long to fit both."));
+
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,
                 Text("config.container_name", "Container & Machine Labels"),
                 Text("config.container_name.tip", "Shows the name at the bottom of container and machine icons."));
@@ -117,7 +149,12 @@ internal static class ModSettings
             CustomerAlertToggle.Define(_cfg, "show_customer_alert", SecDisplayKey, SecDisplayEn,
                 Text("config.customer_alert", "Customer Arrival Alert"),
                 Text("config.customer_alert.tip", "When a wanted or augmented customer arrives, shows a notice with the " +
-                     "actual bounty, real name and augmentation tier."));
+                     "actual bounty, real name, and an augmented customer's kill reward and threat level."));
+
+            CustomerHistoryToggle.Define(_cfg, "show_customer_history", SecDisplayKey, SecDisplayEn,
+                Text("config.customer_history", "Customer Dialogue on Hover"),
+                Text("config.customer_history.tip", "Hover a customer in the store to see what was said during this " +
+                     "visit. Cleared when the next customer arrives."));
 
             // ================= 操作优化 =================
             DoubleClickInspectToggle.Define(_cfg, "double_click_inspect", SecInteractionKey, SecInteractionEn,
@@ -151,10 +188,24 @@ internal static class ModSettings
             ResultPrefillToggle.Define(_cfg, "show_result_prefill", SecRevealKey, SecRevealEn,
                 Text("config.result_prefill", "Prefill Inspection Result"),
                 Text("config.result_prefill.tip", "When the inspection panel opens, ticks the actual counterfeit issues " +
-                     "and enters the best appraisal offer. It only fills in the controls and never submits or confirms. " +
-                     "Off by default."));
+                     "and fills the appraisal price with the true value or the best offer, as chosen below. It only " +
+                     "fills in the controls and never submits or confirms. Off by default."));
+
+            // 下拉框的选项是纯字符串（ModConfig 不做本地化），沿用本工程既有写法：中英并列。
+            _prefillPrice = _cfg.Define("result_prefill_price", PrefillBestOfferChoice, SecRevealEn,
+                Text("config.result_prefill_source", "Prefilled Price"),
+                new[] { PrefillTrueValueChoice, PrefillBestOfferChoice },
+                Text("config.result_prefill_source.tip",
+                     "True value fills the game's real value; best offer fills the top of the perfect range. " +
+                     "Same rule the tooltip shows."));
 
             _cfg.Save();
+
+            // 漏网的条目也要登记：`_cfg.Define` 直接注册的条目（四个下拉框）没有经过
+            // Toggle.Define，如果只重写登记过的那批，它们的 Section 会一直是英文，
+            // 于是面板里会多出一个独立的英文分组头（和中文标题并列）。
+            // 注册顺序保证了这里读到的一定是注册时的英文名，所以能按英文名反查键。
+            RegisterUntrackedSections();
 
             // 这里**不读语言**：Init 跑在主菜单早期，而 LocHelper.GetCurrentLocaleCode()
             // 最终是 LocalizationSettings.SelectedLocale → GetSelectedLocale()，在选择结果
@@ -171,8 +222,42 @@ internal static class ModSettings
         }
     }
 
-    /// <summary>首次刷新分组时记录语言。</summary>
+    /// <summary>首次重写时记一次语言判定结果：这是本模组第一次、也是唯一一次主动读 locale。</summary>
     private static bool _localeLogged;
+
+    /// <summary>
+    /// 英文分组名 → 本地化键。用于把「注册时写下的英文分组名」反查回键，
+    /// 这样不管是 Toggle.Define 还是直接 _cfg.Define 注册的条目都能被重写。
+    /// </summary>
+    private static readonly (string En, string Key)[] SectionMap =
+    {
+        (SecDisplayEn, SecDisplayKey),
+        (SecRevealEn, SecRevealKey),
+        (SecInteractionEn, SecInteractionKey),
+    };
+
+    /// <summary>
+    /// 把没经过 <see cref="Toggle.Define"/> 的条目补进 <see cref="Sections"/>。
+    /// 必须在所有 Define 调用之后、且在任何重写之前执行：那时 Section 还是注册时的英文名。
+    ///
+    /// 同时兼容「注册时误把键当分组名传进来」的写法（历史上真发生过：
+    /// 直接 Define 的四个下拉框把 `config.section.interaction` 当 section 传了，
+    /// 面板里因此多出一个写着原始键名的英文分组头）。
+    /// </summary>
+    private static void RegisterUntrackedSections()
+    {
+        if (_cfg == null) return;
+        foreach (var entry in _cfg.Entries)
+        {
+            if (Sections.Exists(s => ReferenceEquals(s.Entry, entry))) continue;
+            foreach (var (en, key) in SectionMap)
+            {
+                if (entry.Section != en && entry.Section != key) continue;
+                Sections.Add((entry, key, en));
+                break;
+            }
+        }
+    }
 
     /// <summary>
     /// 按当前语言重写分组标题。ConfigEntry.Section 的 setter 是 internal，
@@ -228,6 +313,7 @@ internal static class ModSettings
     internal static bool InfoEnhance => InfoEnhanceToggle.Value;
     internal static bool ValueEnhance => CostPerformanceToggle.Value;
     internal static bool Container => ContainerContentsToggle.Value;
+    internal static bool ContentsGrid => ContentsGridToggle.Value;
     internal static bool ModuleEffects => InfoEnhanceToggle.Value;
     internal static bool MachineBattery => InfoEnhanceToggle.Value;
     internal static bool PriceImpact => InfoEnhanceToggle.Value;
@@ -236,16 +322,25 @@ internal static class ModSettings
     internal static bool HideEstimate => InfoEnhanceToggle.Value;
     internal static bool DimDescription => InfoEnhanceToggle.Value;
     internal static bool CustomerAlert => CustomerAlertToggle.Value;
+    internal static bool CustomerHistory => CustomerHistoryToggle.Value;
     internal static bool HiddenTruth => HiddenTruthToggle.Value;
     internal static bool WaterPurity => WaterWineToggle.Value;
     internal static bool Wine => WaterWineToggle.Value;
     internal static bool Scratcher => ScratcherToggle.Value;
     internal static bool SealedBox => SealedBoxToggle.Value;
     internal static bool ResultPrefill => ResultPrefillToggle.Value;
+
+    /// <summary>预填价格用「最优报价」；为 false 时用真实估价。</summary>
+    internal static bool PrefillBestOffer =>
+        !string.Equals(_prefillPrice?.Value, PrefillTrueValueChoice, StringComparison.Ordinal);
+
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
-    internal static bool ContainerNames => ContainerNameToggle.Value;
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
+    internal static bool BlockProgressBar => BlockProgressBarToggle.Value;
+    internal static bool ManufacturerInline => ManufacturerInlineToggle.Value;
+    internal static string ItemNameMode => ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
+    internal static string ItemNamePosition => "底部 (Bottom)";
     internal static bool ItemNameBackground => ContainerNameBgToggle.Value;
     internal static float ItemNameBackgroundAlpha => 0.6f;
 

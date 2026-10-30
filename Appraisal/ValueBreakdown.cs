@@ -8,7 +8,7 @@ namespace ItemDetails;
 /// 并做「拆解合计必须等于游戏真实值」的自校验。
 ///
 /// 仅适用于机械手(HAND)、肋明治(RIBWICH)、等离子(PLASMA) 三类；
-/// 肋明治开封或赝品按游戏规则使用固定价，其余情况列出价值构成。
+/// 这三类没有真伪概念，只有价值构成。
 ///
 /// 公式常量来自 0.46D 反编译结果（AppHandHelper / RibwichHelper / PlasmaHelper）。
 /// </summary>
@@ -22,13 +22,34 @@ internal static partial class ValueBreakdown
         return Kind.None;
     }
 
+    // 同一次 tooltip 构建里，估价隐藏、正文拆解和实测分解会对同一件物品各算一次；
+    // 构建期间物品不会变，按构建序号复用。构建之外（标题、结果预填、自检）照常现算。
+    private static GameItem? _memoItem;
+    private static int _memoBuild = -1;
+    private static Result? _memoResult;
+
     internal static Result? Analyze(GameItem? item)
     {
         if (item == null) return null;
+        if (!TooltipPipeline.IsBuilding) return AnalyzeCore(item);
+
+        int build = TooltipPipeline.BuildId;
+        if (build == _memoBuild && ReferenceEquals(item, _memoItem)) return _memoResult;
+        var r = AnalyzeCore(item);
+        _memoItem = item;
+        _memoBuild = build;
+        _memoResult = r;
+        return r;
+    }
+
+    private static Result? AnalyzeCore(GameItem item)
+    {
         try
         {
-            int native = GameRead.TrueValue(item) ?? 0;
+            // 先认类型：大多数鉴定物不是这三类，不必为它们去算真实值
             Kind k = DetectKind(item);
+            if (k == Kind.None) return null;
+            int native = GameRead.TrueValue(item) ?? 0;
 
             Func<string, string?> str = key => StrTag(item, key);
             Func<string, int?> integer = key => GameRead.TagInt(item, key);
@@ -46,7 +67,7 @@ internal static partial class ValueBreakdown
             if (r.Total != native)
             {
                 Log.Warn("ValueBreakdown.Mismatch",
-                    $"kind={r.Kind} 计算={r.Total} 游戏={native}（公式可能随版本变化，本次不显示）");
+                    $"kind={r.Kind} 计算={r.Total} 游戏={native}（公式可能随版本或其它模组变化，改由实测分解显示）");
                 return null;
             }
             return r;

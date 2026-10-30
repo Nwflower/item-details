@@ -131,12 +131,16 @@ internal static class WaterInfo
     internal static string Ml(int parts) => (parts / 1000.0).ToString("0.#");
 
     /// <summary>
-    /// 沿用扫描仪的单位，保留 1 part = 1 µl 的精度，避免毫升舍入掩盖效果阈值。
+    /// 精确用量：直接复用游戏扫描仪的格式（≥1 ml 用 mL、&lt;1 ml 用 µl）。
+    /// 1 part = 1 µl，所以精度足够区分 600 µl 这类贴近阈值的剂量。
     /// </summary>
     internal static string Amount(int parts)
     {
-        if (parts >= 1000000) return (parts / 1000000m).ToString("0.######") + " L";
-        if (parts >= 1000) return (parts / 1000m).ToString("0.###") + " mL";
+        try { return WaterScannerUIManager.FormatAmount(parts); }
+        catch { }
+
+        if (parts >= 1000000) return (parts / 1000000.0).ToString("0.00") + " L";
+        if (parts >= 1000) return (parts / 1000.0).ToString("0.00") + " mL";
         return parts + " uL";
     }
 

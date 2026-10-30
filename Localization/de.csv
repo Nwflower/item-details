@@ -11,7 +11,8 @@ auth.logo,Logografik-Fehler
 auth.seal,Siegelfehler
 auth.serial,Seriennummerfehler
 # key,value
-alert.aug_tier,Augmentierungsstufe: {0}
+alert.aug_kill_reward,Abschussprämie: {0}
+alert.aug_presence,Augment-Bedrohung: {0}/100
 alert.bounty," (Belohnung {0})"
 alert.real_name,Echter Name: {0}
 alert.title_augmented,Augmentierter Kunde
@@ -43,18 +44,15 @@ appraisal.ribwich_opened,Geöffnet oder Fälschung (pauschal 40)
 appraisal.ribwich_plant_grade_a,Hochqualitative Anlage {0:D2}
 appraisal.ribwich_plant_grade_c,Niedrigqualitative Anlage {0:D2}
 appraisal.seal_ignition,Bonus: Ignition Lab
-appraisal.seal_ignition_short,Ignition Lab
 appraisal.seal_ll,Bonus: Wild’s Rides
-appraisal.seal_ll_short,Wild’s Rides
 appraisal.seal_republic,Bonus: Republikanische Flottenrequirierung
-appraisal.seal_republic_short,Republikanische Flottenrequirierung
 appraisal.seal_zhonghua,Bonus: ZhongHua Schiffsbau
-appraisal.seal_zhonghua_short,ZhongHua Schiffsbau
 appraisal.worn,Abnutzung
 auth.counterfeit,✘ Fälschung ({0})
 auth.genuine,✔ Echt
 berry.dried,Getrocknet
 berry.line,Blühbeerenqualität: {0}
+berry.wine, (Weinwert {0})
 berry.moldy,Schimmlig
 berry.normal,Normal
 berry.small,Klein
@@ -64,15 +62,14 @@ calorie.per_cell," ({0} {1}/Feld)"
 calorie.unit,kcal
 condition.line,Zustand: {0} {1}
 contraband.markup,Schwarzmarkt: +{0}%
-generic.combined,· Kombiniert/sonstige {0}
-generic.header,Wertaufschlüsselung (gemessen):
-generic.more,· ... und {0} weitere
-generic.other_attributes,· Andere Attribute {0}
+generic.line,Quelle: {0}
 hidden.chem_purity,Chemische Reinheit: {0}%
 hidden.durability,Haltbarkeit: {0}/{1}
 hidden.durability_faked,"Echte Haltbarkeit: {0}/{1} (angezeigt {2}/{3}, vermutlich manipuliert)"
 hidden.purity,Reinheit: {0}
 hidden.purity_faked,"Echte Reinheit: {0} (angezeigt {1}, vermutlich gefälscht)"
+hidden.purity_level,Reinheit: {0}/10
+hidden.purity_level_faked,Tatsächliche Reinheit: {0}/10 (angezeigt: {1}/10, vermutlich gefälscht)
 hint.double_click,Zum Untersuchen doppelklicken
 list.sep,", "
 lottery.matched_none,Treffer {0}/6 -> kein Gewinn
@@ -81,7 +78,6 @@ lottery.not_drawn,Ziehung {0}: noch nicht gezogen (jeden Samstagmorgen)
 lottery.winning,Gewinnzahlen: {0}
 market.line,Markt: {0}
 module.power,{0} Energie/Tag
-module.quality,{0} Qualität
 module.speed,{0} Tempo
 price.buy,"Einkauf: "
 price.cost_close,)
@@ -90,7 +86,7 @@ price.list," Preis: {0}"
 price.sell,Verkauf: {0}
 reveal.modifier,Echter Faktor: {0}% (getarnt als {1}%)
 reveal.real,Echt: {0} (getarnt als {1})
-reveal.real_with_mod,Echt: {0} ({1}%) (getarnt als {2})
+reveal.real_with_mod,Echt: {0} {1} (getarnt als {2})
 ribwich.header,Warum gefälscht:
 ribwich.more,... und {0} weitere
 ribwich.reason_bun_no_pickles,Sesambrötchen ohne Extragürkchen (Deluxe-Version braucht beides)
@@ -107,31 +103,35 @@ ribwich.reason_second_sticker_wrong,Zweiter Produktionslauf: falscher Ribwich-Au
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Jahr {0} nicht in 425-429 / 432-438
 scratcher.no_prize,Rubbellos: kein Gewinn
-scratcher.progress,Gerubbelt {0}/3
+scratcher.progress_part,", gerubbelt {0}/3"
 scratcher.win,Rubbellos: gewinnt {0} ({1} Treffer)
 sealed.contents,Inhalt: {0}{1}
 sealed.empty,Inhalt: leer
-sealed.more," ... insgesamt {0} Gegenstände"
-sealed.total,Gesamtwert des Inhalts: {0}
-sealed.unit," ({0})"
-seed.header,Merkmale (unanalysiert):
+sealed.more," …insgesamt {0} Stück"
+sealed.contents_total,Inhalt (Wert {0}): {1}{2}
+sealed.summary,"Inhalt: {0} Sorten, {1} Stück"
+sealed.summary_total,"Inhalt (Wert {0}): {1} Sorten, {2} Stück"
+sealed.count,{0}[{1}]
+seed.line,Merkmale (unanalysiert): {0}
 seed.more,... und {0} weitere
 seed.trait_rank,{0} (Rang {1})
 storage.contains,"Enthält: "
+storage.summary,"Enthält: {0} Sorten, {1} Stück"
 storage.more_kinds," ... insgesamt {0} Sorten"
 storage.ratio,Kompressionsrate: {0} ({1}/{2} Felder)
+grid.title,Inhalt {0}
+grid.title_sealed,Inhalt {0}
 title.appraisal_suffix,"{0} Preis {1}, bestes Angebot {2}"
 value.from,"Quelle: "
-value.per_cell,Wert pro Feld: {0} ({1}/{2} Felder)
+value.cost_perf,Wert pro Feld: {0}
+value.cost_perf_detail," ({0}/{1} Felder)"
 value.perfect_range," | perfekt {0}-{1}"
-value.total,Gesamt: {0} × {1} = {2}
 value.total_line,Gesamt: {0}
 water.actives,"Wirkstoffe: "
 water.other,"Sonstige: "
 water.head,Wasser: {0}% {1}
 water.impurities,"Verunreinigungen: "
 water.mismatch," (Etikett passt nicht)"
-water.none,keine
 water.trace,Spur (unter der Anzeigeschwelle)
 wine.aging,Reifebonus: +{0}/Tag (gesamt +{1})
 wine.composition,"Zusammensetzung: Extrakt {0}‰, Schadstoffe {1}‰"
@@ -139,7 +139,7 @@ wine.counterfeit,Fälschung: illegale Hefe
 wine.empty,Leer
 wine.fermenting,Gärt
 wine.finished,Fertig
-wine.score,Weinwertung: {0}{1}
+wine.score_part,", Wertung {0}"
 wine.state,Wein: {0}
 wine.tier,", Stufe {0}"
 wine.unknown_state,Unbekannt ({0})
@@ -152,18 +152,26 @@ config.cost_performance,Wert pro Feld
 config.cost_performance.tip,Zeigt den Wert pro Inventarfeld und das Kompressionsverhältnis von Behältern.
 config.container_contents,Behälterinhalt
 config.container_contents.tip,"Listet den Inhalt unverschlossener Behälter auf, ohne separaten Gesamtwert."
+config.contents_grid,Inhalt als Symbolraster
+config.contents_grid.tip,"Zeigt den Behälterinhalt als Symbole mit Anzahl in einem Feld neben dem Tooltip und kürzt die Textliste auf eine Zusammenfassung. Verschlossene Behälter brauchen zusätzlich den Röntgenblick."
 config.info_enhance,Zusätzliche Gegenstandsinfos
 config.info_enhance.tip,"Ergänzt je nach Gegenstand Etiketten- und Moduleffekte, Batterielaufzeit, Marktmodifikatoren, Lotterieergebnisse, abgedunkelte Beschreibungen und klarere Preisangaben."
 config.type_badge,Kategorie-Plaketten
 config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
 config.type_badge_muted,Plakettenfarben dämpfen
 config.type_badge_muted.tip,Plaketten außer Schmuggelware nutzen den dunklen Tooltip-Hintergrund und eine aufgehellte Kategoriefarbe; Schmuggelware behält roten Warntext.
+config.block_progress_bar,Block-Fortschrittsbalken
+config.block_progress_bar.tip,"Zeichnet Fortschrittsbalken in Tooltips (Füllmenge, Haltbarkeit, Gesundheit usw.) als volle Blöcke, der ungefüllte Teil erscheint dunkler. Ausgeschaltet gilt wieder die Originaldarstellung [=====]."
+config.manufacturer_inline,Hersteller neben dem Namen
+config.manufacturer_inline.tip,"Zeigt den Hersteller rechtsbündig in der Zeile des Gegenstandsnamens statt in einer eigenen Zeile. Ist der Name zu lang, bleibt der Hersteller in einer eigenen Zeile."
 config.container_name,Behälter- & Maschinennamen
 config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
 config.container_name_bg,Namenshintergrund
 config.container_name_bg.tip,Legt eine halbtransparente schwarze Fläche (60 % Deckkraft) hinter den Namen.
 config.customer_alert,Hinweis bei Kundenankunft
-config.customer_alert.tip,"Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen und Augmentierungsstufe."
+config.customer_alert.tip,Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen sowie Abschussprämie und Bedrohung bei Augmentierten.
+config.customer_history,Gesprächsverlauf beim Hovern
+config.customer_history.tip,Beim Hovern über einem Kunden im Laden wird der Verlauf des aktuellen Besuchs angezeigt.
 config.section.interaction,Bedienung
 config.double_click_inspect,Doppelklick zum Untersuchen
 config.double_click_inspect.tip,"Ein Doppelklick auf Gutachten- oder Echtheitsprüfungsobjekte (Injektoren, Zigaretten, Lebensmittelmarken usw.) öffnet die Untersuchungsansicht ohne Lupe. Ist sie geöffnet, wechselt ein Doppelklick auf einen anderen Gegenstand direkt dorthin. Der Lupen-Hinweis wird zu „Zum Untersuchen doppelklicken“. Deaktivieren stellt den Originalablauf wieder her."
@@ -177,5 +185,50 @@ config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewin
 config.sealed_box,Röntgenblick für verschlossene Behälter
 config.sealed_box.tip,"Listet Inhalt und Gesamtwert verschlossener Behälter (Safes, Waffenschränke) schon vor dem Öffnen auf. Das umgeht das Schloss, daher standardmäßig aus."
 config.result_prefill,Prüfergebnis vorausfüllen
-config.result_prefill.tip,"Füllt beim Öffnen der Untersuchungsansicht die tatsächlichen Fälschungsmerkmale und das beste Gutachtenangebot vor. Es wird nur ausgefüllt, nichts gesendet oder bestätigt. Standardmäßig aus."
-appraisal.minimum_adjustment,Mindestwertanpassung
+config.result_prefill.tip,Öffnet das Prüffenster, hakt die tatsächlichen Fälschungsmängel ab und trägt den Prüfpreis ein – echter Wert oder bestes Angebot, wie unten gewählt. Füllt nur die Felder aus, sendet oder bestätigt nichts. Standardmäßig aus.
+config.result_prefill_source,Vorausgefüllter Preis
+config.result_prefill_source.tip,Echter Wert = der reale Wert des Spiels; bestes Angebot = die Obergrenze des perfekten Bereichs aus dem Tooltip.
+machine.eta,Fertig in etwa {0} Tag(en)
+machine.eta_battery," (Batterie reicht {0} Tag(e))"
+machine.eta_battery_short," (Batterie reicht nicht)"
+machine.eta_water," (Wasser reicht {0} Tag(e))"
+machine.paused,Pausiert: {0}
+hydro.water,"Wasser: {0} ml, reicht für {1} Tag(e) ({2} ml/Tag)"
+fridge.summary,{0}: {1}; {2}: {3}
+fridge.no_effect,", {0} ohne Wirkung"
+wine.rack,"{0} Flasche(n) reifen, +{1} Tag(e) Reifung pro Tag"
+wine.rack_idle,", {0} reifen nicht"
+inner.line,{0}: {1}
+inner.durability,{0}: Haltbarkeit {1}/{2}
+inner.faked," (angezeigt: {0})"
+inner.filter_spent," (verbraucht, filtert nicht mehr)"
+inner.filters,Filter ×{0}: niedrigste Haltbarkeit {1}/{2}
+inner.spent_count,", {0} verbraucht"
+inner.liquid,{0}/{1} ml
+inner.liquid_empty,Leer
+inner.liquid_purity,", {0}% {1}"
+inner.uses,{0}: verbleibende Anwendungen {1}/{2}
+inner.tools,Werkzeuge ×{0}: wenigste verbleibende Anwendungen {1} ({2}/{3})
+inner.energy,{0}: Energie {1}/{2}
+learning.progress,Lernfortschritt: {0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0} ausgelernt
+learning.machine,"Lernen: {0} Modul(e), bis zu {1} Punkt(e) offen"
+learning.machine_full,Lernen: alle {0} Modul(e) ausgelernt
+pen.learning_maxed," ({0}/{1} Module ausgelernt)"
+pen.learning_maxed_untrained," ({0}/{1} Module ausgelernt, {2} ohne Selbstlernen)"
+module.days_faster,", etwa {0} Tag(e) schneller"
+module.output,{0} ml/Tag
+module.attract,{0} % Attraktivität
+module.bargain,{0} % Feilscherfolg
+module.theft,{0} % Diebstahlschutz
+module.aging,{0} Tag(e) Reifung/Tag
+module.print_quality,{0} Druckqualität
+module.success,{0} % Erfolgschance
+module.harvest,{0} % Ernte
+module.next_tier,+{0} % bis zur nächsten Stufe
+module.top_tier,höchste Stufe
+module.residual,Rückstand ×{0}
+history.empty,Noch keine Unterhaltung.
+history.earlier,…{0} frühere Zeilen
+history.unknown,Kunde

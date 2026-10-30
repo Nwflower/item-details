@@ -12,7 +12,10 @@ namespace ItemDetails;
 ///     任一符号出现 ≥3 次 → 营养果符号(1) 350，其它 75
 ///     出现恰好 2 次      → 营养果符号(1) 30，其它 10
 ///   这里**只读**地把三个符号全算上（不论是否刮开），因此能提前得到结果；
-///   不调用 `UpdateValue`，不会改动物品或写入标签。
+///   不调用 `UpdateValue`，不会改动物品或写入标签（它还会触发成就检查，探针上也不能调）。
+///
+/// 规则按目标游戏版本实现。已刮开至少一格时，游戏已经按已刮符号 `SetValue` 过；
+/// 若照抄规则与当前 unitValue 不一致，就不预测这张卡。无需扫描其它模组的补丁。
 /// </summary>
 internal static class ScratcherInfo
 {
@@ -33,8 +36,8 @@ internal static class ScratcherInfo
             if (!isScratcher) return lines;
 
             var symbols = new List<int>(3);
+            var scratchedSymbols = new List<int>(3);
             int scratched = 0;
-            bool statesReadable = true;
             for (int i = 1; i <= 3; i++)
             {
                 // 缺任何一个符号都不下"中奖/不中奖"的确定结论：
@@ -43,41 +46,24 @@ internal static class ScratcherInfo
                 if (sym is not int s || s <= 0) return lines;
                 symbols.Add(s);
 
-                int? state = GameRead.TagInt(item, StatePrefix + i);
-                if (state is not int st) statesReadable = false;
-                else if (st == 1) scratched++;
+                // 缺状态标签与游戏 GetTagReadonly 读到的默认值一样，按未刮开处理
+                if (GameRead.TagInt(item, StatePrefix + i) == 1) { scratched++; scratchedSymbols.Add(s); }
             }
             if (symbols.Count != 3) return lines;
 
-            // 统计出现次数（三个符号全算，含未刮开的）
-            var counts = new Dictionary<int, int>();
-            foreach (int s in symbols)
-            {
-                counts.TryGetValue(s, out int n);
-                counts[s] = n + 1;
-            }
+            if (!RuleHolds(item, scratchedSymbols)) return lines;
 
-            int prize = 0, bestCount = 0;
-            foreach (var kv in counts)
-            {
-                if (kv.Value >= 3) { prize = kv.Key == NutrifruitSymbol ? 350 : 75; bestCount = kv.Value; break; }
-                if (kv.Value == 2 && prize == 0) { prize = kv.Key == NutrifruitSymbol ? 30 : 10; bestCount = 2; }
-            }
+            // 三个符号全算，含未刮开的
+            int prize = Prize(symbols, out int bestCount);
 
-            lines.Add(prize > 0
-                ? new TooltipLine(
-                    Loc.T("scratcher.win", "Scratcher: wins {0} ({1} matching)", prize, bestCount),
-                    RenderHandler.ColorPalette.LightGreen)
-                : new TooltipLine(
-                    Loc.T("scratcher.no_prize", "Scratcher: no prize"),
-                    RenderHandler.ColorPalette.LightRed));
-
-            if (statesReadable && scratched < 3)
-            {
-                lines.Add(new TooltipLine(
-                    Loc.T("scratcher.progress", "Scratched {0}/3", scratched),
-                    RenderHandler.ColorPalette.LightCyan));
-            }
+            string text = prize > 0
+                ? Loc.T("scratcher.win", "Scratcher: wins {0} ({1} matching)", prize, bestCount)
+                : Loc.T("scratcher.no_prize", "Scratcher: no prize");
+            // 刮开进度是同一张卡的状态，接在结论后面
+            if (scratched < 3)
+                text += Loc.T("scratcher.progress_part", ", scratched {0}/3", scratched);
+            lines.Add(new TooltipLine(text,
+                prize > 0 ? RenderHandler.ColorPalette.LightGreen : RenderHandler.ColorPalette.LightRed));
 
             Log.MarkOk("ScratcherInfo");
         }
@@ -86,5 +72,37 @@ internal static class ScratcherInfo
             Log.Warn("ScratcherInfo", ex);
         }
         return lines;
+    }
+    /// <summary>照抄 ScratcherHelper.UpdateValue 的奖金规则：同符号 ≥3 次或恰好 2 次。</summary>
+    private static int Prize(List<int> symbols, out int bestCount)
+    {
+        var counts = new Dictionary<int, int>();
+        foreach (int s in symbols)
+        {
+            counts.TryGetValue(s, out int n);
+            counts[s] = n + 1;
+        }
+
+        int prize = 0;
+        bestCount = 0;
+        foreach (var kv in counts)
+        {
+            if (kv.Value >= 3) { prize = kv.Key == NutrifruitSymbol ? 350 : 75; bestCount = kv.Value; break; }
+            if (kv.Value == 2 && prize == 0) { prize = kv.Key == NutrifruitSymbol ? 30 : 10; bestCount = 2; }
+        }
+        return prize;
+    }
+
+    /// <summary>照抄的规则在当前游戏里是否仍然成立（见类注释）。</summary>
+    private static bool RuleHolds(GameItem item, List<int> scratchedSymbols)
+    {
+        if (scratchedSymbols.Count == 0) return true;   // 还没刮过，游戏尚未按规则写值，无从核对
+        long expected = Prize(scratchedSymbols, out _);
+        long actual = item.unitValue;
+        if (actual == expected) return true;
+
+        Log.Warn("ScratcherInfo.Rule",
+            $"已刮符号 [{string.Join(",", scratchedSymbols)}] 按内置规则应为 {expected}，游戏为 {actual}；不预测该卡");
+        return false;
     }
 }

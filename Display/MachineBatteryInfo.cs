@@ -9,6 +9,9 @@ namespace ItemDetails;
 /// 位置要求：紧贴在游戏自己的「所需能量：X/天」段之后，而不是 tooltip 末尾。
 /// 游戏先 Add("所需能量")，再 AddLine("X/天")；修改耗能时还会再 AddLine 基准值。
 /// 因此这里跟踪 CreateMachineryTooltip 的构建，在能量行块结束时插入。
+///
+/// 电池按 role 为 power 的面板找（见 <see cref="MachineInterior.FindPowerSource"/>），
+/// 只认普通电池；第三方机器面板顺序不同也不会把别的物品当成电池。
 /// </summary>
 internal static class MachineBatteryInfo
 {
@@ -150,9 +153,10 @@ internal static class MachineBatteryInfo
         {
             if (!item.IsGameItemType("MACHINE")) return null;
 
-            var slot = MachineHelper.GetBatterySlot(item);
-            var battery = slot?.childItem;
-            if (battery == null) return null;
+            // 不用原版 GetBatterySlot（固定取第 0 个槽）：没有电池面板的机器第 0 格是投料口或模块格。
+            // 转换器、超科技电池的能量标签恒为 0，按普通电池读会误报"0 天"。
+            var battery = MachineInterior.FindPowerSource(item);
+            if (!MachineInterior.IsPlainBattery(battery)) return null;
 
             int energy = GameRead.TagInt(battery, "power_source_item_energy") ?? 0;
             int drawn = GameRead.TagInt(item, "machinery_drawn_power") ?? 0;

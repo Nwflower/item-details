@@ -11,7 +11,8 @@ auth.logo,Défaut de logo
 auth.seal,Défaut du sceau de sécurité
 auth.serial,Défaut de numéro de série
 # key,value
-alert.aug_tier,Niveau d'augmentation : {0}
+alert.aug_kill_reward,Prime d'élimination : {0}
+alert.aug_presence,Menace augmentée : {0}/100
 alert.bounty," (prime {0})"
 alert.real_name,Vrai nom : {0}
 alert.title_augmented,Client augmenté
@@ -43,18 +44,15 @@ appraisal.ribwich_opened,Ouvert ou contrefait (forfait 40)
 appraisal.ribwich_plant_grade_a,Usine réputée {0:D2}
 appraisal.ribwich_plant_grade_c,Usine négligente {0:D2}
 appraisal.seal_ignition,Bonus Ignition Lab
-appraisal.seal_ignition_short,Ignition Lab
 appraisal.seal_ll,Bonus Escapades Wild
-appraisal.seal_ll_short,Escapades Wild
 appraisal.seal_republic,Bonus Réquisition Navale Républicaine
-appraisal.seal_republic_short,Réquisition Navale Républicaine
 appraisal.seal_zhonghua,Bonus ZhongHua Aéronautique
-appraisal.seal_zhonghua_short,ZhongHua Aéronautique
 appraisal.worn,État usé
 auth.counterfeit,✘ Contrefaçon ({0})
 auth.genuine,✔ Authentique
 berry.dried,Desséchée
 berry.line,Qualité de la grappe : {0}
+berry.wine, (valeur du vin {0})
 berry.moldy,Partiellement moisie
 berry.normal,Normale
 berry.small,Petits grains
@@ -64,15 +62,14 @@ calorie.per_cell," ({0} {1}/case)"
 calorie.unit,kcal
 condition.line,État : {0} {1}
 contraband.markup,Marché noir : +{0}%
-generic.combined,· Combiné/autre {0}
-generic.header,Décomposition de la valeur (mesurée) :
-generic.more,· ... et {0} de plus
-generic.other_attributes,· Autres attributs {0}
+generic.line,Source : {0}
 hidden.chem_purity,Pureté chimique : {0}%
 hidden.durability,Durabilité : {0}/{1}
 hidden.durability_faked,"Vraie durabilité : {0}/{1} (affichée {2}/{3}, probablement trafiquée)"
 hidden.purity,Pureté : {0}
 hidden.purity_faked,"Vraie pureté : {0} (affichée {1}, probablement falsifiée)"
+hidden.purity_level,Pureté : {0}/10
+hidden.purity_level_faked,Pureté réelle : {0}/10 (affiche {1}/10, probablement falsifiée)
 hint.double_click,Double-clic pour analyser
 list.sep,", "
 lottery.matched_none,Bons numéros {0}/6 -> aucun gain
@@ -81,7 +78,6 @@ lottery.not_drawn,Tirage {0} : résultats pas encore connus (chaque samedi mati
 lottery.winning,Numéros gagnants : {0}
 market.line,Marché : {0}
 module.power,énergie {0}/jour
-module.quality,qualité {0}
 module.speed,vitesse {0}
 price.buy,"Prix d'achat : "
 price.cost_close,)
@@ -90,7 +86,7 @@ price.list," Prix : {0}"
 price.sell,Vente : {0}
 reveal.modifier,Vrai modificateur : {0}% (déguisé en {1}%)
 reveal.real,Réel : {0} (déguisé en {1})
-reveal.real_with_mod,Réel : {0} ({1}%) (déguisé en {2})
+reveal.real_with_mod,Réel : {0} {1} (déguisé en {2})
 ribwich.header,Raisons de la contrefaçon :
 ribwich.more,... et {0} de plus
 ribwich.reason_bun_no_pickles,Pain au sésame sans cornichons supplémentaires (l'édition prestige exige les deux)
@@ -107,31 +103,35 @@ ribwich.reason_second_sticker_wrong,Autocollant Viandwich incorrect (2e cycle)
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
-scratcher.progress,Gratté {0}/3
+scratcher.progress_part,", gratté {0}/3"
 scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
-sealed.contents,Contenu : {0}{1}
-sealed.empty,Contenu : vide
-sealed.more," ... {0} objets au total"
-sealed.total,Valeur totale du contenu : {0}
-sealed.unit," ({0})"
-seed.header,Traits (non analysés) :
+sealed.contents,Contenu: {0}{1}
+sealed.empty,Contenu: vide
+sealed.more," …{0} objets au total"
+sealed.contents_total,Contenu (valeur {0}): {1}{2}
+sealed.summary,"Contenu: {0} types, {1} objets"
+sealed.summary_total,"Contenu (valeur {0}): {1} types, {2} objets"
+sealed.count,{0}[{1}]
+seed.line,Traits (non analysés) : {0}
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})
 storage.contains,"Contient : "
+storage.summary,"Contient : {0} types, {1} objets"
 storage.more_kinds," ... {0} types au total"
 storage.ratio,Compression : {0} ({1}/{2} cases)
+grid.title,Contenu {0}
+grid.title_sealed,Contenu {0}
 title.appraisal_suffix,"{0} Prix {1}, meilleure offre {2}"
 value.from,"Source : "
-value.per_cell,Valeur par case : {0} ({1}/{2} cases)
+value.cost_perf,Valeur par case : {0}
+value.cost_perf_detail," ({0}/{1} cases)"
 value.perfect_range," | parfait {0}-{1}"
-value.total,Total : {0} × {1} = {2}
 value.total_line,Total : {0}
 water.actives,"Principes actifs : "
 water.other,"Autres : "
 water.head,Eau : {0}% {1}
 water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
-water.none,aucune
 water.trace,trace (sous le seuil d'affichage)
 wine.aging,Bonus de vieillissement : +{0}/jour (total +{1})
 wine.composition,"Composition : extrait {0}‰, polluants {1}‰"
@@ -139,7 +139,7 @@ wine.counterfeit,Contrefaçon : levure illégale
 wine.empty,Vide
 wine.fermenting,En fermentation
 wine.finished,Terminé
-wine.score,Score du vin : {0}{1}
+wine.score_part,", score {0}"
 wine.state,Vin : {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu ({0})
@@ -152,18 +152,26 @@ config.cost_performance,Valeur par case
 config.cost_performance.tip,Affiche la valeur par case d'inventaire et le taux de compression des conteneurs.
 config.container_contents,Contenu du conteneur
 config.container_contents.tip,"Liste le contenu des conteneurs déverrouillés, sans valeur totale distincte."
+config.contents_grid,Grille d'icônes du contenu
+config.contents_grid.tip,"Affiche le contenu du conteneur sous forme d'icônes avec quantités dans un panneau à côté de l'infobulle, et réduit la liste texte à un résumé. Les conteneurs verrouillés nécessitent aussi la radiographie."
 config.info_enhance,Infos supplémentaires
 config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets des étiquettes et modules, autonomie des batteries, modificateurs de marché, résultats de loterie, descriptions atténuées et libellés de prix plus clairs."
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées
 config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
+config.block_progress_bar,Barres de progression en blocs
+config.block_progress_bar.tip,"Affiche les barres de progression des infobulles (capacité, durabilité, santé, etc.) en blocs pleins, la partie non remplie en teinte plus sombre. Désactivez pour revenir au style d'origine [=====]."
+config.manufacturer_inline,Fabricant à côté du nom
+config.manufacturer_inline.tip,"Affiche le fabricant aligné à droite sur la ligne du nom de l'objet au lieu d'une ligne séparée. Si le nom est trop long, il reste sur sa propre ligne."
 config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms
 config.container_name_bg.tip,Ajoute un fond noir translucide (opacité 60 %) derrière le nom.
 config.customer_alert,Alerte à l'arrivée d'un client
-config.customer_alert.tip,"Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom et son niveau d'augmentation."
+config.customer_alert.tip,Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom, ainsi que la prime d'élimination et la menace des clients augmentés.
+config.customer_history,Historique au survol du client
+config.customer_history.tip,Survoler un client du magasin affiche les répliques de la visite en cours.
 config.section.interaction,Commandes
 config.double_click_inspect,Double-clic pour analyser
 config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus. L'indication de la loupe devient « Double-clic pour analyser ». Désactivez pour revenir au fonctionnement d'origine."
@@ -177,5 +185,50 @@ config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant
 config.sealed_box,Radiographie des conteneurs verrouillés
 config.sealed_box.tip,"Liste le contenu et la valeur totale des conteneurs verrouillés (coffres-forts, armoires à armes) avant l'ouverture. Cela contourne la serrure, d'où sa désactivation par défaut."
 config.result_prefill,Préremplir l'analyse
-config.result_prefill.tip,"À l'ouverture du panneau d'analyse, coche les vrais défauts de contrefaçon et saisit la meilleure offre d'estimation. Remplit seulement les champs ; ne valide jamais rien. Désactivé par défaut."
-appraisal.minimum_adjustment,Ajustement à la valeur minimale
+config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les vrais défauts de contrefaçon et remplit le prix d'expertise avec la valeur réelle ou la meilleure offre, selon le choix ci-dessous. Ne remplit que les champs, sans jamais valider. Désactivé par défaut.
+config.result_prefill_source,Prix prérempli
+config.result_prefill_source.tip,Valeur réelle = la valeur réelle du jeu ; meilleure offre = le haut de la fourchette parfaite affichée dans l'infobulle.
+machine.eta,Fin dans environ {0} jour(s)
+machine.eta_battery," (batterie pour {0} j)"
+machine.eta_battery_short," (batterie insuffisante)"
+machine.eta_water," (eau pour {0} j)"
+machine.paused,En pause : {0}
+hydro.water,"Eau : {0} ml, suffit pour {1} jour(s) ({2} ml/jour)"
+fridge.summary,"{0} : {1}, {2} : {3}"
+fridge.no_effect,", {0} sans effet"
+wine.rack,"{0} bouteille(s) en vieillissement, +{1} jour(s) d'âge par jour"
+wine.rack_idle,", {0} ne vieillissent pas"
+inner.line,{0} : {1}
+inner.durability,{0} : durabilité {1}/{2}
+inner.faked," (affiche {0})"
+inner.filter_spent," (usé, ne filtre plus)"
+inner.filters,Filtres ×{0} : durabilité minimale {1}/{2}
+inner.spent_count,", {0} usé(s)"
+inner.liquid,{0}/{1} ml
+inner.liquid_empty,vide
+inner.liquid_purity,", {0}% {1}"
+inner.uses,{0} : utilisations restantes {1}/{2}
+inner.tools,Outils ×{0} : moins d'utilisations restantes {1} ({2}/{3})
+inner.energy,{0} : énergie {1}/{2}
+learning.progress,Apprentissage : {0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0} au maximum
+learning.machine,"Apprentissage : {0} module(s), jusqu'à {1} point(s) restant(s)"
+learning.machine_full,Apprentissage : les {0} module(s) sont au maximum
+pen.learning_maxed," ({0}/{1} modules au maximum)"
+pen.learning_maxed_untrained," ({0}/{1} modules au maximum, {2} sans auto-apprentissage)"
+module.days_faster,", environ {0} jour(s) plus tôt"
+module.output,{0} ml/jour
+module.attract,{0} % d'attractivité
+module.bargain,{0} % de réussite au marchandage
+module.theft,{0} % de prévention des vols
+module.aging,{0} jour(s) de vieillissement/jour
+module.print_quality,qualité d'impression {0}
+module.success,{0} % de chances de réussite
+module.harvest,{0} % de récolte
+module.next_tier,+{0} % pour le palier suivant
+module.top_tier,palier maximal
+module.residual,résidu ×{0}
+history.empty,Aucune réplique pour l'instant.
+history.earlier,…{0} répliques précédentes
+history.unknown,Client

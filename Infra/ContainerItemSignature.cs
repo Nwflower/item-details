@@ -50,18 +50,13 @@ internal readonly struct ContainerItemSignature
     internal static string DisplayName(GameItem? item)
     {
         if (item == null) return "";
-        string name = "";
-        try { name = item.name ?? ""; } catch { }
-        if (name.Length == 0)
-        {
-            try { name = item.identifier ?? "?"; } catch { name = "?"; }
-        }
-        return name;
+        string name = item.name ?? "";
+        return name.Length > 0 ? name : item.identifier ?? "?";
     }
 
     internal static int ReadStack(GameItem? item)
     {
         if (item == null) return 1;
-        try { return item.unitCount > 1 ? item.unitCount : 1; } catch { return 1; }
+        return item.unitCount > 1 ? item.unitCount : 1;
     }
 }

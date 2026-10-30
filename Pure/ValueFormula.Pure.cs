@@ -167,8 +167,6 @@ internal static partial class ValueBreakdown
     {
         int sub = 0;
         foreach (var p in r.Parts) sub += p.Amount;
-        if (sub < minimum)
-            r.Parts.Add(new("appraisal.minimum_adjustment", "Minimum value adjustment", minimum - sub));
         r.Total = Math.Max(minimum, sub);
         r.Valid = true;
     }

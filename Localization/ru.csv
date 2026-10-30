@@ -11,7 +11,8 @@ auth.logo,Проблема с логотипом
 auth.seal,Проблема с пломбой
 auth.serial,Проблема с серийным номером
 # key,value
-alert.aug_tier,Уровень аугментации: {0}
+alert.aug_kill_reward,Награда за убийство: {0}
+alert.aug_presence,Угроза аугментации: {0}/100
 alert.bounty," (награда {0})"
 alert.real_name,Настоящее имя: {0}
 alert.title_augmented,Аугментированный клиент
@@ -43,18 +44,15 @@ appraisal.ribwich_opened,Вскрыт или подделка (фикс. 40)
 appraisal.ribwich_plant_grade_a,Площадка высокого качества {0:D2}
 appraisal.ribwich_plant_grade_c,Площадка низкого качества {0:D2}
 appraisal.seal_ignition,Бонус Ignition Lab
-appraisal.seal_ignition_short,Ignition Lab
 appraisal.seal_ll,Бонус Wild's Rides
-appraisal.seal_ll_short,Wild's Rides
 appraisal.seal_republic,Бонус Republic Naval Requisition
-appraisal.seal_republic_short,Republic Naval Requisition
 appraisal.seal_zhonghua,Бонус ZhongHua Shipbuilding
-appraisal.seal_zhonghua_short,ZhongHua Shipbuilding
 appraisal.worn,Износ
 auth.counterfeit,✘ Подделка ({0})
 auth.genuine,✔ Оригинал
 berry.dried,Высушенная
 berry.line,Качество цветоягоды: {0}
+berry.wine, (ценность вина {0})
 berry.moldy,Заплесневелая
 berry.normal,Нормальная
 berry.small,Маленькая
@@ -64,15 +62,14 @@ calorie.per_cell," ({0} {1}/клетку)"
 calorie.unit,kcal
 condition.line,Состояние: {0} {1}
 contraband.markup,Чёрный рынок: +{0}%
-generic.combined,· Вместе/другое {0}
-generic.header,Разбивка стоимости (замер):
-generic.more,· ... и ещё {0}
-generic.other_attributes,· Прочие атрибуты {0}
+generic.line,Источник: {0}
 hidden.chem_purity,Химическая чистота: {0}%
 hidden.durability,Прочность: {0}/{1}
 hidden.durability_faked,"Реальная прочность: {0}/{1} (показано {2}/{3}, вероятно, подделано)"
 hidden.purity,Чистота: {0}
 hidden.purity_faked,"Реальная чистота: {0} (показано {1}, вероятно, подделка)"
+hidden.purity_level,Чистота: {0}/10
+hidden.purity_level_faked,Реальная чистота: {0}/10 (отображается {1}/10, вероятно подделка)
 hint.double_click,"Выполните двойной щелчок, чтобы осмотреть"
 list.sep,", "
 lottery.matched_none,Совпало {0}/6 -> без приза
@@ -81,7 +78,6 @@ lottery.not_drawn,Тираж {0}: результатов ещё нет (кажд
 lottery.winning,Выигрышные номера: {0}
 market.line,Рынок: {0}
 module.power,{0} энергии/день
-module.quality,{0} качества
 module.speed,{0} скорости
 price.buy,"Закупка: "
 price.cost_close,)
@@ -90,7 +86,7 @@ price.list," Цена: {0}"
 price.sell,Продажа: {0}
 reveal.modifier,Реальный модификатор: {0}% (выдаётся за {1}%)
 reveal.real,На самом деле: {0} (выдаётся за {1})
-reveal.real_with_mod,На самом деле: {0} ({1}%) (выдаётся за {2})
+reveal.real_with_mod,На самом деле: {0} {1} (выдаётся за {2})
 ribwich.header,Почему подделка:
 ribwich.more,... и ещё {0}
 ribwich.reason_bun_no_pickles,"Булочка с кунжутом без доп. огурцов (для Deluxe Edition нужно и то, и другое)"
@@ -107,31 +103,35 @@ ribwich.reason_second_sticker_wrong,У второй партии неверна�
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Год {0} вне диапазонов 425-429 / 432-438
 scratcher.no_prize,Скретч-карта: без выигрыша
-scratcher.progress,Стёрто {0}/3
+scratcher.progress_part,", стёрто {0}/3"
 scratcher.win,Скретч-карта: выигрыш {0} (совпадений: {1})
 sealed.contents,Внутри: {0}{1}
 sealed.empty,Внутри: пусто
-sealed.more," ... всего предметов: {0}"
-sealed.total,Общая стоимость содержимого: {0}
-sealed.unit," ({0})"
-seed.header,Признаки (не проанализированы):
+sealed.more," …всего {0} шт."
+sealed.contents_total,Внутри (стоимость {0}): {1}{2}
+sealed.summary,"Внутри: видов {0}, предметов {1}"
+sealed.summary_total,"Внутри (стоимость {0}): видов {1}, предметов {2}"
+sealed.count,{0}[{1}]
+seed.line,Признаки (не проанализированы): {0}
 seed.more,... и ещё {0}
 seed.trait_rank,{0} (ранг {1})
 storage.contains,"Содержит: "
+storage.summary,"Содержит: видов {0}, предметов {1}"
 storage.more_kinds," ... всего видов: {0}"
 storage.ratio,Сжатие: {0} ({1}/{2} клеток)
+grid.title,Содержимое {0}
+grid.title_sealed,Внутри {0}
 title.appraisal_suffix,"{0} цена {1}, лучшее предложение {2}"
 value.from,"Источник: "
-value.per_cell,Стоимость за клетку: {0} ({1}/{2} клеток)
+value.cost_perf,Стоимость за клетку: {0}
+value.cost_perf_detail," ({0}/{1} клеток)"
 value.perfect_range," | идеально {0}-{1}"
-value.total,Итого: {0} × {1} = {2}
 value.total_line,Итого: {0}
 water.actives,"Активные вещества: "
 water.other,"Прочее: "
 water.head,Вода: {0}% {1}
 water.impurities,"Примеси: "
 water.mismatch," (несовпадение этикетки)"
-water.none,нет
 water.trace,следы (ниже порога отображения)
 wine.aging,Бонус выдержки: +{0}/день (всего +{1})
 wine.composition,"Состав: экстракт {0}‰, загрязнители {1}‰"
@@ -139,7 +139,7 @@ wine.counterfeit,Подделка: незаконные дрожжи
 wine.empty,Пусто
 wine.fermenting,Бродит
 wine.finished,Готово
-wine.score,Оценка вина: {0}{1}
+wine.score_part,", оценка {0}"
 wine.state,Вино: {0}
 wine.tier,", уровень {0}"
 wine.unknown_state,Неизвестно ({0})
@@ -152,18 +152,26 @@ config.cost_performance,Стоимость за клетку
 config.cost_performance.tip,Показывает стоимость за клетку инвентаря и степень сжатия контейнеров.
 config.container_contents,Содержимое контейнера
 config.container_contents.tip,"Показывает содержимое незапертых контейнеров без отдельной общей стоимости."
+config.contents_grid,Сетка значков содержимого
+config.contents_grid.tip,"Показывает содержимое контейнера значками с количеством на панели рядом с подсказкой, а текстовый список сокращает до одной строки. Для запертых контейнеров нужно ещё просвечивание."
 config.info_enhance,Доп. сведения о предметах
 config.info_enhance.tip,"Добавляет сведения в зависимости от предмета: эффекты этикеток и модулей, заряд батарей, рыночные модификаторы, результаты лотереи, приглушённые описания и понятные ценовые подписи."
 config.type_badge,Плашки категорий
 config.type_badge.tip,"Показывает категории предмета над подсказкой."
 config.type_badge_muted,Приглушённые цвета плашек
 config.type_badge_muted.tip,Плашки кроме контрабанды используют тёмный фон подсказки и осветлённый цвет категории; контрабанда сохраняет красный предупреждающий текст.
+config.block_progress_bar,Блочные шкалы прогресса
+config.block_progress_bar.tip,"Рисует шкалы прогресса в подсказках (объём, прочность, здоровье и т. д.) сплошными блоками, незаполненная часть показана тёмным оттенком. Если выключить, вернётся исходный вид [=====]."
+config.manufacturer_inline,Производитель рядом с названием
+config.manufacturer_inline.tip,"Показывает производителя у правого края строки с названием предмета вместо отдельной строки. Если название слишком длинное, производитель остаётся на отдельной строке."
 config.container_name,Подписи контейнеров и машин
 config.container_name.tip,Показывает название внизу значка контейнера или машины.
 config.container_name_bg,Фон подписей
 config.container_name_bg.tip,Добавляет полупрозрачный чёрный фон (непрозрачность 60%) под подписью.
 config.customer_alert,Оповещение о приходе клиента
-config.customer_alert.tip,"Сообщает о приходе разыскиваемого или аугментированного клиента и показывает фактическую награду, настоящее имя и уровень аугментации."
+config.customer_alert.tip,Сообщает о приходе разыскиваемого или аугментированного клиента и показывает фактическую награду, настоящее имя, а также награду за убийство и угрозу аугментации.
+config.customer_history,История разговора при наведении
+config.customer_history.tip,При наведении на клиента в магазине показывается разговор текущего визита.
 config.section.interaction,Управление
 config.double_click_inspect,Осмотр двойным щелчком
 config.double_click_inspect.tip,"Двойной щелчок по предмету для оценки или проверки подлинности (инъекторы, сигареты, продуктовые карточки и т. п.) открывает панель осмотра без увеличительного стекла. Пока панель открыта, двойной щелчок по другому предмету сразу переключает на него. Подсказка про увеличительное стекло заменяется на «Выполните двойной щелчок, чтобы осмотреть». Отключите, чтобы вернуть исходный порядок."
@@ -177,5 +185,50 @@ config.scratcher.tip,"До стирания показывает, выиграе
 config.sealed_box,Просвечивание запертых контейнеров
 config.sealed_box.tip,"Показывает содержимое и общую стоимость запертых контейнеров (сейфы, оружейные шкафы) до вскрытия. Это позволяет обойти замок, поэтому по умолчанию выключено."
 config.result_prefill,Предзаполнение результата осмотра
-config.result_prefill.tip,При открытии панели осмотра отмечает реальные признаки подделки и подставляет лучшую цену оценки. Только заполняет поля — ничего не отправляет и не подтверждает. По умолчанию выключено.
-appraisal.minimum_adjustment,Поправка до минимальной стоимости
+config.result_prefill.tip,При открытии панели осмотра отмечает реальные дефекты подделки и подставляет цену оценки — реальную стоимость или лучшее предложение, как выбрано ниже. Только заполняет поля, ничего не отправляет и не подтверждает. По умолчанию выключено.
+config.result_prefill_source,Подставляемая цена
+config.result_prefill_source.tip,Реальная стоимость = настоящая стоимость по игре; лучшее предложение = верхняя граница идеального диапазона из подсказки.
+machine.eta,До завершения примерно {0} дн.
+machine.eta_battery," (батареи хватит на {0} дн.)"
+machine.eta_battery_short," (батареи не хватит)"
+machine.eta_water," (воды хватит на {0} дн.)"
+machine.paused,Пауза: {0}
+hydro.water,"Вода: {0} мл, хватит на {1} дн. ({2} мл в день)"
+fridge.summary,{0}: {1}; {2}: {3}
+fridge.no_effect,", без эффекта: {0}"
+wine.rack,"Выдерживается бутылок: {0}, +{1} дн. выдержки в день"
+wine.rack_idle,", не выдерживается: {0}"
+inner.line,{0}: {1}
+inner.durability,{0}: прочность {1}/{2}
+inner.faked," (указано {0})"
+inner.filter_spent," (израсходован, больше не фильтрует)"
+inner.filters,Фильтры ×{0}: минимальная прочность {1}/{2}
+inner.spent_count,", израсходовано: {0}"
+inner.liquid,{0}/{1} мл
+inner.liquid_empty,пусто
+inner.liquid_purity,", {0}% {1}"
+inner.uses,{0}: осталось использований {1}/{2}
+inner.tools,Инструменты ×{0}: меньше всего использований у {1} ({2}/{3})
+inner.energy,{0}: энергия {1}/{2}
+learning.progress,Обучение: {0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0} — максимум
+learning.machine,"Обучение: модулей {0}, осталось до {1} ед."
+learning.machine_full,Обучение: все модули ({0}) на максимуме
+pen.learning_maxed," ({0}/{1} модулей обучено полностью)"
+pen.learning_maxed_untrained," ({0}/{1} модулей обучено полностью, {2} без самообучения)"
+module.days_faster,", примерно на {0} дн. быстрее"
+module.output,{0} мл в день
+module.attract,{0}% привлекательности
+module.bargain,{0}% успеха торга
+module.theft,{0}% защиты от краж
+module.aging,{0} дн. выдержки в день
+module.print_quality,{0} качества печати
+module.success,{0}% шанса успеха
+module.harvest,{0}% урожая
+module.next_tier,ещё +{0}% до следующего уровня
+module.top_tier,максимальный уровень
+module.residual,остаток ×{0}
+history.empty,Разговора ещё не было.
+history.earlier,…ещё {0} реплик
+history.unknown,Клиент

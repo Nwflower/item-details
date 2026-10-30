@@ -31,7 +31,8 @@ internal static class ConditionEffects
     /// <summary>最多展示几条，避免 tooltip 过长。</summary>
     private const int MaxLines = 4;
 
-    internal static List<TooltipLine> Collect(GameItem? item)
+    /// <param name="skipRevealed">FeatureReveal 开着时为 true：它已把伪装特性的真实状态和影响写成一行。</param>
+    internal static List<TooltipLine> Collect(GameItem? item, bool skipRevealed = false)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -42,6 +43,7 @@ internal static class ConditionEffects
             foreach (var f in FeatureScan.All(item))
             {
                 if (lines.Count >= MaxLines) break;
+                if (skipRevealed && FeatureReveal.Reveals(f)) continue;
                 TryOne(f, lines, seen);
             }
 

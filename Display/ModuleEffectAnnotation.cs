@@ -5,19 +5,15 @@ namespace ItemDetails;
 /// <summary>
 /// 把原版「模组效果: -性能: +16%」这类百分比行就地补上实际变更，例如：
 ///   -性能: +16%(+136毫升/天)
-///   -效率: +16%(-0能量/天)
-///   -质量: +8%(+2品质)
+///   -效率: +16%(-3能量/天)
+///   -质量: +40%(+20%吸引力)
 ///
 /// 为什么就地改而不是另起一行：玩家要的是"每个加成后面直接看到影响"，而这三行正是
 /// 原版 `MachineHelper.AddTooltipModuleBonus` 用 `RichTextBuilder.AddLine` 打出来的，
 /// 我们已经在 AddLine 前缀里，接得住。
 ///
-/// 数值全部来自游戏写在机器物品上的标签，**不认识任何具体机器**：
-///   · 性能：BASE_PROCESSING_SPEED_TAG → CURRENT_PROCESSING_SPEED_TAG；
-///   · 效率：MACHINERY_DRAWN_POWER_BASE → machinery_drawn_power（游戏已按 +效率% 算好）；
-///   · 质量：TOTAL_PERCENTAGE_QUALITY_BONUS_INT / MACHINE_QUALITY_RATIO_INT
-///           （与 `ModuleHelper.GetAjustedQuality` 同一整数除法，没有比率标签的机器不补）。
-/// 任何一项读不到就不补——宁可少一段，也不写错一个数。
+/// 数值由 <see cref="ModuleStatEffects"/> 在探针上用游戏函数做差分得出；
+/// 任何一项得不出可靠结论就不补——宁可少一段，也不写错一个数。
 /// </summary>
 internal static class ModuleEffectAnnotation
 {
@@ -98,47 +94,11 @@ internal static class ModuleEffectAnnotation
         return (b is int bv && bv != 0) || (t is int tv && tv != 0);
     }
 
-    /// <summary>
-    /// 按标签推导实际影响，**不认识任何机器 id**：
-    ///   性能 → BASE_PROCESSING_SPEED_TAG → CURRENT_PROCESSING_SPEED_TAG（速度差值）
-    ///   效率 → MACHINERY_DRAWN_POWER_BASE → machinery_drawn_power（耗电差值）
-    ///   质量 → TOTAL_PERCENTAGE_QUALITY_BONUS_INT / MACHINE_QUALITY_RATIO_INT
-    ///          （与游戏 ModuleHelper.GetAjustedQuality 同一整数除法；机器没有比率标签就不补）
-    /// 质量在游戏里没有统一模型：水分是「加成+50」分档、熔炉是「加成/100」提纯度、打印机另算，
-    /// 唯一通用的只有上面这个折算值，所以没有比率的机器保留原版百分比。
-    /// </summary>
     private static string BuildNote(char kind, GameItem item)
     {
-        switch (kind)
-        {
-            case 'p':
-                var speedBase = GameRead.TagInt(item, "BASE_PROCESSING_SPEED_TAG");
-                var speedNow = GameRead.TagInt(item, "CURRENT_PROCESSING_SPEED_TAG");
-                if (speedBase is int sb && speedNow is int sn && sb > 0 && sn > 0)
-                    return Wrap(Loc.T("module.speed", "{0} speed", Signed(sn - sb)));
-                return "";
-
-            case 'e':
-                var powerBase = GameRead.TagInt(item, "MACHINERY_DRAWN_POWER_BASE");
-                var powerNow = GameRead.TagInt(item, "machinery_drawn_power");
-                if (powerBase is int pb && powerNow is int pn)
-                    return Wrap(Loc.T("module.power", "{0} power/day", Signed(pn - pb)));
-                return "";
-
-            case 'q':
-                var qualityBonus = GameRead.TagInt(item, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT");
-                var qualityRatio = GameRead.TagInt(item, "MACHINE_QUALITY_RATIO_INT");
-                if (qualityBonus is int qb && qualityRatio is int qr && qr > 0)
-                    return Wrap(Loc.T("module.quality", "{0} quality", Signed(qb / qr)));
-                return "";
-        }
-
-        return "";
+        string note = ModuleStatEffects.Note(kind, item);
+        return note.Length == 0 ? "" : Wrap(note);
     }
-
-
-    /// <summary>零变化也写成负数（-0），和玩家「效率+16% 应该减耗」的直觉一致。</summary>
-    private static string Signed(int delta) => delta <= 0 ? "-" + (-delta) : "+" + delta;
 
     private static string Wrap(string body) => "(" + body + ")";
 

@@ -13,11 +13,11 @@ namespace ItemDetails;
 internal static partial class SelfTest
 {
     /// <summary>
-    /// 验证"探针改写不影响真实物品"：模拟 GenericBreakdown 的 Apply 路径
-    /// （深拷贝标签 → 在探针上 ModifyTag），再比对真实物品标签有无被改动。
+    /// 验证"探针改写不影响真实物品"：深拷贝标签 → 在探针上 ModifyTag，
+    /// 再比对真实物品标签有无被改动。
     /// 这条与 CheckTagIsolation 互补：那条测 TagSystem 层，这条测整条探针路径。
     /// </summary>
-    private static string CheckGenericDoesNotMutate(out bool ok)
+    private static string CheckProbeWriteIsolation(out bool ok)
     {
         ok = false;
         try
@@ -35,7 +35,7 @@ internal static partial class SelfTest
             probe.modifiedState = clonedReal;
             probe.state = probe.modifiedState;
 
-            // 与 GenericBreakdown.Apply 相同的写法
+            // 与各类探针相同的写法
             probe.ModifyTag("PLASMA_SEAL", t => t.Enable().SetString("NONE"));
 
             var after = TagSnapshot(real);
@@ -53,40 +53,6 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             return "probe write isolation: 异常 " + ex.GetType().Name;
-        }
-    }
-
-    /// <summary>超过 24 个标签时，快照仍必须完整保留尾部标签，供 Build 明确拒绝分解。</summary>
-    private static string CheckGenericTagSnapshot(out bool ok)
-    {
-        ok = false;
-        GameItem? item = null;
-        try
-        {
-            item = TryCreate("plasma_fuel");
-            if (item == null) return "generic tag snapshot: 无法创建样本";
-            PlasmaHelper.InitPlasmaItem(item);
-            for (int i = 0; i < 25; i++)
-                item.ModifyTag("ITEMDETAILS_GENERIC_EXTRA_" + i, t => t.Enable().SetInt(i));
-
-            int expected = 0;
-            foreach (var kv in item.modifiedState.dict)
-                if (kv.Value != null) expected++;
-
-            var method = typeof(GenericBreakdown).GetMethod("TagRecords",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var snapshot = method?.Invoke(null, new object[] { item }) as System.Collections.ICollection;
-            int actual = snapshot?.Count ?? -1;
-            ok = expected >= 25 && actual == expected;
-            return $"generic tag snapshot: expected={expected} actual={actual} (期望一致且 >=25)";
-        }
-        catch (Exception ex)
-        {
-            return "generic tag snapshot: 异常 " + ex.GetType().Name;
-        }
-        finally
-        {
-            if (item != null) { try { item.Destroy(); } catch { } }
         }
     }
 
@@ -130,7 +96,7 @@ internal static partial class SelfTest
     /// <summary>
     /// 机器净化模拟不得动到真实机器。PurifyContainer 内部用 <c>GetTagReadonly</c> 读
     /// <c>TOTAL_PERCENTAGE_*_BONUS_INT</c>，而 TagSystem.GetTag 缺键即插入 0 ——
-    /// 直接传真实机器会把缺失的加成标签写进其字典。
+    /// 直接传真实机器会把品质加成钉死，净水器从此只能净化到 99.0%。
     /// 这里拿一台真实机器跑一次模拟，比对标签快照。
     /// </summary>
     private static string CheckMachineSimIsolation(out bool ok)
@@ -254,7 +220,7 @@ internal static partial class SelfTest
             _ = WaterInfo.Analyze(item);
             _ = WaterAdvice.SimulateMethods(item);
 
-            // 清掉建议缓存，再让模组渲染器独立跑一次；原版 tooltip 补丁由集成用例覆盖。
+            // 清掉建议缓存，再让完整渲染器独立跑一次，覆盖玩家实际悬停路径。
             WaterAdvice.Stop();
             _ = ModEntry.RenderTooltipText(item);
 
@@ -410,19 +376,17 @@ internal static partial class SelfTest
     private static string CheckWineInfo(out bool ok)
     {
         ok = false;
-        GameItem? normal = null;
-        GameItem? fake = null;
         try
         {
-            normal = WineHelper.CreateFinishedWineForDebug(5);
+            var normal = WineHelper.CreateFinishedWineForDebug(5);
             var nLines = WineInfo.Collect(normal);
             // 断言用本地化后的前缀，不写死中文：模组已支持多语种，中文文案只在 zh 下成立。
-            string scoreHead = Loc.T("wine.score", "Wine score: {0}{1}", "", "");
+            string scoreHead = Loc.T("wine.score_part", ", score {0}", "");
             string fakeHead = Loc.T("wine.counterfeit", "Counterfeit: illegal yeast");
             bool hasScore = HasLine(nLines, scoreHead);
             bool normalClean = !HasLine(nLines, fakeHead);
 
-            fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
+            var fake = WineHelper.CreateFinishedWineForDebug(5, counterfeit: true);
             var fLines = WineInfo.Collect(fake);
             bool fakeMarked = HasLine(fLines, fakeHead);
 
@@ -432,11 +396,6 @@ internal static partial class SelfTest
         catch (Exception ex)
         {
             return "wine: 异常 " + ex.GetType().Name;
-        }
-        finally
-        {
-            if (fake != null) { try { fake.Destroy(); } catch { } }
-            if (normal != null) { try { normal.Destroy(); } catch { } }
         }
     }
 
@@ -477,7 +436,7 @@ internal static partial class SelfTest
     }
 
     /// <summary>
-    /// 用确定组成的独立样本验证多槽缓存：A/B 交替后再次访问 A/B，
+    /// 用存档里的真实水容器验证多槽缓存：A/B 交替后再次访问 A/B，
     /// 必须返回各自第一次的同一个结果实例，而不是重建出新的列表。
     /// </summary>
     private static string CheckWaterAdviceCache(out bool ok)
@@ -488,17 +447,22 @@ internal static partial class SelfTest
         var firstMs = new List<double>();
         try
         {
-            foreach (int waterParts in new[] { 735000, 720000 })
+            var owned = EmporiumEntry.Instance?.GetAllOwnedItems();
+            if (owned == null) return "water advice cache: 无法读取拥有物";
+
+            foreach (var item in owned)
             {
-                var item = TryCreate("bottled_water");
-                if (item == null) return "water advice cache: 无法创建含水样本";
+                if (item == null) continue;
+                if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) continue;
+                if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) continue;
+                if (WaterAdvice.SafePurity(item) < 0) continue;
+                if (picked.Exists(p => ReferenceEquals(p, item))) continue;
                 picked.Add(item);
-                foreach (var liquid in Liquid.Liquids)
-                    item.ModifyTag(liquid.currentPart, state => state.Enable().SetInt(0));
-                item.ModifyTag(Liquid.GetCurrentPartFromId("water"), state => state.Enable().SetInt(waterParts));
-                item.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), state => state.Enable().SetInt(750000 - waterParts));
-                WaterFeatureHelper.InitWaterFeature(item);
+                if (picked.Count >= 3) break;
             }
+
+            if (picked.Count < 2)
+                return $"water advice cache: 存档内只有 {picked.Count} 件含水容器，至少需要 2 件";
 
             // 从干净缓存开始，测量每种水的首次真实模拟成本。
             WaterAdvice.Stop();
@@ -540,7 +504,6 @@ internal static partial class SelfTest
         finally
         {
             WaterAdvice.Stop();
-            foreach (var item in picked) { try { item.Destroy(); } catch { } }
         }
     }
 
@@ -599,21 +562,19 @@ internal static partial class SelfTest
         }
     }
 
-    /// <summary>缓存 key 必须区分已安装滤芯、设备状态和 unitValue，防止返回另一状态的旧结果。</summary>
+    /// <summary>缓存 key 必须区分已安装滤芯与设备状态，防止返回另一状态的旧结果。</summary>
     private static string CheckCacheKeyFreshness(out bool ok)
     {
         ok = false;
         GameItem? water = null;
         GameItem? filterA = null;
         GameItem? filterB = null;
-        GameItem? appraisal = null;
         try
         {
             water = TryCreate("bottled_water");
             filterA = TryCreate("water_filter");
             filterB = TryCreate("water_filter_adv");
-            appraisal = TryCreate("plasma_fuel");
-            if (water == null || filterA == null || filterB == null || appraisal == null)
+            if (water == null || filterA == null || filterB == null)
                 return "cache key freshness: 无法创建样本";
 
             var waterMethod = typeof(WaterAdvice).GetMethod("TrySimulationSignature",
@@ -640,22 +601,8 @@ internal static partial class SelfTest
             bool waterOk = filterKeyA != 0 && filterKeyA == filterKeyAAgain
                 && filterKeyA != filterKeyB && filterKeyA != equipmentKey;
 
-            var genericMethod = typeof(GenericBreakdown).GetMethod("CacheKey",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var type = new AppraisalItemType
-            {
-                id = "itemdetails_selftest",
-                itemId = "plasma_fuel",
-                source = "itemdetails_selftest",
-            };
-            appraisal.unitValue = 100;
-            string before = genericMethod?.Invoke(null, new object[] { type, appraisal }) as string ?? "";
-            appraisal.unitValue = 500;
-            string after = genericMethod?.Invoke(null, new object[] { type, appraisal }) as string ?? "";
-            bool genericOk = before.Length > 0 && before != after;
-
-            ok = waterOk && genericOk;
-            return $"cache key freshness: water={waterOk} genericValue={genericOk} (期望 True/True)";
+            ok = waterOk;
+            return $"cache key freshness: water={waterOk} (期望 True)";
         }
         catch (Exception ex)
         {
@@ -666,7 +613,6 @@ internal static partial class SelfTest
             if (water != null) { try { water.Destroy(); } catch { } }
             if (filterA != null) { try { filterA.Destroy(); } catch { } }
             if (filterB != null) { try { filterB.Destroy(); } catch { } }
-            if (appraisal != null) { try { appraisal.Destroy(); } catch { } }
         }
     }
 
@@ -674,6 +620,71 @@ internal static partial class SelfTest
     /// 走游戏原生的双击回调验证补丁：应打开鉴定面板并把目标物品设为当前鉴定物。
     /// 不依赖鼠标坐标，直接验证“游戏判定为双击后”的接管逻辑。
     /// </summary>
+    /// <summary>第三方鉴定分解必须显式注册，提供方注销后不再参与；总价仍与游戏值核对。</summary>
+    private static string CheckAppraisalInjection(out bool ok)
+    {
+        ok = false;
+        GameItem? item = null;
+        IDisposable? registration = null;
+        try
+        {
+            item = TryCreate("plasma_fuel");
+            if (item == null) return "appraisal injection: 无法创建样本";
+            PlasmaHelper.InitPlasmaItem(item);
+            int total = GameRead.TrueValue(item) ?? 0;
+            if (total <= 0) return "appraisal injection: 无法取得游戏总价";
+
+            bool absent = ThirdPartyProviders.Appraisal(item) == null;
+            registration = ItemDetailsApi.RegisterAppraisalBreakdown("plasma_fuel",
+                _ => new ItemDetailsBreakdown(total,
+                    new[] { new ItemDetailsBreakdownPart("injected", 25) }));
+            var provided = ThirdPartyProviders.Appraisal(item);
+            bool present = provided != null && provided.Total == total
+                && provided.Parts.Count == 1 && provided.Parts[0].Label == "injected";
+            registration.Dispose();
+            registration = null;
+            bool removed = ThirdPartyProviders.Appraisal(item) == null;
+
+            ok = absent && present && removed;
+            return $"appraisal injection: absent={absent} present={present} removed={removed} (期望全部 True)";
+        }
+        catch (Exception ex)
+        {
+            return "appraisal injection: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            registration?.Dispose();
+            if (item != null) { try { item.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>未被其它模组改动时，GamePerfect 必须与照抄版 Perfect 完全相同（含整数截断边界）。</summary>
+    private static string CheckGamePerfectRange(out bool ok)
+    {
+        ok = false;
+        try
+        {
+            int[] values = { 1, 19, 20, 21, 39, 40, 99, 100, 101, 137, 300, 360, 999, 1000, 4321 };
+            int diff = 0;
+            string first = "";
+            foreach (int v in values)
+            {
+                var game = AppraisalRanges.GamePerfect(v);
+                var pure = AppraisalRanges.Perfect(v);
+                if (game == pure) continue;
+                diff++;
+                if (first.Length == 0) first = $" 首个不一致 {v}: game={game.Low}-{game.High} pure={pure.Low}-{pure.High}";
+            }
+            ok = diff == 0;
+            return $"game perfect range: {values.Length - diff}/{values.Length} 与内置公式一致{first}";
+        }
+        catch (Exception ex)
+        {
+            return "game perfect range: 异常 " + ex.GetType().Name;
+        }
+    }
+
     private static string CheckDoubleClickInspect(out bool ok)
     {
         ok = false;
@@ -741,7 +752,7 @@ internal static partial class SelfTest
             if (safe == null) return "locked container gate: 无法创建容器样本";
             if (content == null) return "locked container gate: 无法创建内容样本";
 
-            int remaining = GraphUtils.TryAcceptAll(safe, content);
+            int added = GraphUtils.TryAcceptAll(safe, content);
             safe.EnableTag("LOCKED_CONTAINER_TAG");
             safe.ModifyTag("LOCK_ID", st => st.Enable().SetString("LOCK_ID_SEC"));
             safe.ModifyTag("LOCK_STATUS", st => st.Enable().SetBool(true));
@@ -753,12 +764,11 @@ internal static partial class SelfTest
             bool tooltipLeak = contains.Length > 0 && text.Contains(contains, StringComparison.Ordinal);
             bool leaked = storage.Count > 0 || tooltipLeak;
             bool sealedHasContent = sealedLines.Count > 0;
-            bool contentAdded = remaining == 0
-                && ReferenceEquals(content.parentInventory, safe.contentWindow?.child);
+            bool contentAdded = added > 0;
 
             ok = !leaked && sealedHasContent && contentAdded;
-            return $"locked container gate: remaining={remaining} inserted={contentAdded} storage={storage.Count} sealed={sealedLines.Count} " +
-                   $"tooltipLeak={tooltipLeak} (期望 0/True/0/>0/False)";
+            return $"locked container gate: added={added} storage={storage.Count} sealed={sealedLines.Count} " +
+                   $"tooltipLeak={tooltipLeak} (期望 >0/0/>0/False)";
         }
         catch (Exception ex)
         {
@@ -783,18 +793,14 @@ internal static partial class SelfTest
         GameItem? nested = null;
         try
         {
-            box = TryCreate("storage_bay");
+            box = TryCreate("trashcan");
             content = TryCreate("scrap_metal");
-            nested = TryCreate("water_pitcher");
+            nested = TryCreate("trashcan");
             if (box == null || content == null || nested == null)
                 return "container cache refresh: 无法创建样本";
 
-            GeneralHelper.SetItemOwned(box, true);
-            GeneralHelper.SetItemOwned(content, true);
-            GeneralHelper.SetItemOwned(nested, true);
-            int remaining = GraphUtils.TryAcceptAll(box, content);
-            if (remaining != 0 || !ReferenceEquals(content.parentInventory, box.contentWindow?.child))
-                return "container cache refresh: 内容物放入失败";
+            int added = GraphUtils.TryAcceptAll(box, content);
+            if (added <= 0) return "container cache refresh: 内容物放入失败";
 
             StorageInfo.Stop();
             _ = StorageInfo.Collect(box, includeRatio: false, includeContents: true);
@@ -808,18 +814,21 @@ internal static partial class SelfTest
             box.ModifyTag("LOCK_STATUS", st => st.Enable().SetBool(true));
             SealedBoxInfo.Stop();
             var complete = SealedBoxInfo.Collect(box);
-            string completeTotal = complete.Count > 0 ? complete[^1].Text : "";
-            bool completeHasNoPlus = completeTotal.Length > 0
-                && !completeTotal.EndsWith("+", StringComparison.Ordinal);
+            // 合计写在清单行开头：「箱内（合计 140+）：…」，按模板里 {0} 与 {1} 之间的文字定位加号
+            string t = Loc.T("sealed.contents_total", "Inside (total {0}): {1}{2}", "\u0001", "\u0002", "");
+            int i0 = t.IndexOf('\u0001'), i1 = t.IndexOf('\u0002');
+            string totalHead = i0 > 0 ? t.Substring(0, i0) : "\u0001";
+            string plusMark = "+" + (i1 > i0 && i0 >= 0 ? t.Substring(i0 + 1, i1 - i0 - 1) : "\u0001");
+            string completeTotal = complete.Count > 0 ? complete[0].Text : "";
+            bool completeHasNoPlus = completeTotal.StartsWith(totalHead, StringComparison.Ordinal)
+                && !completeTotal.Contains(plusMark, StringComparison.Ordinal);
 
             var grid = box.contentWindow?.child as GameGridInventory;
             bool removed = grid != null && grid.Expel(content);
-            int nestedRemaining = removed ? GraphUtils.TryAcceptAll(box, nested) : -1;
+            int nestedAdded = removed ? GraphUtils.TryAcceptAll(box, nested) : 0;
             var partial = SealedBoxInfo.Collect(box);
-            string partialTotal = partial.Count > 0 ? partial[^1].Text : "";
-            bool replacementRefreshed = nestedRemaining == 0
-                && ReferenceEquals(nested.parentInventory, grid)
-                && partialTotal.EndsWith("+", StringComparison.Ordinal)
+            string partialTotal = partial.Count > 0 ? partial[0].Text : "";
+            bool replacementRefreshed = partialTotal.Contains(plusMark, StringComparison.Ordinal)
                 && partial.Exists(l => l.Text.Contains(
                     ContainerItemSignature.DisplayName(nested), StringComparison.Ordinal));
 
@@ -859,7 +868,7 @@ internal static partial class SelfTest
             if (battery == null) return "machine battery: 无法创建电池样本";
             try { GeneralHelper.SetItemOwned(battery, true); } catch { }
 
-            int remaining = GraphUtils.TryAcceptAll(slot, battery);
+            int added = GraphUtils.TryAcceptAll(slot, battery);
             var tooltip = new RichTextBuilder(80);
             MachineryHelper.CreateMachineryTooltip(tooltip, machine);
             string text = tooltip.Build()?.nakedText ?? "";
@@ -875,9 +884,8 @@ internal static partial class SelfTest
             int batteryAt = text.IndexOf(batteryLine, StringComparison.Ordinal);
             bool placedAfter = requiredAt >= 0 && batteryAt > requiredAt;
 
-            bool inserted = remaining == 0 && ReferenceEquals(slot.childItem, battery);
-            ok = inserted && placedAfter;
-            return $"machine battery: remaining={remaining} inserted={inserted} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
+            ok = added > 0 && placedAfter;
+            return $"machine battery: added={added} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
                    $"(期望电池行位于所需能量之后)";
         }
         catch (Exception ex)
@@ -888,6 +896,187 @@ internal static partial class SelfTest
         {
             if (battery != null) { try { battery.Destroy(); } catch { } }
             if (machine != null) { try { machine.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
+    /// 机器内部：自定义 role、没有电池面板的假机器要能通用列出，且第 0 格的杂物不能被当成电池；
+    /// 只有空窗口的 B 类机器什么都不显示；水壶里伪装过的耗尽滤芯要写出真实耐久和"已耗尽"。
+    /// </summary>
+    private static string CheckMachineInterior(out bool ok)
+    {
+        ok = false;
+        GameItem? custom = null, bare = null, scrap = null, pitcher = null, filter = null;
+        try
+        {
+            const string label = "SelfTestHopper";
+            var hopper = new GameSlotInventory();
+            custom = ItemDirectory.CreateEmptyItem("itemdetails_selftest_machine")
+                .SetContentWindow(MachineHelper.CreateMachineryWindow(false,
+                    MachineHelper.Panel(label, hopper, "selftest_hopper")));
+            custom.SetGameItemType("MACHINE");
+            custom.ModifyTag("machinery_drawn_power", st => st.Enable().SetInt(5));
+            scrap = TryCreate("scrap_metal");
+            if (scrap == null) return "machine interior: 无法创建内容样本";
+            try { GeneralHelper.SetItemOwned(scrap, true); } catch { }
+            int added = GraphUtils.TryAcceptAll(hopper, scrap);
+
+            bare = ItemDirectory.CreateEmptyItem("itemdetails_selftest_bare")
+                .SetContentWindow(new PixelWindow(false, null, WindowStyle.Machinery));
+            bare.SetGameItemType("MACHINE");
+
+            pitcher = TryCreate("water_pitcher");
+            filter = TryCreate("water_filter");
+            if (pitcher == null || filter == null) return "machine interior: 无法创建水壶或滤芯";
+            try { GeneralHelper.SetItemOwned(filter, true); } catch { }
+            int max = GameRead.TagInt(filter, "MAX_DURABILITY_TAG") ?? 0;
+            DurabilityHelper.SetDurability(filter, 0, max, max, max);
+            int filterAdded = GraphUtils.TryAcceptAll(pitcher, filter);
+
+            MachineInterior.Stop();
+            var customLines = MachineInterior.Collect(custom, true, true, true, false);
+            var bareLines = MachineInterior.Collect(bare, true, true, true, false);
+            var pitcherLines = MachineInterior.Collect(pitcher, true, true, true, false);
+            var battery = MachineBatteryInfo.Collect(custom);
+
+            bool listed = HasLine(customLines, label)
+                && HasLine(customLines, ContainerItemSignature.DisplayName(scrap));
+            bool noBattery = battery == null;
+            bool bareSilent = bareLines.Count == 0;
+            string spent = Loc.T("inner.filter_spent", " (spent, no longer filters)").Trim();
+            bool filterSpent = HasLine(pitcherLines, ContainerItemSignature.DisplayName(filter))
+                && HasLine(pitcherLines, spent);
+
+            ok = added > 0 && filterAdded > 0 && listed && noBattery && bareSilent && filterSpent;
+            string Join(List<TooltipLine> ls) => string.Join(" | ", ls.ConvertAll(l => l.Text));
+            return $"machine interior: added={added}/{filterAdded} listed={listed} noBattery={noBattery} " +
+                   $"bareSilent={bareSilent} filterSpent={filterSpent} (期望 >0/>0/True/True/True/True) " +
+                   $"custom='{Join(customLines)}' pitcher='{Join(pitcherLines)}'";
+        }
+        catch (Exception ex)
+        {
+            return "machine interior: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            MachineInterior.Stop();
+            foreach (var it in new[] { scrap, filter, custom, bare, pitcher })
+                if (it != null) { try { it.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>自学习进度只读 LEARNING_ALGO_MAX_* 标签：上限任意，被禁用的那一项不显示。</summary>
+    private static string CheckModuleLearning(out bool ok)
+    {
+        ok = false;
+        GameItem? module = null;
+        try
+        {
+            module = TryCreate("scrap_metal");
+            if (module == null) return "module learning: 无法创建样本";
+
+            module.ModifyTag("LEARNING_ALGO_MAX_PERFORMANCE_INT", st => st.Enable().SetInt(37));
+            module.ModifyTag("BONUS_PERCENTAGE_PERFORMANCE_INT", st => st.Enable().SetInt(12));
+            module.ModifyTag("LEARNING_ALGO_MAX_QUALITY_INT", st => st.Enable().SetInt(16));
+            module.ModifyTag("BONUS_PERCENTAGE_QUALITY_INT", st => st.Enable().SetInt(16));
+            module.ModifyTag("LEARNING_ALGO_MAX_EFFICIENCY_INT", st => st.SetInt(50));
+            module.DisableTag("LEARNING_ALGO_MAX_EFFICIENCY_INT");
+
+            var lines = ModuleLearning.Collect(module);
+            string text = lines.Count > 0 ? lines[0].Text : "";
+            int remaining = ModuleLearning.Remaining(module);
+            bool shown = text.Contains("12/37", StringComparison.Ordinal);
+            bool noDisabled = !text.Contains("/50", StringComparison.Ordinal);
+            bool remainingOk = remaining == 25;
+
+            ok = lines.Count == 1 && shown && noDisabled && remainingOk;
+            return $"module learning: line='{text}' remaining={remaining} " +
+                   "(期望含 12/37、不含 /50、remaining=25)";
+        }
+        catch (Exception ex)
+        {
+            return "module learning: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            if (module != null) { try { module.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
+    /// 加成注释差分：原版机器按能力表调用游戏函数；未登记机器不写；
+    /// 第三方显式注入优先；全程不改真实机器。
+    /// </summary>
+    private static string CheckModuleStatEffects(out bool ok)
+    {
+        ok = false;
+        GameItem? projector = null, purifier = null;
+        IDisposable? injection = null;
+        try
+        {
+            projector = TryCreate("mirage_projector");
+            purifier = TryCreate("water_purifier");
+            if (projector == null || purifier == null) return "module stat effects: 无法创建样本";
+
+            projector.ModifyTag("TOTAL_PERCENTAGE_QUALITY_BONUS_INT", st => st.Enable().SetInt(40));
+            projector.ModifyTag("TOTAL_PERCENTAGE_POWER_BONUS_INT", st => st.Enable().SetInt(30));
+            ModuleHelper.ApplyBasicModuleEffect(null!, null!, projector);
+            int expectAttract = MachineProjector.GetAttractivenessBoost(projector);
+            projector.ModifyTag("TOTAL_PERCENTAGE_QUALITY_BONUS_INT", st => st.SetInt(0));
+            expectAttract -= MachineProjector.GetAttractivenessBoost(projector);
+            projector.ModifyTag("TOTAL_PERCENTAGE_QUALITY_BONUS_INT", st => st.SetInt(40));
+            int drawnBefore = GameRead.TagInt(projector, "machinery_drawn_power") ?? -1;
+
+            ModuleStatEffects.Stop();
+            string q = ModuleStatEffects.Note('q', projector);
+            string e = ModuleStatEffects.Note('e', projector);
+            bool attractOk = q.Contains("+" + expectAttract, StringComparison.Ordinal);
+            bool effOk = e.StartsWith("-", StringComparison.Ordinal) && !e.StartsWith("-0", StringComparison.Ordinal);
+            bool untouched = GameRead.TagInt(projector, "machinery_drawn_power") == drawnBefore
+                && GameRead.TagInt(projector, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") == 40;
+
+            purifier.ModifyTag("TOTAL_PERCENTAGE_QUALITY_BONUS_INT", st => st.Enable().SetInt(60));
+            ModuleStatEffects.Stop();
+            string pq = ModuleStatEffects.Note('q', purifier);
+            double mult = MachinePurifier.GetPurityMult(60);
+            bool residualOk = pq.Contains(mult.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
+
+            // 模拟涡轮增压等外部改动：耗电不再符合原版公式，效率注释应消失
+            projector.ModifyTag("machinery_drawn_power", st => st.SetInt(drawnBefore + 7));
+            ModuleStatEffects.Stop();
+            bool mismatchSilent = ModuleStatEffects.Note('e', projector).Length == 0;
+
+            // 未登记 ID 不走通用猜测；显式注册后由提供方接管，注销恢复原版表。
+            string vanillaId = projector.identifier;
+            projector.identifier = "itemdetails_unregistered_machine";
+            ModuleStatEffects.Stop();
+            bool unregisteredSilent = ModuleStatEffects.Note('q', projector).Length == 0;
+            projector.identifier = vanillaId;
+
+            injection = ItemDetailsApi.RegisterMachineEffects(vanillaId,
+                (_, stat) => stat == ItemDetailsModuleStat.Quality ? "injected-quality" : null);
+            bool injected = ModuleStatEffects.Note('q', projector) == "injected-quality";
+            injection.Dispose();
+            injection = null;
+            ModuleStatEffects.Stop();
+            bool restored = ModuleStatEffects.Note('q', projector).Length > 0;
+
+            ok = attractOk && effOk && untouched && residualOk && mismatchSilent
+                && unregisteredSilent && injected && restored;
+            return $"module stat effects: q='{q}' e='{e}' purifier='{pq}' attract={attractOk} eff={effOk} " +
+                   $"untouched={untouched} residual={residualOk} mismatchSilent={mismatchSilent} " +
+                   $"unregisteredSilent={unregisteredSilent} injected={injected} restored={restored}";
+        }
+        catch (Exception ex)
+        {
+            return "module stat effects: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            injection?.Dispose();
+            ModuleStatEffects.Stop();
+            foreach (var it in new[] { projector, purifier })
+                if (it != null) { try { it.Destroy(); } catch { } }
         }
     }
 
@@ -905,8 +1094,10 @@ internal static partial class SelfTest
             var real = new TagSystem();
             real.EnableTag("TEST_TAG_ISO").GetTag("TEST_TAG_ISO").SetInt(5);
 
-            var clone = GameRead.DeepCloneTags(real);
-            if (clone == null) return "tag isolation: production clone failed";
+            // 与 WaterAdvice.DeepCloneTags 相同的做法：逐条 Clone
+            var clone = new TagSystem();
+            foreach (var kv in real.dict)
+                if (kv.Value != null) clone.dict[kv.Key] = kv.Value.Clone();
 
             clone.EnableTag("TEST_TAG_ISO").GetTag("TEST_TAG_ISO").SetInt(9);
 

@@ -151,7 +151,7 @@ internal static class AppraisalTitlePatch
     /// </summary>
     private static string BuildTitle(string original, int trueValue)
     {
-        var (_, best) = AppraisalRanges.Perfect(trueValue);
+        var (_, best) = AppraisalRanges.GamePerfect(trueValue);
         return Loc.T("title.appraisal_suffix", "{0} List {1}, best offer {2}", original, trueValue, best);
     }
 
@@ -188,8 +188,8 @@ internal static class AppraisalTitlePatch
         return null;
     }
 
-    /// <summary>游戏没登记这类鉴定物时（GetCorrectBaseValue 返回 0）用本模组自己的分解结果，
-    /// 与 tooltip 里「总价」同一来源，避免标题和正文对不上。</summary>
+    /// <summary>游戏没登记这类鉴定物时，使用原版精选公式或第三方显式提供的总价，
+    /// 与 tooltip 保持同一来源，不通过采样反推定价。</summary>
     private static int ResolveTrueValue(GameItem item)
     {
         try
@@ -198,7 +198,8 @@ internal static class AppraisalTitlePatch
             if (native is int n && n > 0) return n;
         }
         catch { }
-        try { return ValueBreakdown.Analyze(item)?.Total ?? 0; } catch { return 0; }
+        try { if (ValueBreakdown.Analyze(item)?.Total is int curated && curated > 0) return curated; } catch { }
+        try { return ThirdPartyProviders.Appraisal(item)?.Total ?? 0; } catch { return 0; }
     }
 
     /// <summary>把标题写成「基线 + 后缀」并记下来；<paramref name="baseText"/> 是最新的游戏原文。</summary>

@@ -8,8 +8,11 @@ namespace ItemDetails;
 ///
 /// 依据（0.46D）：
 ///   `PlantGeneticsHelper.HasAnyTrait(item)` / `GetTraits(item)` 均 public static，
-///   返回 `List<(PlantTrait trait, int rank)>`；trait 的显示名优先取
-///   `trait.nameProvider()`（本地化），退回 `englishName`。
+///   返回 `List<(PlantTrait trait, int rank)>`。显示名必须走 `trait.displayName`：
+///   原生性状**大多没有注册 nameProvider**（只有少数液体产物性状用 `.Named(...)`），
+///   此时 displayName 会转去 `PlantGeneticsText.TraitName(id, englishName)` 查
+///   Mechanic 词表；直接读 `nameProvider()` 会拿到 null 而回落到 `englishName`，
+///   于是中文环境里整列性状都是英文（2026-10 用户反馈）。
 ///   原版要经过分析流程才把性状展示给玩家，这里直接读标签。
 ///
 /// 只读，不写任何标签。开关由调用方（ModEntry）判断，模块本身不认识配置。
@@ -49,8 +52,10 @@ internal static class SeedInfo
                 if (shown >= MaxTraits) break;
                 if (trait == null) continue;
 
+                // 走 displayName：nameProvider 为空时它会查 Mechanic 词表（plant_trait_<id>_name）。
+                // 词表缺条目时 PlantGeneticsText 自己会回落英文，这里再兜一层 id。
                 string name = "";
-                try { name = trait.nameProvider?.Invoke() ?? ""; } catch { }
+                try { name = trait.displayName ?? ""; } catch { }
                 if (string.IsNullOrEmpty(name)) name = trait.englishName ?? trait.id ?? "?";
                 if (string.IsNullOrEmpty(name)) continue;
 

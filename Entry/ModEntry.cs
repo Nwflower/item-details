@@ -26,8 +26,8 @@ public sealed partial class ModEntry : IMod
     internal static ModEntry? Active { get; private set; }
 
     /// <summary>
-    /// 渲染器快照：返回模组追加内容的纯文本，不包含原版 tooltip 或其抑制、改写。
-    /// 原版集成行为由调用 GetTooltipBasic 的自检用例覆盖。
+    /// 无头快照：对任意物品跑一遍全部渲染器，返回纯文本（已剥富文本标记）。
+    /// 用于自动化测试 tooltip 内容，不必悬停、不必看屏幕。
     /// </summary>
     internal static string? RenderTooltipText(GameItem? item, int width = 60)
     {
@@ -71,12 +71,14 @@ public sealed partial class ModEntry : IMod
         new("auth", (m, b, i) => m.TryAppendAuthenticity(b, i)),
         new("value", (m, b, i) => m.TryAppendValue(b, i)),
         new("ribwich", (m, b, i) => m.TryAppendRibwichReasons(b, i)),
-        new("generic", (m, b, i) => m.TryAppendGeneric(b, i)),
+        new("injected-value", (m, b, i) => m.TryAppendInjectedValue(b, i)),
         new("berry", (m, b, i) => m.TryAppendBerry(b, i)),
         new("hidden", (m, b, i) => m.TryAppendHidden(b, i)),
         new("value-enhance", (m, b, i) => m.TryAppendValueEnhance(b, i)),
         new("feature-reveal", (m, b, i) => m.TryAppendFeatureReveal(b, i)),
         new("storage", (m, b, i) => m.TryAppendStorage(b, i)),
+        new("machine-interior", (m, b, i) => m.TryAppendMachineInterior(b, i)),
+        new("module-learning", (m, b, i) => m.TryAppendModuleLearning(b, i)),
         new("conditions", (m, b, i) => m.TryAppendConditions(b, i)),
         new("contraband", (m, b, i) => m.TryAppendContraband(b, i)),
         new("lottery", (m, b, i) => m.TryAppendLottery(b, i)),
@@ -123,13 +125,22 @@ public sealed partial class ModEntry : IMod
         Try("AppraisalTitlePatch", AppraisalTitlePatch.Apply);
         Try("ResultPrefill", ResultPrefill.Apply);
         Try("CustomerAlertTicker", CustomerAlertTicker.Install);
+        Try("CustomerHistory", CustomerHistory.Install);
         Try("LabelImpact", LabelImpact.Apply);
-        Try("DoubleClickInspect", DoubleClickInspect.Apply);
+        Try("DoubleClickInspect", () =>
+        {
+            DoubleClickInspect.Apply();
+            DoubleClickInspect.Install();
+        });
         Try("TooltipPipeline", TooltipPipeline.Apply);
         Try("MachineBattery", MachineBatteryInfo.Apply);
+        Try("ProbeDestroyGuard", ProbeDestroyGuard.Apply);
         Try("WaterWarmup", WaterWarmupPatch.Apply);
         Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
         Try("TypeBadge", TypeBadge.Apply);
+        Try("ContentsGrid", ContentsGrid.Apply);
+        Try("ProgressBarStyle", ProgressBarStyle.Apply);
+        Try("ManufacturerInline", ManufacturerInline.Apply);
         Try("ItemNameLabel", ItemNameLabel.Apply);
     }
 
@@ -147,19 +158,25 @@ public sealed partial class ModEntry : IMod
         Quiet(AppraisalTitlePatch.Remove);
         Quiet(ResultPrefill.Remove);
         Quiet(CustomerAlertTicker.Stop);
+        Quiet(CustomerHistory.Stop);
         Quiet(WaterWarmupPatch.Remove);
         Quiet(WaterAdvice.Stop);
+        Quiet(ProbeDestroyGuard.Remove);
         Quiet(ItemValueCache.Reset);
         Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
+        Quiet(MachineInterior.Stop);
+        Quiet(ModuleStatEffects.Stop);
         Quiet(SealedBoxInfo.Stop);
-        Quiet(GenericBreakdown.Stop);
         Quiet(LabelImpact.Remove);
         Quiet(DoubleClickInspect.Remove);
         Quiet(TooltipPipeline.Remove);
         Quiet(MachineBatteryInfo.Remove);
         Quiet(ConfigSectionRefresh.Remove);
         Quiet(TypeBadge.Remove);
+        Quiet(ContentsGrid.Remove);
+        Quiet(ProgressBarStyle.Remove);
+        Quiet(ManufacturerInline.Remove);
         Quiet(ItemNameLabel.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);
@@ -209,10 +226,10 @@ public sealed partial class ModEntry : IMod
     }
 
     /// <summary>
-    /// 渲染器的外层异常边界：未被收集器处理的异常在这里隔离，后续模块继续执行。
-    /// 逃逸到此处的偶发异常只记一次日志并在下条 tooltip 重试；连续失败
+    /// 唯一的渲染边界：一个模块抛错只损失它自己，后面的模块照常执行。
+    /// 偶发失败只记一次日志并在下条 tooltip 重试；连续失败
     /// <see cref="RendererFailureLimit"/> 次后本次会话停用该模块，日志点出名字。
-    /// 渲染器快照与实际 tooltip 的追加阶段共用此路径。
+    /// 无头快照与实机 tooltip 走同一条路径，避免"测的是一套、跑的是另一套"。
     /// </summary>
     private void RunRenderers(RichTextBuilder builder, GameItem item)
     {

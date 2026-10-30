@@ -18,8 +18,8 @@ internal enum LiquidRole
 ///   - 效果字段：<c>euphoria</c>（ChemicalFeedbackHelper.IsNarcotic）、
 ///     <c>metabolismRatePerDay</c>（IngesterHelper 的代谢）、<c>addictiveness</c>；
 ///   - 致死字段：<c>lethality</c> 参与 ChemicalFeedbackHelper.IsLethal 的绝对量求和。
-///     显示策略把 acid/base 的 0.1 留在试剂类；它们仍会参与游戏的致死判定。
-///     lethality ≥ 1.0 归为活性成分（zyanide 1.66、fanta 2.0、nightmare_extract 4.0）。
+///     但 acid/base 的 0.1 只用于腐蚀/中和，属于试剂而非剂量，因此只把
+///     lethality ≥ 1.0 视为药物（zyanide 1.66、fanta 2.0、nightmare_extract 4.0）。
 ///   - 配方活性成分：ChemFinisherRecipe.chemFinisherRecipes 的 activeIngredientId，
 ///     读取活列表，第三方新增配方会自动纳入；
 ///   - 游戏写死绝对阈值、但没有效果字段的两种：synaprest（≥1000 parts）、

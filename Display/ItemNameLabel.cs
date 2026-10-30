@@ -9,7 +9,7 @@ namespace ItemDetails;
 /// <summary>
 /// 物品图标上常驻显示名字（不必悬停）。
 ///
-/// 开关控制容器与机器名称的显示，名称固定放在图标底部。
+/// 显示范围由设置决定：无（默认）/ 容器名（容器与机器）/ 仅改名物品（用标签打印机改过名的）。
 ///
 /// 实现要点：
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
@@ -170,18 +170,43 @@ internal static class ItemNameLabel
     {
         if (element == null) return;
 
-        if (!ModSettings.ContainerNames)
+        string mode = ModSettings.ItemNameMode;
+        if (mode.StartsWith("无", StringComparison.Ordinal) || mode.StartsWith("Off", StringComparison.OrdinalIgnoreCase))
         {
             Hide(element);
             return;
         }
 
+        bool renamedOnly = mode.StartsWith("仅", StringComparison.Ordinal)
+                        || mode.StartsWith("Renamed", StringComparison.OrdinalIgnoreCase);
+
         string name = "";
-        bool want = ShouldShowContainer(element) && !IsHiddenItem(element);
-        if (want)
+        bool want = false;
+
+        if (renamedOnly)
         {
-            try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
-            catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
+            // 只认「用标签打印机改过名」的物品，显示改后的名字
+            try
+            {
+                if (GeneralHelper.HasCustomName(element))
+                {
+                    want = true;
+                    name = GeneralHelper.GetCustomName(element) ?? "";
+                }
+            }
+            catch (Exception ex) { Log.Warn("NameLabel.CustomName", ex); }
+        }
+        else
+        {
+            want = ShouldShowContainer(element);
+            if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
+            if (want)
+            {
+                // preferCustomName：改过名的容器优先显示改后的名字。
+                // 用无参版本会走回 name 字段，标签打印机改的名字被忽略（「我的保险箱」又变回「保险箱」）。
+                try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
+                catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
+            }
         }
 
         if (!want || name.Length == 0)
@@ -220,7 +245,6 @@ internal static class ItemNameLabel
     {
         if (!Labels.TryGetValue(element, out var label) || !label.Visible) return;
         label.Visible = false;
-        label.HasPlacement = false;
         if (label.Main != null) label.Main.text.enabled = false;
         if (label.Shadow != null) label.Shadow.text.enabled = false;
         if (label.Bg != null && label.Bg.image != null) label.Bg.image.enabled = false;
@@ -355,6 +379,53 @@ internal static class ItemNameLabel
         label.Visible = false;
     }
 
+    /// <summary>
+    /// 显式挑一个含当前语言字形的字体。
+    ///
+    /// TreeNodeRender.InstantiateText() 内部只在 FontLoader.Instance 与 SelectedLocale 都就绪时
+    /// 才套用本地化字体；启动早期创建的节点会停在预制体的拉丁字体上，
+    /// 中文被 TMP 替换成空格 —— 表现出来就是"文字消失"（日志里会刷
+    /// "The character with Unicode value \u81EA was not found in the [NotoSans-Medium SDF]"）。
+    /// 因此这里按「tooltip 正文字体 → FontLoader 的 Noto_Sans → 任意已有 TMP 字体」三级兜底。
+    /// </summary>
+    private static TMP_FontAsset? ResolveFont()
+    {
+        try
+        {
+            var fromTooltip = TypeBadge.TooltipFont;
+            if (fromTooltip != null) return fromTooltip;
+        }
+        catch { }
+
+        try
+        {
+            // 扫描已加载的字体资源，优先挑名字里带 CJK 线索的（SC / CN / Chinese / Han / Noto）
+            var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+            if (fonts != null)
+            {
+                for (int i = 0; i < fonts.Length; i++)
+                {
+                    var f = fonts[i];
+                    if (f == null) continue;
+                    string n = "";
+                    try { n = f.name ?? ""; } catch { }
+                    if (n.IndexOf("SC", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("CN", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("Chinese", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("Han", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("Noto", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return f;
+                }
+
+                for (int i = 0; i < fonts.Length; i++)
+                    if (fonts[i] != null) return fonts[i];
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
     private static void Configure(TreeNodeRender node, Color color)
     {
         var rt = node.rectTransform;
@@ -371,6 +442,16 @@ internal static class ItemNameLabel
         text.enableAutoSizing = false;
         text.fontSize = 12f;
         text.raycastTarget = false;
+    }
+
+    /// <summary>上/中/下三档位置：按设置把标签放在外接框的对应一侧（屏幕像素）。</summary>
+    private static float RowY(string mode, float minY, float maxY, float height)
+    {
+        if (mode.StartsWith("顶", StringComparison.Ordinal) || mode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
+            return maxY - height - LabelBottomInset;
+        if (mode.StartsWith("中", StringComparison.Ordinal) || mode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
+            return (minY + maxY) * 0.5f - height * 0.5f;
+        return minY + LabelBottomInset;   // 默认底部
     }
 
     private static void Place(GameItemElement element, Label label)
@@ -411,7 +492,7 @@ internal static class ItemNameLabel
             float z = sprite.position.z;
 
             // 位置按**旋转后的四边形**算：取四条边里朝下那条（边中点 Y 最小）的中点作为基准，
-            // 再加底部内边距。旋转 90/180/270 或任意角度时都跟着图标走，
+            // 再按上/中/下档位偏移。旋转 90/180/270 或任意角度时都跟着图标走，
             // 不会停在旋转前的格子上。
             int bottomEdge = 0;
             float bottomMidY = float.MaxValue;
@@ -425,7 +506,14 @@ internal static class ItemNameLabel
             Vector3 e1 = corners[(bottomEdge + 1) % 4];
             float centerX = (e0.x + e1.x) * 0.5f;
 
-            float y = bottomMidY + LabelBottomInset;
+            float y;
+            var posMode = ModSettings.ItemNamePosition;
+            if (posMode.StartsWith("顶", StringComparison.Ordinal) || posMode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
+                y = maxY - height - LabelBottomInset;
+            else if (posMode.StartsWith("中", StringComparison.Ordinal) || posMode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
+                y = (minY + maxY) * 0.5f - height * 0.5f;
+            else
+                y = bottomMidY + LabelBottomInset;
 
             // 必须先应用最终字号再测宽；否则水罐这类短名字会按旧的 12 号字测宽，
             // 随后以更大的字号写进同一个窄框，被 Truncate 截成一个字。

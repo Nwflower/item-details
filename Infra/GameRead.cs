@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace ItemDetails;
 
 /// <summary>
-/// 集中常用游戏读取：标签先查字典，缺键返回空结果；游戏估价等调用失败时记录并返回空结果。
-/// 标签与估价接口已对照 Mono 版 0.46D 的 Managed/Assembly-CSharp.dll 核实。
+/// 全部原版读取都走这里。每个字段独立 try/catch，某一项失效只损失该项，不影响其它模块。
+/// 所有类型/成员均已对照 0.46D 的 Il2CppAssemblies\Assembly-CSharp.dll 核实。
 /// </summary>
 internal static class GameRead
 {
@@ -57,28 +57,28 @@ internal static class GameRead
     internal static int? TagInt(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return null;
-        return tag!.valueInt;
+        try { return tag!.valueInt; } catch { return null; }
     }
 
     /// <summary>读标签字符串；标签不存在返回 null（与"存在但为空串"区分）。</summary>
     internal static string? TagString(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return null;
-        return tag!.valueString;
+        try { return tag!.valueString; } catch { return null; }
     }
 
     /// <summary>读标签 double（化学品纯度等按 double 存储的字段）。</summary>
     internal static double? TagDouble(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return null;
-        return tag!.valueDouble;
+        try { return tag!.valueDouble; } catch { return null; }
     }
 
     /// <summary>读标签是否启用；标签不存在返回 false。</summary>
     internal static bool TagEnabled(GameItem? it, string key)
     {
         if (!TryPeekTag(it, key, out var tag)) return false;
-        return tag!.valueEnabled;
+        try { return tag!.valueEnabled; } catch { return false; }
     }
 
     // ---------- 估价 ----------
@@ -183,5 +183,15 @@ internal static class GameRead
         int? cond = TagInt(it, "BERRY_CONDITION_INT");
         int? variant = TagInt(it, "BERRY_VISUAL_VARIANT_INT");
         return BerryQualityClassifier.Classify(cond ?? 0, variant ?? 0);
+    }
+
+    /// <summary>
+    /// 这颗荧光莓对果酿评分的贡献：<c>WineHelper.StartFermentation</c> 把每颗的
+    /// <c>BERRY_CONDITION_INT</c> 直接累加，负值先 +1（发霉 −2 记 −1，未熟 −1 记 0）。
+    /// </summary>
+    internal static int BerryWineScore(GameItem? it)
+    {
+        int cond = TagInt(it, "BERRY_CONDITION_INT") ?? 0;
+        return cond < 0 ? cond + 1 : cond;
     }
 }

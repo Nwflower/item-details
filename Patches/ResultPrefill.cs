@@ -9,9 +9,9 @@ namespace ItemDetails;
 ///
 ///   - 赝品检测：打开有多个问题勾选的 confront 面板时，按物品真实 ISSUE_* 标签
 ///     勾选问题项；单选项的“genuine”面板不碰。
-///   - 鉴定价格：打开鉴定面板时一次性把最优报价写入 APPRAISAL_DEFAULT_VALUE，
-///     让游戏自己的 UpdateAppraisalPanel 正常显示；不常驻覆盖，玩家编辑和 ±
-///     调价都按原版逻辑工作。
+///   - 鉴定价格：打开鉴定面板时一次性把设置里选的那种价格（真实估价 / 最优报价）写入
+///     APPRAISAL_DEFAULT_VALUE，让游戏自己的 UpdateAppraisalPanel 正常显示；不常驻覆盖，
+///     玩家编辑和 ± 调价都按原版逻辑工作。
 ///
 /// 开关默认关闭。所有补丁只调用游戏的公开 Inspector/标签接口，不改判定结果。
 /// </summary>
@@ -65,16 +65,19 @@ internal static class ResultPrefill
                 int trueValue = ResolveTrueValue(gameItem);
                 if (trueValue <= 0) return;
 
-                int best = AppraisalRanges.Perfect(trueValue).High;
+                // 价格来源由设置里的下拉决定：真实估价，或完美区间上沿（最优报价）。
+                int price = ModSettings.PrefillBestOffer
+                    ? AppraisalRanges.GamePerfect(trueValue).High
+                    : trueValue;
                 gameItem.ModifyTag("APPRAISAL_DEFAULT_VALUE",
-                    state => state.Enable().SetInt(best));
+                    state => state.Enable().SetInt(price));
 
                 // 面板刚打开时先同步一次控件；下一帧起由游戏按标签正常刷新。
                 try
                 {
                     var insp = InspectionUIManager.Instance;
                     if (insp != null && insp.apprisalServiceInputField != null)
-                        insp.apprisalServiceInputField.SetTextWithoutNotify(best.ToString());
+                        insp.apprisalServiceInputField.SetTextWithoutNotify(price.ToString());
                 }
                 catch { }
                 return;
@@ -107,9 +110,7 @@ internal static class ResultPrefill
         {
             var toggle = ToggleAt(insp, i);
             if (toggle == null) continue;
-            bool bad;
-            try { bad = GameRead.IsTag(item, checks[i].Tag); } catch { bad = false; }
-            toggle.SetIsOnWithoutNotify(bad);
+            toggle.SetIsOnWithoutNotify(GameRead.IsTag(item, checks[i].Tag));
         }
     }
 

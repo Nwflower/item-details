@@ -11,7 +11,8 @@ auth.logo,商标异常
 auth.seal,防伪标异常
 auth.serial,序列号异常
 # key,value
-alert.aug_tier,改造等级：{0}
+alert.aug_kill_reward,击杀奖励：{0}
+alert.aug_presence,改造体威胁：{0}/100
 alert.bounty,（赏金 {0}）
 alert.real_name,真名：{0}
 alert.title_augmented,改造体顾客
@@ -43,18 +44,15 @@ appraisal.ribwich_opened,已开封或赝品（固定 40）
 appraisal.ribwich_plant_grade_a,高品质包装工厂 {0:D2}
 appraisal.ribwich_plant_grade_c,低品质包装工厂 {0:D2}
 appraisal.seal_ignition,点火实验室加成
-appraisal.seal_ignition_short,点火实验室
 appraisal.seal_ll,王尔德载具加成
-appraisal.seal_ll_short,王尔德载具
 appraisal.seal_republic,共和国海军征用部加成
-appraisal.seal_republic_short,共和国海军征用部
 appraisal.seal_zhonghua,中华船舶加成
-appraisal.seal_zhonghua_short,中华船舶
 appraisal.worn,磨损
 auth.counterfeit,✘ 赝品（{0}）
 auth.genuine,✔ 正品
 berry.dried,干枯
 berry.line,荧光莓品质：{0}
+berry.wine,（酿酒值 {0}）
 berry.moldy,发霉
 berry.normal,正常
 berry.small,较小
@@ -64,15 +62,14 @@ calorie.per_cell,（{0}{1}/格）
 calorie.unit,千卡
 condition.line,状态：{0} {1}
 contraband.markup,黑市溢价：+{0}%
-generic.combined,· 组合/其他 {0}
-generic.header,价值分解（实测）：
-generic.more,· …另有 {0} 项
-generic.other_attributes,· 其他属性 {0}
+generic.line,来源：{0}
 hidden.chem_purity,化学纯度：{0}%
 hidden.durability,耐久度：{0}/{1}
 hidden.durability_faked,真实耐久度：{0}/{1}（显示 {2}/{3}，疑似篡改）
 hidden.purity,纯度：{0}
 hidden.purity_faked,真实纯度：{0}（显示为 {1}，疑似造假）
+hidden.purity_level,纯度：{0}/10
+hidden.purity_level_faked,真实纯度：{0}/10（显示为 {1}/10，疑似造假）
 hint.double_click,双击以鉴定
 list.sep,、
 lottery.matched_none,命中 {0}/6 → 未中奖
@@ -81,7 +78,6 @@ lottery.not_drawn,第{0}期尚未开奖（每周六上午公布）
 lottery.winning,中奖号码：{0}
 market.line,市场：{0}
 module.power,{0}能量/天
-module.quality,{0}品质
 module.speed,{0}速度
 price.buy,进价：
 price.cost_close,）
@@ -90,7 +86,7 @@ price.list," 标价：{0}"
 price.sell,售价：{0}
 reveal.modifier,真实修正：{0}%（伪装为 {1}%）
 reveal.real,真实：{0}（伪装为 {1}）
-reveal.real_with_mod,真实：{0}（{1}%）（伪装为 {2}）
+reveal.real_with_mod,真实：{0} {1}（伪装为 {2}）
 ribwich.header,赝品原因：
 ribwich.more,…另有 {0} 项
 ribwich.reason_bun_no_pickles,有芝麻面包但没有加量酸黄瓜（豪华版须两者兼备）
@@ -107,31 +103,35 @@ ribwich.reason_second_sticker_wrong,第二生产批次的 Ribwich 贴纸错误
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,生产年份 {0} 不在 425–429 或 432–438 之内
 scratcher.no_prize,刮刮乐：不中奖
-scratcher.progress,已刮开 {0}/3
+scratcher.progress_part,，已刮开 {0}/3
 scratcher.win,刮刮乐：中奖 {0}（{1} 个相同）
-sealed.contents,箱内：{0}{1}
-sealed.empty,箱内：空
-sealed.more," 等，共 {0} 件"
-sealed.total,箱内总价值：{0}
-sealed.unit,（{0}）
-seed.header,性状（未分析）：
+sealed.contents,箱内: {0}{1}
+sealed.empty,箱内: 空
+sealed.more," …共{0}件"
+sealed.contents_total,箱内(价值{0}): {1}{2}
+sealed.summary,箱内: {0} 类 {1} 件
+sealed.summary_total,箱内(价值{0}): {1} 类 {2} 件
+sealed.count,{0}[{1}]
+seed.line,性状（未分析）：{0}
 seed.more,…另有 {0} 项
 seed.trait_rank,{0}（等级 {1}）
 storage.contains,内含：
+storage.summary,内含：{0} 类 {1} 件
 storage.more_kinds," 等 {0} 类"
 storage.ratio,压缩率：{0}（{1}/{2} 格）
+grid.title,内容物 {0}
+grid.title_sealed,箱内 {0}
 title.appraisal_suffix,{0} 标价{1}，最优报价{2}
 value.from,来源：
-value.per_cell,每格价值：{0}（{1}/{2} 格）
+value.cost_perf,性价比：{0}
+value.cost_perf_detail,（{0}/{1}格）
 value.perfect_range," ｜ 完美 {0}–{1}"
-value.total,总价：{0} × {1} = {2}
 value.total_line,总价：{0}
 water.actives,活性成分：
 water.other,其他成分：
 water.head,水质：{0}% {1}
 water.impurities,杂质：
 water.mismatch,（与标签不符）
-water.none,无
 water.trace,微量（低于显示阈值）
 wine.aging,陈化加成：+{0}/天（共 +{1}）
 wine.composition,成分：糖度 {0}‰、污染物 {1}‰
@@ -139,7 +139,7 @@ wine.counterfeit,赝品：使用了非法酵母
 wine.empty,空瓶
 wine.fermenting,发酵中
 wine.finished,已酿成
-wine.score,果酿评分：{0}{1}
+wine.score_part,，评分 {0}
 wine.state,果酿：{0}
 wine.tier,，第 {0} 档
 wine.unknown_state,未知（{0}）
@@ -152,18 +152,26 @@ config.cost_performance,性价比
 config.cost_performance.tip,显示每格价值与容器压缩率。
 config.container_contents,容器内容物
 config.container_contents.tip,"列出未上锁容器内的物品，不单独显示合计价值。"
+config.contents_grid,内容物图标格
+config.contents_grid.tip,"在提示框旁用物品图标和件数显示容器里的东西，正文清单缩成一行摘要。带锁容器还需打开「带锁容器透视」。"
 config.info_enhance,信息增强
 config.info_enhance.tip,补充随物品变化的附加信息：标签与模组效果、电池续航、市场修正、彩票结果、淡化的描述文字，以及更清楚的价格用词。
 config.type_badge,物品分类标签
 config.type_badge.tip,在物品提示框上方显示物品分类。
 config.type_badge_muted,淡化标签颜色
 config.type_badge_muted.tip,非违禁标签改用与提示框一致的深色底和提亮的分类文字色；违禁品保留红色警示文字。
+config.block_progress_bar,方块进度条
+config.block_progress_bar.tip,提示框中的进度条（容量、耐久、生命值等）改用实心方块绘制，未填充部分以暗色显示。关闭后恢复原版的 [=====] 样式。
+config.manufacturer_inline,生产公司并入名称行
+config.manufacturer_inline.tip,生产公司显示在物品名同一行的右侧，不再单独占一行；名称太长放不下时仍单独一行。
 config.container_name,容器和机器名称标签
 config.container_name.tip,在容器和机器图标底部显示名称。
 config.container_name_bg,名称标签底色
 config.container_name_bg.tip,在名称标签后加一层半透明黑底（不透明度 60%）。
 config.customer_alert,顾客到店提示
-config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名与改造等级。
+config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名，以及改造体的击杀奖励与威胁值。
+config.customer_history,悬停顾客查看本次对话
+config.customer_history.tip,鼠标停在店内顾客身上时，显示本次接待已经说过的对话。
 config.section.interaction,操作优化
 config.double_click_inspect,双击鉴定
 config.double_click_inspect.tip,双击待鉴定物品或需辨别真伪的物品（注射器、香烟、食品券等），无需放大镜即可打开检视面板；面板打开时，双击另一件物品可直接切换。物品上的放大镜提示改为“双击以鉴定”。关闭后恢复原版流程。
@@ -177,5 +185,50 @@ config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多�
 config.sealed_box,带锁容器透视
 config.sealed_box.tip,带锁容器（保险箱、枪柜等）未开锁时也列出箱内物品与总价值。相当于跳过开锁环节，因此默认关闭。
 config.result_prefill,鉴定结果预填
-config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并把鉴定报价填为最优报价。只填写控件，不会提交或确认。默认关闭。
-appraisal.minimum_adjustment,最低价值补差
+config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并按下面的选项把鉴定报价填为真实估价或最优报价。只填写控件，不会提交或确认。默认关闭。
+config.result_prefill_source,预填价格
+config.result_prefill_source.tip,真实估价＝游戏算出的真实价值；最优报价＝完美区间上沿，也就是 tooltip 里显示的那个上限。
+machine.eta,预计还需 {0} 天完成
+machine.eta_battery,（电量只够 {0} 天）
+machine.eta_battery_short,（电力不足）
+machine.eta_water,（水只够 {0} 天）
+machine.paused,暂停：{0}
+hydro.water,水量：{0}毫升，够用 {1} 天（每天 {2}毫升）
+fridge.summary,{0}：{1} 件；{2}：{3} 件
+fridge.no_effect,，{0} 件无效果
+wine.rack,{0} 瓶陈化中，每天陈化 {1} 天
+wine.rack_idle,，{0} 瓶不陈化
+inner.line,{0}：{1}
+inner.durability,{0}：耐久度 {1}/{2}
+inner.faked,（标示为 {0}）
+inner.filter_spent,（已耗尽，不再过滤）
+inner.filters,滤水器 ×{0}：最低耐久度 {1}/{2}
+inner.spent_count,，{0} 件已耗尽
+inner.liquid,{0}/{1}毫升
+inner.liquid_empty,已空
+inner.liquid_purity,，{0}% {1}
+inner.uses,{0}：剩余使用次数 {1}/{2}
+inner.tools,工具 ×{0}：剩余使用次数最少的是 {1}（{2}/{3}）
+inner.energy,{0}：能量 {1}/{2}
+learning.progress,学习进度：{0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0}已学满
+learning.machine,自学习：{0} 个模组在学，最多还差 {1} 点
+learning.machine_full,自学习：{0} 个模组均已学满
+pen.learning_maxed,（{0}/{1} 个模组已学满）
+pen.learning_maxed_untrained,（{0}/{1} 个模组已学满，{2} 个无自学习词条）
+module.days_faster,，约快 {0} 天
+module.output,{0}毫升/天
+module.attract,{0}%吸引力
+module.bargain,{0}%议价成功率
+module.theft,{0}%防盗率
+module.aging,{0}天陈化/天
+module.print_quality,{0}打印品质
+module.success,{0}%成功率
+module.harvest,{0}%收获数量
+module.next_tier,再+{0}%升一档
+module.top_tier,已是最高档
+module.residual,残留下限×{0}
+history.empty,还没有对话。
+history.earlier,…更早 {0} 条
+history.unknown,顾客

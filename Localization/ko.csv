@@ -11,7 +11,8 @@ auth.logo,로고 이상
 auth.seal,봉인 씰 이상
 auth.serial,일련번호 이상
 # key,value
-alert.aug_tier,개조 등급: {0}
+alert.aug_kill_reward,처치 보상: {0}
+alert.aug_presence,개조 위협: {0}/100
 alert.bounty," (현상금 {0})"
 alert.real_name,본명: {0}
 alert.title_augmented,개조 고객
@@ -43,18 +44,15 @@ appraisal.ribwich_opened,개봉됨 또는 위조품 (고정 40)
 appraisal.ribwich_plant_grade_a,고품질 포장 시설 {0:D2}
 appraisal.ribwich_plant_grade_c,저품질 포장 시설 {0:D2}
 appraisal.seal_ignition,이그니션 랩 보너스
-appraisal.seal_ignition_short,이그니션 랩
 appraisal.seal_ll,와일드 라이드 보너스
-appraisal.seal_ll_short,와일드 라이드
 appraisal.seal_republic,공화국 해군 징발부 보너스
-appraisal.seal_republic_short,공화국 해군 징발부
 appraisal.seal_zhonghua,중화 조선 보너스
-appraisal.seal_zhonghua_short,중화 조선
 appraisal.worn,마모
 auth.counterfeit,✘ 위조품 ({0})
 auth.genuine,✔ 정품
 berry.dried,마름
 berry.line,블룸베리 품질: {0}
+berry.wine, (와인 점수 {0})
 berry.moldy,곰팡이 핌
 berry.normal,정상
 berry.small,작음
@@ -64,15 +62,14 @@ calorie.per_cell," ({0} {1}/칸)"
 calorie.unit,kcal
 condition.line,상태: {0} {1}
 contraband.markup,암시장: +{0}%
-generic.combined,· 조합/기타 {0}
-generic.header,가치 내역 (실측):
-generic.more,· …외 {0} 항목
-generic.other_attributes,· 기타 속성 {0}
+generic.line,출처: {0}
 hidden.chem_purity,화학 순도: {0}%
 hidden.durability,내구도: {0}/{1}
 hidden.durability_faked,"실제 내구도: {0}/{1} (표시 {2}/{3}, 조작 의심)"
 hidden.purity,순도: {0}
 hidden.purity_faked,"실제 순도: {0} (표시 {1}, 위조 의심)"
+hidden.purity_level,순도: {0}/10
+hidden.purity_level_faked,실제 순도: {0}/10 (표시 {1}/10, 위조 의심)
 hint.double_click,더블클릭하여 감정
 list.sep,", "
 lottery.matched_none,적중 {0}/6 -> 미당첨
@@ -81,7 +78,6 @@ lottery.not_drawn,제{0}회: 아직 미추첨 (매주 토요일 아침 발표)
 lottery.winning,당첨 번호: {0}
 market.line,시장: {0}
 module.power,{0} 전력/일
-module.quality,{0} 품질
 module.speed,{0} 속도
 price.buy,"매입가: "
 price.cost_close,)
@@ -90,7 +86,7 @@ price.list," 정가: {0}"
 price.sell,판매가: {0}
 reveal.modifier,실제 보정: {0}% (위장 {1}%)
 reveal.real,실제: {0} (위장 {1})
-reveal.real_with_mod,실제: {0} ({1}%) (위장 {2})
+reveal.real_with_mod,실제: {0} {1} (위장 {2})
 ribwich.header,위조 사유:
 ribwich.more,…외 {0} 항목
 ribwich.reason_bun_no_pickles,참깨 빵인데 추가 피클 없음 (디럭스 에디션은 둘 다 필요)
@@ -107,31 +103,35 @@ ribwich.reason_second_sticker_wrong,2차 생산분의 Ribwich 스티커가 틀�
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,생산연도 {0}이(가) 425–429 / 432–438 범위 밖
 scratcher.no_prize,스크래치 복권: 꽝
-scratcher.progress,긁은 칸 {0}/3
+scratcher.progress_part,", 긁은 칸 {0}/3"
 scratcher.win,스크래치 복권: 당첨 {0} ({1}개 일치)
 sealed.contents,내용물: {0}{1}
 sealed.empty,내용물: 없음
-sealed.more," … 총 {0}개"
-sealed.total,내용물 총가치: {0}
-sealed.unit," ({0})"
-seed.header,형질 (미분석):
+sealed.more," …총 {0}개"
+sealed.contents_total,내용물(가치 {0}): {1}{2}
+sealed.summary,내용물: {0}종 {1}개
+sealed.summary_total,내용물(가치 {0}): {1}종 {2}개
+sealed.count,{0}[{1}]
+seed.line,형질 (미분석): {0}
 seed.more,…외 {0} 항목
 seed.trait_rank,{0} (등급 {1})
 storage.contains,"포함: "
+storage.summary,"포함: {0}종 {1}개"
 storage.more_kinds," 등 총 {0}종"
 storage.ratio,압축률: {0} ({1}/{2} 칸)
+grid.title,내용물 {0}
+grid.title_sealed,내용물 {0}
 title.appraisal_suffix,"{0} 정가{1}, 최고 제시가{2}"
 value.from,"출처: "
-value.per_cell,칸당 가치: {0} ({1}/{2} 칸)
+value.cost_perf,칸당 가치: {0}
+value.cost_perf_detail," ({0}/{1} 칸)"
 value.perfect_range," | 완벽 {0}–{1}"
-value.total,총액: {0} × {1} = {2}
 value.total_line,총액: {0}
 water.actives,유효 성분：
 water.other,기타：
 water.head,수질: {0}% {1}
 water.impurities,"불순물: "
 water.mismatch," (라벨과 불일치)"
-water.none,없음
 water.trace,미량 (표시 임계값 미만)
 wine.aging,숙성 보너스: +{0}/일 (총 +{1})
 wine.composition,"성분: 당도 {0}‰, 오염물 {1}‰"
@@ -139,7 +139,7 @@ wine.counterfeit,위조품: 불법 효모
 wine.empty,비어 있음
 wine.fermenting,발효 중
 wine.finished,완성됨
-wine.score,와인 점수: {0}{1}
+wine.score_part,", 점수 {0}"
 wine.state,와인: {0}
 wine.tier,", {0} 단계"
 wine.unknown_state,알 수 없음 ({0})
@@ -152,18 +152,26 @@ config.cost_performance,칸당 가치
 config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시합니다."
 config.container_contents,컨테이너 내용
 config.container_contents.tip,"잠기지 않은 컨테이너의 내용물을 표시하며 총가치는 따로 표시하지 않습니다."
+config.contents_grid,내용물 아이콘 격자
+config.contents_grid.tip,"컨테이너 내용물을 툴팁 옆 패널에 아이콘과 개수로 표시하고, 본문 목록은 한 줄 요약으로 줄입니다. 잠긴 컨테이너는 「잠긴 컨테이너 투시」도 켜야 합니다."
 config.info_enhance,추가 아이템 정보
 config.info_enhance.tip,"라벨·모듈 효과, 배터리 잔량, 시장 보정, 복권 결과, 흐리게 표시한 설명, 더 명확한 가격 표기 등 아이템별 정보를 추가합니다."
 config.type_badge,아이템 분류 배지
 config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
 config.type_badge_muted,배지 색상 줄이기
 config.type_badge_muted.tip,금지·제한 품목 외에는 툴팁의 어두운 배경과 밝게 조정한 분류 색을 사용합니다. 금지·제한 품목은 빨간 경고 텍스트를 유지합니다.
+config.block_progress_bar,블록형 진행 막대
+config.block_progress_bar.tip,"툴팁의 진행 막대(용량, 내구도, 체력 등)를 꽉 찬 블록으로 표시하고 채워지지 않은 부분은 어두운 색으로 보여 줍니다. 끄면 원래의 [=====] 표시로 돌아갑니다."
+config.manufacturer_inline,제조사를 이름 줄에 표시
+config.manufacturer_inline.tip,제조사를 아이템 이름 줄의 오른쪽 끝에 표시하여 따로 한 줄을 차지하지 않습니다. 이름이 너무 길면 기존처럼 별도 줄에 표시합니다.
 config.container_name,컨테이너/기계 이름표
 config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
 config.container_name_bg,이름표 배경
 config.container_name_bg.tip,이름표 뒤에 반투명 검정 배경(불투명도 60%)을 추가합니다.
 config.customer_alert,손님 방문 알림
-config.customer_alert.tip,"수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 개조 등급을 표시합니다."
+config.customer_alert.tip,수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 처치 보상, 개조 위협을 표시합니다.
+config.customer_history,손님에 커서를 올려 이번 대화 보기
+config.customer_history.tip,매장 손님 위에 마우스를 올리면 이번 응대에서 오간 대화를 표시합니다.
 config.section.interaction,조작
 config.double_click_inspect,더블클릭으로 감정
 config.double_click_inspect.tip,"감정품이나 진위 확인이 필요한 물품(주사기, 담배, 식량 배급표 등)을 더블클릭하면 돋보기 없이 검사 패널이 열립니다. 패널이 열린 상태에서 다른 물품을 더블클릭하면 바로 전환됩니다. 돋보기 안내는 '더블클릭하여 감정'으로 바뀝니다. 끄면 원래 방식으로 돌아갑니다."
@@ -177,5 +185,50 @@ config.scratcher.tip,"긁기 전에 스크래치 복권의 당첨 여부, 당첨
 config.sealed_box,잠긴 컨테이너 투시
 config.sealed_box.tip,"잠긴 컨테이너(금고, 총기 보관함 등)의 내용물과 총가치를 열기 전에 보여줍니다. 잠금 해제 과정을 건너뛰는 셈이라 기본값은 꺼짐입니다."
 config.result_prefill,감정 결과 미리 채우기
-config.result_prefill.tip,검사 패널을 열면 실제 위조 항목을 체크하고 감정가를 최적 제시가로 채웁니다. 입력만 하며 제출하거나 확정하지 않습니다. 기본값은 꺼짐입니다.
-appraisal.minimum_adjustment,최소 가치 보정
+config.result_prefill.tip,검사 패널을 열면 실제 위조 결함을 체크하고, 아래 선택에 따라 감정 가격을 실제 가치나 최적 제안가로 채웁니다. 입력만 하며 제출이나 확인은 하지 않습니다. 기본값은 꺼짐.
+config.result_prefill_source,채울 가격
+config.result_prefill_source.tip,실제 가치 = 게임이 계산한 진짜 가치, 최적 제안가 = 툴팁에 표시되는 완벽 범위의 상한.
+machine.eta,완료까지 약 {0}일
+machine.eta_battery," (배터리 {0}일분)"
+machine.eta_battery_short," (배터리 부족)"
+machine.eta_water," (물 {0}일분)"
+machine.paused,일시 정지: {0}
+hydro.water,"물: {0}ml, {1}일분 (하루 {2}ml)"
+fridge.summary,{0}: {1}개; {2}: {3}개
+fridge.no_effect,", 효과 없음 {0}개"
+wine.rack,"{0}병 숙성 중, 하루에 {1}일씩 숙성"
+wine.rack_idle,", {0}병은 숙성 안 됨"
+inner.line,{0}: {1}
+inner.durability,{0}: 내구도 {1}/{2}
+inner.faked," (표시 {0})"
+inner.filter_spent," (소진됨, 더 이상 거르지 않음)"
+inner.filters,필터 ×{0}: 최저 내구도 {1}/{2}
+inner.spent_count,", {0}개 소진"
+inner.liquid,{0}/{1}ml
+inner.liquid_empty,비어 있음
+inner.liquid_purity,", {0}% {1}"
+inner.uses,{0}: 남은 사용 횟수 {1}/{2}
+inner.tools,도구 ×{0}: 남은 사용 횟수 최소 {1} ({2}/{3})
+inner.energy,{0}: 에너지 {1}/{2}
+learning.progress,학습 진행: {0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0} 최대
+learning.machine,"자가 학습: 모듈 {0}개 학습 중, 최대 {1} 남음"
+learning.machine_full,자가 학습: 모듈 {0}개 모두 최대
+pen.learning_maxed," ({0}/{1}개 모듈 학습 완료)"
+pen.learning_maxed_untrained," ({0}/{1}개 모듈 학습 완료, {2}개는 자가 학습 없음)"
+module.days_faster,", 약 {0}일 단축"
+module.output,{0}ml/일
+module.attract,{0}% 매력
+module.bargain,{0}% 흥정 성공률
+module.theft,{0}% 도난 방지율
+module.aging,{0}일 숙성/일
+module.print_quality,{0} 인쇄 품질
+module.success,{0}% 성공률
+module.harvest,{0}% 수확량
+module.next_tier,+{0}% 더하면 다음 단계
+module.top_tier,최고 단계
+module.residual,잔류 한도 ×{0}
+history.empty,아직 대화가 없습니다.
+history.earlier,…이전 {0}줄
+history.unknown,손님
