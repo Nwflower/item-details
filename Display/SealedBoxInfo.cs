@@ -10,6 +10,7 @@ namespace ItemDetails;
 ///
 /// ⚠️ 这是**透视**功能：原版必须先开锁才能看到箱内。
 /// 开关由调用方（ModEntry）判断，模块本身不认识配置。
+/// 内容物交给 <see cref="ContentsGrid"/> 画成图标格时，清单缩成「N 类 M 件」，箱内价值照写。
 /// </summary>
 internal static class SealedBoxInfo
 {
@@ -38,6 +39,7 @@ internal static class SealedBoxInfo
         internal GameItem Item = null!;
         internal GameGridInventory Grid = null!;
         internal string Locale = "";
+        internal bool UseGrid;
         internal float At;
         internal List<ContainerItemSignature> Items = new();
         internal List<TooltipLine> Lines = new();
@@ -52,7 +54,8 @@ internal static class SealedBoxInfo
         Entries.Clear();
     }
 
-    internal static List<TooltipLine> Collect(GameItem? item)
+    /// <param name="allowGrid">tooltip 正文才传 true：允许把清单交给图标格、自己只写摘要。</param>
+    internal static List<TooltipLine> Collect(GameItem? item, bool allowGrid = false)
     {
         var lines = new List<TooltipLine>();
         try
@@ -70,12 +73,15 @@ internal static class SealedBoxInfo
 
             float now = UnityEngine.Time.unscaledTime;
             string locale = Loc.Code;
-            Entry? entry = Find(item, grid, locale);
 
             List<GameItem>? items = null;
             try { items = grid.childItems; }
             catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
             if (items == null) return lines;
+
+            bool useGrid = allowGrid && items.Count > 0 && items.Count <= MaxChildren
+                           && ContentsGrid.Claim(item, sealedBox: true);
+            Entry? entry = Find(item, grid, locale, useGrid);
 
             if (entry != null && now - entry.At <= CacheSeconds
                 && ContainerItemSignature.Matches(entry.Items, items))
@@ -89,18 +95,18 @@ internal static class SealedBoxInfo
             if (items.Count > MaxChildren)
             {
                 Log.Warn("SealedBox.Items", $"内容物 {items.Count} 件，超过上限 {MaxChildren}，跳过");
-                Store(item, grid, locale, now, items, lines, entry);
+                Store(item, grid, locale, useGrid, now, items, lines, entry);
                 return lines;
             }
 
             // 先建立箱子条目，首次构建也能把子项价值留在箱内供后续差异刷新复用。
             if (entry == null)
             {
-                entry = new Entry { Item = item, Grid = grid, Locale = locale };
+                entry = new Entry { Item = item, Grid = grid, Locale = locale, UseGrid = useGrid };
                 Entries.Add(entry);
             }
-            BuildLines(items, now, entry, lines);
-            Store(item, grid, locale, now, items, lines, entry);
+            BuildLines(items, now, entry, lines, useGrid);
+            Store(item, grid, locale, useGrid, now, items, lines, entry);
             if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");
         }
         catch (Exception ex)
@@ -111,7 +117,7 @@ internal static class SealedBoxInfo
     }
 
     private static void BuildLines(List<GameItem> items, float now, Entry? entry,
-                                   List<TooltipLine> lines)
+                                   List<TooltipLine> lines, bool useGrid)
     {
         // 价格不再逐件显示，同名物品合并成一个「名称[件数]」条目；顺序按首次出现。
         var names = new List<string>();
@@ -167,6 +173,16 @@ internal static class SealedBoxInfo
         if (names.Count == 0)
         {
             lines.Add(new TooltipLine(Loc.T("sealed.empty", "Inside: empty"), Color));
+            return;
+        }
+
+        if (useGrid)
+        {
+            string summary = sum > 0 || skipped > 0
+                ? Loc.T("sealed.summary_total", "Inside (value {0}): {1} kinds, {2} items",
+                    skipped > 0 ? sum.ToString() + "+" : sum.ToString(), names.Count, pieces)
+                : Loc.T("sealed.summary", "Inside: {0} kinds, {1} items", names.Count, pieces);
+            lines.Add(new TooltipLine(summary, Color));
             return;
         }
 
@@ -235,13 +251,13 @@ internal static class SealedBoxInfo
         return unit;
     }
 
-    private static Entry? Find(GameItem item, GameGridInventory grid, string locale)
+    private static Entry? Find(GameItem item, GameGridInventory grid, string locale, bool useGrid)
     {
         for (int i = Entries.Count - 1; i >= 0; i--)
         {
             var entry = Entries[i];
             if (ReferenceEquals(entry.Item, item) && ReferenceEquals(entry.Grid, grid)
-                && entry.Locale == locale)
+                && entry.Locale == locale && entry.UseGrid == useGrid)
             {
                 return entry;
             }
@@ -257,12 +273,12 @@ internal static class SealedBoxInfo
         Entries.Add(entry);
     }
 
-    private static void Store(GameItem item, GameGridInventory grid, string locale, float now,
+    private static void Store(GameItem item, GameGridInventory grid, string locale, bool useGrid, float now,
                               List<GameItem> items, List<TooltipLine> lines, Entry? entry)
     {
         if (entry == null)
         {
-            entry = new Entry { Item = item, Grid = grid, Locale = locale };
+            entry = new Entry { Item = item, Grid = grid, Locale = locale, UseGrid = useGrid };
             Entries.Add(entry);
         }
         else

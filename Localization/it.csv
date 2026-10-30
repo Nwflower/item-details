@@ -109,13 +109,18 @@ sealed.contents,Contenuto: {0}{1}
 sealed.empty,Contenuto: vuoto
 sealed.more," …{0} oggetti in totale"
 sealed.contents_total,Contenuto (valore {0}): {1}{2}
+sealed.summary,"Contenuto: {0} tipi, {1} oggetti"
+sealed.summary_total,"Contenuto (valore {0}): {1} tipi, {2} oggetti"
 sealed.count,{0}[{1}]
 seed.line,Tratti (non analizzati): {0}
 seed.more,... e altri {0}
 seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
+storage.summary,"Contiene: {0} tipi, {1} oggetti"
 storage.more_kinds," ... {0} tipi in totale"
 storage.ratio,Compressione: {0} ({1}/{2} celle)
+grid.title,Contenuto {0}
+grid.title_sealed,Contenuto {0}
 title.appraisal_suffix,"{0} Prezzo {1}, offerta migliore {2}"
 value.from,"Origine: "
 value.cost_perf,Valore per cella: {0}
@@ -147,6 +152,8 @@ config.cost_performance,Valore per cella
 config.cost_performance.tip,Mostra il valore per cella dell'inventario e la compressione dei contenitori.
 config.container_contents,Contenuto del contenitore
 config.container_contents.tip,"Elenca il contenuto dei contenitori sbloccati, senza un valore totale separato."
+config.contents_grid,Griglia di icone del contenuto
+config.contents_grid.tip,"Mostra il contenuto del contenitore come icone con quantità in un pannello accanto al tooltip e riduce l'elenco testuale a un riepilogo. I contenitori chiusi richiedono anche i raggi X."
 config.info_enhance,Informazioni extra
 config.info_enhance.tip,"Aggiunge dettagli specifici per oggetto: effetti di etichette e moduli, carica delle batterie, modificatori di mercato, risultati della lotteria, descrizioni attenuate ed etichette di prezzo più chiare."
 config.type_badge,Badge di categoria
@@ -155,6 +162,8 @@ config.type_badge_muted,Colori dei badge attenuati
 config.type_badge_muted.tip,I badge non di contrabbando usano lo sfondo scuro del tooltip e un colore di categoria schiarito; il contrabbando mantiene il testo rosso di avviso.
 config.block_progress_bar,Barre di avanzamento a blocchi
 config.block_progress_bar.tip,"Disegna le barre di avanzamento dei tooltip (capacità, durabilità, salute, ecc.) come blocchi pieni, con la parte vuota in una tonalità più scura. Disattiva per tornare allo stile originale [=====]."
+config.manufacturer_inline,Produttore accanto al nome
+config.manufacturer_inline.tip,"Mostra il produttore allineato a destra sulla riga del nome dell'oggetto invece che su una riga a parte. Se il nome è troppo lungo, resta su una riga propria."
 config.container_name,Nomi di contenitori e macchine
 config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
 config.container_name_bg,Sfondo dei nomi

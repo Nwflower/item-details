@@ -109,13 +109,18 @@ sealed.contents,Conteúdo: {0}{1}
 sealed.empty,Conteúdo: vazio
 sealed.more," …{0} itens no total"
 sealed.contents_total,Conteúdo (valor {0}): {1}{2}
+sealed.summary,"Conteúdo: {0} tipos, {1} itens"
+sealed.summary_total,"Conteúdo (valor {0}): {1} tipos, {2} itens"
 sealed.count,{0}[{1}]
 seed.line,Características (não analisadas): {0}
 seed.more,... e mais {0}
 seed.trait_rank,{0} (nível {1})
 storage.contains,"Contém: "
+storage.summary,"Contém: {0} tipos, {1} itens"
 storage.more_kinds," ... {0} tipos no total"
 storage.ratio,Compressão: {0} ({1}/{2} células)
+grid.title,Conteúdo {0}
+grid.title_sealed,Conteúdo {0}
 title.appraisal_suffix,"{0} Preço pedido {1}, melhor oferta {2}"
 value.from,"Origem: "
 value.cost_perf,Valor por célula: {0}
@@ -147,6 +152,8 @@ config.cost_performance,Valor por célula
 config.cost_performance.tip,Mostra o valor por célula do inventário e a compressão dos contêineres.
 config.container_contents,Conteúdo do contêiner
 config.container_contents.tip,"Lista o conteúdo de contêineres desbloqueados, sem um valor total separado."
+config.contents_grid,Grade de ícones do conteúdo
+config.contents_grid.tip,"Mostra o conteúdo do contêiner como ícones com quantidades em um painel ao lado da dica e reduz a lista de texto a um resumo. Contêineres trancados também precisam do raio-X."
 config.info_enhance,Informações extras
 config.info_enhance.tip,"Adiciona detalhes conforme o item: efeitos de rótulos e módulos, carga de baterias, modificadores de mercado, resultados da loteria, descrições esmaecidas e rótulos de preço mais claros."
 config.type_badge,Selos de categoria
@@ -155,6 +162,8 @@ config.type_badge_muted,Cores de selos suavizadas
 config.type_badge_muted.tip,Etiquetas fora do contrabando usam o fundo escuro da dica e uma cor de categoria clareada; o contrabando mantém o texto vermelho de alerta.
 config.block_progress_bar,Barras de progresso em blocos
 config.block_progress_bar.tip,"Desenha as barras de progresso das dicas (capacidade, durabilidade, vida etc.) como blocos sólidos, com a parte vazia em um tom mais escuro. Desative para voltar ao estilo original [=====]."
+config.manufacturer_inline,Fabricante ao lado do nome
+config.manufacturer_inline.tip,"Mostra o fabricante alinhado à direita na linha do nome do item, em vez de em uma linha própria. Se o nome for longo demais, ele continua em uma linha separada."
 config.container_name,Nomes de contêineres e máquinas
 config.container_name.tip,Mostra o nome na parte inferior do ícone de contêineres e máquinas.
 config.container_name_bg,Fundo dos nomes

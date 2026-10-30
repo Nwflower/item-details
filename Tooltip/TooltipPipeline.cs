@@ -101,6 +101,7 @@ internal static class TooltipPipeline
         // " [类型]" 加进正文，记晚了既抑制不到，也会让浮窗用到上一件物品的残留。
         try { TypeBadge.NoteItem(__instance); }
         catch (Exception ex) { Log.Warn("TooltipPipeline.NoteItem", ex); }
+        ContentsGrid.Begin();
 
         try
         {

@@ -18,6 +18,7 @@ namespace ItemDetails;
 /// 箱子自身售价已经通过 GetCurrentValue(withChild:true) 包含内容物，这里不再逐件估价，
 /// 避免与原价格行重复，也避免嵌套容器/估价失败造成另一个口径的“合计价值”。
 /// 只读；仅对带网格内部库存的容器显示；槽位型容器（无宽高）跳过。
+/// 内容物交给 <see cref="ContentsGrid"/> 画成图标格时，清单缩成一行「N 类 M 件」。
 /// </summary>
 internal static class StorageInfo
 {
@@ -37,6 +38,7 @@ internal static class StorageInfo
         internal string Locale = "";
         internal bool IncludeRatio;
         internal bool IncludeContents;
+        internal bool UseGrid;
         internal float At;
         internal List<ContainerItemSignature>? Items;
         internal List<TooltipLine> Lines = new();
@@ -49,7 +51,9 @@ internal static class StorageInfo
         Entries.Clear();
     }
 
-    internal static List<TooltipLine> Collect(GameItem? item, bool includeRatio = true, bool includeContents = true)
+    /// <param name="allowGrid">tooltip 正文才传 true：允许把清单交给图标格、自己只写摘要。</param>
+    internal static List<TooltipLine> Collect(GameItem? item, bool includeRatio = true, bool includeContents = true,
+        bool allowGrid = false)
     {
         var lines = new List<TooltipLine>();
         if (item == null) return lines;
@@ -75,7 +79,6 @@ internal static class StorageInfo
 
             float now = UnityEngine.Time.unscaledTime;
             string locale = Loc.Code;
-            Entry? entry = Find(item, grid, locale, includeRatio, includeContents);
 
             List<GameItem>? items = null;
             if (includeContents)
@@ -83,6 +86,9 @@ internal static class StorageInfo
                 try { items = grid.childItems; }
                 catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); }
             }
+
+            bool useGrid = allowGrid && items != null && items.Count > 0 && ContentsGrid.Claim(item, sealedBox: false);
+            Entry? entry = Find(item, grid, locale, includeRatio, includeContents, useGrid);
 
             if (entry != null && now - entry.At <= CacheSeconds
                 && (!includeContents || items != null
@@ -96,12 +102,12 @@ internal static class StorageInfo
 
             var built = new List<TooltipLine>();
             if (includeRatio) AddRatio(item, grid, built);
-            if (includeContents && items != null) AddContents(items, built);
+            if (includeContents && items != null) AddContents(items, built, useGrid);
 
             // 内容物读取失败时只保留本次压缩率，不写缓存，下次允许立即重试。
             if (!includeContents || items != null)
             {
-                Store(item, grid, locale, includeRatio, includeContents, now, items, built, entry);
+                Store(item, grid, locale, includeRatio, includeContents, useGrid, now, items, built, entry);
             }
 
             lines.AddRange(built);
@@ -115,14 +121,14 @@ internal static class StorageInfo
     }
 
     private static Entry? Find(GameItem item, GameGridInventory grid, string locale,
-                               bool includeRatio, bool includeContents)
+                               bool includeRatio, bool includeContents, bool useGrid)
     {
         for (int i = Entries.Count - 1; i >= 0; i--)
         {
             var entry = Entries[i];
             if (ReferenceEquals(entry.Item, item) && ReferenceEquals(entry.Grid, grid)
                 && entry.Locale == locale && entry.IncludeRatio == includeRatio
-                && entry.IncludeContents == includeContents)
+                && entry.IncludeContents == includeContents && entry.UseGrid == useGrid)
             {
                 return entry;
             }
@@ -139,7 +145,7 @@ internal static class StorageInfo
     }
 
     private static void Store(GameItem item, GameGridInventory grid, string locale,
-                              bool includeRatio, bool includeContents, float now,
+                              bool includeRatio, bool includeContents, bool useGrid, float now,
                               List<GameItem>? items, List<TooltipLine> lines, Entry? entry)
     {
         if (entry == null)
@@ -151,6 +157,7 @@ internal static class StorageInfo
                 Locale = locale,
                 IncludeRatio = includeRatio,
                 IncludeContents = includeContents,
+                UseGrid = useGrid,
             };
             Entries.Add(entry);
         }
@@ -204,7 +211,7 @@ internal static class StorageInfo
         catch (Exception ex) { Log.Warn("StorageInfo.Ratio", ex); }
     }
 
-    private static void AddContents(List<GameItem> items, List<TooltipLine> lines)
+    private static void AddContents(List<GameItem> items, List<TooltipLine> lines, bool useGrid)
     {
         if (items.Count == 0) return;
 
@@ -220,6 +227,14 @@ internal static class StorageInfo
             else { counts[name] = stack; order.Add(name); }
         }
         if (order.Count == 0) return;
+
+        if (useGrid)
+        {
+            int pieces = 0;
+            foreach (int count in counts.Values) pieces += count;
+            lines.Add(new TooltipLine(Loc.T("storage.summary", "Contains: {0} kinds, {1} items", order.Count, pieces), Color));
+            return;
+        }
 
         var sb = new StringBuilder();
         sb.Append(Loc.T("storage.contains", "Contains: "));

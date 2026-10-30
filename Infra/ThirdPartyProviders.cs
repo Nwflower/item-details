@@ -8,6 +8,7 @@ internal static class ThirdPartyProviders
 {
     private static readonly Dictionary<string, ItemDetailsAppraisalProvider> Appraisals = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, ItemDetailsMachineEffectProvider> Machines = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, PurifierEntry> Purifiers = new(StringComparer.Ordinal);
 
     internal static IDisposable RegisterAppraisal(string id, ItemDetailsAppraisalProvider provider)
     {
@@ -25,6 +26,38 @@ internal static class ThirdPartyProviders
         if (Machines.ContainsKey(id)) throw new InvalidOperationException($"Machine effect provider already registered: {id}");
         Machines.Add(id, provider);
         return new Subscription(() => Remove(Machines, id, provider));
+    }
+
+    internal static IDisposable RegisterPurifier(string id, ItemDetailsPurifierKind kind)
+    {
+        id = Required(id, nameof(id));
+        var mapped = kind switch
+        {
+            ItemDetailsPurifierKind.Machine => PurifySources.Kind.Machine,
+            ItemDetailsPurifierKind.Portable => PurifySources.Kind.Portable,
+            ItemDetailsPurifierKind.ChemicalAgent => PurifySources.Kind.Chem,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+        };
+        if (Purifiers.ContainsKey(id)) throw new InvalidOperationException($"Water purifier already registered: {id}");
+        var entry = new PurifierEntry(mapped);
+        Purifiers.Add(id, entry);
+        PurifySources.Invalidate();
+        return new Subscription(() =>
+        {
+            Remove(Purifiers, id, entry);
+            PurifySources.Invalidate();
+        });
+    }
+
+    internal static bool TryPurifier(string id, out PurifySources.Kind kind)
+    {
+        if (Purifiers.TryGetValue(id, out var entry))
+        {
+            kind = entry.Kind;
+            return true;
+        }
+        kind = default;
+        return false;
     }
 
     /// <summary>该物品是否已有显式鉴定提供方；提供方接管后不重复走原版精选分解。</summary>
@@ -93,6 +126,12 @@ internal static class ThirdPartyProviders
     private static void Remove<T>(Dictionary<string, T> registry, string id, T provider) where T : class
     {
         if (registry.TryGetValue(id, out var current) && ReferenceEquals(current, provider)) registry.Remove(id);
+    }
+
+    private sealed class PurifierEntry
+    {
+        internal readonly PurifySources.Kind Kind;
+        internal PurifierEntry(PurifySources.Kind kind) => Kind = kind;
     }
 
     private sealed class Subscription : IDisposable

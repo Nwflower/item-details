@@ -39,7 +39,7 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:SelfTe
 
 ## 第三方模组接入
 
-第三方适配采用**显式注册**，不让 Item Details 采样随机物品、反推定价、扫描 Harmony 补丁或反射查找第三方内部方法。提供方引用 `ItemDetails.dll`，在自己的 `OnEnable` 中注册，保存句柄并在 `OnDisable` 中释放：
+第三方适配采用**显式注册**，不让 Item Details 采样随机物品、反推定价、扫描 Harmony 补丁或反射查找第三方内部方法。唯一的自动识别是水质净化手段：只读物品回调的 IL，看它是否调用原版净化函数，不调用第三方代码（见下文约定）。提供方引用 `ItemDetails.dll`，在自己的 `OnEnable` 中注册，保存句柄并在 `OnDisable` 中释放：
 
 ```csharp
 using System;
@@ -47,6 +47,7 @@ using ItemDetails;
 
 private IDisposable? _appraisalRegistration;
 private IDisposable? _machineRegistration;
+private IDisposable? _purifierRegistration;
 
 public void OnEnable()
 {
@@ -70,14 +71,19 @@ public void OnEnable()
             ItemDetailsModuleStat.Efficiency => "-3 power/day",
             _ => null,
         });
+
+    _purifierRegistration = ItemDetailsApi.RegisterWaterPurifier(
+        "my_mod.purifier_tablet", ItemDetailsPurifierKind.ChemicalAgent);
 }
 
 public void OnDisable()
 {
     _appraisalRegistration?.Dispose();
     _machineRegistration?.Dispose();
+    _purifierRegistration?.Dispose();
     _appraisalRegistration = null;
     _machineRegistration = null;
+    _purifierRegistration = null;
 }
 ```
 
@@ -86,6 +92,7 @@ public void OnDisable()
 - 鉴定注册键是 `AppraisalItemType.id`；机器注册键是物品的 `identifier`。同一键只允许一个提供方，重复注册会抛错，不隐式覆盖。
 - 鉴定提供方返回自己计算的总价与结构化贡献。游戏能取得原生总价时，两者必须一致，否则本条分解不显示。注册后也接管同 ID 的原版精选分解，避免重复输出；注销才恢复。
 - 机器提供方返回**已本地化、不含括号**的注释；`null` 或空串表示该项不写。注册后这个 ID 的原版注释也由提供方接管，注销才恢复。
+- 净水手段注册键是物品的 `identifier`，种类决定水质建议用哪个原版函数模拟：`Machine` → `MachinePurifier.PurifyContainer`，`Portable` → `WaterHelper.PurifyToBaseWater`，`ChemicalAgent` → `ChemicalHelper.DissolveInto` 加反应链。不注册也会自动识别回调直接调用这些函数的物品（化学剂还要在标准试验水里确实提纯），注册后以注册为准；净化逻辑是自己写的、不走这些函数时，不要注册，水质建议也不会模拟它。
 - 回调在游戏主线程、构建 tooltip 时执行，应保持只读和轻量。第三方私有状态与缓存由提供方自己管理。
 - 只需要追加独立 tooltip 行时，直接使用游戏官方 `ModHook.OnCreateTooltipLate` 即可，不必注册到这里。
 

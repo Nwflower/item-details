@@ -109,13 +109,18 @@ sealed.contents,내용물: {0}{1}
 sealed.empty,내용물: 없음
 sealed.more," …총 {0}개"
 sealed.contents_total,내용물(가치 {0}): {1}{2}
+sealed.summary,내용물: {0}종 {1}개
+sealed.summary_total,내용물(가치 {0}): {1}종 {2}개
 sealed.count,{0}[{1}]
 seed.line,형질 (미분석): {0}
 seed.more,…외 {0} 항목
 seed.trait_rank,{0} (등급 {1})
 storage.contains,"포함: "
+storage.summary,"포함: {0}종 {1}개"
 storage.more_kinds," 등 총 {0}종"
 storage.ratio,압축률: {0} ({1}/{2} 칸)
+grid.title,내용물 {0}
+grid.title_sealed,내용물 {0}
 title.appraisal_suffix,"{0} 정가{1}, 최고 제시가{2}"
 value.from,"출처: "
 value.cost_perf,칸당 가치: {0}
@@ -147,6 +152,8 @@ config.cost_performance,칸당 가치
 config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시합니다."
 config.container_contents,컨테이너 내용
 config.container_contents.tip,"잠기지 않은 컨테이너의 내용물을 표시하며 총가치는 따로 표시하지 않습니다."
+config.contents_grid,내용물 아이콘 격자
+config.contents_grid.tip,"컨테이너 내용물을 툴팁 옆 패널에 아이콘과 개수로 표시하고, 본문 목록은 한 줄 요약으로 줄입니다. 잠긴 컨테이너는 「잠긴 컨테이너 투시」도 켜야 합니다."
 config.info_enhance,추가 아이템 정보
 config.info_enhance.tip,"라벨·모듈 효과, 배터리 잔량, 시장 보정, 복권 결과, 흐리게 표시한 설명, 더 명확한 가격 표기 등 아이템별 정보를 추가합니다."
 config.type_badge,아이템 분류 배지
@@ -155,6 +162,8 @@ config.type_badge_muted,배지 색상 줄이기
 config.type_badge_muted.tip,금지·제한 품목 외에는 툴팁의 어두운 배경과 밝게 조정한 분류 색을 사용합니다. 금지·제한 품목은 빨간 경고 텍스트를 유지합니다.
 config.block_progress_bar,블록형 진행 막대
 config.block_progress_bar.tip,"툴팁의 진행 막대(용량, 내구도, 체력 등)를 꽉 찬 블록으로 표시하고 채워지지 않은 부분은 어두운 색으로 보여 줍니다. 끄면 원래의 [=====] 표시로 돌아갑니다."
+config.manufacturer_inline,제조사를 이름 줄에 표시
+config.manufacturer_inline.tip,제조사를 아이템 이름 줄의 오른쪽 끝에 표시하여 따로 한 줄을 차지하지 않습니다. 이름이 너무 길면 기존처럼 별도 줄에 표시합니다.
 config.container_name,컨테이너/기계 이름표
 config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
 config.container_name_bg,이름표 배경

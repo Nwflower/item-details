@@ -138,7 +138,9 @@ public sealed partial class ModEntry : IMod
         Try("WaterWarmup", WaterWarmupPatch.Apply);
         Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
         Try("TypeBadge", TypeBadge.Apply);
+        Try("ContentsGrid", ContentsGrid.Apply);
         Try("ProgressBarStyle", ProgressBarStyle.Apply);
+        Try("ManufacturerInline", ManufacturerInline.Apply);
         Try("ItemNameLabel", ItemNameLabel.Apply);
     }
 
@@ -172,7 +174,9 @@ public sealed partial class ModEntry : IMod
         Quiet(MachineBatteryInfo.Remove);
         Quiet(ConfigSectionRefresh.Remove);
         Quiet(TypeBadge.Remove);
+        Quiet(ContentsGrid.Remove);
         Quiet(ProgressBarStyle.Remove);
+        Quiet(ManufacturerInline.Remove);
         Quiet(ItemNameLabel.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);

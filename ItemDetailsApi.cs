@@ -12,6 +12,17 @@ public enum ItemDetailsModuleStat
     Quality,
 }
 
+/// <summary>净化手段走哪个游戏函数；Item Details 用该函数在探针上模拟净化收益。</summary>
+public enum ItemDetailsPurifierKind
+{
+    /// <summary>机器，模拟 MachinePurifier.PurifyContainer（读机器自身的性能/品质加成）。</summary>
+    Machine,
+    /// <summary>手持净水器，模拟 WaterHelper.PurifyToBaseWater。</summary>
+    Portable,
+    /// <summary>可溶化学剂，模拟 ChemicalHelper.DissolveInto 加温度反应链（按物品自身的液体含量）。</summary>
+    ChemicalAgent,
+}
+
 /// <summary>一项已经由提供方解释清楚的价值贡献。</summary>
 public readonly struct ItemDetailsBreakdownPart
 {
@@ -60,4 +71,11 @@ public static class ItemDetailsApi
     /// <summary>按机器物品 identifier 注册加成注释提供方；注册后该 ID 的原版注释由提供方接管。</summary>
     public static IDisposable RegisterMachineEffects(string itemId, ItemDetailsMachineEffectProvider provider)
         => ThirdPartyProviders.RegisterMachine(itemId, provider);
+
+    /// <summary>
+    /// 按物品 identifier 声明它是哪种净水手段，水质建议会用对应的原版函数模拟收益。
+    /// 未注册的物品仍会按回调证据与标准试验自动识别；注册后以这里为准。
+    /// </summary>
+    public static IDisposable RegisterWaterPurifier(string itemId, ItemDetailsPurifierKind kind)
+        => ThirdPartyProviders.RegisterPurifier(itemId, kind);
 }

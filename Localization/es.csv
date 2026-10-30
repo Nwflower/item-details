@@ -109,13 +109,18 @@ sealed.contents,Contenido: {0}{1}
 sealed.empty,Contenido: vacío
 sealed.more," …{0} objetos en total"
 sealed.contents_total,Contenido (valor {0}): {1}{2}
+sealed.summary,"Contenido: {0} tipos, {1} objetos"
+sealed.summary_total,"Contenido (valor {0}): {1} tipos, {2} objetos"
 sealed.count,{0}[{1}]
 seed.line,Rasgos (sin analizar): {0}
 seed.more,... y {0} más
 seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
+storage.summary,"Contiene: {0} tipos, {1} objetos"
 storage.more_kinds," ... {0} tipos en total"
 storage.ratio,Compresión: {0} ({1}/{2} celdas)
+grid.title,Contenido {0}
+grid.title_sealed,Contenido {0}
 title.appraisal_suffix,"{0} Precio {1}, mejor oferta {2}"
 value.from,"Origen: "
 value.cost_perf,Valor por celda: {0}
@@ -147,6 +152,8 @@ config.cost_performance,Valor por celda
 config.cost_performance.tip,Muestra el valor por celda del inventario y la compresión de los contenedores.
 config.container_contents,Contenido del contenedor
 config.container_contents.tip,"Enumera el contenido de contenedores desbloqueados, sin un valor total aparte."
+config.contents_grid,Cuadrícula de contenido
+config.contents_grid.tip,"Muestra el contenido del contenedor como iconos con cantidades en un panel junto a la descripción y reduce la lista de texto a un resumen. Los contenedores cerrados también necesitan los rayos X."
 config.info_enhance,Información adicional
 config.info_enhance.tip,"Añade datos según el objeto: efectos de etiquetas y módulos, carga de baterías, modificadores de mercado, resultados de lotería, descripciones atenuadas y etiquetas de precio más claras."
 config.type_badge,Etiquetas de categoría
@@ -155,6 +162,8 @@ config.type_badge_muted,Atenuar colores de etiquetas
 config.type_badge_muted.tip,Las etiquetas no prohibidas usan el fondo oscuro del tooltip y un color de categoría aclarado; el contrabando mantiene el texto rojo de aviso.
 config.block_progress_bar,Barras de progreso en bloques
 config.block_progress_bar.tip,"Dibuja las barras de progreso de los tooltips (capacidad, durabilidad, salud, etc.) como bloques sólidos, con la parte sin llenar en un tono más oscuro. Desactívalo para volver al estilo original [=====]."
+config.manufacturer_inline,Fabricante junto al nombre
+config.manufacturer_inline.tip,"Muestra el fabricante alineado a la derecha en la línea del nombre del objeto en lugar de en una línea aparte. Si el nombre es demasiado largo, sigue en su propia línea."
 config.container_name,Nombres de contenedores y máquinas
 config.container_name.tip,Muestra el nombre en la parte inferior del icono de contenedores y máquinas.
 config.container_name_bg,Fondo de los nombres

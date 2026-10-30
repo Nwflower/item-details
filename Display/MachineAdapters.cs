@@ -6,7 +6,12 @@ namespace ItemDetails;
 /// <summary>
 /// 机器内部的第三层：已知机器的专门显示。由 <see cref="MachineInterior"/> 在通用列表之前调用。
 ///
-/// 每个适配器都要先确认原版机器 ID 和结构对得上，对不上就交回通用显示：
+/// 分两类：
+///   - 泛型：按游戏的显式标签或结构识别，第三方机器只要遵守同一约定就自动适用——
+///     进度型机器（PROGRESS_TYPE_MACHINE_TAG）、模块舱里的自学习模块；
+///   - 登记表 <see cref="ById"/>：只对某一种原版机器成立的显示（水培、冰箱、催陈器），按 ID 分发，
+///     不再对已登记的 ID 重复核对机器标签。
+/// 约定：
 ///   - 天数与游戏一致按「天」计（每晚结算一次，原版说明写作「/天」「每个周期」）。
 ///   - 槽位按 role 找，找不到对应面板就不显示，不猜下标。
 ///   - 规则调用游戏的公开函数（GetAgingDays、IsChillable 等），不扫描回调或补丁归属。
@@ -18,13 +23,24 @@ internal static class MachineAdapters
     private const RenderHandler.ColorPalette Warn = RenderHandler.ColorPalette.LightYellow;
     private const RenderHandler.ColorPalette Bad = RenderHandler.ColorPalette.LightRed;
 
+    private delegate void Adapter(MachineInterior.Context ctx, List<TooltipLine> lines);
+
+    /// <summary>原版机器 ID → 专门显示。第三方机器的专门显示也登记在这里。</summary>
+    private static readonly Dictionary<string, Adapter> ById = new(StringComparer.Ordinal)
+    {
+        ["hydroponic"] = Hydroponic,
+        ["fridge"] = Fridge,
+        ["wine_rack"] = WineRack,
+    };
+
     internal static void Run(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        // 水培先跑：它算出的"水还够几天"要给进度推算用。
-        Hydroponic(ctx, lines);
+        // 登记表先跑：水培算出的"水还够几天"要给进度推算用。
+        string id = "";
+        try { id = ctx.Machine.identifier ?? ""; } catch { }
+        if (ById.TryGetValue(id, out var adapter)) adapter(ctx, lines);
+
         Progress(ctx, lines);
-        Fridge(ctx, lines);
-        WineRack(ctx, lines);
         Learning(ctx, lines);
     }
 
@@ -85,9 +101,6 @@ internal static class MachineAdapters
     /// </summary>
     private static void Hydroponic(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        var m = ctx.Machine;
-        if (!Is(m, "hydroponic") || !GameRead.IsTag(m, "HYDROPONIC_MACHINE_TAG")) return;
-
         var waterPanel = ctx.FindPanel("water");
         var seedPanel = ctx.FindPanel("seed");
         if (waterPanel == null || seedPanel == null) return;
@@ -118,9 +131,6 @@ internal static class MachineAdapters
     /// </summary>
     private static void Fridge(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        var m = ctx.Machine;
-        if (!Is(m, "fridge") || !GameRead.IsTag(m, "FRIDGE_TAG")) return;
-
         var chill = ctx.FindPanel("chill");
         var freeze = ctx.FindPanel("freeze");
         if (chill == null || freeze == null) return;
@@ -170,8 +180,6 @@ internal static class MachineAdapters
     private static void WineRack(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
         var m = ctx.Machine;
-        if (!Is(m, "wine_rack")) return;
-
         var rack = ctx.FindPanel("wine");
         if (rack == null || rack.Items.Count == 0) return;
 
@@ -264,11 +272,5 @@ internal static class MachineAdapters
         if (usage <= 0) return -1;
         int energy = GameRead.TagInt(source, "power_source_item_energy") ?? 0;
         return Math.Max(0, energy / usage);
-    }
-
-    private static bool Is(GameItem machine, string id)
-    {
-        try { return string.Equals(machine.identifier, id, StringComparison.Ordinal); }
-        catch { return false; }
     }
 }

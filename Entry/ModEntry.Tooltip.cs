@@ -193,7 +193,8 @@ public sealed partial class ModEntry
         if (!ModSettings.ValueEnhance && !ModSettings.Container) return false;
         return AppendLines(builder, StorageInfo.Collect(item,
             includeRatio: ModSettings.ValueEnhance,
-            includeContents: ModSettings.Container));
+            includeContents: ModSettings.Container,
+            allowGrid: true));
     }
 
     // ---------------- 机器与槽位容器内部：滤芯、液体、工具、剩余几晚 ----------------
@@ -334,7 +335,7 @@ public sealed partial class ModEntry
     private bool TryAppendSealedBox(RichTextBuilder builder, GameItem item)
     {
         if (!ModSettings.SealedBox) return false;
-        return AppendLines(builder, SealedBoxInfo.Collect(item));
+        return AppendLines(builder, SealedBoxInfo.Collect(item, allowGrid: true));
     }
 
     // ---------------- 刮刮卡结果（透视） ----------------

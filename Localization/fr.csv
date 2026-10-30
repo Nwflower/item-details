@@ -109,13 +109,18 @@ sealed.contents,Contenu: {0}{1}
 sealed.empty,Contenu: vide
 sealed.more," …{0} objets au total"
 sealed.contents_total,Contenu (valeur {0}): {1}{2}
+sealed.summary,"Contenu: {0} types, {1} objets"
+sealed.summary_total,"Contenu (valeur {0}): {1} types, {2} objets"
 sealed.count,{0}[{1}]
 seed.line,Traits (non analysés) : {0}
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})
 storage.contains,"Contient : "
+storage.summary,"Contient : {0} types, {1} objets"
 storage.more_kinds," ... {0} types au total"
 storage.ratio,Compression : {0} ({1}/{2} cases)
+grid.title,Contenu {0}
+grid.title_sealed,Contenu {0}
 title.appraisal_suffix,"{0} Prix {1}, meilleure offre {2}"
 value.from,"Source : "
 value.cost_perf,Valeur par case : {0}
@@ -147,6 +152,8 @@ config.cost_performance,Valeur par case
 config.cost_performance.tip,Affiche la valeur par case d'inventaire et le taux de compression des conteneurs.
 config.container_contents,Contenu du conteneur
 config.container_contents.tip,"Liste le contenu des conteneurs déverrouillés, sans valeur totale distincte."
+config.contents_grid,Grille d'icônes du contenu
+config.contents_grid.tip,"Affiche le contenu du conteneur sous forme d'icônes avec quantités dans un panneau à côté de l'infobulle, et réduit la liste texte à un résumé. Les conteneurs verrouillés nécessitent aussi la radiographie."
 config.info_enhance,Infos supplémentaires
 config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets des étiquettes et modules, autonomie des batteries, modificateurs de marché, résultats de loterie, descriptions atténuées et libellés de prix plus clairs."
 config.type_badge,Badges de catégorie
@@ -155,6 +162,8 @@ config.type_badge_muted,Couleurs de badges atténuées
 config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
 config.block_progress_bar,Barres de progression en blocs
 config.block_progress_bar.tip,"Affiche les barres de progression des infobulles (capacité, durabilité, santé, etc.) en blocs pleins, la partie non remplie en teinte plus sombre. Désactivez pour revenir au style d'origine [=====]."
+config.manufacturer_inline,Fabricant à côté du nom
+config.manufacturer_inline.tip,"Affiche le fabricant aligné à droite sur la ligne du nom de l'objet au lieu d'une ligne séparée. Si le nom est trop long, il reste sur sa propre ligne."
 config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms

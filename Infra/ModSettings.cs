@@ -62,10 +62,12 @@ internal static class ModSettings
     private static readonly Toggle ItemAppraisalToggle = new(true);      // 真伪 + 价值构成 + 植物
     private static readonly Toggle CostPerformanceToggle = new(true);    // 性价比 + 压缩率
     private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
+    private static readonly Toggle ContentsGridToggle = new(true);       // 内容物图标格
     private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
     private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
     private static readonly Toggle BlockProgressBarToggle = new(true);   // 方块进度条
+    private static readonly Toggle ManufacturerInlineToggle = new(true); // 生产公司并入名称行
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
@@ -106,6 +108,12 @@ internal static class ModSettings
                 Text("config.container_contents", "Container Contents"),
                 Text("config.container_contents.tip", "Lists unlocked container contents; no separate total value."));
 
+            ContentsGridToggle.Define(_cfg, "show_contents_grid", SecDisplayKey, SecDisplayEn,
+                Text("config.contents_grid", "Contents Icon Grid"),
+                Text("config.contents_grid.tip", "Shows container contents as item icons with counts in a panel " +
+                     "beside the tooltip, and shortens the text list to a one-line summary. Locked containers " +
+                     "also need Locked Container X-Ray."));
+
             InfoEnhanceToggle.Define(_cfg, "show_info_enhance", SecDisplayKey, SecDisplayEn,
                 Text("config.info_enhance", "Extra Item Info"),
                 Text("config.info_enhance.tip", "Adds item-specific details such as label and module effects, battery " +
@@ -124,6 +132,11 @@ internal static class ModSettings
                 Text("config.block_progress_bar", "Block Progress Bars"),
                 Text("config.block_progress_bar.tip", "Draws tooltip progress bars (capacity, durability, health and " +
                      "so on) as solid blocks, with the unfilled part in a darker shade, instead of [=====     ]."));
+
+            ManufacturerInlineToggle.Define(_cfg, "manufacturer_inline", SecDisplayKey, SecDisplayEn,
+                Text("config.manufacturer_inline", "Manufacturer Beside Name"),
+                Text("config.manufacturer_inline.tip", "Shows the manufacturer at the right end of the item name line " +
+                     "instead of on its own line. It keeps its own line when the name is too long to fit both."));
 
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,
                 Text("config.container_name", "Container & Machine Labels"),
@@ -300,6 +313,7 @@ internal static class ModSettings
     internal static bool InfoEnhance => InfoEnhanceToggle.Value;
     internal static bool ValueEnhance => CostPerformanceToggle.Value;
     internal static bool Container => ContainerContentsToggle.Value;
+    internal static bool ContentsGrid => ContentsGridToggle.Value;
     internal static bool ModuleEffects => InfoEnhanceToggle.Value;
     internal static bool MachineBattery => InfoEnhanceToggle.Value;
     internal static bool PriceImpact => InfoEnhanceToggle.Value;
@@ -324,6 +338,7 @@ internal static class ModSettings
     internal static bool TypeBadge => TypeBadgeToggle.Value;
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
     internal static bool BlockProgressBar => BlockProgressBarToggle.Value;
+    internal static bool ManufacturerInline => ManufacturerInlineToggle.Value;
     internal static string ItemNameMode => ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
     internal static string ItemNamePosition => "底部 (Bottom)";
     internal static bool ItemNameBackground => ContainerNameBgToggle.Value;

@@ -109,13 +109,18 @@ sealed.contents,Inhalt: {0}{1}
 sealed.empty,Inhalt: leer
 sealed.more," …insgesamt {0} Stück"
 sealed.contents_total,Inhalt (Wert {0}): {1}{2}
+sealed.summary,"Inhalt: {0} Sorten, {1} Stück"
+sealed.summary_total,"Inhalt (Wert {0}): {1} Sorten, {2} Stück"
 sealed.count,{0}[{1}]
 seed.line,Merkmale (unanalysiert): {0}
 seed.more,... und {0} weitere
 seed.trait_rank,{0} (Rang {1})
 storage.contains,"Enthält: "
+storage.summary,"Enthält: {0} Sorten, {1} Stück"
 storage.more_kinds," ... insgesamt {0} Sorten"
 storage.ratio,Kompressionsrate: {0} ({1}/{2} Felder)
+grid.title,Inhalt {0}
+grid.title_sealed,Inhalt {0}
 title.appraisal_suffix,"{0} Preis {1}, bestes Angebot {2}"
 value.from,"Quelle: "
 value.cost_perf,Wert pro Feld: {0}
@@ -147,6 +152,8 @@ config.cost_performance,Wert pro Feld
 config.cost_performance.tip,Zeigt den Wert pro Inventarfeld und das Kompressionsverhältnis von Behältern.
 config.container_contents,Behälterinhalt
 config.container_contents.tip,"Listet den Inhalt unverschlossener Behälter auf, ohne separaten Gesamtwert."
+config.contents_grid,Inhalt als Symbolraster
+config.contents_grid.tip,"Zeigt den Behälterinhalt als Symbole mit Anzahl in einem Feld neben dem Tooltip und kürzt die Textliste auf eine Zusammenfassung. Verschlossene Behälter brauchen zusätzlich den Röntgenblick."
 config.info_enhance,Zusätzliche Gegenstandsinfos
 config.info_enhance.tip,"Ergänzt je nach Gegenstand Etiketten- und Moduleffekte, Batterielaufzeit, Marktmodifikatoren, Lotterieergebnisse, abgedunkelte Beschreibungen und klarere Preisangaben."
 config.type_badge,Kategorie-Plaketten
@@ -155,6 +162,8 @@ config.type_badge_muted,Plakettenfarben dämpfen
 config.type_badge_muted.tip,Plaketten außer Schmuggelware nutzen den dunklen Tooltip-Hintergrund und eine aufgehellte Kategoriefarbe; Schmuggelware behält roten Warntext.
 config.block_progress_bar,Block-Fortschrittsbalken
 config.block_progress_bar.tip,"Zeichnet Fortschrittsbalken in Tooltips (Füllmenge, Haltbarkeit, Gesundheit usw.) als volle Blöcke, der ungefüllte Teil erscheint dunkler. Ausgeschaltet gilt wieder die Originaldarstellung [=====]."
+config.manufacturer_inline,Hersteller neben dem Namen
+config.manufacturer_inline.tip,"Zeigt den Hersteller rechtsbündig in der Zeile des Gegenstandsnamens statt in einer eigenen Zeile. Ist der Name zu lang, bleibt der Hersteller in einer eigenen Zeile."
 config.container_name,Behälter- & Maschinennamen
 config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
 config.container_name_bg,Namenshintergrund

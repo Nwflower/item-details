@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 
 namespace ItemDetails;
@@ -19,7 +20,8 @@ namespace ItemDetails;
 ///   机器     MachinePurifier.PurifyContainer
 ///   便携     WaterHelper.PurifyToBaseWater
 ///   化学剂   ChemicalHelper.DissolveInto + ChemicalHelper.HandleTemperatureReaction
-///            （净水片就是「含 15ml 氯的可溶化学物品」，走同一条链，不再特判）
+///            （净水片是「含 15ml 氯的可溶化学物品」；第三方可溶物先在标准试验水上溶一次，
+///            纯度上升才算净化剂，见 <see cref="RunTrials"/>）
 ///   滤芯     WaterHelper.HandleFilter（逐液体，被去除量转成水；uv_filter 由其内部处理）
 ///
 /// 这条路径比其它模块贵得多，所以按「液体组成 + 容器类型 + 净化前纯度 + 净化手段状态」缓存。
@@ -30,6 +32,7 @@ namespace ItemDetails;
 /// 探针壳按 identifier 池化复用。实测单次 66ms 中 DirectoryMaster.Create 占 55ms，
 /// DeepCloneTags 仅 0.07ms；池化后新组成约 10ms。化学剂会被 DissolveInto 末尾 Destroy，
 /// 由 <see cref="ProbeDestroyGuard"/> 只对池化壳挡住这次销毁，同样复用；守卫不可用时退回逐次克隆。
+/// DissolveInto 只读化学剂的液体标签，所以所有化学剂共用一个空白壳，试验十几种可溶物也不必逐个 Create。
 /// </summary>
 internal static class WaterAdvice
 {
@@ -37,6 +40,9 @@ internal static class WaterAdvice
     // 容量只是上限：条目仍受 30 秒 TTL 约束。100 槽足以覆盖正常的水容器对比，
     // 线性扫描在工具提示频率下可忽略，真正防止卡顿的是不再让 A/B 互相淘汰。
     private const int MaxEntries = 100;
+    // 第三方可溶物的标准试验：悬停时每次最多做几种，其余留到下次；预热阶段放宽。
+    private const int TrialsPerHover = 4;
+    private const int TrialsOnPrewarm = 64;
 
     /// <summary>某种手段的模拟结果。</summary>
     internal sealed class Method
@@ -63,8 +69,10 @@ internal static class WaterAdvice
     // 池化壳只在当前场景复用；每次 EmporiumEntry.Start 先销毁旧壳再预热，
     // 不跨场景保留已经被 Unity 销毁的 UI 节点。
 
-    /// <summary>池化壳在溶解后被第三方销毁过的化学剂 ID；本场景内改为逐次克隆。</summary>
-    private static readonly HashSet<string> UnpooledAgents = new(StringComparer.Ordinal);
+    /// <summary>所有化学剂共用的空白溶解壳；每次溶解前重灌标签。</summary>
+    private static GameItem? _agentShell;
+    /// <summary>空白壳在溶解后被第三方销毁过；本场景内改为逐次克隆。</summary>
+    private static bool _agentShellUnusable;
 
     internal static List<Method> SimulateMethods(GameItem? item)
     {
@@ -129,6 +137,17 @@ internal static class WaterAdvice
             GameItem? sharedProbe = GetShell(ProbeShells, item);
             if (sharedProbe == null) return result;
 
+            // 0) 回调走 DissolveInto 但还没试验过的可溶物：先在标准试验水上判定，再并入本次模拟。
+            //    判出新结论时报告已失效、签名不含新净化剂，这次结果不进缓存。
+            var chemAgents = owned.ChemAgents;
+            bool cacheable = signatureValid;
+            if (owned.ChemCandidates.Count > 0)
+            {
+                var found = RunTrials(sharedProbe, item, owned.ChemCandidates, TrialsPerHover, out bool changed);
+                if (changed) cacheable = false;
+                if (found.Count > 0) chemAgents = owned.ChemAgents.Concat(found).Take(PurifySources.MaxChemAgents).ToList();
+            }
+
             // 1) 机器：黑盒试 PurifyContainer。机器必须走深拷贝——函数内部用
             //    GetTagReadonly 读品质/性能加成，而 TagSystem.GetTag 对缺键会插入 0，
             //    那会把真实机器的加成钉死，净水器从此只能净化到 99.0%（GetPurityMult(0)=1.0）。
@@ -150,8 +169,8 @@ internal static class WaterAdvice
                     (probe, _) => WaterHelper.PurifyToBaseWater(probe));
             }
 
-            // 3) 化学剂：溶入探针后跑游戏自己的反应链（净水片、以及第三方沉淀剂都走这里）
-            foreach (var agent in owned.ChemAgents)
+            // 3) 化学剂：溶入探针后跑游戏自己的反应链（只模拟登记过或试验通过的净化剂）
+            foreach (var agent in chemAgents)
             {
                 GameItem a = agent;
                 if (!ResetProbe(sharedProbe, item)) return result;
@@ -186,7 +205,7 @@ internal static class WaterAdvice
                     $"total={diagTotal.Elapsed.TotalMilliseconds:0.00}ms scan={diagScan.Elapsed.TotalMilliseconds:0.00}ms " +
                     $"create={_diagCloneCreateMs:0.00}ms tags={_diagCloneTagsMs:0.00}ms feature={_diagFeatureMs:0.00}ms");
 #endif
-            if (signatureValid)
+            if (cacheable)
             {
                 Cache.Add(new CacheEntry
                 {
@@ -311,8 +330,11 @@ internal static class WaterAdvice
             try { shell.Destroy(); } catch { }
         foreach (var shell in SourceShells.Values)
             try { shell.Destroy(); } catch { }
+        if (_agentShell != null) { try { _agentShell.Destroy(); } catch { } }
         ProbeShells.Clear();
         SourceShells.Clear();
+        _agentShell = null;
+        _agentShellUnusable = false;
     }
 
     /// <summary>
@@ -331,6 +353,8 @@ internal static class WaterAdvice
 
             int probesBefore = ProbeShells.Count;
             int sourcesBefore = SourceShells.Count;
+            GameItem? trialContainer = null;
+            GameItem? trialProbe = null;
 
             foreach (var item in items)
             {
@@ -338,17 +362,27 @@ internal static class WaterAdvice
                 if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) continue;
                 if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) continue;
                 if (SafePurity(item) < 0) continue;
-                GetShell(ProbeShells, item);
+                var probe = GetShell(ProbeShells, item);
+                if (probe != null && trialProbe == null)
+                {
+                    trialContainer = item;
+                    trialProbe = probe;
+                }
             }
 
             var owned = PurifySources.Scan();
             foreach (var machine in owned.Machines) GetShell(SourceShells, machine);
             foreach (var filter in owned.Filters) GetShell(SourceShells, filter);
-            if (ProbeDestroyGuard.Active)
-                foreach (var agent in owned.ChemAgents) GetShell(SourceShells, agent);
+            if (owned.ChemAgents.Count > 0 || owned.ChemCandidates.Count > 0) GetAgentShell();
+
+            // 第三方可溶物的标准试验也挪到加载阶段；没有水容器时等第一次悬停再做。
+            int candidates = owned.ChemCandidates.Count;
+            int purifiers = 0;
+            if (trialProbe != null && trialContainer != null && candidates > 0)
+                purifiers = RunTrials(trialProbe, trialContainer, owned.ChemCandidates, TrialsOnPrewarm, out _).Count;
 
             Log.Msg($"WaterAdvice prewarm: probes +{ProbeShells.Count - probesBefore} " +
-                    $"sources +{SourceShells.Count - sourcesBefore}");
+                    $"sources +{SourceShells.Count - sourcesBefore} chem trials {candidates} -> {purifiers}");
             return true;
         }
         catch (Exception ex)
@@ -362,7 +396,6 @@ internal static class WaterAdvice
     {
         Cache.Clear();
         ClearShells();
-        UnpooledAgents.Clear();
 #if ITEMDETAILS_DIAG
         _diagHits = 0;
         _diagMisses = 0;
@@ -431,30 +464,25 @@ internal static class WaterAdvice
     }
 
     /// <summary>
-    /// 化学剂溶入探针后跑游戏自己的反应链（净水片、以及第三方沉淀剂都走这里）。
-    /// DissolveInto 末尾会 Destroy 化学剂：有 <see cref="ProbeDestroyGuard"/> 时用池化壳并挡住这次销毁；
-    /// 没有补丁或壳被第三方销毁过的种类，退回每次克隆一份、用完清理。
+    /// 化学剂溶入探针后跑游戏自己的反应链。
+    /// DissolveInto 末尾会 Destroy 化学剂：有 <see cref="ProbeDestroyGuard"/> 时用共享空白壳并挡住这次销毁；
+    /// 没有补丁或壳被第三方销毁过，退回每次克隆一份、用完清理。
     /// </summary>
     private static void Dissolve(GameItem agent, GameItem probe)
     {
-        string id = agent.identifier ?? "";
-
-        if (ProbeDestroyGuard.Active && id.Length > 0 && !UnpooledAgents.Contains(id))
+        var shell = GetAgentShell();
+        if (shell != null && ResetSource(shell, agent))
         {
-            var shell = GetShell(SourceShells, agent);
-            if (shell != null && !ProbeDestroyGuard.IsDestroyed(shell) && ResetSource(shell, agent))
+            bool intact = ProbeDestroyGuard.Run(shell, () => ChemicalHelper.DissolveInto(shell, probe));
+            if (!intact)
             {
-                bool intact = ProbeDestroyGuard.Run(shell, () => ChemicalHelper.DissolveInto(shell, probe));
-                if (!intact)
-                {
-                    // 第三方在 Destroy 前缀里自己处理掉了这个壳：这种化学剂本次会话不再池化
-                    SourceShells.Remove(id);
-                    UnpooledAgents.Add(id);
-                    Log.Warn("WaterAdvice.ChemShell", $"「{id}」的池化壳在溶解后不可用，改为逐次克隆");
-                }
-                ChemicalHelper.HandleTemperatureReaction(probe);
-                return;
+                // 第三方在 Destroy 前缀里自己处理掉了这个壳：本场景不再池化
+                _agentShell = null;
+                _agentShellUnusable = true;
+                Log.Warn("WaterAdvice.ChemShell", "化学剂空白壳在溶解后不可用，改为逐次克隆");
             }
+            ChemicalHelper.HandleTemperatureReaction(probe);
+            return;
         }
 
         var dissolved = CloneItem(agent);
@@ -465,6 +493,120 @@ internal static class WaterAdvice
             ChemicalHelper.HandleTemperatureReaction(probe);
         }
         finally { try { dissolved.Destroy(); } catch { } }
+    }
+
+    /// <summary>
+    /// 化学剂共用的空白壳：DissolveInto 只读化学剂的液体标签，空白物品重灌标签后即可代替任何化学剂。
+    /// 守卫不可用或壳已被第三方销毁时返回 null，由调用方逐次克隆。
+    /// </summary>
+    private static GameItem? GetAgentShell()
+    {
+        if (!ProbeDestroyGuard.Active || _agentShellUnusable) return null;
+        if (_agentShell != null && !ProbeDestroyGuard.IsDestroyed(_agentShell)) return _agentShell;
+        try
+        {
+#if ITEMDETAILS_DIAG
+            var diagCreate = System.Diagnostics.Stopwatch.StartNew();
+#endif
+            _agentShell = ItemDirectory.CreateEmptyItem();
+#if ITEMDETAILS_DIAG
+            diagCreate.Stop();
+            _diagCloneCreateMs += diagCreate.Elapsed.TotalMilliseconds;
+#endif
+            return _agentShell;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.AgentShell", ex);
+            _agentShell = null;
+            _agentShellUnusable = true;
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 对还没下结论的可溶物各做一次标准试验，结论写回 <see cref="PurifySources"/>，返回试验通过的物品。
+    /// 回调走 DissolveInto 只说明它能溶；营养片、粪便、药物也都能溶，纯度上升才算净化剂。
+    /// 试验跑不成（探针重置失败）不下结论，下次再试。<paramref name="changed"/> 表示本次判出了新结论。
+    /// </summary>
+    private static List<GameItem> RunTrials(GameItem probe, GameItem container, List<GameItem> candidates,
+        int budget, out bool changed)
+    {
+        changed = false;
+        var positives = new List<GameItem>();
+        foreach (var candidate in candidates)
+        {
+            string id = candidate.identifier ?? "";
+            if (id.Length == 0 || PurifySources.IsJudged(id)) continue;
+            if (budget-- <= 0) break;
+
+            bool? purifies = TrialPurifies(probe, container, candidate);
+            if (purifies == null) continue;
+            PurifySources.JudgeChem(id, purifies.Value);
+            changed = true;
+            if (purifies.Value) positives.Add(candidate);
+        }
+        return positives;
+    }
+
+    /// <summary>标准试验：探针换成固定的试验水，溶入一份化学剂，纯度上升即为净化剂。</summary>
+    private static bool? TrialPurifies(GameItem probe, GameItem container, GameItem agent)
+    {
+        if (!ResetProbe(probe, container) || !FillTrialWater(probe)) return null;
+        int before = SafePurity(probe);
+        if (before < 0) return null;
+        try { Dissolve(agent, probe); }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.Trial." + agent.identifier, ex);
+            return false;
+        }
+        return SafePurity(probe) > before;
+    }
+
+    /// <summary>
+    /// 标准试验水：容器容量的一半（最多 1L）、纯度 60%，杂质按原版沟渠水的分布配。
+    /// 不用 WaterHelper.AddWater：它会掷随机数，且按容器剩余容量灌满。
+    /// 氯先分解化学污染物、再杀微生物，这份水两样都有，一片净水片（15ml 氯）就能明显提纯。
+    /// </summary>
+    private static bool FillTrialWater(GameItem probe)
+    {
+        try
+        {
+            int capacity = GameRead.TagInt(probe, "LIQUID_CONTAINER_CAPACITY") ?? 0;
+            int total = Math.Min(capacity / 2, 1_000_000);
+            if (total <= 0) return false;
+
+            foreach (var liquid in Liquid.Liquids)
+            {
+                if (liquid == null) continue;
+                string part = liquid.currentPart;
+                if ((GameRead.TagInt(probe, part) ?? 0) != 0)
+                    probe.ModifyTag(part, st => st.SetInt(0), skipValidate: true);
+            }
+
+            int dirt = total * 4 / 10;
+            int added = 0;
+            foreach (var share in WaterPremadeHelper.gutterflowContaminantDistribution)
+            {
+                int amount = (int)(dirt * share.Value);
+                if (amount <= 0) continue;
+                probe.ModifyTag(share.Key, st => st.Enable().SetInt(amount), skipValidate: true);
+                added += amount;
+            }
+            if (added <= 0) return false;
+            probe.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(total - dirt), skipValidate: true);
+
+            try { probe.itemFeatures.RemoveAll(f => f != null && f.category == "CATEGORY_WATER_PURITY"); }
+            catch { }
+            WaterFeatureHelper.InitWaterFeature(probe);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.TrialWater", ex);
+            return false;
+        }
     }
 
     /// <summary>在已重置的共享探针上跑一次手段，比较前后纯度。</summary>
