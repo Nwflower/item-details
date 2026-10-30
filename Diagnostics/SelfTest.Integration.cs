@@ -151,7 +151,7 @@ internal static partial class SelfTest
         var items = new List<GameItem>();
         try
         {
-            var container = TryCreate("trashcan");
+            var container = TryCreate("storage_bay");
             if (container == null) return "partial container totals: cannot create container";
             items.Add(container);
             GeneralHelper.SetItemOwned(container, true);
@@ -167,17 +167,17 @@ internal static partial class SelfTest
                     return "partial container totals: child insertion failed";
             }
             StorageInfo.Stop();
-            var storage = StorageInfo.Collect(container);
-            bool storageSuppressed = storage.Count > 0
-                && !HasLine(storage, Loc.T("storage.total_value", "Total value: {0}", ""));
+            var storage = StorageInfo.Collect(container, includeRatio: false, includeContents: true);
+            bool storageSuppressed = storage.Count == 1
+                && storage[0].Text.StartsWith(Loc.T("storage.contains", "Contains: "), StringComparison.Ordinal);
             container.EnableTag("LOCKED_CONTAINER_TAG");
             container.ModifyTag("LOCK_STATUS", state => state.Enable().SetBool(true));
             SealedBoxInfo.Stop();
             var sealedLines = SealedBoxInfo.Collect(container);
-            bool sealedSuppressed = sealedLines.Count > 0
-                && !HasLine(sealedLines, Loc.T("sealed.total", "Total inside: {0}", ""));
-            ok = storageSuppressed && sealedSuppressed;
-            return $"partial container totals: storageSuppressed={storageSuppressed} sealedSuppressed={sealedSuppressed}";
+            // 当前主线把金额与清单写在同一行；嵌套容器漏算时金额应为 100+。
+            bool sealedPartial = sealedLines.Exists(line => line.Text.Contains("100+", StringComparison.Ordinal));
+            ok = storageSuppressed && sealedPartial;
+            return $"partial container totals: storageSuppressed={storageSuppressed} sealedPartial={sealedPartial}";
         }
         catch (Exception ex) { return "partial container totals: " + ex; }
         finally
