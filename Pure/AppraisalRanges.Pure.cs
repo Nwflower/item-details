@@ -5,9 +5,12 @@ namespace ItemDetails;
 ///
 /// 必须与游戏完全同源，否则区间边界会差 1：
 ///   RNG.CalculatePercentage(value, p) = value * p / 100   ← 整数截断（向零取整）
-///   完美档 = 真实价 95%–105%（AppraisalHelper.GetEstimatePrecision 的 grade 1 区间）
+///   完美档 = 真实价 95%–105%（AppraisalServiceHelper.GetEstimatePrecision 的 grade 1 区间）
+///
+/// 运行时显示用另一半 <c>Appraisal/AppraisalRanges.cs</c> 的 <c>GamePerfect</c>：直接问游戏的
+/// 档位函数，其它模组改了判定也能跟上；这里的照抄版本是它的兜底与离线测试基准。
 /// </summary>
-internal static class AppraisalRanges
+internal static partial class AppraisalRanges
 {
     /// <summary>等价于游戏的 RNG.CalculatePercentage（整数截断）。</summary>
     internal static int Percent(int value, int percent) => value * percent / 100;

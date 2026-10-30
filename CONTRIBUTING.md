@@ -37,6 +37,58 @@ dotnet build ItemDetails.csproj -c Release -p:GameDir="<游戏目录>" -p:SelfTe
 
 自检构建在启动参数带 `-itemdetails-selftest`，或 `ModData/item_details/` 下有 `selftest.flag` 时运行。
 
+## 第三方模组接入
+
+第三方适配采用**显式注册**，不让 Item Details 采样随机物品、反推定价、扫描 Harmony 补丁或反射查找第三方内部方法。提供方引用 `ItemDetails.dll`，在自己的 `OnEnable` 中注册，保存句柄并在 `OnDisable` 中释放：
+
+```csharp
+using System;
+using ItemDetails;
+
+private IDisposable? _appraisalRegistration;
+private IDisposable? _machineRegistration;
+
+public void OnEnable()
+{
+    _appraisalRegistration = ItemDetailsApi.RegisterAppraisalBreakdown(
+        "my_mod.appraisal_type",
+        item =>
+        {
+            int total = MyRules.GetValue(item);
+            return new ItemDetailsBreakdown(total, new[]
+            {
+                new ItemDetailsBreakdownPart("Base", 100, isBase: true),
+                new ItemDetailsBreakdownPart("My attribute", 25),
+            });
+        });
+
+    _machineRegistration = ItemDetailsApi.RegisterMachineEffects(
+        "my_mod.machine",
+        (machine, stat) => stat switch
+        {
+            ItemDetailsModuleStat.Performance => "+20% output",
+            ItemDetailsModuleStat.Efficiency => "-3 power/day",
+            _ => null,
+        });
+}
+
+public void OnDisable()
+{
+    _appraisalRegistration?.Dispose();
+    _machineRegistration?.Dispose();
+    _appraisalRegistration = null;
+    _machineRegistration = null;
+}
+```
+
+约定：
+
+- 鉴定注册键是 `AppraisalItemType.id`；机器注册键是物品的 `identifier`。同一键只允许一个提供方，重复注册会抛错，不隐式覆盖。
+- 鉴定提供方返回自己计算的总价与结构化贡献。游戏能取得原生总价时，两者必须一致，否则本条分解不显示。注册后也接管同 ID 的原版精选分解，避免重复输出；注销才恢复。
+- 机器提供方返回**已本地化、不含括号**的注释；`null` 或空串表示该项不写。注册后这个 ID 的原版注释也由提供方接管，注销才恢复。
+- 回调在游戏主线程、构建 tooltip 时执行，应保持只读和轻量。第三方私有状态与缓存由提供方自己管理。
+- 只需要追加独立 tooltip 行时，直接使用游戏官方 `ModHook.OnCreateTooltipLate` 即可，不必注册到这里。
+
 ## 写代码时
 
 - 所有玩家可见的文字都经过 `Loc.T("key", "English text", args)`，英文写在调用处，再到各语言 CSV 补译文。

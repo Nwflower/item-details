@@ -32,6 +32,14 @@ internal static class ItemValueFingerprint
         }
     }
 
+    /// <summary>只看物品自身（不展开子物品），不分配；给每帧都要算的缓存键用。</summary>
+    internal static long ReadSelf(GameItem item)
+    {
+        long hash = unchecked((long)14695981039346656037UL);
+        AddItem(ref hash, item);
+        return hash;
+    }
+
     private static void AddItem(ref long hash, GameItem item)
     {
         Mix(ref hash, item.uniqueId);
@@ -77,14 +85,14 @@ internal static class ItemValueFingerprint
         }
     }
 
-    private static void Mix(ref long hash, string? value)
+    internal static void Mix(ref long hash, string? value)
     {
         if (value == null) { Mix(ref hash, -1); return; }
         Mix(ref hash, value.Length);
         foreach (char c in value) Mix(ref hash, c);
     }
 
-    private static void Mix(ref long hash, long value)
+    internal static void Mix(ref long hash, long value)
     {
         unchecked { hash = (hash ^ value) * 1099511628211L; }
     }

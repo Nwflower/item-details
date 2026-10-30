@@ -31,8 +31,9 @@ public sealed partial class ModEntry
         }
         else
         {
-            // 有检查项读取失败且没有发现瑕疵 → 数据不完整，不下"正品"结论
-            Log.Warn("Auth.Incomplete", $"只读到 {r.ReadableFlags}/{r.ExpectedFlags} 项，跳过真伪结论");
+            // 有原版检查项读取失败，且没有发现已知瑕疵 → 不下"正品"结论
+            Log.Warn("Auth.Incomplete",
+                $"只读到 {r.ReadableFlags}/{r.ExpectedFlags} 项，跳过真伪结论");
             return false;
         }
         return true;
@@ -43,6 +44,7 @@ public sealed partial class ModEntry
     {
         if (!ModSettings.Value) return false;
         if (!GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
+        if (ThirdPartyProviders.HasAppraisal(item)) return false;
 
         var r = ValueBreakdown.Analyze(item);
         if (r == null) return false;
@@ -50,7 +52,7 @@ public sealed partial class ModEntry
         // 总价与完美区间合并成一行，省一行留白。Value 已把完美区间并入同一开关。
         // Analyze 已校验 r.Total == 游戏真实值，不再重复调用 TrueValue。
         string totalLine = Loc.T("value.total_line", "Total: {0}", r.Total);
-        var (lo, hi) = AppraisalRanges.Perfect(r.Total);
+        var (lo, hi) = AppraisalRanges.GamePerfect(r.Total);
         totalLine += Loc.T("value.perfect_range", " | perfect {0}-{1}", lo, hi);
         AddLine(builder, totalLine, RenderHandler.ColorPalette.Green);
 
@@ -102,17 +104,30 @@ public sealed partial class ModEntry
         return true;
     }
 
-    // ---------------- 泛型分解（未知/模组新增的鉴定类型） ----------------
-    private bool TryAppendGeneric(RichTextBuilder builder, GameItem item)
+    // ---------------- 第三方显式提供的鉴定分解 ----------------
+    private bool TryAppendInjectedValue(RichTextBuilder builder, GameItem item)
     {
         if (!ModSettings.Value) return false;
 
-        var lines = GenericBreakdown.Collect(item);
-        if (lines.Count == 0) return false;
+        var r = ThirdPartyProviders.Appraisal(item);
+        if (r == null) return false;
 
-        AddLine(builder, Loc.T("generic.header", "Value breakdown (measured):"),
-            RenderHandler.ColorPalette.Yellow);
-        return AppendLines(builder, lines, RenderHandler.ColorPalette.White);
+        string totalLine = Loc.T("value.total_line", "Total: {0}", r.Total);
+        var (lo, hi) = AppraisalRanges.GamePerfect(r.Total);
+        totalLine += Loc.T("value.perfect_range", " | perfect {0}-{1}", lo, hi);
+        AddLine(builder, totalLine, RenderHandler.ColorPalette.Green);
+
+        var parts = new List<string>();
+        foreach (var p in r.Parts)
+        {
+            if (string.IsNullOrWhiteSpace(p.Label)) continue;
+            string amount = p.IsBase || p.Amount < 0 ? p.Amount.ToString() : "+" + p.Amount;
+            parts.Add($"{p.Label} {amount}");
+        }
+        if (parts.Count > 0)
+            AddLine(builder, Loc.T("generic.line", "From: {0}", string.Join(Loc.T("list.sep", ", "), parts)),
+                RenderHandler.ColorPalette.White);
+        return true;
     }
 
     // ---------------- 荧光莓 ----------------
@@ -139,15 +154,10 @@ public sealed partial class ModEntry
         return AppendLines(builder, HiddenInfo.Collect(item));
     }
 
-    // ---------------- P3 价值增强（总价拆解/性价比） ----------------
+    // ---------------- 性价比（兜底） ----------------
+    // 正常由 TooltipPipeline 写在价格块下一行；价格行没改写时才落到这里，同一次构建只写一次。
     private bool TryAppendValueEnhance(RichTextBuilder builder, GameItem item)
-    {
-        if (!ModSettings.ValueEnhance) return false;
-        // 鉴定物品已有「总价/完美区间/来源」，性价比是按顾客报价算的，混在一起容易误读
-        if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
-        if (IsLiquid(item)) return false;   // 含水容器的性价比意义不大，且挤占版面
-        return AppendLines(builder, ValueEnhance.Collect(item));
-    }
+        => ValueEnhance.TryWrite(builder, item);
 
     // ---------------- P1 隐藏特性揭示（真假条件） ----------------
     private bool TryAppendFeatureReveal(RichTextBuilder builder, GameItem item)
@@ -166,12 +176,30 @@ public sealed partial class ModEntry
             includeContents: ModSettings.Container));
     }
 
+    // ---------------- 机器与槽位容器内部：滤芯、液体、工具、剩余几晚 ----------------
+    private bool TryAppendMachineInterior(RichTextBuilder builder, GameItem item)
+    {
+        if (!ModSettings.Container && !ModSettings.InfoEnhance) return false;
+        return AppendLines(builder, MachineInterior.Collect(item,
+            listing: ModSettings.Container,
+            adapters: ModSettings.InfoEnhance,
+            hiddenTruth: ModSettings.HiddenTruth,
+            purity: ModSettings.WaterPurity));
+    }
+
+    // ---------------- 自学习算法模块：学习进度 ----------------
+    private bool TryAppendModuleLearning(RichTextBuilder builder, GameItem item)
+    {
+        if (!ModSettings.ModuleEffects) return false;
+        return AppendLines(builder, ModuleLearning.Collect(item));
+    }
+
     // ---------------- 瑕疵/状态对价值的影响 ----------------
     private bool TryAppendConditions(RichTextBuilder builder, GameItem item)
     {
         if (!ModSettings.PriceImpact) return false;
         if (IsLiquid(item)) return false;   // 水质模块已汇总，避免重复
-        return AppendLines(builder, ConditionEffects.Collect(item));
+        return AppendLines(builder, ConditionEffects.Collect(item, skipRevealed: ModSettings.HiddenTruth));
     }
 
     // ---------------- 违禁等级与黑市溢价 ----------------
@@ -201,9 +229,6 @@ public sealed partial class ModEntry
     private bool TryAppendWater(RichTextBuilder builder, GameItem item)
     {
         if (!ModSettings.WaterPurity) return false;
-        // AquaSense 是专职水质模组：它已经输出「水质详情 + 液体成分 + 容量条」，
-        // 这里再列一遍就是重复（见 ModCompat）。净化收益建议由 water-advice 单独输出。
-        if (ModCompat.AquaSenseActive) return false;
 
         var r = WaterInfo.Analyze(item);
         if (!r.HasData) return false;
@@ -252,7 +277,8 @@ public sealed partial class ModEntry
         }
 
         // 第三行：杂质与试剂仍按占比；显示阈值只用于这一类，不裁掉小剂量药物。
-        if (r.WaterParts > 0 || r.Impurities.Count > 0)
+        // 纯水没有杂质时不写「杂质：无」，第一行的纯度和档位已经说明了。
+        if (r.Impurities.Count > 0)
         {
             var sb = new StringBuilder();
             // 无水混合物里酒精/提取液不是“杂质”，仍按占比但换个更准确的说法。
@@ -272,11 +298,7 @@ public sealed partial class ModEntry
                 any = true;
                 sb.Append(part.Name).Append(' ').Append(partPct.ToString("0.00")).Append('%');
             }
-            if (!any)
-            {
-                if (r.Impurities.Count == 0) sb.Append(Loc.T("water.none", "none"));
-                else sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
-            }
+            if (!any) sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
 
             AddLine(builder, sb.ToString(),
                 r.TotalParts == r.WaterParts
@@ -310,9 +332,11 @@ public sealed partial class ModEntry
         var lines = SeedInfo.Collect(item);
         if (lines.Count == 0) return false;
 
-        AddLine(builder, Loc.T("seed.header", "Traits (unanalyzed):"),
+        // 性状逐项一行太占版面，接在表头后写成一行
+        var texts = lines.ConvertAll(l => l.Text);
+        AddLine(builder, Loc.T("seed.line", "Traits (unanalyzed): {0}", string.Join(Loc.T("list.sep", ", "), texts)),
             RenderHandler.ColorPalette.LightTurquoise);
-        return AppendLines(builder, lines);
+        return true;
     }
 
     // ---------------- 含水容器：净化收益（探测版） ----------------

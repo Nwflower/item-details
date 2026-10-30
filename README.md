@@ -16,10 +16,10 @@
 基础 100 + 碳复合材料 50 + EMG+ 接口 45 + 刀刃 80 = 275
 ```
 
-其他模组新增的鉴定物品也会尽量给出价值构成。
+其他模组可以通过显式注册接口提供自己物品的价值构成；本模组不采样或反推第三方定价规则。
 
 **详细显示**
-物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物、违禁品黑市溢价、机器电池可用天数和彩票结果。
+物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物、违禁品黑市溢价、机器电池可用天数和彩票结果。机器与水壶会列出内部物品：滤芯耐久、容器水量、工具剩余次数、预计还需几天完成、水培机的水还够几天、冰箱里有几件不起作用、催陈器每天陈化几天。机器「模组效果」的每项加成后面补上实际影响，例如集水器 +136 毫升/天、投影仪 +20% 吸引力、催陈器质量再加多少能多陈化一天。带「自学习算法」的模组显示各项学习进度与上限，机器上汇总还差多少。第三方机器可以通过显式注册接口提供自己的加成注释。
 
 **荧光莓品质**
 直接显示正常、较小、发霉、未熟、干枯。
@@ -29,6 +29,9 @@
 
 **改造体与通缉犯提醒**
 顾客到店时提示谁是改造体、谁是通缉犯，并给出举报奖励、真名与改造等级。提示条可以拖动。
+
+**顾客对话回看**
+鼠标停在店内顾客身上，可以看到本次接待已经说过的台词（含你自己那几句）；换下一位顾客时自动清空。只记本次接待，不存档、不跨天。
 
 **双击鉴定**
 双击待鉴定物品直接打开鉴定面板，不必先拿放大镜再拖动；面板打开时双击另一件可直接切换。
@@ -51,7 +54,7 @@
 - **只读游戏数据**：不改价格、不改顾客、不碰存档。
 - **无需权限**：不联网、不启动进程，不声明任何额外能力，启用时不会弹出权限确认。唯一写入的是游戏自带的模组设置文件。
 - **数值自校验**：价值拆解的合计必须与游戏自己算出的数值完全一致才显示；对不上就不显示，而不是显示错的。
-- **与其他模组共存**：同时启用 AquaSense 等专职水质模组时，自动让出水质部分。
+- **第三方显式接入**：模组可按类型注册鉴定分解、按机器 ID 注册加成注释；不扫描补丁、不反射猜测第三方内部实现。
 
 ## 安装
 
@@ -88,7 +91,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 
 - **Authenticity check** — Immunivax Injectors, Hemingway cigarettes and Food Stamps are marked genuine or counterfeit, and a counterfeit lists exactly which check failed. Counterfeit Ribwiches list their reasons too.
 - **True value** — Cybernetic Hands, Ribwiches and Plasma Cartridges show the total value plus a line-by-line breakdown, e.g. `Base 100 + Carbon composite 50 + EMG+ interface 45 + Blade add-on 80 = 275`.
-- **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, machine battery days and lottery results.
+- **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, machine battery days and lottery results. Machines and pitchers list what is inside: filter durability, water in containers, tool uses left, days until a job finishes, how long a hydroponic unit's water lasts, fridge items that get no effect, and how many days an AgeWell ages per day. Each module bonus on a machine shows its real effect, such as +136 ml/day on a Moisture Farm, +20% attractiveness on a projector, or how much more quality an AgeWell needs for an extra aging day. Learning Algorithm modules show each stat's progress toward its cap, and machines sum up what is left. Third-party machines can provide their own effect notes through the explicit registration API.
 - **BloomBerry quality** — Normal, Small, Moldy, Underripe or Dried.
 - **Appraisal Service title** — shows the item's list price and the best offer.
 - **Augmented / wanted alerts** — bounty, real name and augmentation tier when such a customer arrives.
@@ -97,7 +100,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 
 Every feature can be toggled in this mod's settings in the game's Mods menu.
 
-**Design** — read-only (no price, customer or save changes); declares no capabilities, with no network access or processes (the only thing written is the game's own mod settings file); a breakdown is shown only when it exactly matches the game's own value; steps aside for dedicated water mods such as AquaSense.
+**Design** — read-only (no price, customer or save changes); declares no capabilities, with no network access or processes (the only thing written is the game's own mod settings file); a breakdown is shown only when it exactly matches the game's own value; third-party mods explicitly register their own appraisal breakdowns and machine effect notes instead of being probed or inferred.
 
 **Install** — [subscribe on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3828868413), or copy the release into `Mods/item_details/`, then enable it in the Mods menu and restart. Requires the full release of the game (runtime version 0.46D).
 

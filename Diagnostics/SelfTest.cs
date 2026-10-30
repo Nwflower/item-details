@@ -285,17 +285,9 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        // 额外验证：泛型消融不得改写真实鉴定物品（同类浅拷贝风险）
+        // 额外验证：探针改写不得污染真实物品（同类浅拷贝风险）
         {
-            string line = CheckGenericDoesNotMutate(out bool ok);
-            if (ok) pass++; else fail++;
-            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
-            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
-        }
-
-        // 额外验证：泛型快照不得静默截断第 24 项之后的标签
-        {
-            string line = CheckGenericTagSnapshot(out bool ok);
+            string line = CheckProbeWriteIsolation(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -365,9 +357,25 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        // 额外验证：滤芯/设备状态与 unitValue 必须使缓存 key 失效
+        // 额外验证：滤芯/设备状态必须使缓存 key 失效
         {
             string line = CheckCacheKeyFreshness(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：原版规则下，向游戏档位函数二分出的完美区间应与内置公式逐值一致
+        {
+            string line = CheckGamePerfectRange(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：第三方鉴定分解只在显式注册期间生效
+        {
+            string line = CheckAppraisalInjection(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -384,6 +392,30 @@ internal static partial class SelfTest
         // 额外验证：机器电池槽里的电量应显示为 current/max
         {
             string line = CheckMachineBattery(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：机器内部按结构通用列出，第三方面板顺序不导致电池误报，耗尽滤芯有提示
+        {
+            string line = CheckMachineInterior(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：自学习上限只读标签，不按基础值倍率猜测
+        {
+            string line = CheckModuleLearning(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
+        // 额外验证：原版机器按表差分，未登记机器不写，第三方显式注入优先，且不改真实机器
+        {
+            string line = CheckModuleStatEffects(out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);

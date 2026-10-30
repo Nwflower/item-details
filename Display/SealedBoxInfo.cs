@@ -162,22 +162,25 @@ internal static class SealedBoxInfo
         if (shown == 0)
         {
             lines.Add(new TooltipLine(Loc.T("sealed.empty", "Inside: empty"), Color));
+            return;
+        }
+
+        string more = items.Count > shown
+            ? Loc.T("sealed.more", " ... {0} items in total", items.Count)
+            : "";
+        if (sum > 0 || skipped > 0)
+        {
+            // 合计写在清单之前；“+”只表示仍有物品未计入，不把这个下限额伪装成完整总价。
+            string value = skipped > 0 ? sum.ToString() + "+" : sum.ToString();
+            lines.Add(new TooltipLine(
+                Loc.T("sealed.contents_total", "Inside (total {0}): {1}{2}", value, contents.ToString(), more),
+                Color));
         }
         else
         {
-            string more = items.Count > shown
-                ? Loc.T("sealed.more", " ... {0} items in total", items.Count)
-                : "";
             lines.Add(new TooltipLine(
                 Loc.T("sealed.contents", "Inside: {0}{1}", contents.ToString(), more),
                 Color));
-        }
-
-        if (sum > 0 || skipped > 0)
-        {
-            // “+”只表示仍有物品未计入，不把这个下限额伪装成完整总价。
-            string value = skipped > 0 ? sum.ToString() + "+" : sum.ToString();
-            lines.Add(new TooltipLine(Loc.T("sealed.total", "Total value inside: {0}", value), Color));
         }
     }
 

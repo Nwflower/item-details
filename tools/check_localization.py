@@ -65,7 +65,7 @@ def pure_keys(text: str) -> dict[str, str]:
       - ValueFormula.Pure.cs：`new("appraisal.xxx", "English {0}", amount, ...)`
       - RibwichReasons.Pure.cs：Key() 与 English() 两个同序 switch
       - Authenticity.cs：`new("ISSUE_SERIAL", "auth.serial", "Serial fault")`
-      - GenericBreakdown.cs：`=> ("appraisal.seal_ll_short", "Wild's Rides")` 元组
+      - ModuleStatEffects.cs：`PerformanceKey = "module.x", PerformanceEn = "English"` 等表项
     不扫它们，校验器会给出「全部齐全」的假结论。
     """
     out: dict[str, str] = {}
@@ -78,6 +78,10 @@ def pure_keys(text: str) -> dict[str, str]:
 
     # 真伪检查项的键是第二个参数，不是第一个；漏扫会让赝品括号里的问题名全部回落英文。
     for m in re.finditer(r'new\(\s*"[A-Z0-9_]+"\s*,\s*"(auth\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"', text):
+        out.setdefault(m.group(1), m.group(2))
+
+    # 机器能力表把键和英文兜底放在 Profile 字段里，再由变量传给 Loc.T。
+    for m in re.finditer(r'(?:Performance|Quality)Key\s*=\s*"(module\.[a-z0-9_]+)"\s*,\s*(?:Performance|Quality)En\s*=\s*"((?:[^"\\]|\\.)*)"', text):
         out.setdefault(m.group(1), m.group(2))
 
     marker_key = "internal static string Key"

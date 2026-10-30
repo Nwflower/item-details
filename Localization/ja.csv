@@ -43,13 +43,9 @@ appraisal.ribwich_opened,開封済みまたは偽造品（固定40）
 appraisal.ribwich_plant_grade_a,高品質の包装施設 {0:D2}
 appraisal.ribwich_plant_grade_c,低品質の包装施設 {0:D2}
 appraisal.seal_ignition,イグニッション・ラボボーナス
-appraisal.seal_ignition_short,イグニッション・ラボ
 appraisal.seal_ll,ワイルド・ライドボーナス
-appraisal.seal_ll_short,ワイルド・ライド
 appraisal.seal_republic,共和国海軍徴発ボーナス
-appraisal.seal_republic_short,共和国海軍徴発
 appraisal.seal_zhonghua,Zhonghua造船ボーナス
-appraisal.seal_zhonghua_short,Zhonghua造船
 appraisal.worn,摩耗
 auth.counterfeit,✘ 偽造品（{0}）
 auth.genuine,✔ 正規品
@@ -64,10 +60,7 @@ calorie.per_cell,（{0} {1}/マス）
 calorie.unit,kcal
 condition.line,状態：{0} {1}
 contraband.markup,闇市場：+{0}%
-generic.combined,· 組合せ/その他 {0}
-generic.header,価値の内訳（実測）：
-generic.more,· …ほか {0} 件
-generic.other_attributes,· その他の属性 {0}
+generic.line,出所：{0}
 hidden.chem_purity,化学純度：{0}%
 hidden.durability,耐久性：{0}/{1}
 hidden.durability_faked,真の耐久性：{0}/{1}（表示は{2}/{3}、改ざんの疑い）
@@ -81,7 +74,6 @@ lottery.not_drawn,第{0}回：未抽選（毎週土曜の朝に発表）
 lottery.winning,当選番号：{0}
 market.line,市場：{0}
 module.power,{0}電力/日
-module.quality,{0}品質
 module.speed,{0}速度
 price.buy,買値：
 price.cost_close,）
@@ -90,7 +82,7 @@ price.list," 定価：{0}"
 price.sell,売値：{0}
 reveal.modifier,真の補正：{0}%（偽装 {1}%）
 reveal.real,真の値：{0}（偽装 {1}）
-reveal.real_with_mod,真の値：{0}（{1}%）（偽装 {2}）
+reveal.real_with_mod,真の値：{0} {1}（偽装 {2}）
 ribwich.header,偽物の理由：
 ribwich.more,…ほか {0} 件
 ribwich.reason_bun_no_pickles,ゴマのパンなのに追加ピクルスが無い（デラックス版は両方必要）
@@ -107,14 +99,14 @@ ribwich.reason_second_sticker_wrong,第2次製造分のリブイッチのステ�
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,製造年 {0} が 425–429 / 432–438 の範囲外
 scratcher.no_prize,スクラッチカード：はずれ
-scratcher.progress,削り済み {0}/3
+scratcher.progress_part,、削り済み {0}/3
 scratcher.win,スクラッチカード：当たり {0}（{1}個一致）
 sealed.contents,中身：{0}{1}
 sealed.empty,中身：空
 sealed.more," …計{0}点"
-sealed.total,中身の合計価値：{0}
+sealed.contents_total,中身（合計 {0}）：{1}{2}
 sealed.unit,（{0}）
-seed.header,形質（未分析）：
+seed.line,形質（未分析）：{0}
 seed.more,…ほか {0} 件
 seed.trait_rank,{0}（ランク {1}）
 storage.contains,中身：
@@ -122,16 +114,15 @@ storage.more_kinds," など計{0}種"
 storage.ratio,圧縮率：{0}（{1}/{2} マス）
 title.appraisal_suffix,{0} 定価{1}、最良提示{2}
 value.from,出所：
-value.per_cell,マス単価：{0}（{1}/{2} マス）
+value.cost_perf,コスパ：{0}
+value.cost_perf_detail,（{0}/{1} マス）
 value.perfect_range," ｜ 完璧 {0}–{1}"
-value.total,総額：{0} × {1} = {2}
 value.total_line,総額：{0}
 water.actives,有効成分：
 water.other,その他：
 water.head,水質：{0}% {1}
 water.impurities,不純物：
 water.mismatch,（ラベルと不一致）
-water.none,なし
 water.trace,微量（表示閾値未満）
 wine.aging,熟成ボーナス：+{0}/日（計 +{1}）
 wine.composition,成分：糖度 {0}‰、汚染物質 {1}‰
@@ -139,7 +130,7 @@ wine.counterfeit,偽造品：違法酵母
 wine.empty,空
 wine.fermenting,発酵中
 wine.finished,醸成済み
-wine.score,ワイン点数：{0}{1}
+wine.score_part,、点数 {0}
 wine.state,ワイン：{0}
 wine.tier,、第 {0} 段階
 wine.unknown_state,不明（{0}）
@@ -164,6 +155,8 @@ config.container_name_bg,名前ラベルの背景
 config.container_name_bg.tip,名前ラベルの後ろに半透明の黒い背景（不透明度60%）を付けます。
 config.customer_alert,来客アラート
 config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・改造レベルを表示します。
+config.customer_history,顧客にカーソルで今回の会話
+config.customer_history.tip,店内の顧客にマウスを合わせると、今回の接客で交わした会話を表示します。
 config.section.interaction,操作
 config.double_click_inspect,ダブルクリックで鑑定
 config.double_click_inspect.tip,鑑定品や真偽確認が必要な品（注射器・タバコ・フードスタンプなど）をダブルクリックすると、虫眼鏡なしで検査パネルを開きます。パネル表示中に別の品をダブルクリックすると切り替わります。虫眼鏡のヒントは「ダブルクリックで鑑定」に変わります。オフにすると元の操作に戻ります。
@@ -178,3 +171,46 @@ config.sealed_box,施錠コンテナ透視
 config.sealed_box.tip,施錠されたコンテナ（金庫、銃保管庫など）の中身と合計価値を、開錠前に一覧表示します。開錠の手間を飛ばすことになるため、既定ではオフです。
 config.result_prefill,鑑定結果の事前入力
 config.result_prefill.tip,検査パネルを開くと、実際の偽造箇所にチェックを入れ、鑑定額に最適な提示額を入力します。入力するだけで、送信や確定は行いません。既定ではオフです。
+machine.eta,完了まで約 {0} 日
+machine.eta_battery,（電池は {0} 日分）
+machine.eta_battery_short,（電池が足りない）
+machine.eta_water,（水は {0} 日分）
+machine.paused,停止中：{0}
+hydro.water,水：{0}ml、{1} 日分（1日 {2}ml）
+fridge.summary,{0}：{1} 個／{2}：{3} 個
+fridge.no_effect,、効果なし {0} 個
+wine.rack,{0} 本熟成中、1日ごとに {1} 日分熟成
+wine.rack_idle,、{0} 本は熟成しない
+inner.line,{0}：{1}
+inner.durability,{0}：耐久性 {1}/{2}
+inner.faked,（表示は {0}）
+inner.filter_spent,（使い切り、ろ過しない）
+inner.filters,ろ過器 ×{0}：最低耐久性 {1}/{2}
+inner.spent_count,、{0} 個使い切り
+inner.liquid,{0}/{1}ml
+inner.liquid_empty,空
+inner.liquid_purity,、{0}% {1}
+inner.uses,{0}：残り使用回数 {1}/{2}
+inner.tools,道具 ×{0}：残り使用回数が最少 {1}（{2}/{3}）
+inner.energy,{0}：エネルギー {1}/{2}
+learning.progress,学習進度：{0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0}は上限
+learning.machine,自己学習：{0} 個のモジュールが学習中、最大あと {1}
+learning.machine_full,自己学習：{0} 個すべて上限
+module.days_faster,、約 {0} 日短縮
+module.output,{0}ml/日
+module.attract,{0}%魅力
+module.bargain,{0}%交渉成功率
+module.theft,{0}%盗難防止率
+module.aging,{0}日熟成/日
+module.print_quality,{0}印刷品質
+module.success,{0}%成功率
+module.harvest,{0}%収穫量
+module.next_tier,あと+{0}%で次の段階
+module.top_tier,最高段階
+module.residual,残留上限×{0}
+history.title,{0} · 今回の接客
+history.empty,今回の接客ではまだ会話がありません。
+history.earlier,…さらに前の {0} 件
+history.unknown,顧客

@@ -50,15 +50,16 @@ internal static class WineInfo
                 2 => Loc.T("wine.finished", "Finished"),
                 _ => Loc.T("wine.unknown_state", "Unknown ({0})", state),
             };
-            lines.Add(new TooltipLine(Loc.T("wine.state", "Wine: {0}", stateText), Info));
-
-            // 2) 分数与档位（原版零售版不显示）
+            // 2) 分数与档位（原版零售版不显示）：评分是酿成的结果，与状态写在同一行
+            string head = Loc.T("wine.state", "Wine: {0}", stateText);
+            var headColor = Info;
             if (state == 2 || score > 0)
             {
                 string tierText = tier > 0 ? Loc.T("wine.tier", ", tier {0}", tier) : "";
-                lines.Add(new TooltipLine(Loc.T("wine.score", "Wine score: {0}{1}", score, tierText),
-                                          tier >= 4 ? Good : Info));
+                head += Loc.T("wine.score_part", ", score {0}", score) + tierText;
+                if (tier >= 4) headColor = Good;
             }
+            lines.Add(new TooltipLine(head, headColor));
 
             // 3) 成分（‰）：糖度与污染物
             if (state == 2)

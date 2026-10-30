@@ -71,12 +71,14 @@ public sealed partial class ModEntry : IMod
         new("auth", (m, b, i) => m.TryAppendAuthenticity(b, i)),
         new("value", (m, b, i) => m.TryAppendValue(b, i)),
         new("ribwich", (m, b, i) => m.TryAppendRibwichReasons(b, i)),
-        new("generic", (m, b, i) => m.TryAppendGeneric(b, i)),
+        new("injected-value", (m, b, i) => m.TryAppendInjectedValue(b, i)),
         new("berry", (m, b, i) => m.TryAppendBerry(b, i)),
         new("hidden", (m, b, i) => m.TryAppendHidden(b, i)),
         new("value-enhance", (m, b, i) => m.TryAppendValueEnhance(b, i)),
         new("feature-reveal", (m, b, i) => m.TryAppendFeatureReveal(b, i)),
         new("storage", (m, b, i) => m.TryAppendStorage(b, i)),
+        new("machine-interior", (m, b, i) => m.TryAppendMachineInterior(b, i)),
+        new("module-learning", (m, b, i) => m.TryAppendModuleLearning(b, i)),
         new("conditions", (m, b, i) => m.TryAppendConditions(b, i)),
         new("contraband", (m, b, i) => m.TryAppendContraband(b, i)),
         new("lottery", (m, b, i) => m.TryAppendLottery(b, i)),
@@ -123,6 +125,7 @@ public sealed partial class ModEntry : IMod
         Try("AppraisalTitlePatch", AppraisalTitlePatch.Apply);
         Try("ResultPrefill", ResultPrefill.Apply);
         Try("CustomerAlertTicker", CustomerAlertTicker.Install);
+        Try("CustomerHistory", CustomerHistory.Install);
         Try("LabelImpact", LabelImpact.Apply);
         Try("DoubleClickInspect", () =>
         {
@@ -151,13 +154,15 @@ public sealed partial class ModEntry : IMod
         Quiet(AppraisalTitlePatch.Remove);
         Quiet(ResultPrefill.Remove);
         Quiet(CustomerAlertTicker.Stop);
+        Quiet(CustomerHistory.Stop);
         Quiet(WaterWarmupPatch.Remove);
         Quiet(WaterAdvice.Stop);
         Quiet(ItemValueCache.Reset);
         Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
+        Quiet(MachineInterior.Stop);
+        Quiet(ModuleStatEffects.Stop);
         Quiet(SealedBoxInfo.Stop);
-        Quiet(GenericBreakdown.Stop);
         Quiet(LabelImpact.Remove);
         Quiet(DoubleClickInspect.Remove);
         Quiet(TooltipPipeline.Remove);

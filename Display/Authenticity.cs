@@ -6,6 +6,7 @@ namespace ItemDetails;
 /// <summary>
 /// 真伪判定：三类违禁品（注射器/香烟/粮票）各有一组"问题标签"。
 /// 只读 item.IsTag(key)，某个 ISSUE_* 为 true 即该项有问题。
+/// 检查表与目标游戏版本保持一致；第三方新增规则由第三方自行说明，不用标签名猜测。
 /// </summary>
 internal static class Authenticity
 {
@@ -80,7 +81,7 @@ internal static class Authenticity
             Faults = faults; FaultNames = names;
         }
         internal bool HasData => Kind != ItemKind.None && ReadableFlags > 0;
-        /// <summary>所有应读项都成功读到。缺项时不得下"正品"结论。</summary>
+        /// <summary>所有原版检查项都成功读到才下"正品"结论。</summary>
         internal bool Complete => HasData && ReadableFlags == ExpectedFlags;
         internal bool IsGenuine => Complete && Faults == 0;
     }

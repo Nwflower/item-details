@@ -43,13 +43,9 @@ appraisal.ribwich_opened,Ouvert ou contrefait (forfait 40)
 appraisal.ribwich_plant_grade_a,Usine réputée {0:D2}
 appraisal.ribwich_plant_grade_c,Usine négligente {0:D2}
 appraisal.seal_ignition,Bonus Ignition Lab
-appraisal.seal_ignition_short,Ignition Lab
 appraisal.seal_ll,Bonus Escapades Wild
-appraisal.seal_ll_short,Escapades Wild
 appraisal.seal_republic,Bonus Réquisition Navale Républicaine
-appraisal.seal_republic_short,Réquisition Navale Républicaine
 appraisal.seal_zhonghua,Bonus ZhongHua Aéronautique
-appraisal.seal_zhonghua_short,ZhongHua Aéronautique
 appraisal.worn,État usé
 auth.counterfeit,✘ Contrefaçon ({0})
 auth.genuine,✔ Authentique
@@ -64,10 +60,7 @@ calorie.per_cell," ({0} {1}/case)"
 calorie.unit,kcal
 condition.line,État : {0} {1}
 contraband.markup,Marché noir : +{0}%
-generic.combined,· Combiné/autre {0}
-generic.header,Décomposition de la valeur (mesurée) :
-generic.more,· ... et {0} de plus
-generic.other_attributes,· Autres attributs {0}
+generic.line,Source : {0}
 hidden.chem_purity,Pureté chimique : {0}%
 hidden.durability,Durabilité : {0}/{1}
 hidden.durability_faked,"Vraie durabilité : {0}/{1} (affichée {2}/{3}, probablement trafiquée)"
@@ -81,7 +74,6 @@ lottery.not_drawn,Tirage {0} : résultats pas encore connus (chaque samedi mati
 lottery.winning,Numéros gagnants : {0}
 market.line,Marché : {0}
 module.power,énergie {0}/jour
-module.quality,qualité {0}
 module.speed,vitesse {0}
 price.buy,"Prix d'achat : "
 price.cost_close,)
@@ -90,7 +82,7 @@ price.list," Prix : {0}"
 price.sell,Vente : {0}
 reveal.modifier,Vrai modificateur : {0}% (déguisé en {1}%)
 reveal.real,Réel : {0} (déguisé en {1})
-reveal.real_with_mod,Réel : {0} ({1}%) (déguisé en {2})
+reveal.real_with_mod,Réel : {0} {1} (déguisé en {2})
 ribwich.header,Raisons de la contrefaçon :
 ribwich.more,... et {0} de plus
 ribwich.reason_bun_no_pickles,Pain au sésame sans cornichons supplémentaires (l'édition prestige exige les deux)
@@ -107,14 +99,14 @@ ribwich.reason_second_sticker_wrong,Autocollant Viandwich incorrect (2e cycle)
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
-scratcher.progress,Gratté {0}/3
+scratcher.progress_part,", gratté {0}/3"
 scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
 sealed.contents,Contenu : {0}{1}
 sealed.empty,Contenu : vide
 sealed.more," ... {0} objets au total"
-sealed.total,Valeur totale du contenu : {0}
+sealed.contents_total,Contenu (total {0}) : {1}{2}
 sealed.unit," ({0})"
-seed.header,Traits (non analysés) :
+seed.line,Traits (non analysés) : {0}
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})
 storage.contains,"Contient : "
@@ -122,16 +114,15 @@ storage.more_kinds," ... {0} types au total"
 storage.ratio,Compression : {0} ({1}/{2} cases)
 title.appraisal_suffix,"{0} Prix {1}, meilleure offre {2}"
 value.from,"Source : "
-value.per_cell,Valeur par case : {0} ({1}/{2} cases)
+value.cost_perf,Valeur par case : {0}
+value.cost_perf_detail," ({0}/{1} cases)"
 value.perfect_range," | parfait {0}-{1}"
-value.total,Total : {0} × {1} = {2}
 value.total_line,Total : {0}
 water.actives,"Principes actifs : "
 water.other,"Autres : "
 water.head,Eau : {0}% {1}
 water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
-water.none,aucune
 water.trace,trace (sous le seuil d'affichage)
 wine.aging,Bonus de vieillissement : +{0}/jour (total +{1})
 wine.composition,"Composition : extrait {0}‰, polluants {1}‰"
@@ -139,7 +130,7 @@ wine.counterfeit,Contrefaçon : levure illégale
 wine.empty,Vide
 wine.fermenting,En fermentation
 wine.finished,Terminé
-wine.score,Score du vin : {0}{1}
+wine.score_part,", score {0}"
 wine.state,Vin : {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu ({0})
@@ -164,6 +155,8 @@ config.container_name_bg,Fond des noms
 config.container_name_bg.tip,Ajoute un fond noir translucide (opacité 60 %) derrière le nom.
 config.customer_alert,Alerte à l'arrivée d'un client
 config.customer_alert.tip,"Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom et son niveau d'augmentation."
+config.customer_history,Historique au survol du client
+config.customer_history.tip,Survoler un client du magasin affiche les répliques de la visite en cours.
 config.section.interaction,Commandes
 config.double_click_inspect,Double-clic pour analyser
 config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus. L'indication de la loupe devient « Double-clic pour analyser ». Désactivez pour revenir au fonctionnement d'origine."
@@ -178,3 +171,46 @@ config.sealed_box,Radiographie des conteneurs verrouillés
 config.sealed_box.tip,"Liste le contenu et la valeur totale des conteneurs verrouillés (coffres-forts, armoires à armes) avant l'ouverture. Cela contourne la serrure, d'où sa désactivation par défaut."
 config.result_prefill,Préremplir l'analyse
 config.result_prefill.tip,"À l'ouverture du panneau d'analyse, coche les vrais défauts de contrefaçon et saisit la meilleure offre d'estimation. Remplit seulement les champs ; ne valide jamais rien. Désactivé par défaut."
+machine.eta,Fin dans environ {0} jour(s)
+machine.eta_battery," (batterie pour {0} j)"
+machine.eta_battery_short," (batterie insuffisante)"
+machine.eta_water," (eau pour {0} j)"
+machine.paused,En pause : {0}
+hydro.water,"Eau : {0} ml, suffit pour {1} jour(s) ({2} ml/jour)"
+fridge.summary,"{0} : {1}, {2} : {3}"
+fridge.no_effect,", {0} sans effet"
+wine.rack,"{0} bouteille(s) en vieillissement, +{1} jour(s) d'âge par jour"
+wine.rack_idle,", {0} ne vieillissent pas"
+inner.line,{0} : {1}
+inner.durability,{0} : durabilité {1}/{2}
+inner.faked," (affiche {0})"
+inner.filter_spent," (usé, ne filtre plus)"
+inner.filters,Filtres ×{0} : durabilité minimale {1}/{2}
+inner.spent_count,", {0} usé(s)"
+inner.liquid,{0}/{1} ml
+inner.liquid_empty,vide
+inner.liquid_purity,", {0}% {1}"
+inner.uses,{0} : utilisations restantes {1}/{2}
+inner.tools,Outils ×{0} : moins d'utilisations restantes {1} ({2}/{3})
+inner.energy,{0} : énergie {1}/{2}
+learning.progress,Apprentissage : {0}
+learning.stat,{0} {1}/{2}
+learning.stat_full,{0} au maximum
+learning.machine,"Apprentissage : {0} module(s), jusqu'à {1} point(s) restant(s)"
+learning.machine_full,Apprentissage : les {0} module(s) sont au maximum
+module.days_faster,", environ {0} jour(s) plus tôt"
+module.output,{0} ml/jour
+module.attract,{0} % d'attractivité
+module.bargain,{0} % de réussite au marchandage
+module.theft,{0} % de prévention des vols
+module.aging,{0} jour(s) de vieillissement/jour
+module.print_quality,qualité d'impression {0}
+module.success,{0} % de chances de réussite
+module.harvest,{0} % de récolte
+module.next_tier,+{0} % pour le palier suivant
+module.top_tier,palier maximal
+module.residual,résidu ×{0}
+history.title,{0} · cette visite
+history.empty,Aucune réplique pour cette visite.
+history.earlier,…{0} répliques précédentes
+history.unknown,Client

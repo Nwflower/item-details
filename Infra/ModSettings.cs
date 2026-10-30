@@ -68,6 +68,7 @@ internal static class ModSettings
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
+    private static readonly Toggle CustomerHistoryToggle = new(true);    // 顾客对话历史（悬停）
 
     // ---- 操作优化 ----
     private static readonly Toggle DoubleClickInspectToggle = new(true);
@@ -125,6 +126,11 @@ internal static class ModSettings
                 Text("config.customer_alert", "Customer Arrival Alert"),
                 Text("config.customer_alert.tip", "When a wanted or augmented customer arrives, shows a notice with the " +
                      "actual bounty, real name and augmentation tier."));
+
+            CustomerHistoryToggle.Define(_cfg, "show_customer_history", SecDisplayKey, SecDisplayEn,
+                Text("config.customer_history", "Customer Dialogue on Hover"),
+                Text("config.customer_history.tip", "Hover a customer in the store to see what was said during this " +
+                     "visit. Cleared when the next customer arrives."));
 
             // ================= 操作优化 =================
             DoubleClickInspectToggle.Define(_cfg, "double_click_inspect", SecInteractionKey, SecInteractionEn,
@@ -283,6 +289,7 @@ internal static class ModSettings
     internal static bool HideEstimate => InfoEnhanceToggle.Value;
     internal static bool DimDescription => InfoEnhanceToggle.Value;
     internal static bool CustomerAlert => CustomerAlertToggle.Value;
+    internal static bool CustomerHistory => CustomerHistoryToggle.Value;
     internal static bool HiddenTruth => HiddenTruthToggle.Value;
     internal static bool WaterPurity => WaterWineToggle.Value;
     internal static bool Wine => WaterWineToggle.Value;

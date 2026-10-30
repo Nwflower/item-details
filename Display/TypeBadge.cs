@@ -76,7 +76,6 @@ internal static class TypeBadge
     private static bool _patched;
     private static Harmony? _harmony;
     private static GameObject? _badge;          // 容器（无渲染组件）
-    private static Image? _chipTemplate;        // 淡化模式的原 tooltip 深色底层模板
     private static TMP_Text? _textTemplate;     // 文本模板
 
     private static readonly List<Entry> Pending = new();
@@ -290,7 +289,6 @@ internal static class TypeBadge
         if (_textTemplate == null)
             _textTemplate = tooltipRect.GetComponentInChildren<TMP_Text>(true);
         if (_textTemplate == null) { Log.Warn("TypeBadge.Template", "tooltip 内未找到 TMP 文本"); return false; }
-        if (_chipTemplate == null) _chipTemplate = FindBackgroundTemplate(tooltipRect);
 
         if (_badge == null)
         {
@@ -382,27 +380,6 @@ internal static class TypeBadge
         return true;
     }
 
-    /// <summary>找 tooltip 内最大的带 Sprite Image，沿用原版的深色底、圆角和九宫格参数。</summary>
-    private static Image? FindBackgroundTemplate(RectTransform tooltipRect)
-    {
-        try
-        {
-            Image? best = null;
-            foreach (var img in tooltipRect.GetComponentsInChildren<Image>(true))
-            {
-                if (img == null || img.sprite == null) continue;
-                if (best == null
-                    || img.rectTransform.rect.width * img.rectTransform.rect.height
-                    > best.rectTransform.rect.width * best.rectTransform.rect.height)
-                {
-                    best = img;
-                }
-            }
-            return best;
-        }
-        catch { return null; }
-    }
-
     /// <summary>一个分类标签：默认彩色底白字；淡化模式使用深色底与提亮后的类型文字色。</summary>
     private static GameObject? CreateChip(Entry e)
     {
@@ -461,34 +438,28 @@ internal static class TypeBadge
 
         if (muted)
         {
-            // 淡化模式：底色恢复成原版 tooltip 的深色底，文字用提亮后的分类色。
-            // 游戏原始类型色偏暗（默认 #4f464b、水 #355271），直接放深色底上几乎不可读，
-            // 所以只提亮、不改色相，保证还能分辨类别。
+            // 淡化模式：固定深色底，文字用提亮后的分类色。
+            // 不再借用 tooltip 的图片当底：那会挑到外框 Sprite（橙红），
+            // 结果底色和边框一个颜色。游戏原始类型色也偏暗（默认 #4f464b、
+            // 水 #355271），所以文字只提亮、不改色相。
             Color typeColor = TypeHelper.GetTypeColor(e.TypeConst);
             fg = Color.Lerp(typeColor, Color.white, MutedTextLighten);
             fg.a = 1f;
-            border = new Color(fg.r, fg.g, fg.b, 0.45f);
+            border = new Color(fg.r, fg.g, fg.b, 0.55f);
             if (IsWarning(e.TypeConst))
             {
                 fg = WarningText;
-                border = new Color(WarningText.r, WarningText.g, WarningText.b, 0.45f);
+                border = new Color(WarningText.r, WarningText.g, WarningText.b, 0.55f);
             }
         }
 
         var img = chip.GetComponent<Image>();
         if (img != null)
         {
-            if (muted)
-            {
-                ApplyMutedBackground(img);
-            }
-            else
-            {
-                img.sprite = null;
-                img.type = Image.Type.Simple;
-                img.fillCenter = true;
-                img.color = bg;
-            }
+            img.sprite = null;
+            img.type = Image.Type.Simple;
+            img.fillCenter = true;
+            img.color = muted ? MutedDarkBg : bg;
             img.raycastTarget = false;
         }
 
@@ -513,30 +484,12 @@ internal static class TypeBadge
         if (outline == null) outline = chip.AddComponent<Outline>();
         if (outline != null)
         {
-            // 深色底上再描边只会糊住字形，淡化模式直接关掉。
-            outline.enabled = !muted;
+            // 淡化模式保留一圈分类色细边：底色是深色，边框是分类色，两者不会混在一起。
+            outline.enabled = true;
             outline.effectColor = border;
             outline.effectDistance = new Vector2(1f, 1f);
             outline.useGraphicAlpha = false;
         }
-    }
-
-    /// <summary>淡化模式的底色：优先复用 tooltip 自身的深色底 sprite，取不到时用同色系纯色。</summary>
-    private static void ApplyMutedBackground(Image img)
-    {
-        if (_chipTemplate != null && _chipTemplate.sprite != null)
-        {
-            img.sprite = _chipTemplate.sprite;
-            img.type = _chipTemplate.type;
-            img.fillCenter = _chipTemplate.fillCenter;
-            img.color = _chipTemplate.color;
-            return;
-        }
-
-        img.sprite = null;
-        img.type = Image.Type.Simple;
-        img.fillCenter = true;
-        img.color = FallbackDarkBg;
     }
 
     private static readonly Color BlueBg = new Color32(21, 101, 192, 250);
@@ -557,8 +510,8 @@ internal static class TypeBadge
     private static readonly Color WarningBorder = new Color32(255, 148, 133, 255);
     private static readonly Color NeutralBg = new Color32(85, 85, 85, 250);
     private static readonly Color NeutralBorder = new Color32(192, 192, 192, 255);
-    /// <summary>淡化模式的兜底底色，取自 tooltip 自身的深紫黑。</summary>
-    private static readonly Color FallbackDarkBg = new Color32(36, 31, 43, 255);
+    /// <summary>淡化模式的深色底色，取自 tooltip 内部主色，和橙红外框明显区分。</summary>
+    private static readonly Color MutedDarkBg = new Color32(43, 39, 51, 255);
     /// <summary>违禁/受限在深色底上的警示文字色。</summary>
     private static readonly Color WarningText = new Color32(255, 148, 133, 255);
     /// <summary>提亮比例：只抬亮度、不动色相。</summary>
@@ -684,7 +637,6 @@ internal static class TypeBadge
     {
         try { if (_badge != null) UnityEngine.Object.Destroy(_badge); } catch { }
         _badge = null;
-        _chipTemplate = null;
         _textTemplate = null;
         _builtParent = null;
         _builtMuted = false;

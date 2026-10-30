@@ -14,8 +14,10 @@ namespace ItemDetails;
 /// `SetImmediatlyArrive()` 拉顾客、切相机、放黑屏过场，观感差异明显。
 /// 因此这里只走最轻的一条：直接开面板。
 ///
-/// 提示文案：Harmony Prefix 接管 `AppraisalHelper.CreateAppraisalTooltip`，
-/// 把原版「可使用放大镜进行检查」换成双击提示（devMode 仍保留 TRUE VALUE 行）。
+/// 提示文案：原版 `AppraisalHelper.CreateAppraisalTooltip` / `InspectableHelper.CreateInspectableTooltip`
+/// 照常执行，它们写出的「可使用放大镜进行检查」两行在 TooltipPipeline 的 AddLine 前缀里
+/// 换成双击提示（同一个 tooltip 只留一行）；原版一行都没写时，由两个方法的后缀补上。
+/// 不跳过原方法：devMode 的 TRUE VALUE 行与其它模组对这两个方法的补丁都保留。
 /// 写法照抄原版容器的「双击以打开」（`ContainerHelper.CreateContainerTooltip`：
 /// 前导空格 + 浅蓝色），让同一类“双击做某事”的提示在 tooltip 里长得一样。
 ///
@@ -28,34 +30,29 @@ internal static class DoubleClickInspect
     private static bool _patched;
     private static GameObject? _go;
 
+    /// <summary>已写过双击提示的 tooltip 构建序号（<see cref="TooltipPipeline.BuildId"/>）。</summary>
+    private static int _hintBuild = -1;
+
+    // 原版两行放大镜提示的当前语言原文，用于在 AddLine 里精确认出它们
+    private static string _hintLocale = "";
+    private static string? _appraisalTip;
+    private static string? _inspectableTip;
+
     internal static void Apply()
     {
         if (_patched) return;
         try
         {
-            var target = AccessTools.Method(typeof(AppraisalHelper), "CreateAppraisalTooltip",
-                new[] { typeof(RichTextBuilder), typeof(GameItem) });
-            if (target == null)
-            {
-                Log.Warn("DoubleClick.Apply", "未找到 CreateAppraisalTooltip，提示文案保持原版");
-                return;
-            }
             _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(target, prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(TipPrefix)));
 
-            // 原版还有一行「可使用放大镜进行检查」，来自 InspectableHelper（INSPECTABLE_TAG）。
-            // 双击已能直接鉴定，这行就多余了，鉴定物品上整体跳过。
-            var inspectable = AccessTools.Method(typeof(InspectableHelper), "CreateInspectableTooltip",
-                new[] { typeof(RichTextBuilder), typeof(GameItem) });
-            if (inspectable != null)
-            {
-                _harmony.Patch(inspectable,
-                    prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(InspectablePrefix)));
-            }
-            else
-            {
-                Log.Warn("DoubleClick.Apply", "未找到 CreateInspectableTooltip，放大镜提示行将保留");
-            }
+            // 两个提示来源都只挂后缀：原版没写放大镜提示的可检视物品（如没有 INSPECTABLE_TAG
+            // 的真伪鉴定物品），在这里补一行双击提示。
+            // 两处 AccessTools.Method 必须直接写 typeof(...)：类型来自变量时，官方扫描器
+            // 认不出目标，会判为 reflection-external，而 manifest 没声明就拒绝启用整个模组。
+            PatchHintSource(AccessTools.Method(typeof(AppraisalHelper), "CreateAppraisalTooltip",
+                new[] { typeof(RichTextBuilder), typeof(GameItem) }), "AppraisalHelper.CreateAppraisalTooltip");
+            PatchHintSource(AccessTools.Method(typeof(InspectableHelper), "CreateInspectableTooltip",
+                new[] { typeof(RichTextBuilder), typeof(GameItem) }), "InspectableHelper.CreateInspectableTooltip");
 
             // 复用游戏自己的双击判定：它已经校验了“同一物品 + 时间阈值 + 鼠标未拖动”。
             // 旧 ticker 在第二次按下时重新 Raycast，第一次点击若引起选中/拖动/格子重建，
@@ -73,12 +70,20 @@ internal static class DoubleClickInspect
             }
 
             _patched = true;
-            Log.Msg("DoubleClickInspect: patched CreateAppraisalTooltip + CreateInspectableTooltip + DoubleClickAction");
+            Log.Msg("DoubleClickInspect: patched tooltip hint sources + DoubleClickAction");
         }
         catch (Exception ex)
         {
             Log.Error("DoubleClick.Apply", ex);
         }
+    }
+
+    private static void PatchHintSource(System.Reflection.MethodInfo? source, string label)
+    {
+        if (source != null)
+            _harmony!.Patch(source, postfix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(AfterHintSource)));
+        else
+            Log.Warn("DoubleClick.Apply", $"未找到 {label}，该来源的提示保持原版");
     }
 
     internal static void Remove()
@@ -96,32 +101,64 @@ internal static class DoubleClickInspect
         _go = null;
     }
 
-    /// <summary>
-    /// 跳过原版「可使用放大镜进行检查」。价格鉴定的提示由 TipPrefix 写；
-    /// 真伪鉴定/其它可检视物品在这里补同样的双击提示。
-    /// </summary>
-    private static bool InspectablePrefix(RichTextBuilder builder, GameItem item)
+    /// <summary>与原版容器「双击以打开」同格式：前导空格 + 浅蓝色。</summary>
+    private static void AddHint(RichTextBuilder builder)
+    {
+        _hintBuild = TooltipPipeline.BuildId;
+        builder.AddLine(HintText, true, RenderHandler.ColorPalette.LightBlue);
+    }
+
+    private static string HintText => " " + Loc.T("hint.double_click", "Double-Click To Inspect");
+
+    /// <summary>原版提示方法执行完后：本次 tooltip 还没有双击提示就补一行。</summary>
+    private static void AfterHintSource(RichTextBuilder builder, GameItem item)
     {
         try
         {
-            if (!ModSettings.DoubleClickInspect) return true;
-            if (item == null) return true;
+            if (!ModSettings.DoubleClickInspect) return;
+            if (builder == null || !TooltipPipeline.IsBuilding) return;
+            if (_hintBuild == TooltipPipeline.BuildId) return;
+            if (!IsInspectableItem(item)) return;
+            AddHint(builder);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("DoubleClick.Hint", ex);
+        }
+    }
 
-            // 价格鉴定走 CreateAppraisalTooltip，由 TipPrefix 统一写提示，避免重复。
-            if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
+    /// <summary>
+    /// 由 TooltipPipeline 的 AddLine 前缀调用：原版放大镜提示换成双击提示，
+    /// 同一个 tooltip 里第二次出现时丢弃。返回 false 表示丢弃这一行。
+    /// </summary>
+    internal static bool TryRewriteHint(ref string text, ref RenderHandler.ColorPalette color, ref bool italic)
+    {
+        try
+        {
+            if (!ModSettings.DoubleClickInspect || string.IsNullOrEmpty(text)) return true;
+            EnsureHintSources();
+            bool vanilla = string.Equals(text, _appraisalTip, StringComparison.Ordinal)
+                        || string.Equals(text, _inspectableTip, StringComparison.Ordinal);
+            if (!vanilla) return true;
+            if (_hintBuild == TooltipPipeline.BuildId) return false;
 
-            if (!IsInspectableItem(item)) return true;
-
-            if (builder != null) AddHint(builder);
-            return false;
+            _hintBuild = TooltipPipeline.BuildId;
+            text = HintText;
+            color = RenderHandler.ColorPalette.LightBlue;
+            italic = false;
+            return true;
         }
         catch { return true; }
     }
 
-    /// <summary>与原版容器「双击以打开」同格式：前导空格 + 浅蓝色。</summary>
-    private static void AddHint(RichTextBuilder builder) =>
-        builder.AddLine(" " + Loc.T("hint.double_click", "Double-Click To Inspect"),
-            true, RenderHandler.ColorPalette.LightBlue);
+    private static void EnsureHintSources()
+    {
+        string locale = Loc.Code;
+        if (_hintLocale == locale && _appraisalTip != null) return;
+        try { _appraisalTip = LocHelper.GetLocalizedUI("mech_appraisal_item_tip"); } catch { _appraisalTip = null; }
+        try { _inspectableTip = LocHelper.GetLocalizedMechanic("mech_inspectable_tooltip"); } catch { _inspectableTip = null; }
+        _hintLocale = locale;
+    }
 
     /// <summary>价格鉴定、真伪鉴定和其它 INSPECTABLE 物品都允许双击打开检视面板。</summary>
     private static bool IsInspectableItem(GameItem? item)
@@ -134,35 +171,6 @@ internal static class DoubleClickInspect
             return Authenticity.DetectKind(item) != Authenticity.ItemKind.None;
         }
         catch { return false; }
-    }
-
-    /// <summary>返回 false 表示接管原方法，自己写提示行。</summary>
-    private static bool TipPrefix(RichTextBuilder builder, GameItem item)
-    {
-        try
-        {
-            if (!ModSettings.DoubleClickInspect) return true;
-            if (builder == null || item == null) return true;
-            if (!GameRead.IsTag(item, "APPRAISAL_ITEM")) return true;
-
-            // devMode 仍显示真实值（原版行为）
-            try
-            {
-                var store = PlayerStore.Instance;
-                if (store != null && store.devMode)
-                    builder.AddLine("TRUE VALUE  : " + AppraisalHelper.GetCorrectBaseValue(item),
-                        true, RenderHandler.ColorPalette.LightOrange);
-            }
-            catch { }
-
-            AddHint(builder);
-            return false;
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("DoubleClick.Tip", ex);
-            return true;
-        }
     }
 
     // ---------------- 双击检测 ----------------

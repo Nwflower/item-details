@@ -60,6 +60,9 @@ internal static class WaterAdvice
     private static readonly Dictionary<string, GameItem> ProbeShells = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, GameItem> SourceShells = new(StringComparer.Ordinal);
 
+    // 池化壳只在当前场景复用；每次 EmporiumEntry.Start 先销毁旧壳再预热，
+    // 不跨场景保留已经被 Unity 销毁的 UI 节点，也不需要全局 Harmony 守卫。
+
     internal static List<Method> SimulateMethods(GameItem? item)
     {
         var result = new List<Method>();
@@ -322,8 +325,8 @@ internal static class WaterAdvice
     }
 
     /// <summary>
-    /// 预热：只创建缺失的探针/源壳，不跑净化模拟。
-    /// 在存档加载后由 <see cref="WaterWarmupTicker"/> 调用，把工厂创建成本
+    /// 预热：只创建当前场景缺失的探针/源壳，不跑净化模拟。
+    /// 在存档加载后由 <see cref="WaterWarmupPatch"/> 调用，把工厂创建成本
     /// 挪到加载阶段，避免第一次悬停水质容器时付 60ms 级卡顿。
     /// </summary>
     internal static bool PrewarmOwned()
@@ -602,7 +605,8 @@ internal static class WaterAdvice
 }
 
 /// <summary>
-/// 在 EmporiumEntry 完成场景初始化后预热水质探针。只建壳，不模拟。
+/// 在 EmporiumEntry 完成场景初始化后重建并预热水质探针（只建壳，不模拟）。
+/// 池化壳不跨场景复用，避免持有已被 Unity 销毁的 UI 节点。
 /// 用 Start postfix 而不是自建 MonoBehaviour：模组创建的对象在主菜单/场景切换中
 /// 不保证拿到 Update，而 EmporiumEntry.Start 是存档场景确定会走到的时机。
 /// </summary>
@@ -644,6 +648,9 @@ internal static class WaterWarmupPatch
 
     private static void AfterStart()
     {
+        // 场景里的 UI 节点已经更换：旧壳不能继续池化，先清理再按当前拥有物预热。
+        try { WaterAdvice.Stop(); }
+        catch (Exception ex) { Log.Warn("WaterWarmup.Reset", ex); }
         try { WaterAdvice.PrewarmOwned(); }
         catch (Exception ex) { Log.Warn("WaterWarmup.AfterStart", ex); }
     }

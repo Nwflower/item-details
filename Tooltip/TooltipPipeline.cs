@@ -26,6 +26,7 @@ internal static class TooltipPipeline
     private static bool _patched;
 
     private static int _depth;
+    private static int _buildId;
     private static GameItem? _current;
     private static bool _suppressEstimate;
 
@@ -37,7 +38,9 @@ internal static class TooltipPipeline
     private static string? _estHead;    // 「预估价值」前缀（含标点）
     private static string? _estMid;     // 两个数字之间的「基础价值」段（含标点）
     private static string? _buyHead;    // 「购买价格」前缀（含标点）
+    private static string? _totalHead;  // 堆叠物品「总价」前缀（含标点）
     private static bool _priceEmbeddedBuy;   // 本次价格块是否已把进价写进括号
+    private static bool _perCellAfterBuy;    // 堆叠物品：性价比等进价行写完再补
 
     internal static void Apply()
     {
@@ -92,6 +95,7 @@ internal static class TooltipPipeline
 
         Reset();
         _current = __instance;
+        _buildId++;
 
         // 分类必须在任何 Add 之前记录：原版 CreateItemTypeTooltip 在构建早期就把
         // " [类型]" 加进正文，记晚了既抑制不到，也会让浮窗用到上一件物品的残留。
@@ -122,6 +126,7 @@ internal static class TooltipPipeline
         // 价格块状态必须逐次重置：否则上一次 tooltip 把进价写进括号后，
         // 下一个物品的独立「购买价格」行会被误删（跨物品、跨启停都会残留）。
         _priceEmbeddedBuy = false;
+        _perCellAfterBuy = false;
     }
 
     private static bool ShouldHideEstimate(GameItemElement item)
@@ -130,7 +135,8 @@ internal static class TooltipPipeline
         {
             if (!ModSettings.HideEstimate) return false;
             if (!GameRead.IsTag(item, "APPRAISAL_ITEM")) return false;
-            // 只有我们确实能给出总价时才隐藏，避免"两边都没有"。
+            // 显式提供方接管原版类型时，也只有它实际给出总价才隐藏，避免"两边都没有"。
+            if (ThirdPartyProviders.HasAppraisal(item)) return ThirdPartyProviders.Appraisal(item) != null;
             return ValueBreakdown.Analyze(item) != null;
         }
         catch { return false; }
@@ -139,12 +145,17 @@ internal static class TooltipPipeline
     // ---------------- 行改写 ----------------
 
     /// <summary>返回 false 表示丢弃这一行。</summary>
-    private static bool AddLinePrefix(ref string __0, ref RenderHandler.ColorPalette __2, RichTextBuilder __instance)
+    private static bool AddLinePrefix(ref string __0, ref RenderHandler.ColorPalette __2, ref bool __4,
+        RichTextBuilder __instance)
     {
         try
         {
             var cur = _current;
             if (cur == null || __0 == null) return true;
+
+            // 原版方法照常执行，只在它们写出的那一行上改：标签行补价格影响、放大镜提示换成双击提示
+            LabelImpact.TryRewrite(ref __0);
+            if (!DoubleClickInspect.TryRewriteHint(ref __0, ref __2, ref __4)) return false;
 
             if (_suppressEstimate)
             {
@@ -262,11 +273,35 @@ internal static class TooltipPipeline
                 return true;
             }
 
+            // 堆叠物品原版写「单价 / 总价」两行，不经过价格行改写；性价比补在价格块末尾，
+            // 后面还有进价行就等进价行写完。
+            if (!string.IsNullOrEmpty(_totalHead) && text.StartsWith(_totalHead!, StringComparison.Ordinal)
+                && _current != null && ValueEnhance.Applies(_current))
+            {
+                if (HasBuyPrice(_current))
+                {
+                    _perCellAfterBuy = true;
+                    return true;
+                }
+                builder.Add(text, color);
+                builder.NextLine();
+                ValueEnhance.TryWrite(builder, _current);
+                return false;
+            }
+
             // 「购买价格: N」——若价格行已把进价写进括号，则整行丢弃，避免重复
             if (!string.IsNullOrEmpty(_buyHead) && text.StartsWith(_buyHead!, StringComparison.Ordinal))
             {
                 if (_priceEmbeddedBuy) return false;
                 text = Loc.T("price.buy", "Buy: ") + text.Substring(_buyHead!.Length);
+                if (_perCellAfterBuy)
+                {
+                    _perCellAfterBuy = false;
+                    builder.Add(text, color);
+                    builder.NextLine();
+                    ValueEnhance.TryWrite(builder, _current);
+                    return false;
+                }
             }
             return true;
         }
@@ -276,6 +311,8 @@ internal static class TooltipPipeline
     /// <summary>
     /// 卡路里行补「每格」：原版是 ` " " + mech_food_calories(value)`，
     /// 追加灰色 `(N千卡/格)`，单位直接沿用该行已有的后缀（自动适配语言）。
+    /// 只认与原版原文完全一致的行：官方钩子在 GetTooltipBasic 内触发，其它模组写的
+    /// 短行（如「保质期 120」）也会经过这里，按数字模糊匹配会把它们误改成卡路里行。
     /// </summary>
     private static bool RewriteCalorieLine(ref string text, RichTextBuilder builder)
     {
@@ -290,10 +327,12 @@ internal static class TooltipPipeline
             try { cal = item.GetTagReadonly("CALORIE_VALUE_TAG").GetInt(); } catch { return true; }
             if (cal <= 0) return true;
 
-            // 只在"含该数字的短行"上动手，避免误伤描述文本
-            if (text.Length > 24) return true;
+            if (text.IndexOf(cal.ToString(), StringComparison.Ordinal) < 0) return true;
+            string key = item.IsTag("MEAT_FOOD_TAG") ? "mech_food_calories_meat" : "mech_food_calories";
+            string vanilla;
+            try { vanilla = " " + LocHelper.GetLocalizedMechanic(key, cal); } catch { return true; }
+            if (!string.Equals(text, vanilla, StringComparison.Ordinal)) return true;
             int idx = text.IndexOf(cal.ToString(), StringComparison.Ordinal);
-            if (idx < 0) return true;
 
             // 单位后缀 = 数字之后、行尾之前的部分（去掉首尾空白）
             string tail = text.Substring(idx + cal.ToString().Length).Trim();
@@ -330,6 +369,9 @@ internal static class TooltipPipeline
     /// <summary>当前是否正在构建物品 tooltip（供其它模块判断"这次 Add 属于 tooltip"）。</summary>
     internal static bool IsBuilding => _current != null;
 
+    /// <summary>每次外层 tooltip 构建递增，供其它模块记"本次 tooltip 已写过某行"。</summary>
+    internal static int BuildId => _buildId;
+
     /// <summary>
     /// 拼出价格行：`售价：69（进价55+14） 标价60`
     /// 括号及其内容灰色，差价正红负绿（正=卖得比买价高）。
@@ -344,9 +386,7 @@ internal static class TooltipPipeline
             long list = value.List;
             if (sell <= 0 && list <= 0) return false;
 
-            int buy = 0;
-            try { buy = GameRead.TagInt(item, "BOUGHT_PRICE_TAG") ?? 0; }
-            catch { buy = 0; }
+            int buy = BuyPrice(item);
 
             // 分段上色（不拼内联 <color>）：内联标签在长行被折行时会被转义成纯文本。
             string sellPart = Loc.T("price.sell", "Sell: {0}", sell);
@@ -392,6 +432,9 @@ internal static class TooltipPipeline
 
             builder.NextLine();
             _priceEmbeddedBuy = buy != 0;
+
+            // 性价比紧跟价格行，与它的来源放在一起
+            ValueEnhance.TryWrite(builder, item);
             return true;   // 已自行输出，调用方丢弃原行
         }
         catch (Exception ex)
@@ -400,6 +443,15 @@ internal static class TooltipPipeline
             return false;
         }
     }
+
+    private static int BuyPrice(GameItem item)
+    {
+        try { return GameRead.TagInt(item, "BOUGHT_PRICE_TAG") ?? 0; }
+        catch { return 0; }
+    }
+
+    /// <summary>与原版同一条件：BOUGHT_PRICE_TAG 非 0 才会写进价行。</summary>
+    private static bool HasBuyPrice(GameItem item) => BuyPrice(item) != 0;
 
     /// <summary>粗略显示宽度：CJK/全角算 2，其余算 1（用于判断是否会超出 tooltip 宽度）。</summary>
     private static int DisplayWidth(string s)
@@ -439,6 +491,10 @@ internal static class TooltipPipeline
             string buy = LocHelper.GetLocalizedMechanic("mech_tooltip_bought_at", p1);
             int j = buy.IndexOf(p1, StringComparison.Ordinal);
             _buyHead = j > 0 ? buy.Substring(0, j) : null;
+
+            string total = LocHelper.GetLocalizedMechanic("mech_tooltip_total_barter", p1);
+            int k = total.IndexOf(p1, StringComparison.Ordinal);
+            _totalHead = k > 0 ? total.Substring(0, k) : null;
 
             _priceLocale = locale;
         }

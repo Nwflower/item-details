@@ -65,7 +65,7 @@ internal static class ResultPrefill
                 int trueValue = ResolveTrueValue(gameItem);
                 if (trueValue <= 0) return;
 
-                int best = AppraisalRanges.Perfect(trueValue).High;
+                int best = AppraisalRanges.GamePerfect(trueValue).High;
                 gameItem.ModifyTag("APPRAISAL_DEFAULT_VALUE",
                     state => state.Enable().SetInt(best));
 
