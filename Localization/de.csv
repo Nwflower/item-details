@@ -211,7 +211,6 @@ module.harvest,{0} % Ernte
 module.next_tier,+{0} % bis zur nächsten Stufe
 module.top_tier,höchste Stufe
 module.residual,Rückstand ×{0}
-history.title,{0} · dieser Besuch
 history.empty,In diesem Besuch wurde noch nicht gesprochen.
 history.earlier,…{0} frühere Zeilen
 history.unknown,Kunde

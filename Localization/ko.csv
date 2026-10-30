@@ -211,7 +211,6 @@ module.harvest,{0}% 수확량
 module.next_tier,+{0}% 더하면 다음 단계
 module.top_tier,최고 단계
 module.residual,잔류 한도 ×{0}
-history.title,{0} · 이번 응대
 history.empty,이번 응대에는 아직 대화가 없습니다.
 history.earlier,…이전 {0}줄
 history.unknown,손님

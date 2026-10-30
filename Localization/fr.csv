@@ -211,7 +211,6 @@ module.harvest,{0} % de récolte
 module.next_tier,+{0} % pour le palier suivant
 module.top_tier,palier maximal
 module.residual,résidu ×{0}
-history.title,{0} · cette visite
 history.empty,Aucune réplique pour cette visite.
 history.earlier,…{0} répliques précédentes
 history.unknown,Client

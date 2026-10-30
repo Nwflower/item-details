@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace ItemDetails;
 ///   DialogUIManager.UpdateDialogHistory(string) 是所有台词进入游戏录音机的唯一收口，
 ///   传进来的文本已带说话人：<c>&lt;color=#eb4034&gt;顾客名:&lt;/color&gt; 台词</c>、
 ///   <c>&lt;color=#6ecf5f&gt;Player:&lt;/color&gt; 台词</c>；换下一位顾客时收到单独的 "---"。
+///   卡片是给当前这位顾客看的，说话人名字每行重复、没有信息量，记录时只留台词。
 ///
 /// 归属：**只做本次接待**。收到 "---" 或 PlayerStore.currentClientInstance 换实例就清空，
 /// 不按 identifier 归档、不写盘——玩家要的是"这人刚才说了什么"，不是跨天档案。
@@ -122,7 +124,7 @@ internal static class CustomerHistory
             if (!HasClient()) return;
             if (!ModSettings.CustomerHistory) return;   // 关掉开关就别再攒了
 
-            Lines.Add(text);
+            Lines.Add(WithoutSpeaker(text));
             if (Lines.Count > KeepLines) Lines.RemoveRange(0, Lines.Count - KeepLines);
         }
         catch (Exception ex)
@@ -130,6 +132,19 @@ internal static class CustomerHistory
             Log.Warn("CustomerHistory.Record", ex);
         }
     }
+
+    /// <summary>
+    /// 去掉行首的说话人：<c>&lt;color=#eb4034&gt;顾客名:&lt;/color&gt; 台词</c> → <c>台词</c>。
+    /// 只匹配固定格式的前缀，格式变了就原样保留，不会误伤台词里的颜色标记。
+    /// </summary>
+    private static string WithoutSpeaker(string line)
+    {
+        var match = SpeakerPrefix.Match(line);
+        return match.Success ? line.Substring(match.Length) : line;
+    }
+
+    private static readonly Regex SpeakerPrefix =
+        new(@"^<color=#[0-9A-Fa-f]{6,8}>[^<]*[:：]</color> ?", RegexOptions.Compiled);
 
     private static bool HasClient()
     {
@@ -141,9 +156,7 @@ internal static class CustomerHistory
     internal static string BuildCard()
     {
         var sb = new StringBuilder(512);
-        sb.Append("<color=#FFD166>")
-          .Append(Loc.T("history.title", "{0} · this visit", ClientName()))
-          .Append("</color>");
+        sb.Append("<color=#FFD166>").Append(ClientName()).Append("</color>");
 
         if (Lines.Count == 0)
         {

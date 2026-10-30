@@ -211,7 +211,6 @@ module.harvest,{0}% урожая
 module.next_tier,ещё +{0}% до следующего уровня
 module.top_tier,максимальный уровень
 module.residual,остаток ×{0}
-history.title,{0} · текущий визит
 history.empty,В этот визит разговора ещё не было.
 history.earlier,…ещё {0} реплик
 history.unknown,Клиент
