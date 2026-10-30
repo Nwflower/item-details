@@ -14,6 +14,9 @@ namespace ItemDetails;
 ///   - 内部格数 = grid.inventoryShape 的**可用格**数（0 = 可用，与物品外形的 1 = 实心相反）
 ///   - 内容物   = grid.childItems（GameGridInventory 覆写，返回 items 的副本）
 ///   - 自身占格 = item.modifiedShape 的实心格数
+///   - 储藏区扩建后，contentWindow 的根换成 MachineryPanelRow，每个标签页一个网格；
+///     contentWindow.child 只返回第一页。所以按 MachineryContainerUtils.Collect 收集全部网格，
+///     格数与内容物都按所有页合计。根下只要有一个不是网格的库存（槽位等），就归 MachineInterior。
 ///
 /// 箱子自身售价已经通过 GetCurrentValue(withChild:true) 包含内容物，这里不再逐件估价，
 /// 避免与原价格行重复，也避免嵌套容器/估价失败造成另一个口径的“合计价值”。
@@ -35,6 +38,7 @@ internal static class StorageInfo
     {
         internal GameItem Item = null!;
         internal GameGridInventory Grid = null!;
+        internal int GridCount;
         internal string Locale = "";
         internal bool IncludeRatio;
         internal bool IncludeContents;
@@ -60,14 +64,11 @@ internal static class StorageInfo
 
         try
         {
-            GameGridInventory? grid = null;
-            try
-            {
-                var cw = item.contentWindow;
-                if (cw != null) grid = cw.child as GameGridInventory;
-            }
+            List<GameGridInventory>? grids;
+            try { grids = GridStorage(item); }
             catch (Exception ex) { Log.Warn("StorageInfo.Window", ex); return lines; }
-            if (grid == null) return lines;
+            if (grids == null) return lines;
+            var grid = grids[0];
 
             // 机器也带 contentWindow，但显示压缩率没意义，跳过（用游戏自己的类型判断）。
             bool isMachine = false;
@@ -83,12 +84,12 @@ internal static class StorageInfo
             List<GameItem>? items = null;
             if (includeContents)
             {
-                try { items = grid.childItems; }
+                try { items = ChildItems(grids); }
                 catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); }
             }
 
             bool useGrid = allowGrid && items != null && items.Count > 0 && ContentsGrid.Claim(item, sealedBox: false);
-            Entry? entry = Find(item, grid, locale, includeRatio, includeContents, useGrid);
+            Entry? entry = Find(item, grid, grids.Count, locale, includeRatio, includeContents, useGrid);
 
             if (entry != null && now - entry.At <= CacheSeconds
                 && (!includeContents || items != null
@@ -101,13 +102,13 @@ internal static class StorageInfo
             }
 
             var built = new List<TooltipLine>();
-            if (includeRatio) AddRatio(item, grid, built);
+            if (includeRatio) AddRatio(item, grids, built);
             if (includeContents && items != null) AddContents(items, built, useGrid);
 
             // 内容物读取失败时只保留本次压缩率，不写缓存，下次允许立即重试。
             if (!includeContents || items != null)
             {
-                Store(item, grid, locale, includeRatio, includeContents, useGrid, now, items, built, entry);
+                Store(item, grid, grids.Count, locale, includeRatio, includeContents, useGrid, now, items, built, entry);
             }
 
             lines.AddRange(built);
@@ -120,13 +121,43 @@ internal static class StorageInfo
         return lines;
     }
 
-    private static Entry? Find(GameItem item, GameGridInventory grid, string locale,
+    /// <summary>
+    /// 该物品的全部网格库存（扩建储藏区的每个标签页各一个）。根下有非网格库存、或一个网格都没有时返回 null。
+    /// </summary>
+    internal static List<GameGridInventory>? GridStorage(GameItem item)
+    {
+        var root = item.contentWindow?.childElement;
+        if (root == null) return null;
+        var grids = new List<GameGridInventory>();
+        foreach (var storage in MachineryContainerUtils.Collect(root))
+        {
+            if (storage is not GameGridInventory grid) return null;
+            grids.Add(grid);
+        }
+        return grids.Count > 0 ? grids : null;
+    }
+
+    /// <summary>所有网格的内容物，按标签页顺序拼接。</summary>
+    internal static List<GameItem> ChildItems(List<GameGridInventory> grids)
+    {
+        if (grids.Count == 1) return grids[0].childItems;
+        var all = new List<GameItem>();
+        foreach (var grid in grids)
+        {
+            var children = grid.childItems;
+            if (children != null) all.AddRange(children);
+        }
+        return all;
+    }
+
+    private static Entry? Find(GameItem item, GameGridInventory grid, int gridCount, string locale,
                                bool includeRatio, bool includeContents, bool useGrid)
     {
         for (int i = Entries.Count - 1; i >= 0; i--)
         {
             var entry = Entries[i];
             if (ReferenceEquals(entry.Item, item) && ReferenceEquals(entry.Grid, grid)
+                && entry.GridCount == gridCount
                 && entry.Locale == locale && entry.IncludeRatio == includeRatio
                 && entry.IncludeContents == includeContents && entry.UseGrid == useGrid)
             {
@@ -144,7 +175,7 @@ internal static class StorageInfo
         Entries.Add(entry);
     }
 
-    private static void Store(GameItem item, GameGridInventory grid, string locale,
+    private static void Store(GameItem item, GameGridInventory grid, int gridCount, string locale,
                               bool includeRatio, bool includeContents, bool useGrid, float now,
                               List<GameItem>? items, List<TooltipLine> lines, Entry? entry)
     {
@@ -154,6 +185,7 @@ internal static class StorageInfo
             {
                 Item = item,
                 Grid = grid,
+                GridCount = gridCount,
                 Locale = locale,
                 IncludeRatio = includeRatio,
                 IncludeContents = includeContents,
@@ -172,28 +204,25 @@ internal static class StorageInfo
         while (Entries.Count > MaxEntries) Entries.RemoveAt(0);
     }
 
-    private static void AddRatio(GameItem item, GameGridInventory grid, List<TooltipLine> lines)
+    private static void AddRatio(GameItem item, List<GameGridInventory> grids, List<TooltipLine> lines)
     {
         try
         {
-            int innerW = 0, innerH = 0;
             int innerCells = 0;
-            GridShape? inner = null;
-            try
+            foreach (var grid in grids)
             {
-                inner = grid.inventoryShape;
-                if (inner != null)
+                try
                 {
-                    innerW = inner.width; innerH = inner.height;
+                    var inner = grid.inventoryShape;
                     // 内部网格 0 = 可用格（SetDataFill(0)），与物品外形的 1 = 实心相反。
-                    innerCells = GameRead.UsableCells(inner);
+                    if (inner != null) innerCells += GameRead.UsableCells(inner);
                 }
+                catch (Exception ex) { Log.Warn("StorageInfo.InnerShape", ex); }
             }
-            catch (Exception ex) { Log.Warn("StorageInfo.InnerShape", ex); }
 
             if (innerCells <= 0)
             {
-                Log.Warn("StorageInfo.Ratio", $"内部网格可用格数为 0（{innerW}x{innerH}），跳过压缩率");
+                Log.Warn("StorageInfo.Ratio", $"内部网格可用格数为 0（{grids.Count} 个网格），跳过压缩率");
                 return;
             }
 

@@ -18,7 +18,9 @@ namespace ItemDetails;
 ///   - 分组口径与正文一致：按显示名合并，件数累加堆叠数；最多 15 格，超出时最后一格写「+件数」。
 ///   - 图标用物品自己的贴图（GameItemElement.background.image.sprite），不另建图集；
 ///     按整数倍缩放，保持像素风清晰。
-///   - 底板复制 tooltip 窗口里覆盖大半窗口的 Image（外框与底色），和原版窗口一个样子；找不到时用纯色兜底。
+///   - GetTooltipWindow().rectTransform 本身几乎没有尺寸（窗口靠子 Image 撑开），所以定位与取外框都以
+///     窗口里面积最大的 Image 作为「可见框」。
+///   - 底板复制可见框和覆盖它大半的 Image（外框与底色），和原版窗口一个样子；找不到时用纯色兜底。
 ///   - 放在 tooltip 右侧顶对齐，右边放不下就换到左侧；纵向不出屏幕。
 ///   - 与「当铺估价单」(amres.sectioned_tooltips) 共存：它也在右侧画未上锁容器的内容物网格，
 ///     载入它时未上锁容器让给它，只画它不画的带锁容器（透视）。
@@ -174,11 +176,13 @@ internal static class ContentsGrid
 
             var parent = tooltipRect.parent;
             if (parent == null) { Hide(); return; }
+            var box = FindBox(tooltipRect, _template);
+            if (box == null) { Hide(); return; }
 
             if (_panel == null || _panel.transform.parent != parent || !ReferenceEquals(_builtParent, parent)
                 || !ReferenceEquals(_builtItem, item) || _builtSealed != _pendingSealed || !Same(cells))
             {
-                Build(tooltipRect, parent, cells, total, _pendingSealed);
+                Build(tooltipRect, box, parent, cells, total, _pendingSealed);
                 _builtItem = item;
                 _builtSealed = _pendingSealed;
                 _builtParent = parent;
@@ -187,7 +191,7 @@ internal static class ContentsGrid
             }
 
             if (_panel == null) return;
-            Place(tooltipRect, parent);
+            Place(tooltipRect, box, parent);
             _panel.transform.SetAsLastSibling();
             _panel.SetActive(true);
         }
@@ -215,10 +219,14 @@ internal static class ContentsGrid
     private static List<Cell>? Group(GameItem item, out int total)
     {
         total = 0;
-        GameGridInventory? grid = null;
-        try { grid = item.contentWindow?.child as GameGridInventory; } catch { }
+        // 与正文同一个入口：扩建储藏区的所有标签页一起算
         List<GameItem>? items = null;
-        try { items = grid?.childItems; } catch { }
+        try
+        {
+            var grids = StorageInfo.GridStorage(item);
+            if (grids != null) items = StorageInfo.ChildItems(grids);
+        }
+        catch { }
         if (items == null) return null;
 
         var cells = new List<Cell>();
@@ -254,7 +262,8 @@ internal static class ContentsGrid
 
     // ---------------- 构建 ----------------
 
-    private static void Build(RectTransform tooltipRect, Transform parent, List<Cell> cells, int total, bool sealedBox)
+    private static void Build(RectTransform tooltipRect, RectTransform box, Transform parent, List<Cell> cells,
+        int total, bool sealedBox)
     {
         var tmp = _template!;
 
@@ -307,7 +316,7 @@ internal static class ContentsGrid
         panel.sizeDelta = new Vector2(width, height);
         _builtSize = new Vector2(width, height);
 
-        AddFrame(panel, tooltipRect, tmp);
+        AddFrame(panel, box, tooltipRect, tmp);
 
         var title1 = NewText(panel, title, font, new Color(0.85f, 0.85f, 0.85f, 1f), TextAlignmentOptions.TopLeft);
         PlaceRect(title1.rectTransform, pad, pad, width - 2f * pad, line);
@@ -353,32 +362,57 @@ internal static class ContentsGrid
         }
     }
 
+    /// <summary>tooltip 的可见框：窗口里面积最大的可见 Image（不含正文 TMP 之下的节点）。</summary>
+    private static RectTransform? FindBox(RectTransform win, TMP_Text tmp)
+    {
+        RectTransform? best = null;
+        float bestArea = 0f;
+        var corners = new Vector3[4];
+        foreach (var img in win.GetComponentsInChildren<Image>(false))
+        {
+            if (img == null || !img.enabled || img.color.a < 0.01f || img.transform.IsChildOf(tmp.transform)) continue;
+            img.rectTransform.GetWorldCorners(corners);
+            float area = Mathf.Abs((corners[2].x - corners[0].x) * (corners[2].y - corners[0].y));
+            if (area > bestArea)
+            {
+                bestArea = area;
+                best = img.rectTransform;
+            }
+        }
+        return best;
+    }
+
     /// <summary>
-    /// 复制 tooltip 窗口的外框与底色：窗口里覆盖大半窗口的 Image 按原内缩量铺到面板上。
-    /// 一个都找不到时用深底 + 细边兜底。
+    /// 复制 tooltip 的外框与底色：覆盖可见框大半的 Image 按它相对可见框的内缩量铺到面板上。
+    /// 内缩量先在世界坐标里量，再换算成面板的本地单位。一个都找不到时用深底 + 细边兜底。
     /// </summary>
-    private static void AddFrame(RectTransform panel, RectTransform win, TMP_Text tmp)
+    private static void AddFrame(RectTransform panel, RectTransform box, RectTransform win, TMP_Text tmp)
     {
         var parts = new List<FramePart>();
         try
         {
-            var r = win.rect;
             var corners = new Vector3[4];
-            foreach (var img in win.GetComponentsInChildren<Image>(false))
+            box.GetWorldCorners(corners);
+            Vector3 boxMin = corners[0], boxMax = corners[2];
+            float boxW = boxMax.x - boxMin.x, boxH = boxMax.y - boxMin.y;
+            float kx = Mathf.Abs(panel.lossyScale.x), ky = Mathf.Abs(panel.lossyScale.y);
+            if (boxW > 0f && boxH > 0f && kx > 0.0001f && ky > 0.0001f)
             {
-                if (img == null || !img.enabled || img.transform.IsChildOf(tmp.transform)) continue;
-                img.rectTransform.GetWorldCorners(corners);
-                Vector3 bl = win.InverseTransformPoint(corners[0]);
-                Vector3 tr = win.InverseTransformPoint(corners[2]);
-                if (tr.x - bl.x < r.width * 0.5f || tr.y - bl.y < r.height * 0.5f) continue;
-                parts.Add(new FramePart
+                foreach (var img in win.GetComponentsInChildren<Image>(false))
                 {
-                    Source = img,
-                    Left = bl.x - r.xMin,
-                    Bottom = bl.y - r.yMin,
-                    Right = r.xMax - tr.x,
-                    Top = r.yMax - tr.y,
-                });
+                    if (img == null || !img.enabled || img.color.a < 0.01f || img.transform.IsChildOf(tmp.transform)) continue;
+                    img.rectTransform.GetWorldCorners(corners);
+                    Vector3 min = corners[0], max = corners[2];
+                    if (max.x - min.x < boxW * 0.5f || max.y - min.y < boxH * 0.5f) continue;
+                    parts.Add(new FramePart
+                    {
+                        Source = img,
+                        Left = (min.x - boxMin.x) / kx,
+                        Bottom = (min.y - boxMin.y) / ky,
+                        Right = (boxMax.x - max.x) / kx,
+                        Top = (boxMax.y - max.y) / ky,
+                    });
+                }
             }
         }
         catch (Exception ex) { Log.Warn("ContentsGrid.Frame", ex); parts.Clear(); }
@@ -403,12 +437,12 @@ internal static class ContentsGrid
         }
     }
 
-    /// <summary>放在 tooltip 右侧顶对齐；右边出屏就换到左侧，纵向夹在屏幕内。</summary>
-    private static void Place(RectTransform tooltipRect, Transform parent)
+    /// <summary>放在可见框右侧顶对齐；右边出屏就换到左侧，纵向夹在屏幕内。</summary>
+    private static void Place(RectTransform tooltipRect, RectTransform box, Transform parent)
     {
         if (_panel == null) return;
         var corners = new Vector3[4];
-        tooltipRect.GetWorldCorners(corners);
+        box.GetWorldCorners(corners);
         Vector3 bl = parent.InverseTransformPoint(corners[0]);
         Vector3 tr = parent.InverseTransformPoint(corners[2]);
 

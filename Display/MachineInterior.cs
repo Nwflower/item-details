@@ -17,7 +17,7 @@ namespace ItemDetails;
 ///
 /// 只读：不调用 mayInventoryAddItemFunc、onCycleEnd* 这类委托，标签走 GameRead。
 /// 某种机器结构异常时只停用这一种（按 identifier 计数），不拖垮整个模块。
-/// 网格式非机器容器仍由 <see cref="StorageInfo"/> 处理。
+/// 网格式非机器容器仍由 <see cref="StorageInfo"/> 处理，包括根是 MachineryPanelRow、但库存全是网格的扩建储藏区。
 /// </summary>
 internal static class MachineInterior
 {
@@ -179,6 +179,13 @@ internal static class MachineInterior
         var root = item.contentWindow?.childElement;
         if (root == null) return null;
 
+        bool isMachineType = false;
+        try { isMachineType = item.IsGameItemType("MACHINE"); } catch { }
+
+        // 扩建后的储藏区也是 MachineryPanelRow（每个标签页一个网格），但它是储物容器：
+        // 非机器且库存全是网格的归 StorageInfo，按所有标签页合计，这里不再重复列出。
+        if (root is MachineryPanelRow && !isMachineType && StorageInfo.GridStorage(item) != null) return null;
+
         var ctx = new Context { Machine = item };
         if (root is MachineryPanelRow row)
         {
@@ -218,12 +225,7 @@ internal static class MachineInterior
         }
 
         // 网格容器归 StorageInfo；只有它跳过的 MACHINE 类型网格才由这里通用列出。
-        if (root is GameGridInventory)
-        {
-            bool isMachine = false;
-            try { isMachine = item.IsGameItemType("MACHINE"); } catch { }
-            if (!isMachine) return null;
-        }
+        if (root is GameGridInventory && !isMachineType) return null;
 
         var single = new Panel();
         ReadItems(root, single.Items);
