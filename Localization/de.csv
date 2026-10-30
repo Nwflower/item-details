@@ -52,6 +52,7 @@ auth.counterfeit,✘ Fälschung ({0})
 auth.genuine,✔ Echt
 berry.dried,Getrocknet
 berry.line,Blühbeerenqualität: {0}
+berry.wine, (Weinwert {0})
 berry.moldy,Schimmlig
 berry.normal,Normal
 berry.small,Klein

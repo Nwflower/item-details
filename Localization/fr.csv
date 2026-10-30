@@ -52,6 +52,7 @@ auth.counterfeit,✘ Contrefaçon ({0})
 auth.genuine,✔ Authentique
 berry.dried,Desséchée
 berry.line,Qualité de la grappe : {0}
+berry.wine, (valeur du vin {0})
 berry.moldy,Partiellement moisie
 berry.normal,Normale
 berry.small,Petits grains

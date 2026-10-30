@@ -52,6 +52,7 @@ auth.counterfeit,✘ 赝品（{0}）
 auth.genuine,✔ 正品
 berry.dried,干枯
 berry.line,荧光莓品质：{0}
+berry.wine,（酿酒值 {0}）
 berry.moldy,发霉
 berry.normal,正常
 berry.small,较小

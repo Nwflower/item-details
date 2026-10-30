@@ -184,4 +184,14 @@ internal static class GameRead
         int? variant = TagInt(it, "BERRY_VISUAL_VARIANT_INT");
         return BerryQualityClassifier.Classify(cond ?? 0, variant ?? 0);
     }
+
+    /// <summary>
+    /// 这颗荧光莓对果酿评分的贡献：<c>WineHelper.StartFermentation</c> 把每颗的
+    /// <c>BERRY_CONDITION_INT</c> 直接累加，负值先 +1（发霉 −2 记 −1，未熟 −1 记 0）。
+    /// </summary>
+    internal static int BerryWineScore(GameItem? it)
+    {
+        int cond = TagInt(it, "BERRY_CONDITION_INT") ?? 0;
+        return cond < 0 ? cond + 1 : cond;
+    }
 }

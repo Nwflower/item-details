@@ -141,8 +141,28 @@ public sealed partial class ModEntry
         string? name = BerryQualityClassifier.DisplayName(q);
         if (name == null) return false;
 
-        AddLine(builder, Loc.T("berry.line", "BloomBerry quality: {0}", name),
-            q == BerryQuality.Normal ? RenderHandler.ColorPalette.Green : RenderHandler.ColorPalette.Orange);
+        // 较小用紫色：这是「发育不良但还能用」的一档，和发霉/干枯这类坏档区分开。
+        var color = q switch
+        {
+            BerryQuality.Normal => RenderHandler.ColorPalette.Green,
+            BerryQuality.Small => RenderHandler.ColorPalette.Purple,
+            _ => RenderHandler.ColorPalette.Orange,
+        };
+
+        try
+        {
+            builder.Add(Loc.T("berry.line", "BloomBerry quality: {0}", name), color);
+            // 酿酒值：这颗莓在 WineHelper.StartFermentation 里给果酿评分加的点数，灰字补在同一行末尾。
+            builder.Add(Loc.T("berry.wine", " (wine value {0})",
+                    GameRead.BerryWineScore(item).ToString("+0;-0;0")),
+                RenderHandler.ColorPalette.Gray);
+            builder.NextLine();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Berry.AddLine", ex);
+            return false;
+        }
         return true;
     }
 

@@ -52,6 +52,7 @@ auth.counterfeit,✘ 偽造品（{0}）
 auth.genuine,✔ 正規品
 berry.dried,乾燥
 berry.line,ブルームベリーの品質：{0}
+berry.wine,（ワイン評価 {0}）
 berry.moldy,カビあり
 berry.normal,通常
 berry.small,小さい
