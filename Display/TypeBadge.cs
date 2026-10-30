@@ -649,16 +649,14 @@ internal static class TypeBadge
         }
     }
 
-    /// <summary>整排放在 tooltip 正上方并水平居中。</summary>
+    /// <summary>整排放在 tooltip 上方，左边缘与 tooltip 对齐。</summary>
     private static void Place(RectTransform tooltipRect)
     {
         if (_badge == null) return;
         var rect = _badge.GetComponent<RectTransform>();
         if (rect == null) return;
 
-        // 不能用 tooltipRect.position 当中心：该 RectTransform 的 pivot 不一定在中心
-        // （像素风窗口常以左上为 pivot）。改用顶边中点换算到世界坐标，与 pivot 无关。
-        // 左对齐：容器左边缘贴住 tooltip 左边缘（不再整排居中）
+        // pivot 不一定在中心，用左上角换算世界坐标，使容器左边缘与 tooltip 对齐。
         Vector3 leftTop = tooltipRect.TransformPoint(
             new Vector3(tooltipRect.rect.xMin, tooltipRect.rect.yMax, 0f));
 
@@ -674,7 +672,7 @@ internal static class TypeBadge
         rect.position = pos;
     }
 
-    /// <summary>感知亮度（0..1），用于决定文字用白还是黑。</summary>
+    /// <summary>隐藏分类标签。</summary>
     private static void Hide()
     {
         try { if (_badge != null) _badge.SetActive(false); } catch { }

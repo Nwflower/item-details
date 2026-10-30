@@ -11,19 +11,12 @@ namespace ItemDetails;
 ///
 /// 分组与粒度原则（2026-10 整理）：
 ///   "显示内容"   —— tooltip 里补充的客观信息，同一件事只留一个开关
-///   "顾客提示"   —— 顾客维度的提示
 ///   "透视"       —— 揭示本应靠鉴定/分析才能知道的东西（会降低难度）
 ///   "交互与外观" —— 操作方式与视觉权重
 ///
-/// 合并过的项（旧键已废弃，读取时回落到默认）：
-///   show_berry            + show_seed_traits      → show_plant
-///   show_lock_preview     + show_scratcher（现已按分级拆回独立开关，默认值不同）
-///   show_storage_ratio    + show_container_contents → show_container
-///   show_label_impact     + show_condition_impact  → show_price_impact
-///   show_value + show_perfect_range + show_ribwich_reasons
-///               + show_generic_breakdown + show_appraisal_title → show_value
-///   show_feature_reveal   + show_hidden_real       → show_hidden_truth
-///   show_water_purity     + show_water_advice      → show_water_purity
+/// 真伪、价值构成和植物信息共用 show_item_appraisal；性价比与容器内容
+/// 分别使用 show_cost_performance 和 show_container_contents。
+/// 设置按下方 Define 的键读取，不读取已废弃的旧键。
 ///
 /// 实现注意：
 ///   - Define 的 label/tooltip 是 Func&lt;string&gt;，游戏渲染面板时才调用，所以条目文案

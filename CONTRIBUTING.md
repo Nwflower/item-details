@@ -2,14 +2,14 @@
 
 ## 改翻译
 
-译文放在 `Localization/<语言码>.csv`，每行 `key,value`。英文不在 CSV 里：它写在代码中，同时也是任何词条缺失或写坏时的兜底。
+译文放在 `Localization/<语言码>.csv`，每行格式为 `key,value`。英文写在代码里。词条缺失或为空时会显示英文；带参数的译文无法格式化时，会改用英文格式化。如果英文也无法格式化，就保留英文原文。
 
 - 语言码与游戏一致：`zh` `ru` `de` `ja` `fr` `es` `pl` `it` `ko` `ptbr`。新增语言时复制 `zh.csv` 改名即可被自动载入。
 - 首尾有空格或含逗号的值，用双引号整体包住；`{0}` 这类占位符不能删改。
 - 物品名、分类名、厂商名尽量与游戏自己的译法一致。游戏的官方词表在安装目录 `Probably Stolen_Data/StreamingAssets/aa/StandaloneWindows64/localization-string-tables-*` 里，可以用 UnityPy 导出后按英文原文对照。
 - 法语冒号、分号前用不换行空格，与游戏原文一致；韩语用半角标点。
 
-改完运行校验，确认键齐全、没有多余词条、占位符与英文一致：
+改完运行校验，检查缺失或多余的键、重复键、空译文，以及占位符编号是否与英文一致：
 
 ```powershell
 python tools/check_localization.py --strict-placeholders
@@ -28,7 +28,7 @@ pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>"
 
 默认编译 Release，并生成 `dist/item_details-<ModVersion>.zip`。
 ZIP 内是 `item_details/`，包含 DLL、manifest、当前源码中的资源和许可/说明文件。
-资源从源码目录收集，旧 `bin/` 里遗留的文件不会进入发布包；PDB、deps.json 和 `.gitkeep` 也不打包。
+资源直接从源码目录收集，旧 `bin/` 中的遗留文件不会进入发布包。PDB、deps.json 和 `.gitkeep` 也不打包。
 游戏、Unity 和 Harmony 程序集只作为本地引用，不分发。
 
 需要排查问题时可以打开诊断构建：
@@ -60,14 +60,15 @@ pwsh -NoProfile -File scripts/test.ps1 -GameDir "<游戏目录>"
 
 ## 游戏内自检
 
-自检会调用真实售水等行为，先创建可丢弃的专用测试存档。用 `save_<id>.es3` 文件中的内部编号选择槽位，
-不是存档列表的显示顺序。启动参数为 `-itemdetails-selftest -itemdetails-selftest-slot <id>`，
-或在 `ModData/item_details/selftest.flag` 中写入该编号。空文件、无效编号、编号冲突和不存在的存档均报错退出，
-不选择最近存档。
+自检会调用真实售水等行为，请先创建一个可以丢弃的测试存档。选择槽位时，用 `save_<id>.es3` 文件中的内部编号，
+不要用存档列表的显示顺序。安装 SelfTest 构建后，用启动参数
+`-itemdetails-selftest -itemdetails-selftest-slot <id>` 运行；也可以在
+`ModData/item_details/selftest.flag` 中写入该编号并启动游戏。触发文件读取后会被删除。
+空文件、无效编号、编号冲突和不存在的存档均报错退出，不选择最近存档。
 
-自检临时开启所需设置并在结束或抛错时恢复，不把这些临时值写入配置。
-每次运行先写入新的 `selftest.txt`，状态为 `RUNNING`，完成后以相同 run ID 写入 `PASS` 或 `FAIL`。
-退出码 0 表示成功，1 表示失败；检查结果时同时核对状态与 run ID。编译自检构建不代表运行过游戏内用例。
+自检会临时开启所需设置，结束或抛错时恢复，临时值不会写入配置。
+每次运行都会先写入 `ModData/item_details/selftest.txt`，状态为 `RUNNING`；结束后用相同的 run ID 写入 `PASS` 或 `FAIL`。
+退出码 0 表示成功，1 表示失败。检查结果时请同时核对状态和 run ID。编译自检构建并不会运行游戏内用例。
 
 渲染器快照只包含模组追加内容；原版 tooltip 的抑制与改写由原生入口用例检查。
 
