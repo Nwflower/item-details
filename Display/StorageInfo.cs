@@ -5,7 +5,7 @@ using System.Text;
 namespace ItemDetails;
 
 /// <summary>
-/// 储存容器信息：压缩率 + 内容物清单 + 合计价值。
+/// 储存容器信息：压缩率 + 内容物清单。
 ///
 /// 数据来源（已在正式版 0.46D 源码核实）：
 ///   - 容器内部库存：DirectoryUtils.CreateInventoryWindow(w,h) 返回 (PixelWindow, GameGridInventory)
@@ -14,30 +14,39 @@ namespace ItemDetails;
 ///   - 内部格数 = grid.inventoryShape 的**可用格**数（0 = 可用，与物品外形的 1 = 实心相反）
 ///   - 内容物   = grid.childItems（GameGridInventory 覆写，返回 items 的副本）
 ///   - 自身占格 = item.modifiedShape 的实心格数
-/// 原版 ContainerHelper.CreateContainerTooltip 只输出一句通用提示，不列内容物，更无压缩率。
 ///
+/// 箱子自身售价已经通过 GetCurrentValue(withChild:true) 包含内容物，这里不再逐件估价，
+/// 避免与原价格行重复，也避免嵌套容器/估价失败造成另一个口径的“合计价值”。
 /// 只读；仅对带网格内部库存的容器显示；槽位型容器（无宽高）跳过。
-/// 压缩率归“性价比”开关，内容物清单归“容器内容”开关，两者可独立关闭。
 /// </summary>
 internal static class StorageInfo
 {
     private const RenderHandler.ColorPalette Color = RenderHandler.ColorPalette.LightCyan;
 
-    // 内容物最多列出的种类数，超出折叠，避免 tooltip 过宽
+    // 内容物最多列出的种类数，超出折叠，避免 tooltip 过宽。
     private const int MaxKinds = 5;
 
-    // tooltip 可能每帧重建；内容物聚合适度缓存，变更最迟 1 秒后反映。
-    private const float ContentsCacheSeconds = 1f;
-    private static GameGridInventory? _contentsGrid;
-    private static string _contentsLocale = "";
-    private static float _contentsAt = float.MinValue;
-    private static List<TooltipLine>? _contentsCache;
+    // 多槽缓存覆盖箱子来回切换；签名发现变化立即重建，TTL 只作漏检兜底。
+    private const int MaxEntries = 16;
+    private const float CacheSeconds = 5f;
+
+    private sealed class Entry
+    {
+        internal GameItem Item = null!;
+        internal GameGridInventory Grid = null!;
+        internal string Locale = "";
+        internal bool IncludeRatio;
+        internal bool IncludeContents;
+        internal float At;
+        internal List<ContainerItemSignature>? Items;
+        internal List<TooltipLine> Lines = new();
+    }
+
+    private static readonly List<Entry> Entries = new();
 
     internal static void Stop()
     {
-        _contentsGrid = null;
-        _contentsCache = null;
-        _contentsAt = float.MinValue;
+        Entries.Clear();
     }
 
     internal static List<TooltipLine> Collect(GameItem? item, bool includeRatio = true, bool includeContents = true)
@@ -47,9 +56,6 @@ internal static class StorageInfo
 
         try
         {
-            // 结构性判定：有内部网格库存 = 容器。
-            // 不再依赖 CONTAINER_TAG 等标签名——标签改名会让模块静默失效，
-            // 而"有没有 contentWindow"是数据模型本身的性质。
             GameGridInventory? grid = null;
             try
             {
@@ -59,19 +65,46 @@ internal static class StorageInfo
             catch (Exception ex) { Log.Warn("StorageInfo.Window", ex); return lines; }
             if (grid == null) return lines;
 
-            // 机器也带 contentWindow，但显示压缩率没意义，跳过（用游戏自己的类型判断）
+            // 机器也带 contentWindow，但显示压缩率没意义，跳过（用游戏自己的类型判断）。
             bool isMachine = false;
             try { isMachine = item.IsGameItemType("MACHINE"); } catch { }
             if (isMachine) return lines;
 
-            // 上锁容器必须交给 SealedBoxInfo 的独立透视开关。
-            // 这里只按 contentWindow 判断容器；保险箱（LOCK_TYPE）和物资箱
-            // （LOCKED_CONTAINER_TAG + LOCK_STATUS）都要排除，解锁后恢复普通显示。
+            // 上锁容器交给 SealedBoxInfo 的独立透视开关。
             if (LockedContainer.IsLocked(item)) return lines;
 
-            if (includeRatio) AddRatio(item, grid, lines);
-            if (includeContents) AddContents(grid, lines);
+            float now = UnityEngine.Time.unscaledTime;
+            string locale = Loc.Code;
+            Entry? entry = Find(item, grid, locale, includeRatio, includeContents);
 
+            List<GameItem>? items = null;
+            if (includeContents)
+            {
+                try { items = grid.childItems; }
+                catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); }
+            }
+
+            if (entry != null && now - entry.At <= CacheSeconds
+                && (!includeContents || items != null
+                    && ContainerItemSignature.Matches(entry.Items!, items)))
+            {
+                Touch(entry);
+                lines.AddRange(entry.Lines);
+                if (lines.Count > 0) Log.MarkOk("StorageInfo");
+                return lines;
+            }
+
+            var built = new List<TooltipLine>();
+            if (includeRatio) AddRatio(item, grid, built);
+            if (includeContents && items != null) AddContents(items, built);
+
+            // 内容物读取失败时只保留本次压缩率，不写缓存，下次允许立即重试。
+            if (!includeContents || items != null)
+            {
+                Store(item, grid, locale, includeRatio, includeContents, now, items, built, entry);
+            }
+
+            lines.AddRange(built);
             if (lines.Count > 0) Log.MarkOk("StorageInfo");
         }
         catch (Exception ex)
@@ -79,6 +112,57 @@ internal static class StorageInfo
             Log.Warn("StorageInfo", ex);
         }
         return lines;
+    }
+
+    private static Entry? Find(GameItem item, GameGridInventory grid, string locale,
+                               bool includeRatio, bool includeContents)
+    {
+        for (int i = Entries.Count - 1; i >= 0; i--)
+        {
+            var entry = Entries[i];
+            if (ReferenceEquals(entry.Item, item) && ReferenceEquals(entry.Grid, grid)
+                && entry.Locale == locale && entry.IncludeRatio == includeRatio
+                && entry.IncludeContents == includeContents)
+            {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    private static void Touch(Entry entry)
+    {
+        int index = Entries.IndexOf(entry);
+        if (index < 0 || index == Entries.Count - 1) return;
+        Entries.RemoveAt(index);
+        Entries.Add(entry);
+    }
+
+    private static void Store(GameItem item, GameGridInventory grid, string locale,
+                              bool includeRatio, bool includeContents, float now,
+                              List<GameItem>? items, List<TooltipLine> lines, Entry? entry)
+    {
+        if (entry == null)
+        {
+            entry = new Entry
+            {
+                Item = item,
+                Grid = grid,
+                Locale = locale,
+                IncludeRatio = includeRatio,
+                IncludeContents = includeContents,
+            };
+            Entries.Add(entry);
+        }
+        else
+        {
+            Touch(entry);
+        }
+
+        entry.At = now;
+        entry.Items = items == null ? null : ContainerItemSignature.Capture(items);
+        entry.Lines = lines;
+        while (Entries.Count > MaxEntries) Entries.RemoveAt(0);
     }
 
     private static void AddRatio(GameItem item, GameGridInventory grid, List<TooltipLine> lines)
@@ -94,9 +178,8 @@ internal static class StorageInfo
                 if (inner != null)
                 {
                     innerW = inner.width; innerH = inner.height;
-                    // 内部网格 0 = 可用格（SetDataFill(0)），与物品外形的 1 = 实心相反
+                    // 内部网格 0 = 可用格（SetDataFill(0)），与物品外形的 1 = 实心相反。
                     innerCells = GameRead.UsableCells(inner);
-                    // 不再退回外接矩形：算不出就是算不出，宁可少一行也不给错数字
                 }
             }
             catch (Exception ex) { Log.Warn("StorageInfo.InnerShape", ex); }
@@ -107,7 +190,6 @@ internal static class StorageInfo
                 return;
             }
 
-            // 自身占格：优先 modifiedShape（可能被改造改变），退回原始 shape
             int selfCells = 0;
             GridShape? selfShape = null;
             try { selfShape = item.modifiedShape; } catch { }
@@ -115,128 +197,49 @@ internal static class StorageInfo
             {
                 try { selfShape = item.shape; } catch { }
             }
-            if (selfShape != null)
-            {
-                selfCells = GameRead.OccupiedCells(selfShape);
-            }
-
-            if (selfCells <= 0)
-            {
-                return;
-            }
+            if (selfShape != null) selfCells = GameRead.OccupiedCells(selfShape);
+            if (selfCells <= 0) return;
 
             double ratio = (double)innerCells / selfCells;
-
             lines.Add(new TooltipLine(
                 Loc.T("storage.ratio", "Compression: {0} ({1}/{2} cells)",
                     ratio.ToString("0.0"), innerCells, selfCells),
                 Color));
-
         }
         catch (Exception ex) { Log.Warn("StorageInfo.Ratio", ex); }
     }
 
-    private static void AddContents(GameGridInventory grid, List<TooltipLine> lines)
+    private static void AddContents(List<GameItem> items, List<TooltipLine> lines)
     {
-        float now = UnityEngine.Time.unscaledTime;
-        string locale = Loc.Code;
-        if (_contentsCache != null && ReferenceEquals(_contentsGrid, grid)
-            && _contentsLocale == locale && now - _contentsAt <= ContentsCacheSeconds)
+        if (items.Count == 0) return;
+
+        // 只聚合名称和数量；箱子售价已包含内容物，不再在这里重复逐件估值。
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        var order = new List<string>();
+        foreach (var item in items)
         {
-            lines.AddRange(_contentsCache);
-            return;
+            if (item == null) continue;
+            string name = ContainerItemSignature.DisplayName(item);
+            int stack = ContainerItemSignature.ReadStack(item);
+            if (counts.TryGetValue(name, out int count)) counts[name] = count + stack;
+            else { counts[name] = stack; order.Add(name); }
         }
+        if (order.Count == 0) return;
 
-        var built = new List<TooltipLine>();
-        void StoreCache()
+        var sb = new StringBuilder();
+        sb.Append(Loc.T("storage.contains", "Contains: "));
+        int shown = 0;
+        foreach (string name in order)
         {
-            _contentsGrid = grid;
-            _contentsLocale = locale;
-            _contentsAt = now;
-            _contentsCache = built;
+            if (shown >= MaxKinds) break;
+            if (shown > 0) sb.Append(Loc.T("list.sep", ", "));
+            int count = counts[name];
+            sb.Append(count > 1 ? $"{name}×{count}" : name);
+            shown++;
         }
+        if (order.Count > MaxKinds)
+            sb.Append(Loc.T("storage.more_kinds", " ... {0} kinds in total", order.Count));
 
-        try
-        {
-            List<GameItem>? items = null;
-            try { items = grid.childItems; }
-            catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); StoreCache(); return; }
-            if (items == null || items.Count == 0) { StoreCache(); return; }
-            if (items.Count > 512) { StoreCache(); return; }   // 异常保护
-
-            // 按显示名聚合数量
-            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-            var order = new List<string>();
-            long totalValue = 0;
-
-            foreach (var it in items)
-            {
-                if (it == null) continue;
-
-                string name = "";
-                try { name = it.name ?? ""; } catch { }
-                if (name.Length == 0) { try { name = it.identifier ?? "?"; } catch { name = "?"; } }
-
-                int stack = 1;
-                try { if (it.unitCount > 1) stack = it.unitCount; } catch { }
-
-                if (counts.TryGetValue(name, out int c)) counts[name] = c + stack;
-                else { counts[name] = stack; order.Add(name); }
-
-                try
-                {
-                    // 嵌套容器不做递归求值：GetCurrentValue(withChild:true) 会遍历整棵子树，
-                    // 容器套容器时成本不可控。这类物品只计数、不计价。
-                    bool nestedContainer = false;
-                    try { nestedContainer = it.contentWindow != null; } catch { }
-                    if (nestedContainer) continue;
-
-                    long unit = it.GetCurrentValue(useRetailMarkup: false, withChild: true,
-                                                   includeEvents: true, forceMarkup: false);
-                    if (unit <= 0) continue;
-                    long stackTotal = unit;
-                    if (stack > 1)
-                    {
-                        if (unit > (long.MaxValue - totalValue) / stack) continue;
-                        stackTotal = unit * stack;
-                    }
-                    if (stackTotal > long.MaxValue - totalValue) continue;
-                    totalValue += stackTotal;
-                }
-                catch { }
-            }
-
-            if (order.Count == 0) { StoreCache(); return; }
-
-            var sb = new StringBuilder();
-            sb.Append(Loc.T("storage.contains", "Contains: "));
-            int shown = 0;
-            foreach (var name in order)
-            {
-                if (shown >= MaxKinds) break;
-                if (shown > 0) sb.Append(Loc.T("list.sep", ", "));
-                int n = counts[name];
-                sb.Append(n > 1 ? $"{name}×{n}" : name);
-                shown++;
-            }
-            if (order.Count > MaxKinds)
-                sb.Append(Loc.T("storage.more_kinds", " ... {0} kinds in total", order.Count));
-
-            built.Add(new TooltipLine(sb.ToString(), Color));
-
-            if (totalValue > 0)
-            {
-                built.Add(new TooltipLine(
-                    Loc.T("storage.total_value", "Total value: {0}", totalValue),
-                    Color));
-            }
-            StoreCache();
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("StorageInfo.Contents", ex);
-            StoreCache();
-        }
-        lines.AddRange(built);
+        lines.Add(new TooltipLine(sb.ToString(), Color));
     }
 }
