@@ -1,5 +1,5 @@
 # Item Details Italiano (it)
-auth.amount,Difetto del valore
+auth.amount,Difetto del valore nominale
 auth.body,Corpo danneggiato
 auth.box,Difetto della confezione
 auth.chip,Difetto del chip
@@ -17,44 +17,48 @@ alert.real_name,Vero nome: {0}
 alert.title_augmented,Cliente potenziato
 alert.title_both,Ricercato · Cliente potenziato
 alert.title_wanted,Ricercato
-appraisal.armor,Modulo corazza
+appraisal.armor,Corazza
 appraisal.base,Base
-appraisal.blade,Modulo lama
-appraisal.build_deluxe,Configurazione di lusso
-appraisal.build_tactical,Configurazione tattica
-appraisal.carbon,Guscio in fibra di carbonio
-appraisal.casing_crack,Guscio incrinato
-appraisal.casing_reinforced,Rinforzo
-appraisal.casing_screws,Viti allentate
-appraisal.casing_wear,Usura lieve
-appraisal.casing_wear_heavy,Usura grave
-appraisal.damaged,Danneggiato
-appraisal.emgplus,Connettore EMG+
-appraisal.finish_cheap,Finitura economica
-appraisal.finish_premium,Finitura premium
-appraisal.gold,Placcatura in oro
-appraisal.iface_unknown,Tipo di interfaccia sconosciuto
-appraisal.neural,Jack neurale
-appraisal.ribwich_deluxe,Combo di lusso
+appraisal.blade,Lama
+appraisal.build_deluxe,Bonus set di lusso
+appraisal.build_tactical,Bonus set tattico
+appraisal.carbon,Composito di carbonio
+appraisal.casing_crack,Crepato
+appraisal.casing_reinforced,Rinforzato
+appraisal.casing_screws,Viti a vista
+appraisal.casing_wear,Usura leggera
+appraisal.casing_wear_heavy,Usura pesante
+appraisal.damaged,Danni
+appraisal.emgplus,Interfaccia EMG+
+appraisal.finish_cheap,Colore di bassa qualità
+appraisal.finish_premium,Colore di alta qualità
+appraisal.gold,Placcato oro
+appraisal.iface_unknown,Interfaccia non specificata
+appraisal.neural,Interfaccia neurale
+appraisal.ribwich_deluxe,Edizione Deluxe
 appraisal.ribwich_double_meat,Doppia carne
-appraisal.ribwich_first_batch,Primo lotto
+appraisal.ribwich_first_batch,Primo ciclo di produzione
 appraisal.ribwich_month_edge,Primo o ultimo mese
 appraisal.ribwich_opened,Aperto o falso (40 fisso)
-appraisal.ribwich_plant_grade_a,Impianto classe A {0:D2}
-appraisal.ribwich_plant_grade_c,Impianto classe C {0:D2}
-appraisal.seal_ignition,Incentivo Ignition Lab
-appraisal.seal_ll,Incentivo Wild's Rides
-appraisal.seal_republic,Incentivo Republic Naval
-appraisal.seal_zhonghua,Incentivo ZhongHua
-appraisal.worn,Usurato
-auth.counterfeit,✘ Possibile falso ({0})
+appraisal.ribwich_plant_grade_a,Stabilimento di alta qualità {0:D2}
+appraisal.ribwich_plant_grade_c,Stabilimento di bassa qualità {0:D2}
+appraisal.seal_ignition,Bonus Ignition Lab
+appraisal.seal_ignition_short,Ignition Lab
+appraisal.seal_ll,Bonus Wild's Rides
+appraisal.seal_ll_short,Wild's Rides
+appraisal.seal_republic,Bonus Requisizione Navale della Repubblica
+appraisal.seal_republic_short,Requisizione Navale della Repubblica
+appraisal.seal_zhonghua,Bonus Cantieri ZhongHua
+appraisal.seal_zhonghua_short,Cantieri ZhongHua
+appraisal.worn,Usura
+auth.counterfeit,✘ Falso ({0})
 auth.genuine,✔ Autentico
-berry.dried,Secco
+berry.dried,Secca
 berry.line,Qualità della bacca: {0}
-berry.moldy,Ammuffito
+berry.moldy,Ammuffita
 berry.normal,Normale
-berry.small,Piccolo
-berry.unripe,Non maturo
+berry.small,Piccola
+berry.unripe,Acerba
 calorie.line,Energia: {0} {1}
 calorie.per_cell," ({0} {1}/cella)"
 calorie.unit,kcal
@@ -66,15 +70,15 @@ generic.more,· ... e altri {0}
 generic.other_attributes,· Altri attributi {0}
 hidden.chem_purity,Purezza chimica: {0}%
 hidden.durability,Durabilità: {0}/{1}
-hidden.durability_faked,"Durabilità reale: {0}/{1} (mostrata {2}/{3}, probabilmente falsificata)"
+hidden.durability_faked,"Durabilità reale: {0}/{1} (mostra {2}/{3}, probabilmente manomessa)"
 hidden.purity,Purezza: {0}
-hidden.purity_faked,"Purezza reale: {0} (mostrata {1}, probabilmente falsificata)"
-hint.double_click,Doppio clic per periziare; doppio clic su un altro oggetto per cambiare
+hidden.purity_faked,"Purezza reale: {0} (mostra {1}, probabilmente falsificata)"
+hint.double_click,Doppio clic per ispezionare
 list.sep,", "
 lottery.matched_none,Azzeccati {0}/6 -> nessun premio
 lottery.matched_prize,Azzeccati {0}/6 -> premio {1}
-lottery.not_drawn,Edizione {0}: non ancora estratta (estrazione ogni sabato)
-lottery.winning,Numero vincente: {0}
+lottery.not_drawn,Estrazione {0}: risultati non ancora disponibili (ogni sabato mattina)
+lottery.winning,Numeri vincenti: {0}
 market.line,Mercato: {0}
 module.power,{0} energia/giorno
 module.quality,{0} qualità
@@ -84,52 +88,53 @@ price.cost_close,)
 price.cost_open," (Costo "
 price.list," Prezzo: {0}"
 price.sell,Vendita: {0}
-reveal.modifier,Modificatore reale: {0}% (mascherato {1}%)
+reveal.modifier,Modificatore reale: {0}% (mascherato da {1}%)
 reveal.real,Reale: {0} (mascherato da {1})
 reveal.real_with_mod,Reale: {0} ({1}%) (mascherato da {2})
 ribwich.header,Motivi del falso:
 ribwich.more,... e altri {0}
-ribwich.reason_bun_no_pickles,Pan di sesamo ma senza cetriolini extra; la versione di lusso esige entrambi
-ribwich.reason_date_missing,Nessuna data di produzione stampata
-ribwich.reason_davre_missing,Marca Davre assente
-ribwich.reason_davre_wrong,Marca Davre errata
-ribwich.reason_first_sticker,Il primo lotto non deve avere l'adesivo Ribwich
+ribwich.reason_bun_no_pickles,Pane al sesamo senza cetriolini extra (l'Edizione Deluxe richiede entrambi)
+ribwich.reason_date_missing,Data di produzione assente
+ribwich.reason_davre_missing,Logo Davre assente
+ribwich.reason_davre_wrong,Logo Davre errato
+ribwich.reason_first_sticker,Il primo ciclo non deve avere l'adesivo Ribwich
 ribwich.reason_month_range,Mese {0} fuori da 1-12
-ribwich.reason_pickles_no_bun,Cetriolini extra ma senza pan di sesamo; la versione di lusso esige entrambi
-ribwich.reason_plant_missing,Nessun numero di impianto
-ribwich.reason_plant_range,Impianto n. {0} fuori da 01-35
-ribwich.reason_second_sticker_missing,Manca l'adesivo Ribwich del secondo lotto
-ribwich.reason_second_sticker_wrong,Il secondo lotto ha l'adesivo Ribwich sbagliato
+ribwich.reason_pickles_no_bun,Cetriolini extra senza pane al sesamo (l'Edizione Deluxe richiede entrambi)
+ribwich.reason_plant_missing,Numero di stabilimento assente
+ribwich.reason_plant_range,Stabilimento n. {0} fuori da 01-35
+ribwich.reason_second_sticker_missing,Manca l'adesivo Ribwich del secondo ciclo
+ribwich.reason_second_sticker_wrong,Adesivo Ribwich errato nel secondo ciclo
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Anno {0} fuori da 425-429 / 432-438
 scratcher.no_prize,Gratta e vinci: nessun premio
 scratcher.progress,Grattato {0}/3
 scratcher.win,Gratta e vinci: vince {0} ({1} uguali)
-sealed.contents,Dentro: {0}{1}
+sealed.contents,Contenuto: {0}{1}
 sealed.empty,Contenuto: vuoto
-sealed.more," ... {0} in totale"
-sealed.total,Totale interno: {0}
+sealed.more," ... {0} oggetti in totale"
+sealed.total,Valore totale del contenuto: {0}
 sealed.unit," ({0})"
 seed.header,Tratti (non analizzati):
 seed.more,... e altri {0}
 seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
-storage.more_kinds," e {0} tipi"
+storage.more_kinds," ... {0} tipi in totale"
 storage.ratio,Compressione: {0} ({1}/{2} celle)
-storage.total_value,Valore totale: {0}
 title.appraisal_suffix,"{0} Prezzo {1}, offerta migliore {2}"
 value.from,"Origine: "
-value.per_cell,Valore/cella: {0} ({1}/{2} celle)
+value.per_cell,Valore per cella: {0} ({1}/{2} celle)
 value.perfect_range," | perfetto {0}-{1}"
 value.total,Totale: {0} × {1} = {2}
 value.total_line,Totale: {0}
+water.actives,"Principi attivi: "
+water.other,"Altri: "
 water.head,Acqua: {0}% {1}
 water.impurities,"Impurità: "
 water.mismatch," (etichetta non corrispondente)"
 water.none,nessuna
 water.trace,tracce (sotto la soglia di visualizzazione)
 wine.aging,Bonus di affinamento: +{0}/giorno (totale +{1})
-wine.composition,"Composizione: estratto {0}‰, contaminante {1}‰"
+wine.composition,"Composizione: estratto {0}‰, contaminanti {1}‰"
 wine.counterfeit,Falso: lievito illegale
 wine.empty,Vuoto
 wine.fermenting,In fermentazione
@@ -137,34 +142,40 @@ wine.finished,Finito
 wine.score,Punteggio del vino: {0}{1}
 wine.state,Vino: {0}
 wine.tier,", livello {0}"
-wine.unknown_state,Sconosciuto({0})
+wine.unknown_state,Sconosciuto ({0})
 wine.yeast_power,Potenza del lievito: {0}/ciclo
 machine.battery_line,Energia rimanente: {0} ({1} giorni)
-config.section.display,Ottimizzazione visualizzazione
-config.item_appraisal,Perizia oggetto
-config.item_appraisal.tip,Combina autenticità, dettaglio del valore, intervallo di offerta perfetto, motivi di contraffazione e informazioni sulle piante.
-config.info_enhance,Informazioni avanzate
-config.info_enhance.tip,Combina valore per cella, impatto etichette/mercato, valori dei moduli, batteria della macchina, contenitori, ricarico di contrabbando, lotteria, descrizioni attenuate e prezzi vendita/acquisto.
-config.type_badge,Etichette del tipo
-config.type_badge.tip,"Mostra i tipi di oggetto sopra il tooltip come placche colorate con testo bianco: medicina/acqua/droghe/veleni blu, tabacco/alcol nero, lusso rosa, cibo verde, articoli domestici ciano, armi/armature turchese, strumenti/materiali viola, proibito/limitato rosso scuro, altri grigio. Disattivalo per tornare alla riga [tipo] originale."
-config.container_name,Nomi su contenitori e macchine
-config.container_name.tip,Mostra i nomi sotto contenitori e macchine. Posizione fissa in basso.
-config.container_name_bg,Sfondo nomi icone
-config.container_name_bg.tip,Aggiunge uno sfondo nero traslucido dietro il nome. Opacità fissa 0,6.
-config.customer_alert,Avviso di arrivo cliente
-config.customer_alert.tip,"Avvisa quando arriva un cliente ricercato o potenziato, con la taglia reale, il vero nome e il livello di potenziamento."
-config.section.interaction,Ottimizzazione operazioni
+config.section.display,Visualizzazione
+config.item_appraisal,Perizia degli oggetti
+config.item_appraisal.tip,Mostra il verdetto di autenticità e la ripartizione del valore in base al tipo di oggetto.
+config.cost_performance,Valore per cella
+config.cost_performance.tip,Mostra il valore per cella dell'inventario e la compressione dei contenitori.
+config.container_contents,Contenuto del contenitore
+config.container_contents.tip,"Elenca il contenuto dei contenitori sbloccati, senza un valore totale separato."
+config.info_enhance,Informazioni extra
+config.info_enhance.tip,"Aggiunge dettagli specifici per oggetto: effetti di etichette e moduli, carica delle batterie, modificatori di mercato, risultati della lotteria, descrizioni attenuate ed etichette di prezzo più chiare."
+config.type_badge,Badge di categoria
+config.type_badge.tip,Mostra le categorie dell'oggetto sopra il riquadro informativo.
+config.type_badge_muted,Colori dei badge attenuati
+config.type_badge_muted.tip,I badge non di contrabbando usano lo sfondo scuro del tooltip e un colore di categoria schiarito; il contrabbando mantiene il testo rosso di avviso.
+config.container_name,Nomi di contenitori e macchine
+config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
+config.container_name_bg,Sfondo dei nomi
+config.container_name_bg.tip,Aggiunge uno sfondo nero traslucido (opacità 60%) dietro il nome.
+config.customer_alert,Avviso di arrivo clienti
+config.customer_alert.tip,"Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome e il livello di potenziamento."
+config.section.interaction,Controlli
 config.double_click_inspect,Doppio clic per ispezionare
-config.double_click_inspect.tip,Apre l'ispezione di oggetti da periziare o autenticare (iniettori, sigarette, francobolli, ecc.) con doppio clic, senza lente. Cambia anche il testo del suggerimento; disattivalo per ripristinare il flusso originale.
+config.double_click_inspect.tip,"Fai doppio clic su un oggetto da periziare o da autenticare (iniettori, sigarette, buoni alimentari, ecc.) per aprire il pannello di ispezione senza lente. Con il pannello aperto, un doppio clic su un altro oggetto passa direttamente a quello. L'indicazione della lente diventa «Doppio clic per ispezionare». Disattivalo per ripristinare il funzionamento originale."
 config.section.reveal,Rivelazione
-config.hidden_truth,Rivela discrepanze
-config.hidden_truth.tip,"Mostra le differenze reali di condizione, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera i falsi e abbassa molto la difficoltà della perizia."
-config.water_wine,Analisi dell'acqua
-config.water_wine.tip,Combina purezza, impurità e consigli di purificazione dell'acqua con punteggio e composizione del vino. Nessun tester dell'acqua richiesto.
+config.hidden_truth,Rivela travestimenti e valori reali
+config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."
+config.water_wine,Analisi di acqua e vino
+config.water_wine.tip,"Mostra purezza e impurità dell'acqua e i dati di fermentazione del vino, senza striscia reattiva."
 config.scratcher,Anteprima gratta e vinci
-config.scratcher.tip,Mostra il premio (o nessun premio) e l'avanzamento del grattamento prima di grattare. È un ricalcolo in sola lettura; non gratta mai per te. Disattivalo per nascondere il risultato.
-config.sealed_box,Raggi X contenitori
-config.sealed_box.tip,Elenca contenuto e valore totale dei contenitori chiusi prima di aprirli. Salta la serratura; disattivato per impostazione predefinita.
-config.result_prefill,Precompila risultato
+config.scratcher.tip,"Prima di grattare, mostra se un gratta e vinci è vincente, quanto vale e quanto è già stato grattato. Sola lettura con le regole del gioco; non gratta mai al posto tuo."
+config.sealed_box,Raggi X per contenitori chiusi
+config.sealed_box.tip,"Elenca contenuto e valore totale dei contenitori chiusi a chiave (casseforti, armadietti per armi) prima di aprirli. Equivale a saltare la serratura, quindi è disattivato per impostazione predefinita."
+config.result_prefill,Precompila esito ispezione
 config.result_prefill.tip,All'apertura del pannello di ispezione, seleziona i difetti reali di contraffazione e inserisce la migliore offerta di perizia. Compila solo i controlli; non invia né conferma. Disattivato per impostazione predefinita.
 appraisal.minimum_adjustment,Adeguamento al valore minimo

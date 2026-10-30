@@ -4,11 +4,16 @@ using System.Collections.Generic;
 namespace ItemDetails;
 
 /// <summary>
-/// 水质与杂质：液体容器里水的纯度百分比，以及稀释它的其他液体。
+/// 水质与成分：水的纯度百分比、药物活性成分的精确用量、其他液体的占比。
 ///
 /// 原版 WaterHelper.CreateWaterContainerTooltip 只显示体积/容量，
 /// 纯度必须靠试纸（STRIP_TESTED_TAG / LAST_SCAN_RESULT_TAG）才能得知，
-/// 杂质构成则完全不显示。本模块把这两项直接列出来。
+/// 成分构成则完全不显示。本模块把这些直接列出来。
+///
+/// 显示口径（0.46D）：游戏判定药物效果用的是绝对量（parts × 系数对比固定阈值，
+/// 见 ChemicalFeedbackHelper），百分比无法表达 600 µl 与 602 µl 的致死线差异。
+/// 因此药物活性成分给精确用量，杂质/试剂仍给百分比；分类规则见
+/// <see cref="LiquidRoleClassifier"/>。
 ///
 /// 数据来源（正式版 0.46D，均为 public API）：
 ///   WaterHelper.GetWaterPurity(item) —— 水 parts × 10000 / 总 parts（万分比）
@@ -39,6 +44,9 @@ internal static class WaterInfo
         internal string Tier = "";  // 游戏档位名，如「洁净水」
         /// <summary>标签上写的水质名（未揭露时是伪装值），用于判断与实测档位是否匹配。</summary>
         internal string Label = "";
+        /// <summary>药物活性成分：显示精确用量（µl / ml）。</summary>
+        internal readonly List<(string Name, int Parts)> Actives = new();
+        /// <summary>杂质与试剂：仍按占总体积的百分比显示。</summary>
         internal readonly List<(string Name, int Parts)> Impurities = new();
     }
 
@@ -56,40 +64,57 @@ internal static class WaterInfo
                 int parts = Parts(item, liquid.currentPart);
                 if (parts <= 0) continue;
                 r.TotalParts += parts;
-                if (liquid.identifier == "water")
-                    r.WaterParts += parts;
-                else
-                    r.Impurities.Add((DisplayName(liquid), parts));
+
+                switch (LiquidRoleClassifier.Classify(liquid))
+                {
+                    case LiquidRole.Water:
+                        r.WaterParts += parts;
+                        break;
+                    case LiquidRole.Active:
+                        r.Actives.Add((DisplayName(liquid), parts));
+                        break;
+                    default:
+                        r.Impurities.Add((DisplayName(liquid), parts));
+                        break;
+                }
             }
 
             if (r.TotalParts <= 0) return r;
-            if (r.WaterParts <= 0) return r;   // 不含水就不是水质问题
+            // 无水的纯药物混合物同样要展示（玩家把药溶进酒精/提取液的常见形态）；
+            // 只有溶剂、没有水也没有活性成分时仍不属于本模块。
+            if (r.WaterParts <= 0 && r.Actives.Count == 0) return r;
 
-            r.Purity = (int)((long)r.WaterParts * PurityFull / r.TotalParts);
-            try { r.Tier = WaterFeatureHelper.GetWaterDisplayName(r.Purity) ?? ""; } catch { }
-            // 标签口径：未揭露时读伪装值，已揭露时读实测值。
-            // 普通水容器完全绕开 GetCurrentWaterDisplay / GetWaterFeature：后者在缺特性时
-            // 会 AddItemFeature。这里只读已有特性，显示路径不具备修改标签判定的入口。
-            // 酒容器由 GetWaterFeature 返回临时特性、不落到物品上，保持原行为。
-            try
+            if (r.WaterParts > 0)
             {
-                if (SafeIsTag(item, "WINE_CONTAINER_TAG"))
+                r.Purity = (int)((long)r.WaterParts * PurityFull / r.TotalParts);
+                try { r.Tier = WaterFeatureHelper.GetWaterDisplayName(r.Purity) ?? ""; } catch { }
+                // 标签口径：未揭露时读伪装值，已揭露时读实测值。
+                // 普通水容器完全绕开 GetCurrentWaterDisplay / GetWaterFeature：后者在缺特性时
+                // 会 AddItemFeature。这里只读已有特性，显示路径不具备修改标签判定的入口。
+                // 酒容器由 GetWaterFeature 返回临时特性、不落到物品上，保持原行为。
+                try
                 {
-                    r.Label = WaterFeatureHelper.GetCurrentWaterDisplay(item) ?? "";
-                }
-                else
-                {
-                    var feature = item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY");
-                    if (feature != null)
+                    if (SafeIsTag(item, "WINE_CONTAINER_TAG"))
                     {
-                        int labelPurity = feature.IsExposed()
-                            ? r.Purity
-                            : feature.GetCurrentItemCondition().customValue;
-                        r.Label = WaterFeatureHelper.GetWaterDisplayName(labelPurity) ?? "";
+                        r.Label = WaterFeatureHelper.GetCurrentWaterDisplay(item) ?? "";
+                    }
+                    else
+                    {
+                        var feature = item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY");
+                        if (feature != null)
+                        {
+                            int labelPurity = feature.IsExposed()
+                                ? r.Purity
+                                : feature.GetCurrentItemCondition().customValue;
+                            r.Label = WaterFeatureHelper.GetWaterDisplayName(labelPurity) ?? "";
+                        }
                     }
                 }
+                catch { }
             }
-            catch { }
+
+            SortByParts(r.Actives);
+            SortByParts(r.Impurities);
             r.HasData = true;
         }
         catch (Exception ex)
@@ -104,6 +129,19 @@ internal static class WaterInfo
         => r.TotalParts <= 0 ? 0 : (int)((long)(r.TotalParts - r.WaterParts) * PurityFull / r.TotalParts);
 
     internal static string Ml(int parts) => (parts / 1000.0).ToString("0.#");
+
+    /// <summary>
+    /// 沿用扫描仪的单位，保留 1 part = 1 µl 的精度，避免毫升舍入掩盖效果阈值。
+    /// </summary>
+    internal static string Amount(int parts)
+    {
+        if (parts >= 1000000) return (parts / 1000000m).ToString("0.######") + " L";
+        if (parts >= 1000) return (parts / 1000m).ToString("0.###") + " mL";
+        return parts + " uL";
+    }
+
+    private static void SortByParts(List<(string Name, int Parts)> list)
+        => list.Sort((a, b) => b.Parts.CompareTo(a.Parts));
 
     private static int Parts(GameItem item, string tag) => GameRead.TagInt(item, tag) ?? 0;
 

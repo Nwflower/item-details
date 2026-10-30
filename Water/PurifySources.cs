@@ -33,6 +33,12 @@ internal static class PurifySources
         internal readonly List<GameItem> Machines = new();
         /// <summary>便携净水器（无标签，只能按 ID 认）。</summary>
         internal GameItem? Portable;
+
+        // 报告会复用 2 秒，因此设备指纹每次报告只算一次，不在每帧 tooltip 重建时重复展开。
+        // 滤芯单独签名：容器已装滤芯时，背包滤芯不参与本次模拟。
+        internal long CommonSignature;
+        internal long FiltersSignature;
+        internal bool SignaturesValid;
     }
 
     // 上限：控制单次悬停的模拟次数
@@ -123,7 +129,24 @@ internal static class PurifySources
             catch { }
         }
 
+        // 设备列表、耐久、标签和特性都参与建议结果；在 2 秒报告重建时统一取指纹。
+        r.SignaturesValid = true;
+        long common = unchecked((long)14695981039346656037UL);
+        foreach (var machine in r.Machines) MixSource(r, ref common, machine);
+        if (r.Portable != null) MixSource(r, ref common, r.Portable);
+        foreach (var agent in r.ChemAgents) MixSource(r, ref common, agent);
+
+        long filters = unchecked((long)14695981039346656037UL);
+        foreach (var filter in r.Filters) MixSource(r, ref filters, filter);
+        r.CommonSignature = common;
+        r.FiltersSignature = filters;
         return r;
+    }
+
+    private static void MixSource(Report report, ref long hash, GameItem item)
+    {
+        if (!ItemValueFingerprint.TryRead(item, out long fingerprint)) report.SignaturesValid = false;
+        unchecked { hash = (hash ^ fingerprint) * 1099511628211L; }
     }
 
     /// <summary>

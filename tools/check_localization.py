@@ -37,7 +37,7 @@ EXCLUDED_SOURCE_DIRS = {"out", "tools", "bin", "obj", ".git"}
 INDIRECT_KEYS = {
     "config.section.display": "Display",
     "config.section.reveal": "Reveal",
-    "config.section.interaction": "Interaction & Visuals",
+    "config.section.interaction": "Controls",
 }
 
 
@@ -71,6 +71,10 @@ def pure_keys(text: str) -> dict[str, str]:
     """
     out: dict[str, str] = {}
     for m in re.finditer(r'new\(\s*"((?:appraisal|ribwich)\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"', text):
+        out.setdefault(m.group(1), m.group(2))
+
+    # Generic appraisal labels can be returned as (key, English) switch tuples.
+    for m in re.finditer(r'=>\s*\(\s*"((?:appraisal|ribwich)\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\)', text):
         out.setdefault(m.group(1), m.group(2))
 
     # 真伪检查项的键是第二个参数，不是第一个；漏扫会让赝品括号里的问题名全部回落英文。

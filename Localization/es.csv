@@ -1,60 +1,64 @@
 # Item Details Español (es)
-auth.amount,Fallo del valor
+auth.amount,Fallo del valor nominal
 auth.body,Daño en el cuerpo
 auth.box,Fallo de la caja
-auth.chip,Fallo del chip
+auth.chip,Fallo del microchip
 auth.color,Fallo de color
 auth.indicator,Fallo del indicador
 auth.label,Fallo de etiqueta
-auth.lettering,Fallo de rotulación
+auth.lettering,Fallo de tipografía
 auth.logo,Fallo del logotipo
-auth.seal,Fallo de precinto
+auth.seal,Fallo del sello
 auth.serial,Fallo de número de serie
 # key,value
-alert.aug_tier,Nivel de potenciación: {0}
+alert.aug_tier,Nivel de ciberaumentación: {0}
 alert.bounty," (recompensa {0})"
 alert.real_name,Nombre real: {0}
-alert.title_augmented,Cliente potenciado
-alert.title_both,Buscado · Cliente potenciado
-alert.title_wanted,Buscado
-appraisal.armor,Módulo de blindaje
+alert.title_augmented,Cliente ciberaumentado
+alert.title_both,Se busca · Cliente ciberaumentado
+alert.title_wanted,Se busca
+appraisal.armor,Revestimiento defensivo
 appraisal.base,Base
-appraisal.blade,Módulo de filo
-appraisal.build_deluxe,Configuración de lujo
-appraisal.build_tactical,Configuración táctica
-appraisal.carbon,Carcasa de fibra de carbono
-appraisal.casing_crack,Carcasa agrietada
-appraisal.casing_reinforced,Refuerzo
-appraisal.casing_screws,Tornillos flojos
-appraisal.casing_wear,Desgaste leve
-appraisal.casing_wear_heavy,Desgaste severo
-appraisal.damaged,Dañado
-appraisal.emgplus,Conector EMG+
-appraisal.finish_cheap,Acabado barato
-appraisal.finish_premium,Acabado premium
-appraisal.gold,Chapado en oro
-appraisal.iface_unknown,Tipo de interfaz desconocido
-appraisal.neural,Puerto neural
-appraisal.ribwich_deluxe,Combo de lujo
-appraisal.ribwich_double_meat,Doble carne
+appraisal.blade,Filo
+appraisal.build_deluxe,Combinación de lujo
+appraisal.build_tactical,Combinación táctica
+appraisal.carbon,Compuesto de carbono
+appraisal.casing_crack,Resquebrajado
+appraisal.casing_reinforced,Reforzado
+appraisal.casing_screws,Tornillos expuestos
+appraisal.casing_wear,Desgaste ligero
+appraisal.casing_wear_heavy,Desgaste pesado
+appraisal.damaged,Desperfectos
+appraisal.emgplus,Interfaz EMG+
+appraisal.finish_cheap,Color de baja calidad
+appraisal.finish_premium,Color de alta calidad
+appraisal.gold,Baño de oro
+appraisal.iface_unknown,Control sin especificar
+appraisal.neural,Interfaz neuronal
+appraisal.ribwich_deluxe,Edición Deluxe
+appraisal.ribwich_double_meat,Doble de carne
 appraisal.ribwich_first_batch,Primer lote
 appraisal.ribwich_month_edge,Primer o último mes
 appraisal.ribwich_opened,Abierto o falso (40 fijo)
-appraisal.ribwich_plant_grade_a,Planta clase A {0:D2}
-appraisal.ribwich_plant_grade_c,Planta clase C {0:D2}
-appraisal.seal_ignition,Incentivo Ignition Lab
-appraisal.seal_ll,Incentivo Wild's Rides
-appraisal.seal_republic,Incentivo Republic Naval
-appraisal.seal_zhonghua,Incentivo ZhongHua
-appraisal.worn,Desgastado
-auth.counterfeit,✘ Posible falsificación ({0})
+appraisal.ribwich_plant_grade_a,Instalación de alta calidad {0:D2}
+appraisal.ribwich_plant_grade_c,Instalación de baja calidad {0:D2}
+appraisal.seal_ignition,Bonificación de Laboratorios Ignición
+appraisal.seal_ignition_short,Laboratorios Ignición
+appraisal.seal_ll,Bonificación de Expediciones Wild
+appraisal.seal_ll_short,Expediciones Wild
+appraisal.seal_republic,Bonificación de Requisición Naval de la República
+appraisal.seal_republic_short,Requisición Naval de la República
+appraisal.seal_zhonghua,Bonificación de Construcciones Navales ZhongHua
+appraisal.seal_zhonghua_short,Construcciones Navales ZhongHua
+appraisal.worn,Marcas de uso
+auth.counterfeit,✘ Falsificación ({0})
 auth.genuine,✔ Auténtico
-berry.dried,Seco
-berry.line,Calidad de baya: {0}
-berry.moldy,Mohoso
+berry.dried,Seca
+berry.line,Calidad de la bayaúva: {0}
+berry.moldy,Picada
 berry.normal,Normal
-berry.small,Pequeño
-berry.unripe,Sin madurar
+berry.small,Pequeña
+berry.unripe,Verde
 calorie.line,Energía: {0} {1}
 calorie.per_cell," ({0} {1}/celda)"
 calorie.unit,kcal
@@ -66,15 +70,15 @@ generic.more,· ... y {0} más
 generic.other_attributes,· Otros atributos {0}
 hidden.chem_purity,Pureza química: {0}%
 hidden.durability,Durabilidad: {0}/{1}
-hidden.durability_faked,"Durabilidad real: {0}/{1} (se muestra {2}/{3}, probablemente falsificada)"
+hidden.durability_faked,"Durabilidad real: {0}/{1} (muestra {2}/{3}, probablemente manipulada)"
 hidden.purity,Pureza: {0}
-hidden.purity_faked,"Pureza real: {0} (se muestra {1}, probablemente falsificada)"
-hint.double_click,Doble clic para tasar; doble clic en otro objeto para cambiar
+hidden.purity_faked,"Pureza real: {0} (muestra {1}, probablemente falsificada)"
+hint.double_click,Haz doble clic para inspeccionar el objeto.
 list.sep,", "
 lottery.matched_none,Acertados {0}/6 -> sin premio
 lottery.matched_prize,Acertados {0}/6 -> premio {1}
-lottery.not_drawn,Edición {0}: aún sin sorteo (se sortea cada sábado)
-lottery.winning,Número ganador: {0}
+lottery.not_drawn,Sorteo {0}: aún sin resultados (cada sábado por la mañana)
+lottery.winning,Números ganadores: {0}
 market.line,Mercado: {0}
 module.power,{0} energía/día
 module.quality,{0} calidad
@@ -84,52 +88,53 @@ price.cost_close,)
 price.cost_open," (Coste "
 price.list," Precio: {0}"
 price.sell,Venta: {0}
-reveal.modifier,Modificador real: {0}% (disfrazado {1}%)
+reveal.modifier,Modificador real: {0}% (disfrazado como {1}%)
 reveal.real,Real: {0} (disfrazado como {1})
 reveal.real_with_mod,Real: {0} ({1}%) (disfrazado como {2})
 ribwich.header,Motivos del falso:
 ribwich.more,... y {0} más
-ribwich.reason_bun_no_pickles,Pan de sésamo pero sin pepinillos extra; el de lujo exige ambos
-ribwich.reason_date_missing,Sin fecha de producción grabada
-ribwich.reason_davre_missing,Falta la marca Davre
-ribwich.reason_davre_wrong,Marca Davre incorrecta
-ribwich.reason_first_sticker,El primer lote no debe llevar pegatina Ribwich
+ribwich.reason_bun_no_pickles,Pan de sésamo sin extra de pepinillos (el Deluxe exige ambos)
+ribwich.reason_date_missing,Sin fecha de producción
+ribwich.reason_davre_missing,Falta el logotipo de Davre
+ribwich.reason_davre_wrong,Logotipo de Davre incorrecto
+ribwich.reason_first_sticker,El primer lote no debe llevar pegatina de costidillo
 ribwich.reason_month_range,Mes {0} fuera de 1-12
-ribwich.reason_pickles_no_bun,Pepinillos extra pero sin pan de sésamo; el de lujo exige ambos
-ribwich.reason_plant_missing,Sin número de planta
-ribwich.reason_plant_range,Planta n.º {0} fuera de 01-35
-ribwich.reason_second_sticker_missing,Al segundo lote le falta su pegatina Ribwich
-ribwich.reason_second_sticker_wrong,El segundo lote lleva una pegatina Ribwich errónea
+ribwich.reason_pickles_no_bun,Extra de pepinillos sin pan de sésamo (el Deluxe exige ambos)
+ribwich.reason_plant_missing,Sin código de instalación
+ribwich.reason_plant_range,Instalación {0} fuera de 01-35
+ribwich.reason_second_sticker_missing,Al segundo lote le falta la pegatina de costidillo
+ribwich.reason_second_sticker_wrong,El segundo lote lleva una pegatina de costidillo incorrecta
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Año {0} fuera de 425-429 / 432-438
-scratcher.no_prize,Rasca y gana: sin premio
+scratcher.no_prize,Rasca y Gana: sin premio
 scratcher.progress,Rascado {0}/3
-scratcher.win,Rasca y gana: gana {0} ({1} coincidencias)
-sealed.contents,Dentro: {0}{1}
+scratcher.win,Rasca y Gana: gana {0} ({1} coincidencias)
+sealed.contents,Contenido: {0}{1}
 sealed.empty,Contenido: vacío
-sealed.more," ... {0} en total"
-sealed.total,Total dentro: {0}
+sealed.more," ... {0} objetos en total"
+sealed.total,Valor total del contenido: {0}
 sealed.unit," ({0})"
 seed.header,Rasgos (sin analizar):
 seed.more,... y {0} más
 seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
-storage.more_kinds," y {0} tipos"
+storage.more_kinds," ... {0} tipos en total"
 storage.ratio,Compresión: {0} ({1}/{2} celdas)
-storage.total_value,Valor total: {0}
 title.appraisal_suffix,"{0} Precio {1}, mejor oferta {2}"
 value.from,"Origen: "
-value.per_cell,Valor/celda: {0} ({1}/{2} celdas)
+value.per_cell,Valor por celda: {0} ({1}/{2} celdas)
 value.perfect_range," | perfecto {0}-{1}"
 value.total,Total: {0} × {1} = {2}
 value.total_line,Total: {0}
+water.actives,"Principios activos: "
+water.other,"Otros: "
 water.head,Agua: {0}% {1}
 water.impurities,"Impurezas: "
 water.mismatch," (etiqueta no coincide)"
 water.none,ninguna
 water.trace,trazas (bajo el umbral de visualización)
 wine.aging,Bono de crianza: +{0}/día (total +{1})
-wine.composition,"Composición: extracto {0}‰, contaminante {1}‰"
+wine.composition,"Composición: extracto {0}‰, contaminantes {1}‰"
 wine.counterfeit,Falso: levadura ilegal
 wine.empty,Vacío
 wine.fermenting,Fermentando
@@ -137,34 +142,40 @@ wine.finished,Acabado
 wine.score,Puntuación del vino: {0}{1}
 wine.state,Vino: {0}
 wine.tier,", nivel {0}"
-wine.unknown_state,Desconocido({0})
+wine.unknown_state,Desconocido ({0})
 wine.yeast_power,Potencia de levadura: {0}/ciclo
 machine.battery_line,Energía restante: {0} ({1} días)
-config.section.display,Optimización de visualización
+config.section.display,Visualización
 config.item_appraisal,Tasación de objetos
-config.item_appraisal.tip,Combina autenticidad, desglose de valor, rango de oferta perfecta, motivos de falsificación e información de plantas.
-config.info_enhance,Mejoras de información
-config.info_enhance.tip,Combina valor por celda, impacto de etiquetas/mercado, valores de módulos, batería de máquina, contenedores, sobreprecio de contrabando, lotería, descripciones atenuadas y precios de venta/compra.
-config.type_badge,Etiquetas de tipo
-config.type_badge.tip,"Muestra los tipos de objeto sobre el tooltip como placas de color con texto blanco: medicina/agua/drogas/venenos azul, tabaco/alcohol negro, lujo rosa, comida verde, artículos del hogar cian, armas/armadura turquesa, herramientas/materiales violeta, prohibido/restringido rojo oscuro, resto gris. Desactívalo para volver a la línea [tipo] original."
-config.container_name,Nombres en contenedores y máquinas
-config.container_name.tip,Muestra nombres bajo contenedores y máquinas. Posición fija abajo.
-config.container_name_bg,Fondo de nombres de iconos
-config.container_name_bg.tip,Añade un fondo negro translúcido detrás del nombre. Opacidad fija en 0,6.
-config.customer_alert,Aviso de llegada de cliente
-config.customer_alert.tip,"Avisa cuando llega un cliente buscado o potenciado, con la recompensa real, el nombre real y el nivel de potenciación."
-config.section.interaction,Optimización de operación
+config.item_appraisal.tip,Muestra el veredicto de autenticidad y el desglose del valor según el tipo de objeto.
+config.cost_performance,Valor por celda
+config.cost_performance.tip,Muestra el valor por celda del inventario y la compresión de los contenedores.
+config.container_contents,Contenido del contenedor
+config.container_contents.tip,"Enumera el contenido de contenedores desbloqueados, sin un valor total aparte."
+config.info_enhance,Información adicional
+config.info_enhance.tip,"Añade datos según el objeto: efectos de etiquetas y módulos, carga de baterías, modificadores de mercado, resultados de lotería, descripciones atenuadas y etiquetas de precio más claras."
+config.type_badge,Etiquetas de categoría
+config.type_badge.tip,Muestra las categorías del objeto sobre la descripción emergente.
+config.type_badge_muted,Atenuar colores de etiquetas
+config.type_badge_muted.tip,Las etiquetas no prohibidas usan el fondo oscuro del tooltip y un color de categoría aclarado; el contrabando mantiene el texto rojo de aviso.
+config.container_name,Nombres de contenedores y máquinas
+config.container_name.tip,Muestra el nombre en la parte inferior del icono de contenedores y máquinas.
+config.container_name_bg,Fondo de los nombres
+config.container_name_bg.tip,Añade un fondo negro translúcido (60 % de opacidad) detrás del nombre.
+config.customer_alert,Aviso de llegada de clientes
+config.customer_alert.tip,"Avisa cuando llega un cliente buscado o ciberaumentado y muestra la recompensa real, su nombre real y su nivel de ciberaumentación."
+config.section.interaction,Controles
 config.double_click_inspect,Doble clic para inspeccionar
-config.double_click_inspect.tip,Abre la inspección de objetos de tasación o autenticidad (inyectores, cigarrillos, sellos, etc.) con doble clic, sin lupa. También cambia el texto de ayuda; desactívalo para restaurar el flujo original.
+config.double_click_inspect.tip,"Haz doble clic en un objeto de tasación o de verificación de autenticidad (inyectores, cigarrillos, tarjetas de alimentos, etc.) para abrir el panel de inspección sin la lupa. Con el panel abierto, haz doble clic en otro objeto para cambiar a él. La indicación de la lupa pasa a ser «Haz doble clic para inspeccionar el objeto». Desactívalo para volver al funcionamiento original."
 config.section.reveal,Revelación
-config.hidden_truth,Revelar discrepancias
-config.hidden_truth.tip,"Muestra las diferencias reales de estado, la durabilidad real y la pureza real de lingotes y productos químicos. Delata los falsos y facilita mucho la tasación."
-config.water_wine,Análisis de agua
-config.water_wine.tip,Combina pureza, impurezas y consejos de purificación del agua con la puntuación y composición del vino. No requiere probador de agua.
-config.scratcher,Vista previa de rasca
-config.scratcher.tip,Muestra el premio (o que no hay) y el progreso rascado antes de rascar. Es un recálculo de solo lectura; nunca rasca por ti. Desactívalo para ocultar el resultado.
-config.sealed_box,Rayos X de contenedores
-config.sealed_box.tip,Lista el contenido y el valor total de contenedores cerrados antes de abrirlos. Se salta la cerradura; desactivado por defecto.
-config.result_prefill,Rellenar resultado
+config.hidden_truth,Revelar disfraces y valores reales
+config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."
+config.water_wine,Análisis de agua y vino
+config.water_wine.tip,"Muestra la pureza y las impurezas del agua, y los datos de fermentación del vino, sin tira reactiva."
+config.scratcher,Vista previa de Rasca y Gana
+config.scratcher.tip,"Antes de rascar, muestra si un Rasca y Gana tiene premio, cuánto y cuánto se ha rascado ya. Solo lectura con las reglas del juego; nunca rasca por ti."
+config.sealed_box,Rayos X de contenedores cerrados
+config.sealed_box.tip,"Muestra el contenido y el valor total de los contenedores cerrados (cajas fuertes, armeros) antes de abrirlos. Equivale a saltarse la cerradura, por eso está desactivado por defecto."
+config.result_prefill,Rellenar resultado de inspección
 config.result_prefill.tip,Al abrir el panel de inspección, marca los defectos reales de falsificación y rellena el mejor precio de tasación. Solo rellena los controles; nunca envía ni confirma. Desactivado por defecto.
 appraisal.minimum_adjustment,Ajuste al valor mínimo

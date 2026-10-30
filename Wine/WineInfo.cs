@@ -48,7 +48,7 @@ internal static class WineInfo
                 0 => Loc.T("wine.empty", "Empty"),
                 1 => Loc.T("wine.fermenting", "Fermenting"),
                 2 => Loc.T("wine.finished", "Finished"),
-                _ => Loc.T("wine.unknown_state", "Unknown({0})", state),
+                _ => Loc.T("wine.unknown_state", "Unknown ({0})", state),
             };
             lines.Add(new TooltipLine(Loc.T("wine.state", "Wine: {0}", stateText), Info));
 
@@ -68,7 +68,7 @@ internal static class WineInfo
                 try { contaminant = WineHelper.GetWineContaminantPerMille(item); } catch { }
                 lines.Add(new TooltipLine(
                     Loc.T("wine.composition",
-                        "Composition: extract {0}‰, contaminant {1}‰", extract, contaminant),
+                        "Composition: extract {0}‰, contaminants {1}‰", extract, contaminant),
                     Detail));
             }
 
@@ -95,7 +95,7 @@ internal static class WineInfo
                 if (yeastTag is int yeast && yeast > 0)
                 {
                     lines.Add(new TooltipLine(
-                        Loc.T("wine.yeast_power", "Yeast power: {0}/tick", yeast),
+                        Loc.T("wine.yeast_power", "Yeast strength: {0}/tick", yeast),
                         Detail));
                 }
             }

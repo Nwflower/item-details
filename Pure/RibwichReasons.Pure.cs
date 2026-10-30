@@ -119,18 +119,18 @@ internal static class RibwichReasons
     /// <summary>对应的英文兜底文案（缺本地化词条时直接用它）。</summary>
     internal static string English(Reason r) => r switch
     {
-        Reason.ProductionDateMissing => "No production date stamped",
-        Reason.MonthOutOfRange => "Month {0} outside 1-12",
-        Reason.YearOutOfRange => "Year {0} outside 425-429 / 432-438",
-        Reason.FacilityMissing => "No packing plant number",
-        Reason.FacilityOutOfRange => "Plant no. {0} outside 01-35",
-        Reason.DavreMissing => "Davre mark absent",
-        Reason.DavreWrong => "Davre mark wrong",
-        Reason.FirstRunHasSticker => "First batch should carry no Ribwich sticker",
-        Reason.SecondRunStickerMissing => "Second batch lacks its Ribwich sticker",
-        Reason.SecondRunStickerWrong => "Second batch has the wrong Ribwich sticker",
-        Reason.BunWithoutPickles => "Sesame bun but no extra pickles; deluxe needs both",
-        Reason.PicklesWithoutBun => "Extra pickles but no sesame bun; deluxe needs both",
+        Reason.ProductionDateMissing => "No production date",
+        Reason.MonthOutOfRange => "Month {0} not within 1-12",
+        Reason.YearOutOfRange => "Year {0} not within 425-429 or 432-438",
+        Reason.FacilityMissing => "No packing facility number",
+        Reason.FacilityOutOfRange => "Facility {0} not within 01-35",
+        Reason.DavreMissing => "Davre logo missing",
+        Reason.DavreWrong => "Wrong Davre logo",
+        Reason.FirstRunHasSticker => "First run should have no Ribwich sticker",
+        Reason.SecondRunStickerMissing => "Second run is missing its Ribwich sticker",
+        Reason.SecondRunStickerWrong => "Second run has the wrong Ribwich sticker",
+        Reason.BunWithoutPickles => "Sesame bun without extra pickles (Deluxe needs both)",
+        Reason.PicklesWithoutBun => "Extra pickles without sesame bun (Deluxe needs both)",
         _ => "{0}",
     };
 

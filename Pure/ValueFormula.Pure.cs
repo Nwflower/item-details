@@ -60,20 +60,20 @@ internal static partial class ValueBreakdown
 
         var r = new Result { Kind = Kind.Hand };
         r.Parts.Add(new("appraisal.base", "Base", 100, true));
-        if (mat == "CARBON_COMPOSITE") r.Parts.Add(new("appraisal.carbon", "Carbon-fiber shell", 50));
-        if (mat == "GOLD_PLATED") r.Parts.Add(new("appraisal.gold", "Gold plating", 200));
-        if (iface == "NEURAL") r.Parts.Add(new("appraisal.neural", "Neural jack", 120));
-        if (iface == "EMG_PLUS") r.Parts.Add(new("appraisal.emgplus", "EMG+ connector", 45));
-        if (iface == "UNSPECIFIED") r.Parts.Add(new("appraisal.iface_unknown", "Interface type unknown", -60));
+        if (mat == "CARBON_COMPOSITE") r.Parts.Add(new("appraisal.carbon", "Carbon composite", 50));
+        if (mat == "GOLD_PLATED") r.Parts.Add(new("appraisal.gold", "Gold plated", 200));
+        if (iface == "NEURAL") r.Parts.Add(new("appraisal.neural", "Neural interface", 120));
+        if (iface == "EMG_PLUS") r.Parts.Add(new("appraisal.emgplus", "EMG+ interface", 45));
+        if (iface == "UNSPECIFIED") r.Parts.Add(new("appraisal.iface_unknown", "Unspecified interface", -60));
         if (cond == "WEAR") r.Parts.Add(new("appraisal.worn", "Worn", -35));
         if (cond == "DAMAGE") r.Parts.Add(new("appraisal.damaged", "Damaged", -85));
-        if (armored == "ARMORED") r.Parts.Add(new("appraisal.armor", "Armor module", 50));
-        if (bladed == "BLADED") r.Parts.Add(new("appraisal.blade", "Blade module", 80));
+        if (armored == "ARMORED") r.Parts.Add(new("appraisal.armor", "Armor add-on", 50));
+        if (bladed == "BLADED") r.Parts.Add(new("appraisal.blade", "Blade add-on", 80));
         if (mat == "CARBON_COMPOSITE" && (iface == "EMG_PLUS" || iface == "NEURAL")
             && cond == "NONE" && armored == "ARMORED" && bladed == "BLADED")
-            r.Parts.Add(new("appraisal.build_tactical", "Tactical build", 100));
+            r.Parts.Add(new("appraisal.build_tactical", "Tactical set bonus", 100));
         if (mat == "GOLD_PLATED" && iface == "NEURAL" && cond == "NONE")
-            r.Parts.Add(new("appraisal.build_deluxe", "Deluxe build", 200));
+            r.Parts.Add(new("appraisal.build_deluxe", "Deluxe set bonus", 200));
         Sum(r, 50);
         return r;
     }
@@ -99,21 +99,21 @@ internal static partial class ValueBreakdown
 
         var r = new Result { Kind = Kind.Plasma };
         r.Parts.Add(new("appraisal.base", "Base", 300, true));
-        if (wear == "WEAR") r.Parts.Add(new("appraisal.casing_wear", "Slight wear", -45));
-        if (wear == "WEAR_HEAVY") r.Parts.Add(new("appraisal.casing_wear_heavy", "Severe wear", -90));
-        if (crack == "CRACK") r.Parts.Add(new("appraisal.casing_crack", "Casing fracture", -150));
-        if (uncov == "UNCOVERED") r.Parts.Add(new("appraisal.casing_screws", "Loose screws", -30));
-        if (reinf == "REINFORCED") r.Parts.Add(new("appraisal.casing_reinforced", "Reinforcement", 60));
-        if (color == "POOR1" || color == "POOR2") r.Parts.Add(new("appraisal.finish_cheap", "Cheap finish", -150));
-        if (color == "HIGH_QUALITY") r.Parts.Add(new("appraisal.finish_premium", "Premium finish", 150));
+        if (wear == "WEAR") r.Parts.Add(new("appraisal.casing_wear", "Light wear", -45));
+        if (wear == "WEAR_HEAVY") r.Parts.Add(new("appraisal.casing_wear_heavy", "Heavy wear", -90));
+        if (crack == "CRACK") r.Parts.Add(new("appraisal.casing_crack", "Cracked casing", -150));
+        if (uncov == "UNCOVERED") r.Parts.Add(new("appraisal.casing_screws", "Exposed screws", -30));
+        if (reinf == "REINFORCED") r.Parts.Add(new("appraisal.casing_reinforced", "Reinforced casing", 60));
+        if (color == "POOR1" || color == "POOR2") r.Parts.Add(new("appraisal.finish_cheap", "Low-grade plasma color", -150));
+        if (color == "HIGH_QUALITY") r.Parts.Add(new("appraisal.finish_premium", "High-grade plasma color", 150));
         if (seal == "LL" && (color == "STANDARD" || color == "POOR1" || color == "POOR2"))
-            r.Parts.Add(new("appraisal.seal_ll", "Wild's Rides incentive", 60));
+            r.Parts.Add(new("appraisal.seal_ll", "Wild's Rides bonus", 60));
         else if (seal == "ZHONGHUA" && wear == "NONE" && crack == "NONE" && uncov == "NONE" && color == "STANDARD")
-            r.Parts.Add(new("appraisal.seal_zhonghua", "ZhongHua incentive", 120));
+            r.Parts.Add(new("appraisal.seal_zhonghua", "ZhongHua Shipbuilding bonus", 120));
         else if (seal == "REPUBLIC" && crack != "CRACK" && color == "STANDARD")
-            r.Parts.Add(new("appraisal.seal_republic", "Republic Naval incentive", 120));
+            r.Parts.Add(new("appraisal.seal_republic", "Republic Naval Requisition bonus", 120));
         else if (seal == "IGNITION_LAB" && reinf == "NONE" && wear == "NONE" && crack == "NONE" && uncov == "NONE" && color == "HIGH_QUALITY")
-            r.Parts.Add(new("appraisal.seal_ignition", "Ignition Lab incentive", 750));
+            r.Parts.Add(new("appraisal.seal_ignition", "Ignition Lab bonus", 750));
         Sum(r, 90);
         return r;
     }
@@ -132,7 +132,7 @@ internal static partial class ValueBreakdown
         if (wrap == 1 || wrap == 2 || native == 40)
         {
             var fr = new Result { Kind = Kind.Ribwich, Valid = true, Total = 40 };
-            fr.Parts.Add(new("appraisal.ribwich_opened", "Opened or fake (flat 40)", 40, true));
+            fr.Parts.Add(new("appraisal.ribwich_opened", "Opened or counterfeit (fixed 40)", 40, true));
             return fr;
         }
 
@@ -148,16 +148,16 @@ internal static partial class ValueBreakdown
 
         var r = new Result { Kind = Kind.Ribwich };
         r.Parts.Add(new("appraisal.base", "Base", 150, true));
-        if (meat == 1) r.Parts.Add(new("appraisal.ribwich_double_meat", "Double meat", 800));
-        if (bun == 1 && pickles == 1) r.Parts.Add(new("appraisal.ribwich_deluxe", "Deluxe combo", 300));
+        if (meat == 1) r.Parts.Add(new("appraisal.ribwich_double_meat", "Double meat patty", 800));
+        if (bun == 1 && pickles == 1) r.Parts.Add(new("appraisal.ribwich_deluxe", "Deluxe Edition", 300));
         if ((month == 1 && year == 425) || (month == 12 && year == 438))
-            r.Parts.Add(new("appraisal.ribwich_month_edge", "First or final month", 50));
-        if (year >= 425 && year <= 429) r.Parts.Add(new("appraisal.ribwich_first_batch", "First batch", 80));
+            r.Parts.Add(new("appraisal.ribwich_month_edge", "First or last month", 50));
+        if (year >= 425 && year <= 429) r.Parts.Add(new("appraisal.ribwich_first_batch", "First production run", 80));
         int f = fac.Value;
         if (OneOf(f, 1, 2, 5, 8, 21, 34))
-            r.Parts.Add(new("appraisal.ribwich_plant_grade_a", "Grade-A plant {0:D2}", 50, false, f));
+            r.Parts.Add(new("appraisal.ribwich_plant_grade_a", "High-quality facility {0:D2}", 50, false, f));
         else if (OneOf(f, 7, 15, 18, 26, 31))
-            r.Parts.Add(new("appraisal.ribwich_plant_grade_c", "Grade-C plant {0:D2}", -50, false, f));
+            r.Parts.Add(new("appraisal.ribwich_plant_grade_c", "Low-quality facility {0:D2}", -50, false, f));
         Sum(r, 40);
         return r;
     }

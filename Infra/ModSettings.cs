@@ -51,7 +51,7 @@ internal static class ModSettings
     private const string SecRevealKey = "config.section.reveal";
     private const string SecRevealEn = "Reveal";
     private const string SecInteractionKey = "config.section.interaction";
-    private const string SecInteractionEn = "Interaction & Visuals";
+    private const string SecInteractionEn = "Controls";
 
     private static ModConfig? _cfg;
 
@@ -60,8 +60,11 @@ internal static class ModSettings
 
     // ---- 显示优化 ----
     private static readonly Toggle ItemAppraisalToggle = new(true);      // 真伪 + 价值构成 + 植物
-    private static readonly Toggle InfoEnhanceToggle = new(true);        // 性价比/标签/模块/电池/容器/黑市/彩票/描述/价格
+    private static readonly Toggle CostPerformanceToggle = new(true);    // 性价比 + 压缩率
+    private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
+    private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
+    private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
@@ -70,11 +73,11 @@ internal static class ModSettings
     private static readonly Toggle DoubleClickInspectToggle = new(true);
 
     // ---- 透视 ----
-    private static readonly Toggle HiddenTruthToggle = new(true);        // 揭示货不对板
-    private static readonly Toggle WaterWineToggle = new(false);         // 水质 + 酒分析
-    private static readonly Toggle ScratcherToggle = new(false);         // 刮刮卡提前看
-    private static readonly Toggle SealedBoxToggle = new(false);         // 密封箱透视
-    private static readonly Toggle ResultPrefillToggle = new(false);     // 结果预填
+    private static readonly Toggle HiddenTruthToggle = new(true);        // 揭示伪装与真实属性
+    private static readonly Toggle WaterWineToggle = new(false);         // 水质 + 果酿分析
+    private static readonly Toggle ScratcherToggle = new(false);         // 刮刮乐预知
+    private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
+    private static readonly Toggle ResultPrefillToggle = new(false);     // 鉴定结果预填
 
     internal static void Init(string modId)
     {
@@ -86,65 +89,77 @@ internal static class ModSettings
             // ================= 显示优化 =================
             ItemAppraisalToggle.Define(_cfg, "show_item_appraisal", SecDisplayKey, SecDisplayEn,
                 Text("config.item_appraisal", "Item Appraisal"),
-                Text("config.item_appraisal.tip", "Combines authenticity, value breakdown, perfect offer range, " +
-                     "counterfeit reasons, berry quality and seed traits."));
+                Text("config.item_appraisal.tip", "Shows authenticity verdicts and value breakdowns, adapted to each item type."));
+
+            CostPerformanceToggle.Define(_cfg, "show_cost_performance", SecDisplayKey, SecDisplayEn,
+                Text("config.cost_performance", "Value per Cell"),
+                Text("config.cost_performance.tip", "Shows value per inventory cell and the compression ratio of containers."));
+
+            ContainerContentsToggle.Define(_cfg, "show_container_contents", SecDisplayKey, SecDisplayEn,
+                Text("config.container_contents", "Container Contents"),
+                Text("config.container_contents.tip", "Lists unlocked container contents; no separate total value."));
 
             InfoEnhanceToggle.Define(_cfg, "show_info_enhance", SecDisplayKey, SecDisplayEn,
-                Text("config.info_enhance", "Information Enhancements"),
-                Text("config.info_enhance.tip", "Combines value per cell, label/market impact, module effect deltas, " +
-                     "machine battery, container details, contraband markup, lottery info, dimmed descriptions " +
-                     "and sell/cost price display."));
+                Text("config.info_enhance", "Extra Item Info"),
+                Text("config.info_enhance.tip", "Adds item-specific details such as label and module effects, battery " +
+                     "life, market modifiers, lottery results, dimmed descriptions and clearer price labels."));
 
             TypeBadgeToggle.Define(_cfg, "show_type_badge", SecDisplayKey, SecDisplayEn,
                 Text("config.type_badge", "Item Type Badges"),
-                Text("config.type_badge.tip", "Shows the item's categories above the tooltip as colored plates with white text: " +
-                     "medical/water/drugs/poison blue, tobacco/alcohol black, luxury pink, food green, household cyan, " +
-                     "weapons/armor teal, tools/materials purple, contraband/restricted dark red, other gray."));
+                Text("config.type_badge.tip", "Shows the item's categories above the tooltip."));
+
+            TypeBadgeMutedToggle.Define(_cfg, "mute_type_badge_colors", SecDisplayKey, SecDisplayEn,
+                Text("config.type_badge_muted", "Muted Badge Colors"),
+                Text("config.type_badge_muted.tip", "Non-contraband badges use the tooltip's dark background and a " +
+                     "brightened category color. Contraband keeps its red warning text."));
 
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,
-                Text("config.container_name", "Container & Machine Icon Names"),
-                Text("config.container_name.tip", "Shows names under containers and machines. Position is fixed at the bottom."));
+                Text("config.container_name", "Container & Machine Labels"),
+                Text("config.container_name.tip", "Shows the name at the bottom of container and machine icons."));
 
             ContainerNameBgToggle.Define(_cfg, "show_container_name_bg", SecDisplayKey, SecDisplayEn,
-                Text("config.container_name_bg", "Icon Name Background"),
-                Text("config.container_name_bg.tip", "Adds a translucent black plate behind the name. Opacity is fixed at 0.6."));
+                Text("config.container_name_bg", "Label Background"),
+                Text("config.container_name_bg.tip", "Adds a translucent black background (60% opacity) behind the label."));
 
             CustomerAlertToggle.Define(_cfg, "show_customer_alert", SecDisplayKey, SecDisplayEn,
                 Text("config.customer_alert", "Customer Arrival Alert"),
-                Text("config.customer_alert.tip", "Alerts when a wanted or augmented client arrives, including the actual " +
-                     "bounty, real name and augmentation tier."));
+                Text("config.customer_alert.tip", "When a wanted or augmented customer arrives, shows a notice with the " +
+                     "actual bounty, real name and augmentation tier."));
 
             // ================= 操作优化 =================
             DoubleClickInspectToggle.Define(_cfg, "double_click_inspect", SecInteractionKey, SecInteractionEn,
                 Text("config.double_click_inspect", "Double-Click to Inspect"),
-                Text("config.double_click_inspect.tip", "Double-click an appraisal or inspection item (injectors, cigarettes, " +
-                     "stamps, etc.) to open the inspection panel without the magnifier. Also changes the hint text."));
+                Text("config.double_click_inspect.tip", "Double-click an appraisal item or an authenticity-check item " +
+                     "(injectors, cigarettes, food stamps, etc.) to open the inspection panel without the magnifying " +
+                     "glass. While the panel is open, double-click another item to switch to it. The magnifying-glass " +
+                     "hint becomes \"Double-Click To Inspect\". Turn off to restore the original flow."));
 
             // ================= 透视 =================
             HiddenTruthToggle.Define(_cfg, "show_hidden_truth", SecRevealKey, SecRevealEn,
-                Text("config.hidden_truth", "Reveal Mismatches & True Stats"),
-                Text("config.hidden_truth.tip", "Shows true condition differences, true durability and ingot/chemical purity. " +
-                     "Directly exposes fakes and lowers appraisal difficulty."));
+                Text("config.hidden_truth", "Reveal Disguises & True Stats"),
+                Text("config.hidden_truth.tip", "Shows what disguised features really are, true durability, and true " +
+                     "ingot/chemical purity. Exposes fakes directly and makes appraisal much easier."));
 
             WaterWineToggle.Define(_cfg, "show_water_purity", SecRevealKey, SecRevealEn,
                 Text("config.water_wine", "Water & Wine Analysis"),
-                Text("config.water_wine.tip", "Combines water purity/impurities/advice with wine score and composition. " +
-                     "No water tester is required."));
+                Text("config.water_wine.tip", "Shows water purity and impurities, plus wine brewing data, without a " +
+                     "testing strip."));
 
             ScratcherToggle.Define(_cfg, "show_scratcher", SecRevealKey, SecRevealEn,
                 Text("config.scratcher", "Scratcher Preview"),
-                Text("config.scratcher.tip", "Shows the prize (or no prize) and scratched progress before scratching. " +
-                     "Read-only recomputation; it never scratches for you."));
+                Text("config.scratcher.tip", "Shows whether a scratcher ticket wins, how much, and how far it has been " +
+                     "scratched, before you scratch it. Read-only: it reuses the game's own rules and never scratches for you."));
 
             SealedBoxToggle.Define(_cfg, "show_sealed_box", SecRevealKey, SecRevealEn,
-                Text("config.sealed_box", "Sealed Container X-Ray"),
-                Text("config.sealed_box.tip", "Lists contents and total value of locked containers before unlocking. " +
-                     "Bypasses the lock; off by default."));
+                Text("config.sealed_box", "Locked Container X-Ray"),
+                Text("config.sealed_box.tip", "Lists the contents and total value of locked containers (safes, gun " +
+                     "cabinets) before they are unlocked. This skips the unlocking step, so it is off by default."));
 
             ResultPrefillToggle.Define(_cfg, "show_result_prefill", SecRevealKey, SecRevealEn,
-                Text("config.result_prefill", "Result Prefill"),
-                Text("config.result_prefill.tip", "Prefills the actual counterfeit issues and the best appraisal offer " +
-                     "when the inspection panel opens. It only fills the controls; it never submits or confirms."));
+                Text("config.result_prefill", "Prefill Inspection Result"),
+                Text("config.result_prefill.tip", "When the inspection panel opens, ticks the actual counterfeit issues " +
+                     "and enters the best appraisal offer. It only fills in the controls and never submits or confirms. " +
+                     "Off by default."));
 
             _cfg.Save();
 
@@ -218,11 +233,11 @@ internal static class ModSettings
     internal static bool Value => ItemAppraisalToggle.Value;
     internal static bool Plant => ItemAppraisalToggle.Value;
     internal static bool InfoEnhance => InfoEnhanceToggle.Value;
-    internal static bool ValueEnhance => InfoEnhanceToggle.Value;
+    internal static bool ValueEnhance => CostPerformanceToggle.Value;
+    internal static bool Container => ContainerContentsToggle.Value;
     internal static bool ModuleEffects => InfoEnhanceToggle.Value;
     internal static bool MachineBattery => InfoEnhanceToggle.Value;
     internal static bool PriceImpact => InfoEnhanceToggle.Value;
-    internal static bool Container => InfoEnhanceToggle.Value;
     internal static bool Contraband => InfoEnhanceToggle.Value;
     internal static bool Lottery => InfoEnhanceToggle.Value;
     internal static bool HideEstimate => InfoEnhanceToggle.Value;
@@ -237,6 +252,7 @@ internal static class ModSettings
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
     internal static bool ContainerNames => ContainerNameToggle.Value;
+    internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
     internal static bool ItemNameBackground => ContainerNameBgToggle.Value;
     internal static float ItemNameBackgroundAlpha => 0.6f;
 

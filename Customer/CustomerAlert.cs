@@ -195,9 +195,9 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
         }
 
         string title;
-        if (wanted && aug) title = Loc.T("alert.title_both", "Wanted · Augmented client");
+        if (wanted && aug) title = Loc.T("alert.title_both", "Wanted · Augmented customer");
         else if (wanted) title = Loc.T("alert.title_wanted", "Wanted");
-        else title = Loc.T("alert.title_augmented", "Augmented client");
+        else title = Loc.T("alert.title_augmented", "Augmented customer");
 
         string body = string.IsNullOrEmpty(name) ? "" : name;
         if (wanted && payout > 0)

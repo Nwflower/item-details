@@ -1,15 +1,15 @@
 # Item Details Русский (ru)
-auth.amount,Дефект номинала
+auth.amount,Проблема с номиналом
 auth.body,Повреждён корпус
-auth.box,Дефект коробки
-auth.chip,Дефект чипа
-auth.color,Дефект цвета
-auth.indicator,Неисправен индикатор
-auth.label,Дефект этикетки
-auth.lettering,Дефект надписи
-auth.logo,Дефект логотипа
-auth.seal,Дефект пломбы
-auth.serial,Дефект серийного номера
+auth.box,Проблема с пачкой
+auth.chip,Проблема с чипом
+auth.color,Проблема с цветом
+auth.indicator,Проблема с индикатором
+auth.label,Проблема с маркировкой
+auth.lettering,Проблема с текстом
+auth.logo,Проблема с логотипом
+auth.seal,Проблема с пломбой
+auth.serial,Проблема с серийным номером
 # key,value
 alert.aug_tier,Уровень аугментации: {0}
 alert.bounty," (награда {0})"
@@ -17,44 +17,48 @@ alert.real_name,Настоящее имя: {0}
 alert.title_augmented,Аугментированный клиент
 alert.title_both,В розыске · Аугментированный клиент
 alert.title_wanted,В розыске
-appraisal.armor,Модуль брони
-appraisal.base,Базовая цена
-appraisal.blade,Модуль клинка
-appraisal.build_deluxe,Люкс-сборка
-appraisal.build_tactical,Тактическая сборка
-appraisal.carbon,Карбоновый корпус
-appraisal.casing_crack,Трещина корпуса
-appraisal.casing_reinforced,Усиление
-appraisal.casing_screws,Ослабленные винты
+appraisal.armor,Броня
+appraisal.base,Базовое значение
+appraisal.blade,Клинок
+appraisal.build_deluxe,Сочетание «Делюкс»
+appraisal.build_tactical,Сочетание «Тактическая»
+appraisal.carbon,Углеродный композит
+appraisal.casing_crack,Трещины
+appraisal.casing_reinforced,Усиленный корпус
+appraisal.casing_screws,Видны винты
 appraisal.casing_wear,Лёгкий износ
-appraisal.casing_wear_heavy,Сильный износ
-appraisal.damaged,Повреждено
-appraisal.emgplus,Разъём EMG+
-appraisal.finish_cheap,Дешёвая отделка
-appraisal.finish_premium,Отделка премиум
-appraisal.gold,Золочение
-appraisal.iface_unknown,Тип интерфейса неизвестен
-appraisal.neural,Нейроразъём
-appraisal.ribwich_deluxe,Люкс-набор
-appraisal.ribwich_double_meat,Двойное мясо
+appraisal.casing_wear_heavy,Значительный износ
+appraisal.damaged,Повреждения
+appraisal.emgplus,Интерфейс ЭМГ+
+appraisal.finish_cheap,Плазма низкого качества
+appraisal.finish_premium,Плазма высокого качества
+appraisal.gold,Золотое покрытие
+appraisal.iface_unknown,Механизм управления не указан
+appraisal.neural,Нейронный интерфейс
+appraisal.ribwich_deluxe,Deluxe Edition
+appraisal.ribwich_double_meat,Двойной слой мяса
 appraisal.ribwich_first_batch,Первая партия
 appraisal.ribwich_month_edge,Первый или последний месяц
-appraisal.ribwich_opened,Открыто или подделка (фикс. 40)
-appraisal.ribwich_plant_grade_a,Завод класса A {0:D2}
-appraisal.ribwich_plant_grade_c,Завод класса C {0:D2}
+appraisal.ribwich_opened,Вскрыт или подделка (фикс. 40)
+appraisal.ribwich_plant_grade_a,Площадка высокого качества {0:D2}
+appraisal.ribwich_plant_grade_c,Площадка низкого качества {0:D2}
 appraisal.seal_ignition,Бонус Ignition Lab
+appraisal.seal_ignition_short,Ignition Lab
 appraisal.seal_ll,Бонус Wild's Rides
-appraisal.seal_republic,Бонус Republic Naval
-appraisal.seal_zhonghua,Бонус ZhongHua
-appraisal.worn,Изношено
-auth.counterfeit,✘ Подозрение на подделку ({0})
+appraisal.seal_ll_short,Wild's Rides
+appraisal.seal_republic,Бонус Republic Naval Requisition
+appraisal.seal_republic_short,Republic Naval Requisition
+appraisal.seal_zhonghua,Бонус ZhongHua Shipbuilding
+appraisal.seal_zhonghua_short,ZhongHua Shipbuilding
+appraisal.worn,Износ
+auth.counterfeit,✘ Подделка ({0})
 auth.genuine,✔ Оригинал
-berry.dried,Высушена
-berry.line,Качество ягоды: {0}
-berry.moldy,Плесневелая
+berry.dried,Высушенная
+berry.line,Качество цветоягоды: {0}
+berry.moldy,Заплесневелая
 berry.normal,Нормальная
-berry.small,Мелкая
-berry.unripe,Недозрелая
+berry.small,Маленькая
+berry.unripe,Недозревшая
 calorie.line,Энергия: {0} {1}
 calorie.per_cell," ({0} {1}/клетку)"
 calorie.unit,kcal
@@ -66,15 +70,15 @@ generic.more,· ... и ещё {0}
 generic.other_attributes,· Прочие атрибуты {0}
 hidden.chem_purity,Химическая чистота: {0}%
 hidden.durability,Прочность: {0}/{1}
-hidden.durability_faked,"Настоящая прочность: {0}/{1} (показано {2}/{3}, вероятно подделка)"
+hidden.durability_faked,"Реальная прочность: {0}/{1} (показано {2}/{3}, вероятно, подделано)"
 hidden.purity,Чистота: {0}
-hidden.purity_faked,"Настоящая чистота: {0} (показано {1}, вероятно подделка)"
-hint.double_click,Двойной щелчок — оценка; щелчок по другому предмету переключает
+hidden.purity_faked,"Реальная чистота: {0} (показано {1}, вероятно, подделка)"
+hint.double_click,"Выполните двойной щелчок, чтобы осмотреть"
 list.sep,", "
 lottery.matched_none,Совпало {0}/6 -> без приза
 lottery.matched_prize,Совпало {0}/6 -> приз {1}
-lottery.not_drawn,Выпуск {0}: розыгрыша ещё не было (каждую субботу)
-lottery.winning,Выигрыш: {0}
+lottery.not_drawn,Тираж {0}: результатов ещё нет (каждую субботу утром)
+lottery.winning,Выигрышные номера: {0}
 market.line,Рынок: {0}
 module.power,{0} энергии/день
 module.quality,{0} качества
@@ -84,52 +88,53 @@ price.cost_close,)
 price.cost_open," (Закупка "
 price.list," Цена: {0}"
 price.sell,Продажа: {0}
-reveal.modifier,Настоящий модификатор: {0}% (маскировка {1}%)
-reveal.real,Настоящее: {0} (выдаётся за {1})
-reveal.real_with_mod,Настоящее: {0} ({1}%) (выдаётся за {2})
+reveal.modifier,Реальный модификатор: {0}% (выдаётся за {1}%)
+reveal.real,На самом деле: {0} (выдаётся за {1})
+reveal.real_with_mod,На самом деле: {0} ({1}%) (выдаётся за {2})
 ribwich.header,Почему подделка:
 ribwich.more,... и ещё {0}
-ribwich.reason_bun_no_pickles,Булка с кунжутом без огурчиков; люкс требует оба
+ribwich.reason_bun_no_pickles,"Булочка с кунжутом без доп. огурцов (для Deluxe Edition нужно и то, и другое)"
 ribwich.reason_date_missing,Нет даты производства
-ribwich.reason_davre_missing,Нет знака Davre
-ribwich.reason_davre_wrong,Неверный знак Davre
-ribwich.reason_first_sticker,В первой партии нет наклейки Ribwich
-ribwich.reason_month_range,Месяц {0} вне 1-12
-ribwich.reason_pickles_no_bun,Огурчики без кунжутной булки; люкс требует оба
-ribwich.reason_plant_missing,Нет номера упаковочного завода
-ribwich.reason_plant_range,Номер завода {0} вне 01-35
-ribwich.reason_second_sticker_missing,Во второй партии нет наклейки Ribwich
-ribwich.reason_second_sticker_wrong,Во второй партии неверная наклейка Ribwich
+ribwich.reason_davre_missing,Нет логотипа DAVRE
+ribwich.reason_davre_wrong,Неверный логотип DAVRE
+ribwich.reason_first_sticker,У первой партии не должно быть наклейки RIBWICH
+ribwich.reason_month_range,Месяц {0} вне диапазона 1-12
+ribwich.reason_pickles_no_bun,"Доп. огурцы без булочки с кунжутом (для Deluxe Edition нужно и то, и другое)"
+ribwich.reason_plant_missing,Нет номера места производства
+ribwich.reason_plant_range,Номер места производства {0} вне диапазона 01-35
+ribwich.reason_second_sticker_missing,У второй партии нет наклейки RIBWICH
+ribwich.reason_second_sticker_wrong,У второй партии неверная наклейка RIBWICH
 ribwich.reason_unknown,{0}
-ribwich.reason_year_range,Год {0} вне 425-429 / 432-438
-scratcher.no_prize,Скретч: без приза
+ribwich.reason_year_range,Год {0} вне диапазонов 425-429 / 432-438
+scratcher.no_prize,Скретч-карта: без выигрыша
 scratcher.progress,Стёрто {0}/3
-scratcher.win,Скретч: выигрыш {0} ({1} совпадений)
+scratcher.win,Скретч-карта: выигрыш {0} (совпадений: {1})
 sealed.contents,Внутри: {0}{1}
-sealed.empty,Содержимое: пусто
-sealed.more," ... всего {0}"
-sealed.total,Всего внутри: {0}
+sealed.empty,Внутри: пусто
+sealed.more," ... всего предметов: {0}"
+sealed.total,Общая стоимость содержимого: {0}
 sealed.unit," ({0})"
 seed.header,Признаки (не проанализированы):
 seed.more,... и ещё {0}
 seed.trait_rank,{0} (ранг {1})
 storage.contains,"Содержит: "
-storage.more_kinds," и ещё видов: {0}"
+storage.more_kinds," ... всего видов: {0}"
 storage.ratio,Сжатие: {0} ({1}/{2} клеток)
-storage.total_value,Общая стоимость: {0}
 title.appraisal_suffix,"{0} цена {1}, лучшее предложение {2}"
 value.from,"Источник: "
-value.per_cell,Стоимость/клетку: {0} ({1}/{2} клеток)
+value.per_cell,Стоимость за клетку: {0} ({1}/{2} клеток)
 value.perfect_range," | идеально {0}-{1}"
 value.total,Итого: {0} × {1} = {2}
 value.total_line,Итого: {0}
+water.actives,"Активные вещества: "
+water.other,"Прочее: "
 water.head,Вода: {0}% {1}
 water.impurities,"Примеси: "
 water.mismatch," (несовпадение этикетки)"
 water.none,нет
 water.trace,следы (ниже порога отображения)
 wine.aging,Бонус выдержки: +{0}/день (всего +{1})
-wine.composition,"Состав: экстракт {0}‰, загрязнитель {1}‰"
+wine.composition,"Состав: экстракт {0}‰, загрязнители {1}‰"
 wine.counterfeit,Подделка: незаконные дрожжи
 wine.empty,Пусто
 wine.fermenting,Бродит
@@ -137,34 +142,40 @@ wine.finished,Готово
 wine.score,Оценка вина: {0}{1}
 wine.state,Вино: {0}
 wine.tier,", уровень {0}"
-wine.unknown_state,Неизвестно({0})
+wine.unknown_state,Неизвестно ({0})
 wine.yeast_power,Сила дрожжей: {0}/тик
 machine.battery_line,Остаток энергии: {0} ({1} дн.)
-config.section.display,Оптимизация отображения
-config.item_appraisal,Оценка предмета
-config.item_appraisal.tip,Объединяет подлинность, структуру стоимости, диапазон идеального предложения, причины подделки и сведения о растениях.
-config.info_enhance,Расширение информации
-config.info_enhance.tip,Объединяет стоимость за клетку, влияние этикеток/рынка, значения модулей, батарею машины, контейнеры, наценку чёрного рынка, лотерею, приглушённые описания и показ цены продажи/покупки.
-config.type_badge,Плашки типа
-config.type_badge.tip,"Показывает типы предмета над подсказкой в виде цветных плашек с белым текстом: медицина/вода/лекарства/яды синие, табак/алкоголь чёрные, роскошь розовая, еда зелёная, товары для дома голубые, оружие/броня бирюзовые, инструменты/материалы фиолетовые, запрещённые/ограниченные тёмно-красные, остальные серые. Отключите, чтобы вернуть исходную строку [тип]."
-config.container_name,Названия контейнеров и машин
-config.container_name.tip,Показывает названия под контейнерами и машинами. Позиция фиксирована снизу.
-config.container_name_bg,Фон названий на иконках
-config.container_name_bg.tip,Добавляет полупрозрачный чёрный фон за названием. Непрозрачность фиксирована 0,6.
+config.section.display,Отображение
+config.item_appraisal,Оценка предметов
+config.item_appraisal.tip,Показывает вердикт о подлинности и разбивку стоимости с учётом типа предмета.
+config.cost_performance,Стоимость за клетку
+config.cost_performance.tip,Показывает стоимость за клетку инвентаря и степень сжатия контейнеров.
+config.container_contents,Содержимое контейнера
+config.container_contents.tip,"Показывает содержимое незапертых контейнеров без отдельной общей стоимости."
+config.info_enhance,Доп. сведения о предметах
+config.info_enhance.tip,"Добавляет сведения в зависимости от предмета: эффекты этикеток и модулей, заряд батарей, рыночные модификаторы, результаты лотереи, приглушённые описания и понятные ценовые подписи."
+config.type_badge,Плашки категорий
+config.type_badge.tip,"Показывает категории предмета над подсказкой."
+config.type_badge_muted,Приглушённые цвета плашек
+config.type_badge_muted.tip,Плашки кроме контрабанды используют тёмный фон подсказки и осветлённый цвет категории; контрабанда сохраняет красный предупреждающий текст.
+config.container_name,Подписи контейнеров и машин
+config.container_name.tip,Показывает название внизу значка контейнера или машины.
+config.container_name_bg,Фон подписей
+config.container_name_bg.tip,Добавляет полупрозрачный чёрный фон (непрозрачность 60%) под подписью.
 config.customer_alert,Оповещение о приходе клиента
-config.customer_alert.tip,"Сообщает, когда приходит клиент в розыске или с аугментацией, включая фактическую награду, настоящее имя и уровень аугментации."
-config.section.interaction,Оптимизация управления
-config.double_click_inspect,Двойной щелчок: оценка
-config.double_click_inspect.tip,Открывает проверку предметов для оценки или проверки подлинности (инъекторы, сигареты, марки и т. п.) двойным щелчком, без лупы. Также меняет текст подсказки; отключите, чтобы вернуть исходный порядок.
+config.customer_alert.tip,"Сообщает о приходе разыскиваемого или аугментированного клиента и показывает фактическую награду, настоящее имя и уровень аугментации."
+config.section.interaction,Управление
+config.double_click_inspect,Осмотр двойным щелчком
+config.double_click_inspect.tip,"Двойной щелчок по предмету для оценки или проверки подлинности (инъекторы, сигареты, продуктовые карточки и т. п.) открывает панель осмотра без увеличительного стекла. Пока панель открыта, двойной щелчок по другому предмету сразу переключает на него. Подсказка про увеличительное стекло заменяется на «Выполните двойной щелчок, чтобы осмотреть». Отключите, чтобы вернуть исходный порядок."
 config.section.reveal,Раскрытие
-config.hidden_truth,Раскрывать несоответствия
-config.hidden_truth.tip,"Показывает настоящие различия состояния, реальную прочность и чистоту слитков/химикатов. Прямо выдаёт подделки и упрощает оценку."
-config.water_wine,Анализ воды
-config.water_wine.tip,Объединяет чистоту, примеси и советы по очистке воды с оценкой и составом вина. Тестер воды не требуется.
+config.hidden_truth,Раскрывать маскировку и реальные параметры
+config.hidden_truth.tip,"Показывает, что скрывается за замаскированными особенностями, реальную прочность и реальную чистоту слитков и химикатов. Сразу выдаёт подделки и сильно упрощает оценку."
+config.water_wine,Анализ воды и вина
+config.water_wine.tip,"Без тест-полоски показывает чистоту воды и примеси, а также данные о брожении вина."
 config.scratcher,Предпросмотр скретч-карты
-config.scratcher.tip,"Показывает приз (или его отсутствие) и прогресс стирания до стирания. Только пересчёт без записи; карта не стирается за вас. Выключите, чтобы скрыть результат."
-config.sealed_box,Просвечивание контейнеров
-config.sealed_box.tip,Показывает содержимое и общую стоимость закрытых контейнеров до вскрытия. Обходит замок; по умолчанию выключено.
-config.result_prefill,Предзаполнение результата
-config.result_prefill.tip,При открытии панели проверки отмечает реальные признаки подделки и подставляет лучшую оценку. Заполняет только элементы управления; ничего не отправляет и не подтверждает. По умолчанию выключено.
+config.scratcher.tip,"До стирания показывает, выиграет ли скретч-карта, сколько и насколько она уже стёрта. Только чтение по правилам игры — карта за вас не стирается."
+config.sealed_box,Просвечивание запертых контейнеров
+config.sealed_box.tip,"Показывает содержимое и общую стоимость запертых контейнеров (сейфы, оружейные шкафы) до вскрытия. Это позволяет обойти замок, поэтому по умолчанию выключено."
+config.result_prefill,Предзаполнение результата осмотра
+config.result_prefill.tip,При открытии панели осмотра отмечает реальные признаки подделки и подставляет лучшую цену оценки. Только заполняет поля — ничего не отправляет и не подтверждает. По умолчанию выключено.
 appraisal.minimum_adjustment,Поправка до минимальной стоимости

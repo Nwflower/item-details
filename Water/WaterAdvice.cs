@@ -22,10 +22,10 @@ namespace ItemDetails;
 ///            （净水片就是「含 15ml 氯的可溶化学物品」，走同一条链，不再特判）
 ///   滤芯     WaterHelper.HandleFilter（逐液体，被去除量转成水；uv_filter 由其内部处理）
 ///
-/// 这条路径比其它模块贵得多，所以按液体组成、容器类型、纯度与已装滤芯状态缓存。
-/// 不按物品实例缓存：玩家常有多瓶同纯度、同杂质的水，按实例会让每瓶首次悬停
-/// 都重跑一次完整模拟（实测单次 60ms 左右）。同组成的水共享结果，首次只付一次成本。
-/// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束；水的纯度/杂质变化会改变 key，仍会重算。
+/// 这条路径比其它模块贵得多，所以按「液体组成 + 容器类型 + 净化前纯度 + 净化手段状态」缓存。
+/// 不按容器实例缓存：同组成、同滤芯/设备状态的水可以共享结果；已安装滤芯立即改变 key，
+/// 背包设备变化最迟经 PurifySources 的 2 秒报告刷新后改变 key，不再串用另一瓶水的建议。
+/// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束。
 ///
 /// 探针壳按 identifier 池化复用。实测单次 66ms 中 DirectoryMaster.Create 占 55ms，
 /// DeepCloneTags 仅 0.07ms；池化后新组成约 10ms，化学剂因 DissolveInto 会 Destroy
@@ -49,9 +49,6 @@ internal static class WaterAdvice
     {
         internal long Signature;
         internal int Purity;
-        internal GameItem? InstalledFilter;
-        internal int? FilterDurability;
-        internal int? FilterSize;
         internal string FilterName = "";
         internal string Locale = "";
         internal float At;
@@ -78,12 +75,17 @@ internal static class WaterAdvice
             int purity = SafePurity(item);
             if (purity < 0) return result;
 
-            long signature = CompositionSignature(item);
-            // HandleFilter 的效果取决于已装滤芯的耐久与孔径，不能只按水质共享。
-            // 直接查标签，不调用会在缺键时写入真实物品的 GetTagReadonly。
-            GameItem? installedFilter = WaterHelper.GetFilterItem(item);
-            int? filterDurability = GameRead.TagInt(installedFilter, "DURABILITY_TAG");
-            int? filterSize = GameRead.TagInt(installedFilter, "FILTER_SIZE_TAG");
+            // 命中判断也必须知道净化手段：已安装滤芯立即取指纹，拥有设备走 2 秒扫描报告。
+#if ITEMDETAILS_DIAG
+            var diagScan = System.Diagnostics.Stopwatch.StartNew();
+#endif
+            var owned = PurifySources.Scan();
+#if ITEMDETAILS_DIAG
+            diagScan.Stop();
+#endif
+            GameItem? installedFilter = null;
+            try { installedFilter = WaterHelper.GetFilterItem(item); } catch { }
+            bool signatureValid = TrySimulationSignature(item, owned, installedFilter, out long signature);
             string filterName = GameRead.ItemName(installedFilter);
             string locale = Loc.Code;
             float now = UnityEngine.Time.unscaledTime;
@@ -97,10 +99,8 @@ internal static class WaterAdvice
                     Cache.RemoveAt(i);
                     continue;
                 }
-                if (entry.Signature != signature || entry.Purity != purity) continue;
-                if (!ReferenceEquals(entry.InstalledFilter, installedFilter)
-                    || entry.FilterDurability != filterDurability || entry.FilterSize != filterSize
-                    || entry.FilterName != filterName || entry.Locale != locale) continue;
+                if (!signatureValid || entry.Signature != signature || entry.Purity != purity) continue;
+                if (entry.FilterName != filterName || entry.Locale != locale) continue;
 
                 if (i != Cache.Count - 1)
                 {
@@ -123,11 +123,6 @@ internal static class WaterAdvice
             _diagFeatureMs = 0;
             _diagCloneCount = 0;
             var diagTotal = System.Diagnostics.Stopwatch.StartNew();
-            var diagScan = System.Diagnostics.Stopwatch.StartNew();
-#endif
-            var owned = PurifySources.Scan();
-#if ITEMDETAILS_DIAG
-            diagScan.Stop();
 #endif
             var usedNames = new HashSet<string>(StringComparer.Ordinal);
 
@@ -204,19 +199,19 @@ internal static class WaterAdvice
                     $"total={diagTotal.Elapsed.TotalMilliseconds:0.00}ms scan={diagScan.Elapsed.TotalMilliseconds:0.00}ms " +
                     $"create={_diagCloneCreateMs:0.00}ms tags={_diagCloneTagsMs:0.00}ms feature={_diagFeatureMs:0.00}ms");
 #endif
-            Cache.Add(new CacheEntry
+            if (signatureValid)
             {
-                Signature = signature,
-                Purity = purity,
-                InstalledFilter = installedFilter,
-                FilterDurability = filterDurability,
-                FilterSize = filterSize,
-                FilterName = filterName,
-                Locale = locale,
-                At = now,
-                Methods = result,
-            });
-            if (Cache.Count > MaxEntries) Cache.RemoveAt(0);
+                Cache.Add(new CacheEntry
+                {
+                    Signature = signature,
+                    Purity = purity,
+                    FilterName = filterName,
+                    Locale = locale,
+                    At = now,
+                    Methods = result,
+                });
+                if (Cache.Count > MaxEntries) Cache.RemoveAt(0);
+            }
             return result;
         }
         catch (Exception ex)
@@ -228,8 +223,7 @@ internal static class WaterAdvice
 
     /// <summary>
     /// 水质组成指纹：容器类型 + 每种液体的 identifier/parts。
-    /// 两瓶同类型、同纯度、同杂质的水得到同一签名，共享净化建议；
-    /// 任何液体比例变化都会改变签名，不会返回过期建议。
+    /// 这只是完整缓存签名的一部分；TrySimulationSignature 还会加入实际净化手段状态。
     /// </summary>
     private static long CompositionSignature(GameItem item)
     {
@@ -258,6 +252,31 @@ internal static class WaterAdvice
             }
             return h;
         }
+    }
+
+    /// <summary>把实际参与本次模拟的设备状态并入液体签名；指纹读取失败时禁用本次缓存。</summary>
+    private static bool TrySimulationSignature(GameItem item, PurifySources.Report owned,
+        GameItem? installedFilter, out long signature)
+    {
+        signature = CompositionSignature(item);
+        if (!owned.SignaturesValid) return false;
+
+        Mix(ref signature, owned.CommonSignature);
+        if (installedFilter != null)
+        {
+            if (!ItemValueFingerprint.TryRead(installedFilter, out long filter)) return false;
+            Mix(ref signature, filter);
+        }
+        else
+        {
+            Mix(ref signature, owned.FiltersSignature);
+        }
+        return true;
+    }
+
+    private static void Mix(ref long hash, long value)
+    {
+        unchecked { hash = (hash ^ value) * 1099511628211L; }
     }
 
     /// <summary>按 identifier 取一个可复用壳；首次才 Create。</summary>

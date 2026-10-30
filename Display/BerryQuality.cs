@@ -37,7 +37,7 @@ internal static class BerryQualityClassifier
         BerryQuality.Normal => Loc.T("berry.normal", "Normal"),
         BerryQuality.Small => Loc.T("berry.small", "Small"),
         BerryQuality.Moldy => Loc.T("berry.moldy", "Moldy"),
-        BerryQuality.Unripe => Loc.T("berry.unripe", "Unripe"),
+        BerryQuality.Unripe => Loc.T("berry.unripe", "Underripe"),
         BerryQuality.Dried => Loc.T("berry.dried", "Dried"),
         _ => null,
     };

@@ -24,12 +24,19 @@ internal static class GenericBreakdown
     private const int MaxTags = 24;
     private const int MaxCacheEntries = 256;
     private const int MaxBaselineTypes = 64;
+    private const float SuccessCacheSeconds = 5f;
     private const float FailureCacheSeconds = 5f;
 
     private static readonly HashSet<string> Curated = new(StringComparer.Ordinal)
     { "hand", "ribwich", "plasma_fuel" };
 
-    private static readonly Dictionary<string, List<string>> Cache = new(StringComparer.Ordinal);
+    private sealed class CacheEntry
+    {
+        internal float At;
+        internal List<string> Lines = new();
+    }
+
+    private static readonly Dictionary<string, CacheEntry> Cache = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, float> FailureCache = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, Dictionary<string, Record>> BaselineCache =
         new(StringComparer.Ordinal);
@@ -108,13 +115,17 @@ internal static class GenericBreakdown
 
             // 显示文本随语言变化，缓存键必须带语言码，不能复用上一次语言的字符串。
             string key = Loc.Code + "|" + CacheKey(type, item);
+            float now = UnityEngine.Time.unscaledTime;
             if (Cache.TryGetValue(key, out var cached))
             {
-                FailureCache.Remove(key);
-                return cached;
+                if (now - cached.At <= SuccessCacheSeconds)
+                {
+                    FailureCache.Remove(key);
+                    return cached.Lines;
+                }
+                Cache.Remove(key);
             }
 
-            float now = UnityEngine.Time.unscaledTime;
             if (FailureCache.TryGetValue(key, out float failedAt))
             {
                 if (now - failedAt <= FailureCacheSeconds) return lines;
@@ -133,7 +144,7 @@ internal static class GenericBreakdown
 
             FailureCache.Remove(key);
             if (Cache.Count >= MaxCacheEntries) Cache.Clear();
-            Cache[key] = built;
+            Cache[key] = new CacheEntry { At = now, Lines = built };
             if (built.Count > 0) Log.MarkOk("GenericBreakdown");
             return built;
         }
@@ -437,7 +448,22 @@ internal static class GenericBreakdown
         // 用实例身份隔离成功/失败缓存，再保留类型与物品 ID 便于诊断键冲突。
         sb.Append(type.id).Append('|').Append(type.itemId).Append('|').Append(type.source).Append('|')
           .Append(item.identifier).Append('|').Append(GameRead.UniqueId(item)).Append('|')
-          .Append(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)).Append('|');
+          .Append(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)).Append('|')
+          .Append(item.unitCount).Append('|').Append(item.unitValue).Append('|')
+          .Append(item.lateUnitValue).Append('|').Append(item.unitBaseValue).Append('|')
+          .Append(item.backupUnitValue).Append('|');
+
+        // 常见非标签定价输入也立即失效；其余第三方私有依赖由成功缓存的短 TTL 兜底。
+        if (item.itemFeatures != null)
+        {
+            foreach (var feature in item.itemFeatures)
+            {
+                if (feature == null) continue;
+                sb.Append("F:").Append(feature.identifier).Append('|').Append(feature.category).Append('|')
+                  .Append((int)feature.featureType).Append('|').Append(feature.isDisabled ? 1 : 0).Append('|')
+                  .Append((int)feature.GetValueStage()).Append('|').Append(feature.GetCurrentValueMod()).Append(';');
+            }
+        }
 
         var keys = new List<string>();
         foreach (var kv in TagRecords(item))
@@ -456,25 +482,25 @@ internal static class GenericBreakdown
         // 键与英文兜底成对出现：键复用于 zh.csv 等译文，英文保证缺文件时也能读。
         (string Key, string En)? hit = (tag, raw) switch
         {
-            ("HAND_MATERIAL", "GOLD_PLATED") => ("appraisal.gold", "Gold plating"),
-            ("HAND_MATERIAL", "CARBON_COMPOSITE") => ("appraisal.carbon", "Carbon-fiber shell"),
-            ("HAND_INTERFACE", "NEURAL") => ("appraisal.neural", "Neural jack"),
-            ("HAND_INTERFACE", "EMG_PLUS") => ("appraisal.emgplus", "EMG+ connector"),
+            ("HAND_MATERIAL", "GOLD_PLATED") => ("appraisal.gold", "Gold plated"),
+            ("HAND_MATERIAL", "CARBON_COMPOSITE") => ("appraisal.carbon", "Carbon composite"),
+            ("HAND_INTERFACE", "NEURAL") => ("appraisal.neural", "Neural interface"),
+            ("HAND_INTERFACE", "EMG_PLUS") => ("appraisal.emgplus", "EMG+ interface"),
             ("HAND_CONDITION", "WEAR") => ("appraisal.worn", "Worn"),
             ("HAND_CONDITION", "DAMAGE") => ("appraisal.damaged", "Damaged"),
-            ("HAND_ADDON_ARMORED", "ARMORED") => ("appraisal.armor", "Armor module"),
-            ("HAND_ADDON_BLADED", "BLADED") => ("appraisal.blade", "Blade module"),
+            ("HAND_ADDON_ARMORED", "ARMORED") => ("appraisal.armor", "Armor add-on"),
+            ("HAND_ADDON_BLADED", "BLADED") => ("appraisal.blade", "Blade add-on"),
             ("PLASMA_SEAL", "LL") => ("appraisal.seal_ll_short", "Wild's Rides"),
-            ("PLASMA_SEAL", "ZHONGHUA") => ("appraisal.seal_zhonghua_short", "ZhongHua"),
-            ("PLASMA_SEAL", "REPUBLIC") => ("appraisal.seal_republic_short", "Republic Naval"),
+            ("PLASMA_SEAL", "ZHONGHUA") => ("appraisal.seal_zhonghua_short", "ZhongHua Shipbuilding"),
+            ("PLASMA_SEAL", "REPUBLIC") => ("appraisal.seal_republic_short", "Republic Naval Requisition"),
             ("PLASMA_SEAL", "IGNITION_LAB") => ("appraisal.seal_ignition_short", "Ignition Lab"),
-            ("PLASMA_COLOR", "HIGH_QUALITY") => ("appraisal.finish_premium", "Premium finish"),
-            ("PLASMA_COLOR", "POOR1") or ("PLASMA_COLOR", "POOR2") => ("appraisal.finish_cheap", "Cheap finish"),
-            ("PLASMA_CASING_CONDITION_WEAR", "WEAR") => ("appraisal.casing_wear", "Slight wear"),
-            ("PLASMA_CASING_CONDITION_WEAR", "WEAR_HEAVY") => ("appraisal.casing_wear_heavy", "Severe wear"),
-            ("PLASMA_CASING_CONDITION_CRACK", "CRACK") => ("appraisal.casing_crack", "Casing fracture"),
-            ("PLASMA_CASING_CONDITION_UNCOVERED", "UNCOVERED") => ("appraisal.casing_screws", "Loose screws"),
-            ("PLASMA_CASING_CONDITION_REINFORCED", "REINFORCED") => ("appraisal.casing_reinforced", "Reinforcement"),
+            ("PLASMA_COLOR", "HIGH_QUALITY") => ("appraisal.finish_premium", "High-grade plasma color"),
+            ("PLASMA_COLOR", "POOR1") or ("PLASMA_COLOR", "POOR2") => ("appraisal.finish_cheap", "Low-grade plasma color"),
+            ("PLASMA_CASING_CONDITION_WEAR", "WEAR") => ("appraisal.casing_wear", "Light wear"),
+            ("PLASMA_CASING_CONDITION_WEAR", "WEAR_HEAVY") => ("appraisal.casing_wear_heavy", "Heavy wear"),
+            ("PLASMA_CASING_CONDITION_CRACK", "CRACK") => ("appraisal.casing_crack", "Cracked casing"),
+            ("PLASMA_CASING_CONDITION_UNCOVERED", "UNCOVERED") => ("appraisal.casing_screws", "Exposed screws"),
+            ("PLASMA_CASING_CONDITION_REINFORCED", "REINFORCED") => ("appraisal.casing_reinforced", "Reinforced casing"),
             _ => null,
         };
 

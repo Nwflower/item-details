@@ -49,7 +49,7 @@ internal static class LotteryInfo
             if (string.IsNullOrWhiteSpace(winning))
             {
                 lines.Add(new TooltipLine(
-                    Loc.T("lottery.not_drawn", "Edition {0}: not drawn yet (draws every Saturday)", edition),
+                    Loc.T("lottery.not_drawn", "Draw {0}: results not out yet (every Saturday morning)", edition),
                     RenderHandler.ColorPalette.LightYellow));
                 return lines;
             }
@@ -63,7 +63,7 @@ internal static class LotteryInfo
             var color = won ? RenderHandler.ColorPalette.LightGreen : RenderHandler.ColorPalette.LightRed;
 
             lines.Add(new TooltipLine(
-                Loc.T("lottery.winning", "Winning: {0}", winning),
+                Loc.T("lottery.winning", "Winning numbers: {0}", winning),
                 RenderHandler.ColorPalette.LightCyan));
             lines.Add(new TooltipLine(
                 won

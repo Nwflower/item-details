@@ -1,59 +1,63 @@
 # Item Details Polski (pl)
-auth.amount,Usterka nominału
+auth.amount,Problem z nominałem
 auth.body,Uszkodzenie korpusu
-auth.box,Usterka pudełka
-auth.chip,Usterka chipu
-auth.color,Usterka koloru
-auth.indicator,Usterka wskaźnika
-auth.label,Usterka etykiety
-auth.lettering,Usterka nadruku
-auth.logo,Usterka logo
-auth.seal,Usterka plomby
-auth.serial,Usterka numeru seryjnego
+auth.box,Problem z opakowaniem
+auth.chip,Problem z czipem
+auth.color,Problem z kolorem
+auth.indicator,Problem ze wskaźnikiem
+auth.label,Problem z etykietą
+auth.lettering,Problem z tekstem
+auth.logo,Problem z logo
+auth.seal,Problem z plombą
+auth.serial,Problem z numerem seryjnym
 # key,value
-alert.aug_tier,Poziom augmentacji: {0}
+alert.aug_tier,Poziom ulepszenia: {0}
 alert.bounty," (nagroda {0})"
 alert.real_name,Prawdziwe imię: {0}
-alert.title_augmented,Klient z augmentacją
-alert.title_both,Poszukiwany · Klient z augmentacją
+alert.title_augmented,Ulepszony klient
+alert.title_both,Poszukiwany · Ulepszony klient
 alert.title_wanted,Poszukiwany
-appraisal.armor,Moduł pancerza
-appraisal.base,Cena bazowa
-appraisal.blade,Moduł ostrza
-appraisal.build_deluxe,Wersja deluxe
-appraisal.build_tactical,Wersja taktyczna
-appraisal.carbon,Korpus z włókna węglowego
-appraisal.casing_crack,Pęknięty korpus
-appraisal.casing_reinforced,Wzmocnienie
-appraisal.casing_screws,Luźne śruby
+appraisal.armor,Opancerzenie
+appraisal.base,Podstawowa wartość
+appraisal.blade,Ostrze
+appraisal.build_deluxe,Premia za zestaw: Deluxe
+appraisal.build_tactical,Premia za zestaw: Taktyczna
+appraisal.carbon,Kompozyt węglowy
+appraisal.casing_crack,Pęknięcie
+appraisal.casing_reinforced,Wzmocniony
+appraisal.casing_screws,Widoczne śruby
 appraisal.casing_wear,Lekkie zużycie
-appraisal.casing_wear_heavy,Silne zużycie
-appraisal.damaged,Uszkodzone
-appraisal.emgplus,Złącze EMG+
-appraisal.finish_cheap,Tanie wykończenie
-appraisal.finish_premium,Wykończenie premium
-appraisal.gold,Pozłacanie
-appraisal.iface_unknown,Nieznany typ interfejsu
-appraisal.neural,Gniazdo neuronowe
-appraisal.ribwich_deluxe,Zestaw deluxe
-appraisal.ribwich_double_meat,Podwójne mięso
-appraisal.ribwich_first_batch,Pierwsza partia
+appraisal.casing_wear_heavy,Mocne zużycie
+appraisal.damaged,Uszkodzenia
+appraisal.emgplus,Interfejs EMG+
+appraisal.finish_cheap,Barwa niskiej jakości
+appraisal.finish_premium,Barwa wysokiej jakości
+appraisal.gold,Pozłacane
+appraisal.iface_unknown,Nieokreślone sterowanie
+appraisal.neural,Interfejs neuronowy
+appraisal.ribwich_deluxe,Edycja Deluxe
+appraisal.ribwich_double_meat,Podwójny kotlet
+appraisal.ribwich_first_batch,Pierwszy cykl produkcji
 appraisal.ribwich_month_edge,Pierwszy lub ostatni miesiąc
 appraisal.ribwich_opened,Otwarte lub podróbka (stałe 40)
-appraisal.ribwich_plant_grade_a,Zakład klasy A {0:D2}
-appraisal.ribwich_plant_grade_c,Zakład klasy C {0:D2}
-appraisal.seal_ignition,Bonus Ignition Lab
-appraisal.seal_ll,Bonus Wild's Rides
-appraisal.seal_republic,Bonus Republic Naval
-appraisal.seal_zhonghua,Bonus ZhongHua
-appraisal.worn,Zużyte
-auth.counterfeit,✘ Podejrzana podróbka ({0})
+appraisal.ribwich_plant_grade_a,Zakład wysokiej jakości {0:D2}
+appraisal.ribwich_plant_grade_c,Zakład niskiej jakości {0:D2}
+appraisal.seal_ignition,Premia Ignition Lab
+appraisal.seal_ignition_short,Ignition Lab
+appraisal.seal_ll,Premia Wild's Rides
+appraisal.seal_ll_short,Wild's Rides
+appraisal.seal_republic,Premia Republic Naval Requisition
+appraisal.seal_republic_short,Republic Naval Requisition
+appraisal.seal_zhonghua,Premia ZhongHua Shipbuilding
+appraisal.seal_zhonghua_short,ZhongHua Shipbuilding
+appraisal.worn,Zużycie
+auth.counterfeit,✘ Podróbka ({0})
 auth.genuine,✔ Oryginał
 berry.dried,Wysuszona
-berry.line,Jakość jagody: {0}
+berry.line,Jakość KwiatoGody: {0}
 berry.moldy,Spleśniała
 berry.normal,Normalna
-berry.small,Drobna
+berry.small,Mała
 berry.unripe,Niedojrzała
 calorie.line,Energia: {0} {1}
 calorie.per_cell," ({0} {1}/kratkę)"
@@ -65,16 +69,16 @@ generic.header,Rozbicie wartości (pomiar):
 generic.more,· ... i jeszcze {0}
 generic.other_attributes,· Inne atrybuty {0}
 hidden.chem_purity,Czystość chemiczna: {0}%
-hidden.durability,Wytrzymałość: {0}/{1}
-hidden.durability_faked,"Prawdziwa wytrzymałość: {0}/{1} (pokazuje {2}/{3}, prawdopodobnie fałsz)"
+hidden.durability,Trwałość: {0}/{1}
+hidden.durability_faked,"Prawdziwa trwałość: {0}/{1} (pokazuje {2}/{3}, prawdopodobnie zmanipulowana)"
 hidden.purity,Czystość: {0}
-hidden.purity_faked,"Prawdziwa czystość: {0} (pokazuje {1}, prawdopodobnie fałsz)"
-hint.double_click,Dwuklik: wycena; dwuklik na innym przedmiocie przełącza
+hidden.purity_faked,"Prawdziwa czystość: {0} (pokazuje {1}, prawdopodobnie fałszywa)"
+hint.double_click,"Kliknij dwukrotnie, by sprawdzić"
 list.sep,", "
 lottery.matched_none,Trafiono {0}/6 -> brak nagrody
 lottery.matched_prize,Trafiono {0}/6 -> nagroda {1}
-lottery.not_drawn,Wydanie {0}: jeszcze nie losowano (losowanie w każdą sobotę)
-lottery.winning,Wylosowano: {0}
+lottery.not_drawn,Losowanie {0}: jeszcze bez wyników (w każdą sobotę rano)
+lottery.winning,Wylosowane liczby: {0}
 market.line,Rynek: {0}
 module.power,{0} energii/dzień
 module.quality,{0} jakości
@@ -84,45 +88,46 @@ price.cost_close,)
 price.cost_open," (Zakup "
 price.list," Cena: {0}"
 price.sell,Sprzedaż: {0}
-reveal.modifier,Prawdziwy modyfikator: {0}% (udawany {1}%)
-reveal.real,Prawda: {0} (udawane {1})
-reveal.real_with_mod,Prawda: {0} ({1}%) (udawane {2})
+reveal.modifier,Prawdziwy modyfikator: {0}% (udaje {1}%)
+reveal.real,Prawdziwa cecha: {0} (udaje {1})
+reveal.real_with_mod,Prawdziwa cecha: {0} ({1}%) (udaje {2})
 ribwich.header,Dlaczego podróbka:
 ribwich.more,... i jeszcze {0}
-ribwich.reason_bun_no_pickles,Bułka z sezamem bez ogórków; deluxe wymaga obu
+ribwich.reason_bun_no_pickles,Bułka z sezamem bez dodatkowych ogórków (Edycja Deluxe wymaga obu)
 ribwich.reason_date_missing,Brak daty produkcji
-ribwich.reason_davre_missing,Brak znaku Davre
-ribwich.reason_davre_wrong,Zły znak Davre
-ribwich.reason_first_sticker,Pierwsza partia nie ma naklejki Ribwich
+ribwich.reason_davre_missing,Brak logo Davre
+ribwich.reason_davre_wrong,Nieprawidłowe logo Davre
+ribwich.reason_first_sticker,Pierwszy cykl nie powinien mieć naklejki żebronapki
 ribwich.reason_month_range,Miesiąc {0} poza 1-12
-ribwich.reason_pickles_no_bun,Dodatkowe ogórki bez bułki sezamowej; deluxe wymaga obu
+ribwich.reason_pickles_no_bun,Dodatkowe ogórki bez bułki z sezamem (Edycja Deluxe wymaga obu)
 ribwich.reason_plant_missing,Brak numeru zakładu pakowania
 ribwich.reason_plant_range,Nr zakładu {0} poza 01-35
-ribwich.reason_second_sticker_missing,Druga partia bez naklejki Ribwich
-ribwich.reason_second_sticker_wrong,Druga partia ma złą naklejkę Ribwich
+ribwich.reason_second_sticker_missing,Drugi cykl bez naklejki żebronapki
+ribwich.reason_second_sticker_wrong,Drugi cykl ma nieprawidłową naklejkę żebronapki
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Rok {0} poza 425-429 / 432-438
 scratcher.no_prize,Zdrapka: bez nagrody
 scratcher.progress,Zdrapano {0}/3
 scratcher.win,Zdrapka: wygrana {0} ({1} zgodnych)
 sealed.contents,W środku: {0}{1}
-sealed.empty,Zawartość: pusta
-sealed.more," ... razem {0}"
-sealed.total,Razem w środku: {0}
+sealed.empty,W środku: pusto
+sealed.more," ... łącznie przedmiotów: {0}"
+sealed.total,Łączna wartość zawartości: {0}
 sealed.unit," ({0})"
 seed.header,Cechy (niezbadane):
 seed.more,... i jeszcze {0}
 seed.trait_rank,{0} (ranga {1})
 storage.contains,"Zawiera: "
-storage.more_kinds," i jeszcze rodzajów: {0}"
+storage.more_kinds," ... łącznie rodzajów: {0}"
 storage.ratio,Kompresja: {0} ({1}/{2} kratek)
-storage.total_value,Łączna wartość: {0}
 title.appraisal_suffix,"{0} cena {1}, najlepsza oferta {2}"
 value.from,"Źródło: "
-value.per_cell,Wartość/kratkę: {0} ({1}/{2} kratek)
+value.per_cell,Wartość na kratkę: {0} ({1}/{2} kratek)
 value.perfect_range," | idealnie {0}-{1}"
 value.total,Razem: {0} × {1} = {2}
 value.total_line,Razem: {0}
+water.actives,"Substancje czynne: "
+water.other,"Pozostałe: "
 water.head,Woda: {0}% {1}
 water.impurities,"Zanieczyszczenia: "
 water.mismatch," (niezgodność etykiety)"
@@ -137,34 +142,40 @@ wine.finished,Gotowe
 wine.score,Ocena wina: {0}{1}
 wine.state,Wino: {0}
 wine.tier,", próg {0}"
-wine.unknown_state,Nieznane({0})
+wine.unknown_state,Nieznany ({0})
 wine.yeast_power,Moc drożdży: {0}/takt
 machine.battery_line,Pozostała energia: {0} ({1} dni)
-config.section.display,Optymalizacja wyświetlania
-config.item_appraisal,Wycena przedmiotu
-config.item_appraisal.tip,Łączy autentyczność, skład wartości, przedział idealnej oferty, powody podróbki i informacje o roślinach.
-config.info_enhance,Wzmocnienie informacji
-config.info_enhance.tip,Łączy wartość na komórkę, wpływ etykiet/rynku, wartości modułów, baterię maszyny, pojemniki, narzut czarnego rynku, loterię, przygaszone opisy i ceny sprzedaży/zakupu.
-config.type_badge,Etykiety typu
-config.type_badge.tip,"Pokazuje typy przedmiotu nad podpowiedzią jako kolorowe płytki z białym tekstem: medycyna/woda/narkotyki/trucizny niebieskie, tytoń/alkohol czarne, luksus różowy, żywność zielona, artykuły domowe cyjan, broń/pancerz turkusowe, narzędzia/materiały fioletowe, zabronione/ograniczone ciemnoczerwone, pozostałe szare. Wyłącz, aby wrócić do oryginalnego wiersza [typ]."
+config.section.display,Wyświetlanie
+config.item_appraisal,Wycena przedmiotów
+config.item_appraisal.tip,Pokazuje werdykt autentyczności i rozbicie wartości zależnie od typu przedmiotu.
+config.cost_performance,Wartość na kratkę
+config.cost_performance.tip,Pokazuje wartość na kratkę ekwipunku i stopień kompresji pojemników.
+config.container_contents,Zawartość pojemnika
+config.container_contents.tip,"Wyświetla zawartość odblokowanych pojemników bez osobnej łącznej wartości."
+config.info_enhance,Dodatkowe informacje
+config.info_enhance.tip,"Dodaje szczegóły zależne od przedmiotu: działanie etykiet i modułów, energię baterii, modyfikatory rynkowe, wyniki loterii, przygaszone opisy i czytelniejsze oznaczenia cen."
+config.type_badge,Plakietki kategorii
+config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
+config.type_badge_muted,Stonowane kolory plakietek
+config.type_badge_muted.tip,Etykiety poza kontrabandą używają ciemnego tła podpowiedzi i rozjaśnionego koloru kategorii; kontrabanda zachowuje czerwony tekst ostrzegawczy.
 config.container_name,Nazwy pojemników i maszyn
-config.container_name.tip,Pokazuje nazwy pod pojemnikami i maszynami. Pozycja stała na dole.
-config.container_name_bg,Tło nazw ikon
-config.container_name_bg.tip,Dodaje półprzezroczyste czarne tło za nazwą. Krycie stałe 0,6.
+config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
+config.container_name_bg,Tło nazw
+config.container_name_bg.tip,Dodaje półprzezroczyste czarne tło (krycie 60%) za nazwą.
 config.customer_alert,Powiadomienie o przybyciu klienta
-config.customer_alert.tip,"Powiadamia, gdy przychodzi poszukiwany lub augmentowany klient, wraz z faktyczną nagrodą, prawdziwym imieniem i poziomem augmentacji."
-config.section.interaction,Optymalizacja obsługi
-config.double_click_inspect,Dwuklik otwiera wycenę
-config.double_click_inspect.tip,Otwiera panel oględzin przedmiotów do wyceny lub weryfikacji autentyczności (iniektory, papierosy, znaczki itp.) po dwukliku, bez lupy. Zmienia też tekst podpowiedzi; wyłącz, aby przywrócić oryginalny przebieg.
+config.customer_alert.tip,"Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz poziom ulepszenia."
+config.section.interaction,Sterowanie
+config.double_click_inspect,Sprawdzanie dwuklikiem
+config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny lub weryfikacji autentyczności (iniektory, papierosy, kartki żywnościowe itp.) otwiera panel oględzin bez szkła powiększającego. Gdy panel jest otwarty, dwuklik na innym przedmiocie od razu się na niego przełącza. Podpowiedź o szkle powiększającym zmienia się na „Kliknij dwukrotnie, by sprawdzić”. Wyłącz, aby przywrócić oryginalny przebieg."
 config.section.reveal,Ujawnianie
-config.hidden_truth,Ujawniaj niezgodności
-config.hidden_truth.tip,"Pokazuje prawdziwe różnice stanu, rzeczywistą wytrzymałość oraz czystość sztabek/chemikaliów. Wprost zdradza podróbki i ułatwia wycenę."
-config.water_wine,Analiza wody
-config.water_wine.tip,Łączy czystość, zanieczyszczenia i porady oczyszczania wody z oceną i składem wina. Nie wymaga testera wody.
-config.scratcher,Podgląd zdrapki
-config.scratcher.tip,"Pokazuje nagrodę (lub jej brak) i postęp zdrapywania przed zdrapaniem. Tylko odczyt i przeliczenie; nigdy nie zdrapuje za ciebie. Wyłącz, by ukryć wynik."
-config.sealed_box,Prześwietlanie skrzyń
-config.sealed_box.tip,Pokazuje zawartość i łączną wartość zamkniętych pojemników przed otwarciem. Omija zamek; domyślnie wyłączone.
-config.result_prefill,Wstępne wypełnianie wyniku
+config.hidden_truth,Ujawniaj maskowanie i prawdziwe wartości
+config.hidden_truth.tip,"Pokazuje, co kryją zamaskowane cechy, rzeczywistą trwałość oraz rzeczywistą czystość sztabek i chemikaliów. Od razu zdradza podróbki i znacznie ułatwia wycenę."
+config.water_wine,Analiza wody i wina
+config.water_wine.tip,Pokazuje czystość i zanieczyszczenia wody oraz dane fermentacji wina bez paska testowego.
+config.scratcher,Podgląd zdrapek
+config.scratcher.tip,"Przed zdrapaniem pokazuje, czy zdrapka wygrywa, ile i jak daleko jest już zdrapana. Tylko odczyt według zasad gry; nigdy nie zdrapuje za ciebie."
+config.sealed_box,Prześwietlanie zamkniętych pojemników
+config.sealed_box.tip,"Pokazuje zawartość i łączną wartość zamkniętych pojemników (sejfy, szafki na broń) przed otwarciem. To pomija zamek, więc domyślnie jest wyłączone."
+config.result_prefill,Wstępne wypełnianie oględzin
 config.result_prefill.tip,Przy otwarciu panelu oględzin zaznacza rzeczywiste wady podróbki i wpisuje najlepszą ofertę wyceny. Wypełnia tylko pola; nigdy nie wysyła ani nie potwierdza. Domyślnie wyłączone.
 appraisal.minimum_adjustment,Korekta do wartości minimalnej

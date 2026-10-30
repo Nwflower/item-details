@@ -1,170 +1,181 @@
 # Item Details Français (fr)
-auth.amount,Défaut de valeur
+auth.amount,Défaut de valeur faciale
 auth.body,Corps endommagé
 auth.box,Défaut de boîte
 auth.chip,Défaut de puce
 auth.color,Défaut de couleur
-auth.indicator,Défaut d’indicateur
-auth.label,Défaut d’étiquette
-auth.lettering,Défaut d’inscription
+auth.indicator,Défaut d'indicateur
+auth.label,Défaut d'étiquette
+auth.lettering,Défaut de typographie
 auth.logo,Défaut de logo
-auth.seal,Défaut de scellé
+auth.seal,Défaut du sceau de sécurité
 auth.serial,Défaut de numéro de série
 # key,value
-alert.aug_tier,Niveau d'augmentation: {0}
+alert.aug_tier,Niveau d'augmentation : {0}
 alert.bounty," (prime {0})"
-alert.real_name,Vrai nom: {0}
+alert.real_name,Vrai nom : {0}
 alert.title_augmented,Client augmenté
 alert.title_both,Recherché · Client augmenté
 alert.title_wanted,Recherché
-appraisal.armor,Module blindage
+appraisal.armor,Armure
 appraisal.base,Base
-appraisal.blade,Module lame
-appraisal.build_deluxe,Configuration deluxe
-appraisal.build_tactical,Configuration tactique
-appraisal.carbon,Coque fibre de carbone
-appraisal.casing_crack,Fracture de coque
-appraisal.casing_reinforced,Renfort
-appraisal.casing_screws,Vis desserrées
+appraisal.blade,Lame
+appraisal.build_deluxe,Bonus de combinaison prestige
+appraisal.build_tactical,Bonus de combinaison tactique
+appraisal.carbon,Fibre de carbone
+appraisal.casing_crack,Verre fissuré
+appraisal.casing_reinforced,Structure renforcée
+appraisal.casing_screws,Vis visibles
 appraisal.casing_wear,Usure légère
-appraisal.casing_wear_heavy,Usure sévère
-appraisal.damaged,Endommagé
-appraisal.emgplus,Connecteur EMG+
-appraisal.finish_cheap,Finition bas de gamme
-appraisal.finish_premium,Finition premium
-appraisal.gold,Placage or
-appraisal.iface_unknown,Type d'interface inconnu
-appraisal.neural,Prise neurale
-appraisal.ribwich_deluxe,Combo deluxe
-appraisal.ribwich_double_meat,Double viande
-appraisal.ribwich_first_batch,Premier lot
+appraisal.casing_wear_heavy,Usure importante
+appraisal.damaged,État endommagé
+appraisal.emgplus,Interface EMG+
+appraisal.finish_cheap,Couleur bas de gamme
+appraisal.finish_premium,Couleur premium
+appraisal.gold,Plaqué or
+appraisal.iface_unknown,Interface vide
+appraisal.neural,Interface neurale
+appraisal.ribwich_deluxe,Édition prestige
+appraisal.ribwich_double_meat,Double ration de viande
+appraisal.ribwich_first_batch,1er cycle de production
 appraisal.ribwich_month_edge,Premier ou dernier mois
-appraisal.ribwich_opened,Ouvert ou faux (forfait 40)
-appraisal.ribwich_plant_grade_a,Usine classe A {0:D2}
-appraisal.ribwich_plant_grade_c,Usine classe C {0:D2}
+appraisal.ribwich_opened,Ouvert ou contrefait (forfait 40)
+appraisal.ribwich_plant_grade_a,Usine réputée {0:D2}
+appraisal.ribwich_plant_grade_c,Usine négligente {0:D2}
 appraisal.seal_ignition,Bonus Ignition Lab
-appraisal.seal_ll,Bonus Wild's Rides
-appraisal.seal_republic,Bonus Republic Naval
-appraisal.seal_zhonghua,Bonus ZhongHua
-appraisal.worn,Usé
-auth.counterfeit,✘ Contrefaçon suspectée ({0})
+appraisal.seal_ignition_short,Ignition Lab
+appraisal.seal_ll,Bonus Escapades Wild
+appraisal.seal_ll_short,Escapades Wild
+appraisal.seal_republic,Bonus Réquisition Navale Républicaine
+appraisal.seal_republic_short,Réquisition Navale Républicaine
+appraisal.seal_zhonghua,Bonus ZhongHua Aéronautique
+appraisal.seal_zhonghua_short,ZhongHua Aéronautique
+appraisal.worn,État usé
+auth.counterfeit,✘ Contrefaçon ({0})
 auth.genuine,✔ Authentique
 berry.dried,Desséchée
-berry.line,Qualité des baies: {0}
-berry.moldy,Moisie
+berry.line,Qualité de la grappe : {0}
+berry.moldy,Partiellement moisie
 berry.normal,Normale
-berry.small,Petite
-berry.unripe,Pas mûre
-calorie.line,Énergie: {0} {1}
+berry.small,Petits grains
+berry.unripe,Cueillie trop tôt
+calorie.line,Énergie : {0} {1}
 calorie.per_cell," ({0} {1}/case)"
 calorie.unit,kcal
-condition.line,État: {0} {1}
-contraband.markup,Marché noir: +{0}%
+condition.line,État : {0} {1}
+contraband.markup,Marché noir : +{0}%
 generic.combined,· Combiné/autre {0}
-generic.header,Décomposition de la valeur (mesurée):
+generic.header,Décomposition de la valeur (mesurée) :
 generic.more,· ... et {0} de plus
 generic.other_attributes,· Autres attributs {0}
-hidden.chem_purity,Pureté chimique: {0}%
-hidden.durability,Durabilité: {0}/{1}
-hidden.durability_faked,"Vraie durabilité: {0}/{1} (affiché {2}/{3}, probablement falsifié)"
-hidden.purity,Pureté: {0}
-hidden.purity_faked,"Vraie pureté: {0} (affiché {1}, probablement falsifié)"
-hint.double_click,Double-clic pour expertiser; double-clic sur un autre objet pour changer
+hidden.chem_purity,Pureté chimique : {0}%
+hidden.durability,Durabilité : {0}/{1}
+hidden.durability_faked,"Vraie durabilité : {0}/{1} (affichée {2}/{3}, probablement trafiquée)"
+hidden.purity,Pureté : {0}
+hidden.purity_faked,"Vraie pureté : {0} (affichée {1}, probablement falsifiée)"
+hint.double_click,Double-clic pour analyser
 list.sep,", "
-lottery.matched_none,Trouvés {0}/6 -> aucun prix
-lottery.matched_prize,Trouvés {0}/6 -> prix {1}
-lottery.not_drawn,Édition {0}: pas encore tirée (tirage chaque samedi)
-lottery.winning,Numéros gagnants: {0}
-market.line,Marché: {0}
+lottery.matched_none,Bons numéros {0}/6 -> aucun gain
+lottery.matched_prize,Bons numéros {0}/6 -> gain {1}
+lottery.not_drawn,Tirage {0} : résultats pas encore connus (chaque samedi matin)
+lottery.winning,Numéros gagnants : {0}
+market.line,Marché : {0}
 module.power,énergie {0}/jour
 module.quality,qualité {0}
 module.speed,vitesse {0}
-price.buy,"Prix d'achat: "
+price.buy,"Prix d'achat : "
 price.cost_close,)
 price.cost_open," (Coût "
-price.list," Prix: {0}"
-price.sell,Vente: {0}
-reveal.modifier,Vrai modificateur: {0}% (déguisé {1}%)
-reveal.real,Réel: {0} (déguisé en {1})
-reveal.real_with_mod,Réel: {0} ({1}%) (déguisé en {2})
-ribwich.header,Raisons de la contrefaçon:
+price.list," Prix : {0}"
+price.sell,Vente : {0}
+reveal.modifier,Vrai modificateur : {0}% (déguisé en {1}%)
+reveal.real,Réel : {0} (déguisé en {1})
+reveal.real_with_mod,Réel : {0} ({1}%) (déguisé en {2})
+ribwich.header,Raisons de la contrefaçon :
 ribwich.more,... et {0} de plus
-ribwich.reason_bun_no_pickles,Pain sésame sans cornichons extra; le deluxe exige les deux
+ribwich.reason_bun_no_pickles,Pain au sésame sans cornichons supplémentaires (l'édition prestige exige les deux)
 ribwich.reason_date_missing,Date de production absente
-ribwich.reason_davre_missing,Marque Davre absente
-ribwich.reason_davre_wrong,Marque Davre incorrecte
-ribwich.reason_first_sticker,Le premier lot ne doit pas avoir d'autocollant Ribwich
+ribwich.reason_davre_missing,Logo Davre absent
+ribwich.reason_davre_wrong,Logo Davre incorrect
+ribwich.reason_first_sticker,Le 1er cycle ne doit pas avoir d'autocollant Viandwich
 ribwich.reason_month_range,Mois {0} hors de 1-12
-ribwich.reason_pickles_no_bun,Cornichons extra sans pain sésame; le deluxe exige les deux
-ribwich.reason_plant_missing,Numéro d'usine absent
-ribwich.reason_plant_range,Usine {0} hors de 01-35
-ribwich.reason_second_sticker_missing,Le deuxième lot n'a pas d'autocollant Ribwich
-ribwich.reason_second_sticker_wrong,Le deuxième lot a un mauvais autocollant Ribwich
+ribwich.reason_pickles_no_bun,Cornichons supplémentaires sans pain au sésame (l'édition prestige exige les deux)
+ribwich.reason_plant_missing,Code usine absent
+ribwich.reason_plant_range,Code usine {0} hors de 01-35
+ribwich.reason_second_sticker_missing,Autocollant Viandwich manquant (2e cycle)
+ribwich.reason_second_sticker_wrong,Autocollant Viandwich incorrect (2e cycle)
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
-scratcher.no_prize,Carte à gratter: aucun prix
+scratcher.no_prize,Ticket à gratter : aucun gain
 scratcher.progress,Gratté {0}/3
-scratcher.win,Carte à gratter: gain {0} ({1} identiques)
-sealed.contents,Intérieur: {0}{1}
-sealed.empty,Contenu: vide
-sealed.more," ... {0} au total"
-sealed.total,Total intérieur: {0}
+scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
+sealed.contents,Contenu : {0}{1}
+sealed.empty,Contenu : vide
+sealed.more," ... {0} objets au total"
+sealed.total,Valeur totale du contenu : {0}
 sealed.unit," ({0})"
-seed.header,Traits (non analysés):
+seed.header,Traits (non analysés) :
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})
-storage.contains,"Contient: "
-storage.more_kinds," et {0} types"
-storage.ratio,Compression: {0} ({1}/{2} cases)
-storage.total_value,Valeur totale: {0}
+storage.contains,"Contient : "
+storage.more_kinds," ... {0} types au total"
+storage.ratio,Compression : {0} ({1}/{2} cases)
 title.appraisal_suffix,"{0} Prix {1}, meilleure offre {2}"
-value.from,"Source: "
-value.per_cell,Valeur/case: {0} ({1}/{2} cases)
+value.from,"Source : "
+value.per_cell,Valeur par case : {0} ({1}/{2} cases)
 value.perfect_range," | parfait {0}-{1}"
-value.total,Total: {0} × {1} = {2}
-value.total_line,Total: {0}
-water.head,Eau: {0}% {1}
-water.impurities,"Impuretés : "
+value.total,Total : {0} × {1} = {2}
+value.total_line,Total : {0}
+water.actives,"Principes actifs : "
+water.other,"Autres : "
+water.head,Eau : {0}% {1}
+water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
 water.none,aucune
 water.trace,trace (sous le seuil d'affichage)
-wine.aging,Bonus de vieillissement: +{0}/jour (total +{1})
-wine.composition,"Composition: extrait {0}‰, contaminant {1}‰"
-wine.counterfeit,Contrefaçon: levure illégale
+wine.aging,Bonus de vieillissement : +{0}/jour (total +{1})
+wine.composition,"Composition : extrait {0}‰, polluants {1}‰"
+wine.counterfeit,Contrefaçon : levure illégale
 wine.empty,Vide
 wine.fermenting,En fermentation
 wine.finished,Terminé
-wine.score,Score du vin: {0}{1}
-wine.state,Vin: {0}
+wine.score,Score du vin : {0}{1}
+wine.state,Vin : {0}
 wine.tier,", palier {0}"
-wine.unknown_state,Inconnu({0})
-wine.yeast_power,Force de la levure: {0}/cycle
-machine.battery_line,Énergie restante : {0} ({1} jours)
-config.section.display,Optimisation de l'affichage
-config.item_appraisal,Expertise d'objet
-config.item_appraisal.tip,Combine authenticité, détail de la valeur, fourchette d'offre parfaite, raisons de contrefaçon et infos sur les plantes.
-config.info_enhance,Informations enrichies
-config.info_enhance.tip,Combine valeur par case, impact des étiquettes/marché, valeurs des modules, batterie de machine, conteneurs, majoration de contrebande, loterie, descriptions atténuées et affichage prix de vente/achat.
-config.type_badge,Étiquettes de type
-config.type_badge.tip,"Affiche les types d'objet au-dessus de l'infobulle sous forme de plaques colorées avec texte blanc : médecine/eau/drogues/poisons bleu, tabac/alcool noir, luxe rose, nourriture vert, articles ménagers cyan, armes/armures turquoise, outils/matériaux violet, interdit/réglementé rouge sombre, autres gris. Désactivez pour revenir à la ligne [type] d'origine."
-config.container_name,Noms sur conteneurs et machines
-config.container_name.tip,Affiche les noms sous les conteneurs et machines. Position fixe en bas.
-config.container_name_bg,Fond des noms d'icônes
-config.container_name_bg.tip,Ajoute un fond noir translucide derrière le nom. Opacité fixe à 0,6.
-config.customer_alert,Alerte d'arrivée client
-config.customer_alert.tip,"Alerte quand un client recherché ou augmenté arrive, avec la prime réelle, le vrai nom et le niveau d'augmentation."
-config.section.interaction,Optimisation des commandes
-config.double_click_inspect,Double-clic pour expertiser
-config.double_click_inspect.tip,Ouvre l’inspection des objets à expertiser ou à authentifier (injecteurs, cigarettes, timbres, etc.) par double-clic, sans loupe. Modifie aussi le texte d’aide ; désactivez pour revenir au flux d’origine.
+wine.unknown_state,Inconnu ({0})
+wine.yeast_power,Force de la levure : {0}/cycle
+machine.battery_line,Énergie restante : {0} ({1} jours)
+config.section.display,Affichage
+config.item_appraisal,Estimation des objets
+config.item_appraisal.tip,Affiche le verdict d'authenticité et la décomposition de la valeur selon le type d'objet.
+config.cost_performance,Valeur par case
+config.cost_performance.tip,Affiche la valeur par case d'inventaire et le taux de compression des conteneurs.
+config.container_contents,Contenu du conteneur
+config.container_contents.tip,"Liste le contenu des conteneurs déverrouillés, sans valeur totale distincte."
+config.info_enhance,Infos supplémentaires
+config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets des étiquettes et modules, autonomie des batteries, modificateurs de marché, résultats de loterie, descriptions atténuées et libellés de prix plus clairs."
+config.type_badge,Badges de catégorie
+config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
+config.type_badge_muted,Couleurs de badges atténuées
+config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
+config.container_name,Noms des conteneurs et machines
+config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
+config.container_name_bg,Fond des noms
+config.container_name_bg.tip,Ajoute un fond noir translucide (opacité 60 %) derrière le nom.
+config.customer_alert,Alerte à l'arrivée d'un client
+config.customer_alert.tip,"Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom et son niveau d'augmentation."
+config.section.interaction,Commandes
+config.double_click_inspect,Double-clic pour analyser
+config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus. L'indication de la loupe devient « Double-clic pour analyser ». Désactivez pour revenir au fonctionnement d'origine."
 config.section.reveal,Révélation
-config.hidden_truth,Révéler les écarts
-config.hidden_truth.tip,"Affiche les vrais écarts d'état, la vraie durabilité et la pureté réelle des lingots/produits chimiques. Expose les faux et baisse la difficulté d'expertise."
-config.water_wine,Analyse de l'eau
-config.water_wine.tip,Combine pureté, impuretés et conseils de purification de l'eau avec le score et la composition du vin. Aucun testeur d'eau requis.
-config.scratcher,Aperçu du ticket à gratter
-config.scratcher.tip,Affiche le prix (ou l'absence de prix) et la progression avant de gratter. Recalcul en lecture seule; ne gratte jamais à votre place. Désactivez pour masquer le résultat.
-config.sealed_box,Radiographie des conteneurs
-config.sealed_box.tip,Liste le contenu et la valeur totale des conteneurs verrouillés avant l'ouverture. Contourne la serrure; désactivé par défaut.
-config.result_prefill,Préremplir le résultat
-config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les défauts réels de contrefaçon et remplit la meilleure offre d'expertise. Remplit uniquement les contrôles ; ne valide jamais. Désactivé par défaut.
+config.hidden_truth,Révéler déguisements et vraies stats
+config.hidden_truth.tip,"Montre ce que cachent les caractéristiques déguisées, la vraie durabilité et la pureté réelle des lingots et produits chimiques. Démasque les faux et facilite beaucoup l'estimation."
+config.water_wine,Analyse de l'eau et du vin
+config.water_wine.tip,"Affiche la pureté et les impuretés de l'eau ainsi que les données de fermentation du vin, sans bandelette de test."
+config.scratcher,Aperçu des tickets à gratter
+config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant, combien il rapporte et où en est le grattage. Lecture seule selon les règles du jeu ; ne gratte jamais à votre place."
+config.sealed_box,Radiographie des conteneurs verrouillés
+config.sealed_box.tip,"Liste le contenu et la valeur totale des conteneurs verrouillés (coffres-forts, armoires à armes) avant l'ouverture. Cela contourne la serrure, d'où sa désactivation par défaut."
+config.result_prefill,Préremplir l'analyse
+config.result_prefill.tip,"À l'ouverture du panneau d'analyse, coche les vrais défauts de contrefaçon et saisit la meilleure offre d'estimation. Remplit seulement les champs ; ne valide jamais rien. Désactivé par défaut."
 appraisal.minimum_adjustment,Ajustement à la valeur minimale

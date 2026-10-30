@@ -15,3 +15,6 @@ Mods/
 
 # 自检构建输出（临时目录，勿入库）
 binReleaseSelfTest/
+
+# Python 测试缓存（本地化检查器）
+__pycache__/

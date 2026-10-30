@@ -87,6 +87,16 @@ class LocalizationValidationTests(unittest.TestCase):
             path.write_text('Loc.T("generated", "Generated");', encoding="utf-8")
         self.assertEqual(0, self.validate())
 
+    def test_switch_tuple_labels_require_translations(self) -> None:
+        self.source.write_text(
+            'var label = value switch { _ => ("appraisal.seal_ll_short", "Wilds Rides") };',
+            encoding="utf-8",
+        )
+        self.csv.write_text("", encoding="utf-8")
+        self.assertEqual(1, self.validate())
+        self.csv.write_text("appraisal.seal_ll_short,Fabricant\n", encoding="utf-8")
+        self.assertEqual(0, self.validate())
+
 
 if __name__ == "__main__":
     unittest.main()

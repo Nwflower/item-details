@@ -5,18 +5,10 @@ using System.Text;
 namespace ItemDetails;
 
 /// <summary>
-/// 密封箱预览：提前列出带锁容器（保险箱 / 枪柜等）的内容物与箱内总价值。
-///
-/// 判定：`LOCK_TYPE` 标签是密封容器的特征（`SecuredContainerHelper.InitSecuredContainer`
-/// 一定会写它；钥匙只有 UNLOCK_TYPE / LOCK_DIFFICULTY，不会被误判）。
-/// 注意这类物品**没有** CONTAINER_TAG，所以通用容器模块（StorageInfo）不覆盖它们。
-///
-/// 数据来源（均为游戏自己的公开成员）：
-///   item.contentWindow.child as GameGridInventory → grid.childItems（内容物）
-///   grid.GetTotalValue()                          → 箱内总价值
+/// 密封箱预览：提前列出带锁容器（保险箱 / 枪柜等）的内容物与箱内价值。
+/// 嵌套容器只列名称、不递归求值；任何子项被跳过时，总价以“+”表示还有未计入部分。
 ///
 /// ⚠️ 这是**透视**功能：原版必须先开锁才能看到箱内。
-/// 锁类型、难度和锁定状态已由原版 SecuredContainerHelper 显示，这里不重复。
 /// 开关由调用方（ModEntry）判断，模块本身不认识配置。
 /// </summary>
 internal static class SealedBoxInfo
@@ -28,18 +20,36 @@ internal static class SealedBoxInfo
     /// <summary>异常数据上限：超过就不列明细、不给总价。</summary>
     private const int MaxChildren = 512;
 
-    // 与普通容器一致：tooltip 高频重建时，内容物与价值最迟 1 秒刷新一次。
-    private const float CacheSeconds = 1f;
-    private static GameGridInventory? _cacheGrid;
-    private static string _cacheLocale = "";
-    private static float _cacheAt = float.MinValue;
-    private static List<TooltipLine>? _cache;
+    private const int MaxEntries = 16;
+    private const float CacheSeconds = 5f;
+    private const float ChildCacheSeconds = 10f;
+
+    private sealed class ChildValue
+    {
+        internal long Fingerprint;
+        internal bool FingerprintValid;
+        internal float At;
+        internal long Unit;
+        internal bool Read;
+    }
+
+    private sealed class Entry
+    {
+        internal GameItem Item = null!;
+        internal GameGridInventory Grid = null!;
+        internal string Locale = "";
+        internal float At;
+        internal List<ContainerItemSignature> Items = new();
+        internal List<TooltipLine> Lines = new();
+        internal readonly Dictionary<GameItem, ChildValue> Values =
+            new(ReferenceIdentityComparer<GameItem>.Instance);
+    }
+
+    private static readonly List<Entry> Entries = new();
 
     internal static void Stop()
     {
-        _cacheGrid = null;
-        _cache = null;
-        _cacheAt = float.MinValue;
+        Entries.Clear();
     }
 
     internal static List<TooltipLine> Collect(GameItem? item)
@@ -47,9 +57,7 @@ internal static class SealedBoxInfo
         var lines = new List<TooltipLine>();
         try
         {
-            if (item == null) return lines;
-
-            if (!LockedContainer.IsLocked(item)) return lines;
+            if (item == null || !LockedContainer.IsLocked(item)) return lines;
 
             GameGridInventory? grid = null;
             try
@@ -62,104 +70,37 @@ internal static class SealedBoxInfo
 
             float now = UnityEngine.Time.unscaledTime;
             string locale = Loc.Code;
-            if (_cache != null && ReferenceEquals(_cacheGrid, grid)
-                && _cacheLocale == locale && now - _cacheAt <= CacheSeconds)
-            {
-                lines.AddRange(_cache);
-                if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");
-                return lines;
-            }
-            void StoreCache()
-            {
-                _cacheGrid = grid;
-                _cacheLocale = locale;
-                _cacheAt = now;
-                _cache = lines;
-            }
+            Entry? entry = Find(item, grid, locale);
 
-            // ---------- 内容物 + 合计价值：同一次遍历、同一套价值口径 ----------
-            // 旧版单件用 GetCurrentValue、总价用 grid.GetTotalValue，两者口径不同
-            // （后者走 GetValue，不含同一套 ItemFeature/事件修正），带瑕疵时会自相矛盾。
             List<GameItem>? items = null;
             try { items = grid.childItems; }
             catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
-            if (items == null || items.Count > MaxChildren)
+            if (items == null) return lines;
+
+            if (entry != null && now - entry.At <= CacheSeconds
+                && ContainerItemSignature.Matches(entry.Items, items))
             {
-                // 读取失败或异常超限时保持无输出，不能误报成“箱内：空”。
-                if (items != null)
-                    Log.Warn("SealedBox.Items", $"内容物 {items.Count} 件，超过上限 {MaxChildren}，跳过");
-                StoreCache();
+                Touch(entry);
+                lines.AddRange(entry.Lines);
+                if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");
                 return lines;
             }
 
-            var contents = new StringBuilder();
-            int shown = 0, total = items.Count;
-            long sum = 0;
-            bool completeValue = true;
-            try
+            if (items.Count > MaxChildren)
             {
-                foreach (var child in items)
-                {
-                    if (child == null) continue;
-
-                    long unit = 0;
-                    int stack = 1;
-                    try { if (child.unitCount > 1) stack = child.unitCount; } catch { }
-
-                    bool nestedContainer = false;
-                    try { nestedContainer = child.contentWindow != null; } catch { }
-                    if (!nestedContainer)
-                    {
-                        try
-                        {
-                            unit = child.GetCurrentValue(useRetailMarkup: false, withChild: true,
-                                                         includeEvents: true, forceMarkup: false);
-                        }
-                        catch { completeValue = false; }
-                    }
-                    else completeValue = false;
-                    // 嵌套容器仍列名称，但不递归求值，避免箱套箱时成本不可控。
-
-                    if (unit > 0 && StackValue.TryTotal(unit, stack, out long lineTotal)
-                        && lineTotal <= long.MaxValue - sum)
-                    {
-                        sum += lineTotal;
-                    }
-                    else if (unit > 0) completeValue = false;
-
-                    if (shown >= MaxItems) continue;
-                    if (shown > 0) contents.Append(Loc.T("list.sep", ", "));
-                    contents.Append(GameRead.ItemName(child));
-                    if (unit > 0) contents.Append(Loc.T("sealed.unit", " ({0})", unit));
-                    shown++;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("SealedBox.Items", ex);
-                StoreCache();
+                Log.Warn("SealedBox.Items", $"内容物 {items.Count} 件，超过上限 {MaxChildren}，跳过");
+                Store(item, grid, locale, now, items, lines, entry);
                 return lines;
             }
 
-            if (shown == 0)
+            // 先建立箱子条目，首次构建也能把子项价值留在箱内供后续差异刷新复用。
+            if (entry == null)
             {
-                lines.Add(new TooltipLine(Loc.T("sealed.empty", "Contents: empty"), Color));
+                entry = new Entry { Item = item, Grid = grid, Locale = locale };
+                Entries.Add(entry);
             }
-            else
-            {
-                string more = total > shown
-                    ? Loc.T("sealed.more", " ... {0} total", total)
-                    : "";
-                lines.Add(new TooltipLine(
-                    Loc.T("sealed.contents", "Inside: {0}{1}", contents.ToString(), more),
-                    Color));
-            }
-
-            // ---------- 箱内总价值 ----------
-            if (completeValue && sum > 0)
-                lines.Add(new TooltipLine(Loc.T("sealed.total", "Total inside: {0}", sum), Color));
-
-            StoreCache();
+            BuildLines(items, now, entry, lines);
+            Store(item, grid, locale, now, items, lines, entry);
             if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");
         }
         catch (Exception ex)
@@ -167,5 +108,167 @@ internal static class SealedBoxInfo
             Log.Warn("SealedBoxInfo", ex);
         }
         return lines;
+    }
+
+    private static void BuildLines(List<GameItem> items, float now, Entry? entry,
+                                   List<TooltipLine> lines)
+    {
+        var contents = new StringBuilder();
+        int shown = 0;
+        int skipped = 0;
+        long sum = 0;
+
+        foreach (var child in items)
+        {
+            if (child == null) { skipped++; continue; }
+
+            int stack = ContainerItemSignature.ReadStack(child);
+            bool nestedContainer = false;
+            try { nestedContainer = child.contentWindow != null; } catch { }
+
+            long unit = 0;
+            bool read = false;
+            if (nestedContainer)
+            {
+                // 保持现有规则：嵌套容器只计数，不展开另一棵库存树。
+                skipped++;
+            }
+            else
+            {
+                unit = ReadUnitValue(entry, child, now, out read);
+                if (!read) skipped++;
+            }
+
+            if (read && unit > 0)
+            {
+                if (!StackValue.TryTotal(unit, stack, out long lineTotal)
+                    || lineTotal > long.MaxValue - sum)
+                {
+                    skipped++;
+                }
+                else
+                {
+                    sum += lineTotal;
+                }
+            }
+
+            if (shown >= MaxItems) continue;
+            if (shown > 0) contents.Append(Loc.T("list.sep", ", "));
+            contents.Append(ContainerItemSignature.DisplayName(child));
+            if (read && unit > 0) contents.Append(Loc.T("sealed.unit", " ({0})", unit));
+            shown++;
+        }
+
+        if (shown == 0)
+        {
+            lines.Add(new TooltipLine(Loc.T("sealed.empty", "Inside: empty"), Color));
+        }
+        else
+        {
+            string more = items.Count > shown
+                ? Loc.T("sealed.more", " ... {0} items in total", items.Count)
+                : "";
+            lines.Add(new TooltipLine(
+                Loc.T("sealed.contents", "Inside: {0}{1}", contents.ToString(), more),
+                Color));
+        }
+
+        if (sum > 0 || skipped > 0)
+        {
+            // “+”只表示仍有物品未计入，不把这个下限额伪装成完整总价。
+            string value = skipped > 0 ? sum.ToString() + "+" : sum.ToString();
+            lines.Add(new TooltipLine(Loc.T("sealed.total", "Total value inside: {0}", value), Color));
+        }
+    }
+
+    private static long ReadUnitValue(Entry? entry, GameItem child, float now, out bool read)
+    {
+        bool fingerprintValid = ItemValueFingerprint.TryRead(child, out long fingerprint);
+        if (entry != null && entry.Values.TryGetValue(child, out var cached)
+            && fingerprintValid && cached.FingerprintValid
+            && cached.Fingerprint == fingerprint && now - cached.At <= ChildCacheSeconds)
+        {
+            read = cached.Read;
+            return cached.Unit;
+        }
+
+        long unit = 0;
+        read = false;
+        try
+        {
+            unit = child.GetCurrentValue(useRetailMarkup: false, withChild: true,
+                                         includeEvents: true, forceMarkup: false);
+            read = true;
+        }
+        catch { }
+
+        if (entry != null)
+        {
+            entry.Values[child] = new ChildValue
+            {
+                Fingerprint = fingerprint,
+                FingerprintValid = fingerprintValid,
+                At = now,
+                Unit = unit,
+                Read = read,
+            };
+        }
+        return unit;
+    }
+
+    private static Entry? Find(GameItem item, GameGridInventory grid, string locale)
+    {
+        for (int i = Entries.Count - 1; i >= 0; i--)
+        {
+            var entry = Entries[i];
+            if (ReferenceEquals(entry.Item, item) && ReferenceEquals(entry.Grid, grid)
+                && entry.Locale == locale)
+            {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    private static void Touch(Entry entry)
+    {
+        int index = Entries.IndexOf(entry);
+        if (index < 0 || index == Entries.Count - 1) return;
+        Entries.RemoveAt(index);
+        Entries.Add(entry);
+    }
+
+    private static void Store(GameItem item, GameGridInventory grid, string locale, float now,
+                              List<GameItem> items, List<TooltipLine> lines, Entry? entry)
+    {
+        if (entry == null)
+        {
+            entry = new Entry { Item = item, Grid = grid, Locale = locale };
+            Entries.Add(entry);
+        }
+        else
+        {
+            Touch(entry);
+        }
+
+        entry.At = now;
+        entry.Items = ContainerItemSignature.Capture(items);
+        entry.Lines = new List<TooltipLine>(lines);
+
+        // 已移出箱子的物品不继续占子项缓存；箱子条目淘汰时整表一起释放。
+        if (entry.Values.Count > 0)
+        {
+            var present = new HashSet<GameItem>(ReferenceIdentityComparer<GameItem>.Instance);
+            foreach (var child in items) if (child != null) present.Add(child);
+            List<GameItem>? removed = null;
+            foreach (var child in entry.Values.Keys)
+            {
+                if (present.Contains(child)) continue;
+                (removed ??= new List<GameItem>()).Add(child);
+            }
+            if (removed != null) foreach (var child in removed) entry.Values.Remove(child);
+        }
+
+        while (Entries.Count > MaxEntries) Entries.RemoveAt(0);
     }
 }

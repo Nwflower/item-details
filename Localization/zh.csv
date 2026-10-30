@@ -6,108 +6,112 @@ auth.chip,芯片异常
 auth.color,颜色异常
 auth.indicator,指示灯异常
 auth.label,标签异常
-auth.lettering,印字异常
-auth.logo,标志异常
-auth.seal,封口异常
+auth.lettering,字母印刷异常
+auth.logo,商标异常
+auth.seal,防伪标异常
 auth.serial,序列号异常
 # key,value
-alert.aug_tier,改造体等级：{0}
-alert.bounty,（举报奖励 {0}）
+alert.aug_tier,改造等级：{0}
+alert.bounty,（赏金 {0}）
 alert.real_name,真名：{0}
 alert.title_augmented,改造体顾客
 alert.title_both,通缉犯 · 改造体顾客
 alert.title_wanted,通缉犯
-appraisal.armor,装甲组件
-appraisal.base,基础价格
-appraisal.blade,刀刃组件
-appraisal.build_deluxe,豪华型组合
-appraisal.build_tactical,战术型组合
-appraisal.carbon,碳纤维
+appraisal.armor,装甲
+appraisal.base,基础
+appraisal.blade,刀刃
+appraisal.build_deluxe,豪华型套装加成
+appraisal.build_tactical,战术型套装加成
+appraisal.carbon,碳复合材料
 appraisal.casing_crack,外壳破裂
 appraisal.casing_reinforced,加固处理
 appraisal.casing_screws,螺丝外露
 appraisal.casing_wear,轻度磨损
 appraisal.casing_wear_heavy,重度磨损
 appraisal.damaged,受损
-appraisal.emgplus,能源标
-appraisal.finish_cheap,低级颜色
-appraisal.finish_premium,高级颜色
+appraisal.emgplus,EMG+ 接口
+appraisal.finish_cheap,低级等离子颜色
+appraisal.finish_premium,高级等离子颜色
 appraisal.gold,镀金
-appraisal.iface_unknown,未知接口规格
+appraisal.iface_unknown,规格不明接口
 appraisal.neural,神经接口
 appraisal.ribwich_deluxe,豪华版
 appraisal.ribwich_double_meat,双层肉饼
-appraisal.ribwich_first_batch,第一批次
-appraisal.ribwich_month_edge,首月/末月
-appraisal.ribwich_opened,已开封或赝品（固定价）
-appraisal.ribwich_plant_grade_a,优质包装厂 {0:D2}
-appraisal.ribwich_plant_grade_c,劣质包装厂 {0:D2}
+appraisal.ribwich_first_batch,第一生产批次
+appraisal.ribwich_month_edge,首月或末月
+appraisal.ribwich_opened,已开封或赝品（固定 40）
+appraisal.ribwich_plant_grade_a,高品质包装工厂 {0:D2}
+appraisal.ribwich_plant_grade_c,低品质包装工厂 {0:D2}
 appraisal.seal_ignition,点火实验室加成
+appraisal.seal_ignition_short,点火实验室
 appraisal.seal_ll,王尔德载具加成
-appraisal.seal_republic,共和国海军加成
+appraisal.seal_ll_short,王尔德载具
+appraisal.seal_republic,共和国海军征用部加成
+appraisal.seal_republic_short,共和国海军征用部
 appraisal.seal_zhonghua,中华船舶加成
+appraisal.seal_zhonghua_short,中华船舶
 appraisal.worn,磨损
-auth.counterfeit,✘ 鉴定：疑似赝品（{0}）
-auth.genuine,✔ 鉴定：正品
+auth.counterfeit,✘ 赝品（{0}）
+auth.genuine,✔ 正品
 berry.dried,干枯
 berry.line,荧光莓品质：{0}
 berry.moldy,发霉
 berry.normal,正常
 berry.small,较小
-berry.unripe,未成熟
+berry.unripe,未熟
 calorie.line,能量：{0}{1}
-calorie.per_cell,（{0}{1}／格）
+calorie.per_cell,（{0}{1}/格）
 calorie.unit,千卡
 condition.line,状态：{0} {1}
 contraband.markup,黑市溢价：+{0}%
-generic.combined,· 组合/其它 {0}
+generic.combined,· 组合/其他 {0}
 generic.header,价值分解（实测）：
 generic.more,· …另有 {0} 项
 generic.other_attributes,· 其他属性 {0}
 hidden.chem_purity,化学纯度：{0}%
-hidden.durability,耐久：{0}/{1}
-hidden.durability_faked,真实耐久：{0}/{1}（显示为 {2}/{3}，疑似伪造）
+hidden.durability,耐久度：{0}/{1}
+hidden.durability_faked,真实耐久度：{0}/{1}（显示 {2}/{3}，疑似篡改）
 hidden.purity,纯度：{0}
-hidden.purity_faked,真实纯度：{0}（显示为 {1}，疑似伪造）
-hint.double_click,双击鉴定；鉴定中双击另一件直接切换
+hidden.purity_faked,真实纯度：{0}（显示为 {1}，疑似造假）
+hint.double_click,双击以鉴定
 list.sep,、
 lottery.matched_none,命中 {0}/6 → 未中奖
 lottery.matched_prize,命中 {0}/6 → 奖金 {1}
-lottery.not_drawn,第{0}期尚未开奖（每周六公布）
-lottery.winning,开奖号码：{0}
+lottery.not_drawn,第{0}期尚未开奖（每周六上午公布）
+lottery.winning,中奖号码：{0}
 market.line,市场：{0}
 module.power,{0}能量/天
 module.quality,{0}品质
 module.speed,{0}速度
 price.buy,进价：
 price.cost_close,）
-price.cost_open,（进价
+price.cost_open,"（进价 "
 price.list," 标价：{0}"
 price.sell,售价：{0}
-reveal.modifier,真实数值修正：{0}%（伪装为 {1}%）
-reveal.real,真实属性：{0}（伪装为 {1}）
-reveal.real_with_mod,真实属性：{0}（{1}%）（伪装为 {2}）
+reveal.modifier,真实修正：{0}%（伪装为 {1}%）
+reveal.real,真实：{0}（伪装为 {1}）
+reveal.real_with_mod,真实：{0}（{1}%）（伪装为 {2}）
 ribwich.header,赝品原因：
 ribwich.more,…另有 {0} 项
-ribwich.reason_bun_no_pickles,有芝麻面包却没有加量酸黄瓜（豪华版需两者同时）
-ribwich.reason_date_missing,生产日期缺失
+ribwich.reason_bun_no_pickles,有芝麻面包但没有加量酸黄瓜（豪华版须两者兼备）
+ribwich.reason_date_missing,缺少生产日期
 ribwich.reason_davre_missing,缺少达夫雷标志
-ribwich.reason_davre_wrong,达夫雷标志图案不符
-ribwich.reason_first_sticker,第一批次不应有 Ribwich 贴纸
-ribwich.reason_month_range,生产月份 {0}：应为 1–12
-ribwich.reason_pickles_no_bun,有加量酸黄瓜却没有芝麻面包（豪华版需两者同时）
-ribwich.reason_plant_missing,包装厂编号缺失
-ribwich.reason_plant_range,包装厂编号 {0}：应为 01–35
-ribwich.reason_second_sticker_missing,第二批次缺少 Ribwich 贴纸
-ribwich.reason_second_sticker_wrong,第二批次 Ribwich 贴纸图案错误
+ribwich.reason_davre_wrong,达夫雷标志错误
+ribwich.reason_first_sticker,第一生产批次不应带 Ribwich 贴纸
+ribwich.reason_month_range,生产月份 {0} 不在 1–12 之内
+ribwich.reason_pickles_no_bun,有加量酸黄瓜但没有芝麻面包（豪华版须两者兼备）
+ribwich.reason_plant_missing,缺少包装工厂编号
+ribwich.reason_plant_range,包装工厂编号 {0} 不在 01–35 之内
+ribwich.reason_second_sticker_missing,第二生产批次缺少 Ribwich 贴纸
+ribwich.reason_second_sticker_wrong,第二生产批次的 Ribwich 贴纸错误
 ribwich.reason_unknown,{0}
-ribwich.reason_year_range,生产年份 {0}：应为 425–429 或 432–438
-scratcher.no_prize,刮刮卡：不会中奖
+ribwich.reason_year_range,生产年份 {0} 不在 425–429 或 432–438 之内
+scratcher.no_prize,刮刮乐：不中奖
 scratcher.progress,已刮开 {0}/3
-scratcher.win,刮刮卡：会中奖 {0}（{1} 个相同）
+scratcher.win,刮刮乐：中奖 {0}（{1} 个相同）
 sealed.contents,箱内：{0}{1}
 sealed.empty,箱内：空
-sealed.more," …共 {0} 件"
+sealed.more," 等，共 {0} 件"
 sealed.total,箱内总价值：{0}
 sealed.unit,（{0}）
 seed.header,性状（未分析）：
@@ -115,56 +119,63 @@ seed.more,…另有 {0} 项
 seed.trait_rank,{0}（等级 {1}）
 storage.contains,内含：
 storage.more_kinds," 等 {0} 类"
-storage.ratio,压缩率：{0}（{1}/{2}格）
-storage.total_value,合计价值：{0}
+storage.ratio,压缩率：{0}（{1}/{2} 格）
 title.appraisal_suffix,{0} 标价{1}，最优报价{2}
 value.from,来源：
-value.per_cell,性价比：{0}（{1}/{2}格）
+value.per_cell,每格价值：{0}（{1}/{2} 格）
 value.perfect_range," ｜ 完美 {0}–{1}"
 value.total,总价：{0} × {1} = {2}
 value.total_line,总价：{0}
+water.actives,活性成分：
+water.other,其他成分：
 water.head,水质：{0}% {1}
 water.impurities,杂质：
-water.mismatch,（不匹配）
+water.mismatch,（与标签不符）
 water.none,无
 water.trace,微量（低于显示阈值）
 wine.aging,陈化加成：+{0}/天（共 +{1}）
 wine.composition,成分：糖度 {0}‰、污染物 {1}‰
-wine.counterfeit,啤酒判定：赝品酒（使用非法酵母）
-wine.empty,空瓶（未装填）
+wine.counterfeit,赝品：使用了非法酵母
+wine.empty,空瓶
 wine.fermenting,发酵中
 wine.finished,已酿成
-wine.score,酒分数：{0}{1}
-wine.state,酒：{0}
+wine.score,果酿评分：{0}{1}
+wine.state,果酿：{0}
 wine.tier,，第 {0} 档
-wine.unknown_state,未知({0})
-wine.yeast_power,酵母力度：{0}/次
+wine.unknown_state,未知（{0}）
+wine.yeast_power,酵母强度：{0}/次
 machine.battery_line,剩余能量：{0}（{1}天）
 config.section.display,显示优化
 config.item_appraisal,物品鉴定
-config.item_appraisal.tip,合并真伪鉴定、价值构成、完美报价区间、赝品原因与植物信息。
+config.item_appraisal.tip,按物品类型显示真伪结论与价值构成。
+config.cost_performance,性价比
+config.cost_performance.tip,显示每格价值与容器压缩率。
+config.container_contents,容器内容物
+config.container_contents.tip,"列出未上锁容器内的物品，不单独显示合计价值。"
 config.info_enhance,信息增强
-config.info_enhance.tip,合并性价比、标签与市场影响、模组效果实际值、机器电池、容器信息、黑市溢价、彩票信息、描述淡化与售价/进价显示优化。
+config.info_enhance.tip,补充随物品变化的附加信息：标签与模组效果、电池续航、市场修正、彩票结果、淡化的描述文字，以及更清楚的价格用词。
 config.type_badge,物品分类标签
-config.type_badge.tip,"在 tooltip 上方以有色底板和白字显示物品分类：医疗/水/药物/毒物蓝、烟酒黑底白字、奢侈品粉、食物绿、日用品青、武器/护甲青绿、工具/材料紫、违禁/受限暗红、其他灰色。关闭后恢复原版：把「[类型]」写在 tooltip 正文里。"
-config.container_name,容器和机器外显文本
-config.container_name.tip,只给容器和机器显示名称，位置固定底部。
-config.container_name_bg,外显文本半透明底
-config.container_name_bg.tip,给外显文本加半透明黑底，不透明度固定 0.6。
+config.type_badge.tip,在物品提示框上方显示物品分类。
+config.type_badge_muted,淡化标签颜色
+config.type_badge_muted.tip,非违禁标签改用与提示框一致的深色底和提亮的分类文字色；违禁品保留红色警示文字。
+config.container_name,容器和机器名称标签
+config.container_name.tip,在容器和机器图标底部显示名称。
+config.container_name_bg,名称标签底色
+config.container_name_bg.tip,在名称标签后加一层半透明黑底（不透明度 60%）。
 config.customer_alert,顾客到店提示
-config.customer_alert.tip,顾客到店时提示是否为通缉犯或改造体，并给出实际举报奖励、通缉犯真名与改造体等级。
+config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名与改造等级。
 config.section.interaction,操作优化
-config.double_click_inspect,双击待鉴定物品直接鉴定
-config.double_click_inspect.tip,双击待鉴定物品或真伪鉴定物品（注射器/香烟/粮票等）直接打开检视面板，不必先用放大镜；提示文案同步改为双击提示。关闭则恢复原版流程与原文案。
+config.double_click_inspect,双击鉴定
+config.double_click_inspect.tip,双击待鉴定物品或需辨别真伪的物品（注射器、香烟、食品券等），无需放大镜即可打开检视面板；面板打开时，双击另一件物品可直接切换。物品上的放大镜提示改为“双击以鉴定”。关闭后恢复原版流程。
 config.section.reveal,透视
-config.hidden_truth,揭示货不对板
-config.hidden_truth.tip,显示被伪装前的真实条件差异、真实耐久与锭/化学品真实纯度。会直接暴露假货，明显降低鉴定难度。
-config.water_wine,水质鉴定
-config.water_wine.tip,合并水质纯度、杂质与净化建议，以及酒的分数和成分分析；开启时不需要水质检测仪。
-config.scratcher,刮刮卡提前看
-config.scratcher.tip,未刮开就给出中奖金额（或不中奖）与已刮进度。按游戏同一套规则只读复算，不替玩家刮开；关闭后则不显示结果。
-config.sealed_box,密封箱透视
-config.sealed_box.tip,带锁容器（保险箱/枪柜）未开锁时也列出箱内物品与箱内总价值。等于绕过开锁环节，默认关闭。
-config.result_prefill,结果预填
-config.result_prefill.tip,打开鉴定面板时自动勾选赝品的实际问题，并把鉴定价格填成最优报价。只预填控件，不自动提交或确认。默认关闭。
+config.hidden_truth,揭示伪装与真实属性
+config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。
+config.water_wine,水质与果酿分析
+config.water_wine.tip,无需检测试纸即可显示水质纯度与杂质，以及果酿的酿造数据。
+config.scratcher,刮刮乐预知
+config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多少以及已刮进度。按游戏同一套规则只读推算，不会替你刮开。
+config.sealed_box,带锁容器透视
+config.sealed_box.tip,带锁容器（保险箱、枪柜等）未开锁时也列出箱内物品与总价值。相当于跳过开锁环节，因此默认关闭。
+config.result_prefill,鉴定结果预填
+config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并把鉴定报价填为最优报价。只填写控件，不会提交或确认。默认关闭。
 appraisal.minimum_adjustment,最低价值补差
