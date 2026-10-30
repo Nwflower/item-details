@@ -29,6 +29,9 @@ internal static class LabelImpact
     /// <summary>短名仍然过长时截断，保证一行放得下百分比。</summary>
     private const int MaxNameChars = 24;
 
+    /// <summary>水质档位的特性分类。</summary>
+    private const string WaterPurityCategory = "CATEGORY_WATER_PURITY";
+
     private static Harmony? _harmony;
     private static bool _patched;
 
@@ -108,19 +111,38 @@ internal static class LabelImpact
     /// <summary>
     /// 优先用游戏自己的「短名称」（ItemCondition.display）：部分标签（如情报类）的完整
     /// 显示串是一整段文案，直接塞进 tooltip 会很长，而游戏内部本来就有更短的档位名。
+    ///
+    /// 例外：<c>display</c> 与 <c>identifier</c> 相同时说明这不是本地化名，而是创建条件时的
+    /// 原始串。水质六个档位就是这样——<c>ItemConditionList.conditionWaterPurity</c> 是静态
+    /// 构造的，构造时机早于本地化就绪，于是把 <c>Gutterflow</c> / <c>Basewater</c> 这类英文
+    /// 写进了存档。此时回落到特性自己的显示串（本地化过的档位名）。
     /// </summary>
     private static string ShortName(ItemFeature feature, string fallback)
     {
+        ItemCondition? cond = null;
+        try { cond = feature.GetCurrentItemCondition(); } catch { }
+
         string name = fallback;
-        try
-        {
-            var cond = feature.GetCurrentItemCondition();
-            if (cond != null && !string.IsNullOrEmpty(cond.display)) name = cond.display;
-        }
-        catch { }
+        if (cond != null && !string.IsNullOrEmpty(cond.display)
+            && !string.Equals(cond.display, cond.identifier, StringComparison.OrdinalIgnoreCase))
+            name = cond.display;
+
+        // 水质档位的显示串固定是「档位名 (90%- Purity)」，括号里是游戏硬编码的英文且
+        // 与玩家看到的水质行重复，标签行只留档位名。
+        if (cond != null && string.Equals(cond.category, WaterPurityCategory, StringComparison.Ordinal))
+            name = WithoutPuritySuffix(name);
 
         if (name.Length > MaxNameChars)
             name = name.Substring(0, MaxNameChars - 1) + "…";
+        return name;
+    }
+
+    /// <summary>去掉游戏给水质档位追加的「 (99%-99.9% Purity)」后缀；格式不符时原样返回。</summary>
+    private static string WithoutPuritySuffix(string name)
+    {
+        int cut = name.LastIndexOf(" (", StringComparison.Ordinal);
+        if (cut > 0 && name.EndsWith(" Purity)", StringComparison.Ordinal))
+            return name.Substring(0, cut);
         return name;
     }
 
