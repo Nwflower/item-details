@@ -11,7 +11,8 @@ auth.logo,Fallo del logotipo
 auth.seal,Fallo del sello
 auth.serial,Fallo de número de serie
 # key,value
-alert.aug_tier,Nivel de ciberaumentación: {0}
+alert.aug_kill_reward,Recompensa al matar: {0}
+alert.aug_presence,Amenaza de aumentados: {0}/100
 alert.bounty," (recompensa {0})"
 alert.real_name,Nombre real: {0}
 alert.title_augmented,Cliente ciberaumentado
@@ -154,7 +155,7 @@ config.container_name.tip,Muestra el nombre en la parte inferior del icono de co
 config.container_name_bg,Fondo de los nombres
 config.container_name_bg.tip,Añade un fondo negro translúcido (60 % de opacidad) detrás del nombre.
 config.customer_alert,Aviso de llegada de clientes
-config.customer_alert.tip,"Avisa cuando llega un cliente buscado o ciberaumentado y muestra la recompensa real, su nombre real y su nivel de ciberaumentación."
+config.customer_alert.tip,Avisa cuando llega un cliente buscado o ciberaumentado y muestra la recompensa real, su nombre real, y la recompensa al matar y la amenaza de los ciberaumentados.
 config.customer_history,Historial al pasar el cursor
 config.customer_history.tip,Al pasar el cursor sobre un cliente de la tienda se muestra la conversación de esta visita.
 config.section.interaction,Controles

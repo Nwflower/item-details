@@ -11,7 +11,8 @@ auth.logo,Difetto del logo
 auth.seal,Difetto del sigillo
 auth.serial,Difetto del numero di serie
 # key,value
-alert.aug_tier,Livello di potenziamento: {0}
+alert.aug_kill_reward,Ricompensa per l'uccisione: {0}
+alert.aug_presence,Minaccia potenziata: {0}/100
 alert.bounty," (taglia {0})"
 alert.real_name,Vero nome: {0}
 alert.title_augmented,Cliente potenziato
@@ -154,7 +155,7 @@ config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e ma
 config.container_name_bg,Sfondo dei nomi
 config.container_name_bg.tip,Aggiunge uno sfondo nero traslucido (opacità 60%) dietro il nome.
 config.customer_alert,Avviso di arrivo clienti
-config.customer_alert.tip,"Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome e il livello di potenziamento."
+config.customer_alert.tip,Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome, e la ricompensa per l'uccisione e la minaccia dei potenziati.
 config.customer_history,Cronologia al passaggio del mouse
 config.customer_history.tip,Passando il mouse su un cliente del negozio mostra la conversazione della visita in corso.
 config.section.interaction,Controlli

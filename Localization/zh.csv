@@ -11,7 +11,8 @@ auth.logo,商标异常
 auth.seal,防伪标异常
 auth.serial,序列号异常
 # key,value
-alert.aug_tier,改造等级：{0}
+alert.aug_kill_reward,击杀奖励：{0}
+alert.aug_presence,改造体威胁：{0}/100
 alert.bounty,（赏金 {0}）
 alert.real_name,真名：{0}
 alert.title_augmented,改造体顾客
@@ -154,7 +155,7 @@ config.container_name.tip,在容器和机器图标底部显示名称。
 config.container_name_bg,名称标签底色
 config.container_name_bg.tip,在名称标签后加一层半透明黑底（不透明度 60%）。
 config.customer_alert,顾客到店提示
-config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名与改造等级。
+config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名，以及改造体的击杀奖励与威胁值。
 config.customer_history,悬停顾客查看本次对话
 config.customer_history.tip,鼠标停在店内顾客身上时，显示本次接待已经说过的对话。
 config.section.interaction,操作优化

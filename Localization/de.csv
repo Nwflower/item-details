@@ -11,7 +11,8 @@ auth.logo,Logografik-Fehler
 auth.seal,Siegelfehler
 auth.serial,Seriennummerfehler
 # key,value
-alert.aug_tier,Augmentierungsstufe: {0}
+alert.aug_kill_reward,Abschussprämie: {0}
+alert.aug_presence,Augment-Bedrohung: {0}/100
 alert.bounty," (Belohnung {0})"
 alert.real_name,Echter Name: {0}
 alert.title_augmented,Augmentierter Kunde
@@ -154,7 +155,7 @@ config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Mas
 config.container_name_bg,Namenshintergrund
 config.container_name_bg.tip,Legt eine halbtransparente schwarze Fläche (60 % Deckkraft) hinter den Namen.
 config.customer_alert,Hinweis bei Kundenankunft
-config.customer_alert.tip,"Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen und Augmentierungsstufe."
+config.customer_alert.tip,Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen sowie Abschussprämie und Bedrohung bei Augmentierten.
 config.customer_history,Gesprächsverlauf beim Hovern
 config.customer_history.tip,Beim Hovern über einem Kunden im Laden wird der Verlauf des aktuellen Besuchs angezeigt.
 config.section.interaction,Bedienung

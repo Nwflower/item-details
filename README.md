@@ -28,7 +28,7 @@
 鉴定服务面板标题会附带该物品的标价与最优报价。
 
 **改造体与通缉犯提醒**
-顾客到店时提示谁是改造体、谁是通缉犯，并给出举报奖励、真名与改造等级。提示条可以拖动。
+顾客到店时提示谁是改造体、谁是通缉犯，并给出举报奖励、真名，以及改造体的击杀奖励与威胁值。提示条可以拖动。
 
 **顾客对话回看**
 鼠标停在店内顾客身上，可以看到本次接待已经说过的台词（含你自己那几句）；换下一位顾客时自动清空。只记本次接待，不存档、不跨天。
@@ -94,7 +94,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 - **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, machine battery days and lottery results. Machines and pitchers list what is inside: filter durability, water in containers, tool uses left, days until a job finishes, how long a hydroponic unit's water lasts, fridge items that get no effect, and how many days an AgeWell ages per day. Each module bonus on a machine shows its real effect, such as +136 ml/day on a Moisture Farm, +20% attractiveness on a projector, or how much more quality an AgeWell needs for an extra aging day. Learning Algorithm modules show each stat's progress toward its cap, and machines sum up what is left. Third-party machines can provide their own effect notes through the explicit registration API.
 - **BloomBerry quality** — Normal, Small, Moldy, Underripe or Dried.
 - **Appraisal Service title** — shows the item's list price and the best offer.
-- **Augmented / wanted alerts** — bounty, real name and augmentation tier when such a customer arrives.
+- **Augmented / wanted alerts** — bounty, real name, and an augmented customer's kill reward plus the current aug threat when such a customer arrives.
 - **Double-click to inspect** — open the inspection panel without the Magnifying Glass; double-click another item to switch.
 - **Reveal (optional)** — Reveal Disguises & True Stats is on by default; Water & Wine Analysis, Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off by default because they make the game noticeably easier.
 

@@ -203,7 +203,7 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
         if (wanted && payout > 0)
             body += Loc.T("alert.bounty", " (bounty {0})", payout);
 
-        // 透视补充：通缉犯真名（原版举报后才揭示）与改造体等级
+        // 透视补充：通缉犯真名（原版举报后才揭示）、改造体击杀奖励与威胁值
         var extra = new List<string>();
         if (wanted)
         {
@@ -217,15 +217,46 @@ internal sealed class CustomerAlertTicker : MonoBehaviour
         }
         if (aug)
         {
+            // 击杀奖励：复刻 AugHelper.OnGoodKill 的算法（天数递增 100→250，再套起始 perk 的
+            // 定罪/模范市民修正与「改造体危机」1.25 倍）。展示的是实际入账值，不含声望。
             try
             {
-                int tier = client.augTier;
-                if (tier > 0) extra.Add(Loc.T("alert.aug_tier", "Augmentation tier: {0}", tier));
+                int kill = AugKillReward();
+                if (kill > 0) extra.Add(Loc.T("alert.aug_kill_reward", "Kill reward: {0}", kill));
             }
-            catch { }
+            catch (Exception ex) { Log.Warn("CustomerAlert.AugKillReward", ex); }
+
+            // 改造体威胁：PlayerStore.augPresence，初始 15、击杀下调、放走上调，满 100 在高难度
+            // 触发结局；危机结束的判据也看它是否归零。
+            try
+            {
+                int presence = Mathf.Clamp(PlayerStore.Instance.augPresence, 0, AugPresenceMax);
+                extra.Add(Loc.T("alert.aug_presence", "Aug threat: {0}/100", presence));
+            }
+            catch (Exception ex) { Log.Warn("CustomerAlert.AugPresence", ex); }
         }
 
         return ShowToast(title, body, extra);
+    }
+
+    /// <summary>改造体威胁值的上限：满值在高难度下触发结局，危机结束的判据也看它归零。</summary>
+    private const int AugPresenceMax = 100;
+
+    /// <summary>
+    /// 击杀改造体的实际入账奖励，算法与 <c>AugHelper.OnGoodKill</c> 一致：
+    /// 基准 100 + (当天 − 改造体引入日)，夹在 100–250；再套起始 perk 的
+    /// 定罪（×0.75）/ 模范市民（×1.5）修正；「改造体危机」perk 再 ×1.25。
+    /// </summary>
+    private static int AugKillReward()
+    {
+        int day = 0;
+        try { day = StoreStation.Instance.dayCounter; } catch { }
+
+        int amount = Mathf.Clamp(100 + (day - PlayerStore.GetAugIntroducedDay()), 100, 250);
+        try { amount = StartingPerkContent.HandleReportRewardConvict(amount); } catch { }
+        try { amount = StartingPerkContent.HandleReportRewardModelCitizen(amount); } catch { }
+        try { if (StartingPerk.IsAugMenace()) amount = RNG.MultiplyAndRound(amount, 1.25f); } catch { }
+        return amount;
     }
 
     /// <summary>返回 true 表示提示已成功显示（或无需显示）。</summary>

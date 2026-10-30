@@ -11,7 +11,8 @@ auth.logo,Défaut de logo
 auth.seal,Défaut du sceau de sécurité
 auth.serial,Défaut de numéro de série
 # key,value
-alert.aug_tier,Niveau d'augmentation : {0}
+alert.aug_kill_reward,Prime d'élimination : {0}
+alert.aug_presence,Menace augmentée : {0}/100
 alert.bounty," (prime {0})"
 alert.real_name,Vrai nom : {0}
 alert.title_augmented,Client augmenté
@@ -154,7 +155,7 @@ config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et de
 config.container_name_bg,Fond des noms
 config.container_name_bg.tip,Ajoute un fond noir translucide (opacité 60 %) derrière le nom.
 config.customer_alert,Alerte à l'arrivée d'un client
-config.customer_alert.tip,"Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom et son niveau d'augmentation."
+config.customer_alert.tip,Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom, ainsi que la prime d'élimination et la menace des clients augmentés.
 config.customer_history,Historique au survol du client
 config.customer_history.tip,Survoler un client du magasin affiche les répliques de la visite en cours.
 config.section.interaction,Commandes

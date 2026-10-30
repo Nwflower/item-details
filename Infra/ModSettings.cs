@@ -125,7 +125,7 @@ internal static class ModSettings
             CustomerAlertToggle.Define(_cfg, "show_customer_alert", SecDisplayKey, SecDisplayEn,
                 Text("config.customer_alert", "Customer Arrival Alert"),
                 Text("config.customer_alert.tip", "When a wanted or augmented customer arrives, shows a notice with the " +
-                     "actual bounty, real name and augmentation tier."));
+                     "actual bounty, real name, and an augmented customer's kill reward and threat level."));
 
             CustomerHistoryToggle.Define(_cfg, "show_customer_history", SecDisplayKey, SecDisplayEn,
                 Text("config.customer_history", "Customer Dialogue on Hover"),

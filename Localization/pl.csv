@@ -11,7 +11,8 @@ auth.logo,Problem z logo
 auth.seal,Problem z plombą
 auth.serial,Problem z numerem seryjnym
 # key,value
-alert.aug_tier,Poziom ulepszenia: {0}
+alert.aug_kill_reward,Nagroda za zabicie: {0}
+alert.aug_presence,Zagrożenie ulepszonych: {0}/100
 alert.bounty," (nagroda {0})"
 alert.real_name,Prawdziwe imię: {0}
 alert.title_augmented,Ulepszony klient
@@ -154,7 +155,7 @@ config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
 config.container_name_bg,Tło nazw
 config.container_name_bg.tip,Dodaje półprzezroczyste czarne tło (krycie 60%) za nazwą.
 config.customer_alert,Powiadomienie o przybyciu klienta
-config.customer_alert.tip,"Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz poziom ulepszenia."
+config.customer_alert.tip,Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz nagrodę za zabicie i zagrożenie ulepszonych.
 config.customer_history,Historia rozmowy po najechaniu
 config.customer_history.tip,Najechanie na klienta w sklepie pokazuje rozmowę z bieżącej wizyty.
 config.section.interaction,Sterowanie

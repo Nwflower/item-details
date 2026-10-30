@@ -11,7 +11,8 @@ auth.logo,로고 이상
 auth.seal,봉인 씰 이상
 auth.serial,일련번호 이상
 # key,value
-alert.aug_tier,개조 등급: {0}
+alert.aug_kill_reward,처치 보상: {0}
+alert.aug_presence,개조 위협: {0}/100
 alert.bounty," (현상금 {0})"
 alert.real_name,본명: {0}
 alert.title_augmented,개조 고객
@@ -154,7 +155,7 @@ config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름�
 config.container_name_bg,이름표 배경
 config.container_name_bg.tip,이름표 뒤에 반투명 검정 배경(불투명도 60%)을 추가합니다.
 config.customer_alert,손님 방문 알림
-config.customer_alert.tip,"수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 개조 등급을 표시합니다."
+config.customer_alert.tip,수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 처치 보상, 개조 위협을 표시합니다.
 config.customer_history,손님에 커서를 올려 이번 대화 보기
 config.customer_history.tip,매장 손님 위에 마우스를 올리면 이번 응대에서 오간 대화를 표시합니다.
 config.section.interaction,조작

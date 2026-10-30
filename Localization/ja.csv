@@ -11,7 +11,8 @@ auth.logo,ロゴの異常
 auth.seal,シールの異常
 auth.serial,シリアル番号の異常
 # key,value
-alert.aug_tier,改造レベル：{0}
+alert.aug_kill_reward,撃破報酬：{0}
+alert.aug_presence,改造体の脅威：{0}/100
 alert.bounty,（懸賞金 {0}）
 alert.real_name,本名：{0}
 alert.title_augmented,AI人間の客
@@ -154,7 +155,7 @@ config.container_name.tip,コンテナと機械のアイコン下部に名前を
 config.container_name_bg,名前ラベルの背景
 config.container_name_bg.tip,名前ラベルの後ろに半透明の黒い背景（不透明度60%）を付けます。
 config.customer_alert,来客アラート
-config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・改造レベルを表示します。
+config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・撃破報酬・改造体の脅威を表示します。
 config.customer_history,顧客にカーソルで今回の会話
 config.customer_history.tip,店内の顧客にマウスを合わせると、今回の接客で交わした会話を表示します。
 config.section.interaction,操作
