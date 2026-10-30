@@ -220,7 +220,7 @@ internal static class StorageInfo
                 shown++;
             }
             if (order.Count > MaxKinds)
-                sb.Append(Loc.T("storage.more_kinds", " and {0} kinds", order.Count));
+                sb.Append(Loc.T("storage.more_kinds", " ... {0} kinds in total", order.Count));
 
             built.Add(new TooltipLine(sb.ToString(), Color));
 

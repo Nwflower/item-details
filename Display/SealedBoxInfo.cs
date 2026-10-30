@@ -140,12 +140,12 @@ internal static class SealedBoxInfo
 
             if (shown == 0)
             {
-                lines.Add(new TooltipLine(Loc.T("sealed.empty", "Contents: empty"), Color));
+                lines.Add(new TooltipLine(Loc.T("sealed.empty", "Inside: empty"), Color));
             }
             else
             {
                 string more = total > shown
-                    ? Loc.T("sealed.more", " ... {0} total", total)
+                    ? Loc.T("sealed.more", " ... {0} items in total", total)
                     : "";
                 lines.Add(new TooltipLine(
                     Loc.T("sealed.contents", "Inside: {0}{1}", contents.ToString(), more),
@@ -154,7 +154,7 @@ internal static class SealedBoxInfo
 
             // ---------- 箱内总价值 ----------
             if (sum > 0)
-                lines.Add(new TooltipLine(Loc.T("sealed.total", "Total inside: {0}", sum), Color));
+                lines.Add(new TooltipLine(Loc.T("sealed.total", "Total value inside: {0}", sum), Color));
 
             StoreCache();
             if (lines.Count > 0) Log.MarkOk("SealedBoxInfo");

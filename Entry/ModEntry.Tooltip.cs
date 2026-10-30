@@ -22,7 +22,7 @@ public sealed partial class ModEntry
         if (r.Faults > 0)
         {
             string names = string.Join(Loc.T("list.sep", ", "), r.FaultNames);
-            AddLine(builder, Loc.T("auth.counterfeit", "✘ Suspected counterfeit ({0})", names),
+            AddLine(builder, Loc.T("auth.counterfeit", "✘ Counterfeit ({0})", names),
                 RenderHandler.ColorPalette.LightRed);
         }
         else if (r.IsGenuine)
@@ -96,7 +96,7 @@ public sealed partial class ModEntry
         var lines = RibwichCounterfeit.Collect(item);
         if (lines.Count == 0) return false;
 
-        AddLine(builder, Loc.T("ribwich.header", "Why counterfeit:"), RenderHandler.ColorPalette.LightRed);
+        AddLine(builder, Loc.T("ribwich.header", "Why it's counterfeit:"), RenderHandler.ColorPalette.LightRed);
         foreach (string s in lines)
             AddLine(builder, "• " + s, RenderHandler.ColorPalette.LightRed);
         return true;
@@ -126,7 +126,7 @@ public sealed partial class ModEntry
         string? name = BerryQualityClassifier.DisplayName(q);
         if (name == null) return false;
 
-        AddLine(builder, Loc.T("berry.line", "Berry quality: {0}", name),
+        AddLine(builder, Loc.T("berry.line", "BloomBerry quality: {0}", name),
             q == BerryQuality.Normal ? RenderHandler.ColorPalette.Green : RenderHandler.ColorPalette.Orange);
         return true;
     }
@@ -226,7 +226,7 @@ public sealed partial class ModEntry
 
         builder.Add(head.Trim(), headColor);
         if (mismatch)
-            builder.Add(Loc.T("water.mismatch", " (label mismatch)"), RenderHandler.ColorPalette.Gray);
+            builder.Add(Loc.T("water.mismatch", " (doesn't match label)"), RenderHandler.ColorPalette.Gray);
         builder.NextLine();
 
         // 第二行：逐项杂质占比（不显示总杂质百分比和 ml）。
@@ -281,7 +281,7 @@ public sealed partial class ModEntry
         var lines = SeedInfo.Collect(item);
         if (lines.Count == 0) return false;
 
-        AddLine(builder, Loc.T("seed.header", "Traits (unanalysed):"),
+        AddLine(builder, Loc.T("seed.header", "Traits (unanalyzed):"),
             RenderHandler.ColorPalette.LightTurquoise);
         return AppendLines(builder, lines);
     }

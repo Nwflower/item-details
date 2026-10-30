@@ -1,60 +1,64 @@
 # Item Details 日本語 (ja)
-auth.amount,額面異常
+auth.amount,額面の異常
 auth.body,本体の損傷
 auth.box,箱の異常
-auth.chip,チップ異常
-auth.color,色異常
-auth.indicator,インジケーター異常
-auth.label,ラベル異常
-auth.lettering,印字異常
-auth.logo,ロゴ異常
-auth.seal,封印異常
-auth.serial,シリアル番号異常
+auth.chip,チップの異常
+auth.color,色の異常
+auth.indicator,表示の異常
+auth.label,ラベルの異常
+auth.lettering,文字の異常
+auth.logo,ロゴの異常
+auth.seal,シールの異常
+auth.serial,シリアル番号の異常
 # key,value
-alert.aug_tier,改造体レベル：{0}
+alert.aug_tier,改造レベル：{0}
 alert.bounty,（懸賞金 {0}）
 alert.real_name,本名：{0}
-alert.title_augmented,改造体の客
-alert.title_both,指名手配 · 改造体の客
-alert.title_wanted,指名手配
-appraisal.armor,装甲モジュール
-appraisal.base,基本価格
-appraisal.blade,刃モジュール
-appraisal.build_deluxe,デラックス構成
-appraisal.build_tactical,タクティカル構成
-appraisal.carbon,カーボン外装
-appraisal.casing_crack,外装の亀裂
-appraisal.casing_reinforced,補強加工
-appraisal.casing_screws,ネジの緩み
+alert.title_augmented,AI人間の客
+alert.title_both,指名手配犯 · AI人間の客
+alert.title_wanted,指名手配犯
+appraisal.armor,装甲
+appraisal.base,基本
+appraisal.blade,ブレード
+appraisal.build_deluxe,デラックス（セットボーナス）
+appraisal.build_tactical,タクティカル（セットボーナス）
+appraisal.carbon,カーボンコンジット
+appraisal.casing_crack,ひび割れ
+appraisal.casing_reinforced,補強済み
+appraisal.casing_screws,ネジの露出
 appraisal.casing_wear,軽度の摩耗
 appraisal.casing_wear_heavy,重度の摩耗
 appraisal.damaged,損傷
-appraisal.emgplus,EMG+コネクタ
-appraisal.finish_cheap,低級塗装
-appraisal.finish_premium,高級塗装
+appraisal.emgplus,EMG+インターフェース
+appraisal.finish_cheap,低グレードのプラズマ色
+appraisal.finish_premium,高グレードのプラズマ色
 appraisal.gold,金メッキ
-appraisal.iface_unknown,インターフェース規格不明
-appraisal.neural,ニューラルジャック
+appraisal.iface_unknown,不特定の制御
+appraisal.neural,神経インターフェース
 appraisal.ribwich_deluxe,デラックス版
-appraisal.ribwich_double_meat,ダブルパティ
-appraisal.ribwich_first_batch,第1バッチ
-appraisal.ribwich_month_edge,初月/最終月
-appraisal.ribwich_opened,開封済みか偽物（固定40）
-appraisal.ribwich_plant_grade_a,優良包装工場 {0:D2}
-appraisal.ribwich_plant_grade_c,劣悪包装工場 {0:D2}
-appraisal.seal_ignition,Ignition Lab 特典
-appraisal.seal_ll,Wild's Rides 特典
-appraisal.seal_republic,Republic Naval 特典
-appraisal.seal_zhonghua,ZhongHua 特典
+appraisal.ribwich_double_meat,パティ2枚
+appraisal.ribwich_first_batch,第1次製造分
+appraisal.ribwich_month_edge,初月または最終月
+appraisal.ribwich_opened,開封済みまたは偽造品（固定40）
+appraisal.ribwich_plant_grade_a,高品質の包装施設 {0:D2}
+appraisal.ribwich_plant_grade_c,低品質の包装施設 {0:D2}
+appraisal.seal_ignition,イグニッション・ラボボーナス
+appraisal.seal_ignition_short,イグニッション・ラボ
+appraisal.seal_ll,ワイルド・ライドボーナス
+appraisal.seal_ll_short,ワイルド・ライド
+appraisal.seal_republic,共和国海軍徴発ボーナス
+appraisal.seal_republic_short,共和国海軍徴発
+appraisal.seal_zhonghua,Zhonghua造船ボーナス
+appraisal.seal_zhonghua_short,Zhonghua造船
 appraisal.worn,摩耗
-auth.counterfeit,✘ 偽物の疑い（{0}）
-auth.genuine,✔ 本物
+auth.counterfeit,✘ 偽造品（{0}）
+auth.genuine,✔ 正規品
 berry.dried,乾燥
-berry.line,ベリーの品質：{0}
-berry.moldy,カビ
-berry.normal,正常
-berry.small,小ぶり
-berry.unripe,未熟
+berry.line,ブルームベリーの品質：{0}
+berry.moldy,カビあり
+berry.normal,通常
+berry.small,小さい
+berry.unripe,熟していない
 calorie.line,エネルギー：{0} {1}
 calorie.per_cell,（{0} {1}/マス）
 calorie.unit,kcal
@@ -65,15 +69,15 @@ generic.header,価値の内訳（実測）：
 generic.more,· …ほか {0} 件
 generic.other_attributes,· その他の属性 {0}
 hidden.chem_purity,化学純度：{0}%
-hidden.durability,耐久：{0}/{1}
-hidden.durability_faked,真の耐久：{0}/{1}（表示 {2}/{3}、偽装の疑い）
+hidden.durability,耐久性：{0}/{1}
+hidden.durability_faked,真の耐久性：{0}/{1}（表示は{2}/{3}、改ざんの疑い）
 hidden.purity,純度：{0}
-hidden.purity_faked,真の純度：{0}（表示 {1}、偽装の疑い）
-hint.double_click,ダブルクリックで鑑定；別の品をダブルクリックで切替
+hidden.purity_faked,真の純度：{0}（表示は{1}、偽装の疑い）
+hint.double_click,ダブルクリックで鑑定
 list.sep,、
 lottery.matched_none,一致 {0}/6 -> はずれ
 lottery.matched_prize,一致 {0}/6 -> 賞金 {1}
-lottery.not_drawn,第{0}回：未抽選（毎週土曜に抽選）
+lottery.not_drawn,第{0}回：未抽選（毎週土曜の朝に発表）
 lottery.winning,当選番号：{0}
 market.line,市場：{0}
 module.power,{0}電力/日
@@ -89,32 +93,32 @@ reveal.real,真の値：{0}（偽装 {1}）
 reveal.real_with_mod,真の値：{0}（{1}%）（偽装 {2}）
 ribwich.header,偽物の理由：
 ribwich.more,…ほか {0} 件
-ribwich.reason_bun_no_pickles,ゴマバンズなのに追加ピクルス無し（デラックスは両方必要）
-ribwich.reason_date_missing,製造日の印が無い
-ribwich.reason_davre_missing,Davre マークが無い
-ribwich.reason_davre_wrong,Davre マークが違う
-ribwich.reason_first_sticker,第1バッチに Ribwich シールは付かない
+ribwich.reason_bun_no_pickles,ゴマのパンなのに追加ピクルスが無い（デラックス版は両方必要）
+ribwich.reason_date_missing,製造日の記載が無い
+ribwich.reason_davre_missing,Davre社のロゴが無い
+ribwich.reason_davre_wrong,Davre社のロゴが間違っている
+ribwich.reason_first_sticker,第1次製造分にリブイッチのステッカーは無いはず
 ribwich.reason_month_range,製造月 {0} が 1–12 の範囲外
-ribwich.reason_pickles_no_bun,追加ピクルスがあるのにゴマバンズ無し（デラックスは両方必要）
-ribwich.reason_plant_missing,包装工場番号が無い
-ribwich.reason_plant_range,工場番号 {0} が 01–35 の範囲外
-ribwich.reason_second_sticker_missing,第2バッチに Ribwich シールが無い
-ribwich.reason_second_sticker_wrong,第2バッチの Ribwich シールが違う
+ribwich.reason_pickles_no_bun,追加ピクルスがあるのにゴマのパンではない（デラックス版は両方必要）
+ribwich.reason_plant_missing,包装施設の番号が無い
+ribwich.reason_plant_range,包装施設番号 {0} が 01–35 の範囲外
+ribwich.reason_second_sticker_missing,第2次製造分なのにリブイッチのステッカーが無い
+ribwich.reason_second_sticker_wrong,第2次製造分のリブイッチのステッカーが間違っている
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,製造年 {0} が 425–429 / 432–438 の範囲外
-scratcher.no_prize,スクラッチ：はずれ
+scratcher.no_prize,スクラッチカード：はずれ
 scratcher.progress,削り済み {0}/3
-scratcher.win,スクラッチ：当たり {0}（{1} 個一致）
+scratcher.win,スクラッチカード：当たり {0}（{1}個一致）
 sealed.contents,中身：{0}{1}
 sealed.empty,中身：空
-sealed.more," …計 {0} 点"
-sealed.total,中身の合計：{0}
+sealed.more," …計{0}点"
+sealed.total,中身の合計価値：{0}
 sealed.unit,（{0}）
 seed.header,形質（未分析）：
 seed.more,…ほか {0} 件
 seed.trait_rank,{0}（ランク {1}）
 storage.contains,中身：
-storage.more_kinds," ほか {0} 種"
+storage.more_kinds," など計{0}種"
 storage.ratio,圧縮率：{0}（{1}/{2} マス）
 storage.total_value,合計価値：{0}
 title.appraisal_suffix,{0} 定価{1}、最良提示{2}
@@ -125,12 +129,12 @@ value.total,総額：{0} × {1} = {2}
 value.total_line,総額：{0}
 water.head,水質：{0}% {1}
 water.impurities,不純物：
-water.mismatch,（ラベル不一致）
+water.mismatch,（ラベルと不一致）
 water.none,なし
 water.trace,微量（表示閾値未満）
 wine.aging,熟成ボーナス：+{0}/日（計 +{1}）
 wine.composition,成分：糖度 {0}‰、汚染物質 {1}‰
-wine.counterfeit,贋作：違法酵母
+wine.counterfeit,偽造品：違法酵母
 wine.empty,空
 wine.fermenting,発酵中
 wine.finished,醸成済み
@@ -140,34 +144,34 @@ wine.tier,、第 {0} 段階
 wine.unknown_state,不明（{0}）
 wine.yeast_power,酵母の力：{0}/回
 machine.battery_line,残りエネルギー：{0}（{1}日）
-config.section.display,表示最適化
+config.section.display,表示
 config.item_appraisal,アイテム鑑定
-config.item_appraisal.tip,"アイテムの鑑定結果と価値情報を、種類に応じて表示します。"
-config.cost_performance,コスト効率
-config.cost_performance.tip,"セル当たりの価値とコンテナの圧縮率を表示します。"
+config.item_appraisal.tip,アイテムの種類に応じて、真偽の判定と価値の内訳を表示します。
+config.cost_performance,マス単価
+config.cost_performance.tip,1マスあたりの価値とコンテナの圧縮率を表示します。
 config.container_contents,コンテナ内容
 config.container_contents.tip,"コンテナ内の物品と合計価値を一覧表示します。"
-config.info_enhance,情報強化
-config.info_enhance.tip,"ラベル、モジュール、バッテリー、市場、宝くじ、価格用語など、アイテムに応じた補足情報を表示します。"
+config.info_enhance,追加アイテム情報
+config.info_enhance.tip,ラベルやモジュールの効果、バッテリー残量、市場補正、宝くじの結果、説明文の淡色表示、分かりやすい価格表記など、アイテムに応じた情報を追加します。
 config.type_badge,"アイテム分類バッジ<br><color=#8C8C8C>医療/水/薬物 青 · 煙草/酒 黒 · 奢侈品 ピンク · 食料 緑 · 日用品 シアン · 武器 青緑 · 道具 紫 · 違法 赤 · その他 灰</color>"
 config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
-config.container_name,コンテナ/機械の外観名
-config.container_name.tip,コンテナと機械の下に名前を表示します。位置は下部固定です。
-config.container_name_bg,外観名の半透明背景
-config.container_name_bg.tip,名前に半透明の黒背景を付けます。不透明度は 0.6 固定です。
+config.container_name,コンテナ/機械の名前ラベル
+config.container_name.tip,コンテナと機械のアイコン下部に名前を表示します。
+config.container_name_bg,名前ラベルの背景
+config.container_name_bg.tip,名前ラベルの後ろに半透明の黒い背景（不透明度60%）を付けます。
 config.customer_alert,来客アラート
-config.customer_alert.tip,指名手配犯や改造体の客が来店した時に通知。実際の懸賞金、本名、改造体レベルを表示。
-config.section.interaction,操作最適化
+config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・改造レベルを表示します。
+config.section.interaction,操作
 config.double_click_inspect,ダブルクリックで鑑定
-config.double_click_inspect.tip,鑑定対象や真偽確認対象（注射器・タバコ・切手など）をダブルクリックで虫眼鏡なしに検査画面へ開きます。ヒント文も変更します。オフで元の操作に戻ります。
+config.double_click_inspect.tip,鑑定品や真偽確認が必要な品（注射器・タバコ・フードスタンプなど）をダブルクリックすると、虫眼鏡なしで検査パネルを開きます。パネル表示中に別の品をダブルクリックすると切り替わります。虫眼鏡のヒントは「ダブルクリックで鑑定」に変わります。オフにすると元の操作に戻ります。
 config.section.reveal,透視
-config.hidden_truth,偽物・不一致を暴く
-config.hidden_truth.tip,偽装前の真の状態差、真の耐久、インゴット/薬品の真の純度を表示。偽物が露見し鑑定が易しくなります。
-config.water_wine,水質分析
-config.water_wine.tip,"容器の内容に応じて水質・ワイン分析を表示します。"
+config.hidden_truth,偽装と真の値を暴く
+config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。
+config.water_wine,水質・ワイン分析
+config.water_wine.tip,水質試験紙なしで、水の純度と不純物、ワインの醸造データを表示します。
 config.scratcher,スクラッチカードの事前確認
-config.scratcher.tip,削る前に当たり額（またははずれ）と進行度を表示。同一ルールの読み取り専用再計算で、代わりに削りはしません。オフで非表示。
-config.sealed_box,密封コンテナ透視
-config.sealed_box.tip,施錠された容器（金庫/銃棚）も開錠前に中身と合計価値を一覧。開錠を飛ばすのと同じなので既定はオフ。
-config.result_prefill,結果を事前入力
-config.result_prefill.tip,鑑定パネルを開いたとき、実際の偽造箇所を選択し、鑑定価格に最適な提示額を入力します。入力欄を埋めるだけで、送信や確定は行いません。既定ではオフです。
+config.scratcher.tip,削る前に、スクラッチカードの当たり外れ・賞金・削った進み具合を表示します。ゲームと同じルールで読み取るだけで、代わりに削ることはありません。
+config.sealed_box,施錠コンテナ透視
+config.sealed_box.tip,施錠されたコンテナ（金庫、銃保管庫など）の中身と合計価値を、開錠前に一覧表示します。開錠の手間を飛ばすことになるため、既定ではオフです。
+config.result_prefill,鑑定結果の事前入力
+config.result_prefill.tip,検査パネルを開くと、実際の偽造箇所にチェックを入れ、鑑定額に最適な提示額を入力します。入力するだけで、送信や確定は行いません。既定ではオフです。

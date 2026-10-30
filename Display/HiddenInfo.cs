@@ -48,7 +48,7 @@ internal static class HiddenInfo
                 // 有伪装：原版显示 fake，我们揭示 real
                 lines.Add(new TooltipLine(
                     Loc.T("hidden.durability_faked",
-                        "Real durability: {0}/{1} (shown {2}/{3}, likely faked)",
+                        "True durability: {0}/{1} (shows {2}/{3}, likely tampered)",
                         real, max, fake, max),
                     Warn));
             }
@@ -83,7 +83,7 @@ internal static class HiddenInfo
             lines.Add(new TooltipLine(
                 faked
                     ? Loc.T("hidden.purity_faked",
-                        "Real purity: {0} (shown {1}, likely faked)",
+                        "True purity: {0} (shows {1}, likely faked)",
                         realText, PurityDisplay(fake))
                     : Loc.T("hidden.purity", "Purity: {0}", realText),
                 faked ? Warn : Info));

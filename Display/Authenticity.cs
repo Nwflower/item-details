@@ -34,29 +34,29 @@ internal static class Authenticity
 
     private static readonly Check[] InjectorChecks =
     {
-        new("ISSUE_INDICATOR", "auth.indicator", "Indicator fault"),
-        new("ISSUE_LABEL", "auth.label", "Label fault"),
-        new("ISSUE_SERIAL", "auth.serial", "Serial fault"),
+        new("ISSUE_INDICATOR", "auth.indicator", "Indicator issue"),
+        new("ISSUE_LABEL", "auth.label", "Label issue"),
+        new("ISSUE_SERIAL", "auth.serial", "Serial number issue"),
         new("ISSUE_BODY", "auth.body", "Body damage"),
-        new("ISSUE_COLOR", "auth.color", "Color fault"),
+        new("ISSUE_COLOR", "auth.color", "Color issue"),
     };
 
     private static readonly Check[] CigaretteChecks =
     {
-        new("CIGARETTE_LETTERING_ISSUE", "auth.lettering", "Lettering fault"),
-        new("CIGARETTE_COLOR_ISSUE", "auth.color", "Color fault"),
-        new("CIGARETTE_SEAL_ISSUE", "auth.seal", "Seal fault"),
-        new("CIGARETTE_LOGO_ISSUE", "auth.logo", "Logo fault"),
-        new("CIGARETTE_BOX_ISSUE", "auth.box", "Box fault"),
+        new("CIGARETTE_LETTERING_ISSUE", "auth.lettering", "Lettering issue"),
+        new("CIGARETTE_COLOR_ISSUE", "auth.color", "Color issue"),
+        new("CIGARETTE_SEAL_ISSUE", "auth.seal", "Seal issue"),
+        new("CIGARETTE_LOGO_ISSUE", "auth.logo", "Logo issue"),
+        new("CIGARETTE_BOX_ISSUE", "auth.box", "Box issue"),
     };
 
     private static readonly Check[] StampChecks =
     {
-        new("STAMP_LETTERING_ISSUE", "auth.lettering", "Lettering fault"),
-        new("STAMP_LOGO_ISSUE", "auth.logo", "Logo fault"),
-        new("STAMP_SEAL_ISSUE", "auth.seal", "Seal fault"),
-        new("STAMP_AMOUNT_ISSUE", "auth.amount", "Value fault"),
-        new("STAMP_CHIP_ISSUE", "auth.chip", "Chip fault"),
+        new("STAMP_LETTERING_ISSUE", "auth.lettering", "Lettering issue"),
+        new("STAMP_LOGO_ISSUE", "auth.logo", "Logo issue"),
+        new("STAMP_SEAL_ISSUE", "auth.seal", "Seal issue"),
+        new("STAMP_AMOUNT_ISSUE", "auth.amount", "Face value issue"),
+        new("STAMP_CHIP_ISSUE", "auth.chip", "Chip issue"),
     };
 
     internal static Check[] ChecksFor(ItemKind kind) => kind switch

@@ -108,7 +108,7 @@ internal static class ValueEnhance
                 double perCell = StackValue.PerCell(total, cells);
                 // 格式参照压缩率：比例 +（总额/格数格）
                 lines.Add(new TooltipLine(
-                    Loc.T("value.per_cell", "Value/cell: {0} ({1}/{2} cells)",
+                    Loc.T("value.per_cell", "Value per cell: {0} ({1}/{2} cells)",
                         perCell.ToString("0.#"), total, cells),
                     Color));
             }

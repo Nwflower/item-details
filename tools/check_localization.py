@@ -35,7 +35,7 @@ PLACEHOLDER = re.compile(r"\{(\d+)\}")
 INDIRECT_KEYS = {
     "config.section.display": "Display",
     "config.section.reveal": "Reveal",
-    "config.section.interaction": "Interaction & Visuals",
+    "config.section.interaction": "Controls",
 }
 
 
@@ -65,10 +65,15 @@ def pure_keys(text: str) -> dict[str, str]:
       - ValueFormula.Pure.cs：`new("appraisal.xxx", "English {0}", amount, ...)`
       - RibwichReasons.Pure.cs：Key() 与 English() 两个同序 switch
       - Authenticity.cs：`new("ISSUE_SERIAL", "auth.serial", "Serial fault")`
+      - GenericBreakdown.cs：`=> ("appraisal.seal_ll_short", "Wild's Rides")` 元组
     不扫它们，校验器会给出「全部齐全」的假结论。
     """
     out: dict[str, str] = {}
     for m in re.finditer(r'new\(\s*"((?:appraisal|ribwich)\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"', text):
+        out.setdefault(m.group(1), m.group(2))
+
+    # switch 表达式里的 (key, English) 元组：漏扫过 seal_*_short，导致厂商名在所有语言下都是英文。
+    for m in re.finditer(r'=>\s*\(\s*"((?:appraisal|ribwich)\.[a-z0-9_]+)"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\)', text):
         out.setdefault(m.group(1), m.group(2))
 
     # 真伪检查项的键是第二个参数，不是第一个；漏扫会让赝品括号里的问题名全部回落英文。

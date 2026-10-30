@@ -63,12 +63,12 @@ internal static class FeatureReveal
             if (realDiffers)
             {
                 text = modDiffers
-                    ? Loc.T("reveal.real_with_mod", "Real: {0} ({1}%) (disguised as {2})", real, modReal, fake)
-                    : Loc.T("reveal.real", "Real: {0} (disguised as {1})", real, fake);
+                    ? Loc.T("reveal.real_with_mod", "True: {0} ({1}%) (disguised as {2})", real, modReal, fake)
+                    : Loc.T("reveal.real", "True: {0} (disguised as {1})", real, fake);
             }
             else
             {
-                text = Loc.T("reveal.modifier", "Real modifier: {0}% (disguised {1}%)", modReal, modFake);
+                text = Loc.T("reveal.modifier", "True modifier: {0}% (disguised as {1}%)", modReal, modFake);
             }
 
             lines.Add(new TooltipLine(text, Color));

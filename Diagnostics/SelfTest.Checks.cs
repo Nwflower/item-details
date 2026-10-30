@@ -937,7 +937,7 @@ internal static partial class SelfTest
 
             int entries = Loc.TableEntries;
             string genuine = Loc.T("auth.genuine", "✔ Genuine");
-            string counter = Loc.T("auth.counterfeit", "✘ Suspected counterfeit ({0})", "--");
+            string counter = Loc.T("auth.counterfeit", "✘ Counterfeit ({0})", "--");
             bool noRawKey = genuine != "auth.genuine" && counter != "auth.counterfeit";
 
             if (code == "en")

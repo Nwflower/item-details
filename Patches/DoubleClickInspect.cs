@@ -16,6 +16,8 @@ namespace ItemDetails;
 ///
 /// 提示文案：Harmony Prefix 接管 `AppraisalHelper.CreateAppraisalTooltip`，
 /// 把原版「可使用放大镜进行检查」换成双击提示（devMode 仍保留 TRUE VALUE 行）。
+/// 写法照抄原版容器的「双击以打开」（`ContainerHelper.CreateContainerTooltip`：
+/// 前导空格 + 浅蓝色），让同一类“双击做某事”的提示在 tooltip 里长得一样。
 ///
 /// 只读 + 调用游戏自己的公开方法，不改存档。
 /// </summary>
@@ -110,17 +112,16 @@ internal static class DoubleClickInspect
 
             if (!IsInspectableItem(item)) return true;
 
-            if (builder != null)
-            {
-                builder.AddLine(
-                    Loc.T("hint.double_click",
-                        "Double-click to inspect; double-click another item to switch"),
-                    true, RenderHandler.ColorPalette.LightOrange);
-            }
+            if (builder != null) AddHint(builder);
             return false;
         }
         catch { return true; }
     }
+
+    /// <summary>与原版容器「双击以打开」同格式：前导空格 + 浅蓝色。</summary>
+    private static void AddHint(RichTextBuilder builder) =>
+        builder.AddLine(" " + Loc.T("hint.double_click", "Double-Click To Inspect"),
+            true, RenderHandler.ColorPalette.LightBlue);
 
     /// <summary>价格鉴定、真伪鉴定和其它 INSPECTABLE 物品都允许双击打开检视面板。</summary>
     private static bool IsInspectableItem(GameItem? item)
@@ -154,10 +155,7 @@ internal static class DoubleClickInspect
             }
             catch { }
 
-            builder.AddLine(
-                Loc.T("hint.double_click",
-                    "Double-click to inspect; double-click another item to switch"),
-                true, RenderHandler.ColorPalette.LightOrange);
+            AddHint(builder);
             return false;
         }
         catch (Exception ex)
