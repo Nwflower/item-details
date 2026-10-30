@@ -150,6 +150,8 @@ config.type_badge,Plakietki kategorii
 config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
 config.type_badge_muted,Stonowane kolory plakietek
 config.type_badge_muted.tip,Etykiety poza kontrabandą używają ciemnego tła podpowiedzi i rozjaśnionego koloru kategorii; kontrabanda zachowuje czerwony tekst ostrzegawczy.
+config.block_progress_bar,Paski postępu z bloków
+config.block_progress_bar.tip,"Rysuje paski postępu w podpowiedziach (pojemność, wytrzymałość, zdrowie itp.) jako pełne bloki, a niewypełnioną część ciemniejszym odcieniem. Po wyłączeniu wraca oryginalny styl [=====]."
 config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
 config.container_name_bg,Tło nazw
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} maks.
 learning.machine,"Nauka: moduły: {0}, brakuje do {1} pkt"
 learning.machine_full,Nauka: wszystkie moduły ({0}) na maksimum
+pen.learning_maxed," ({0}/{1} modułów w pełni wyuczonych)"
+pen.learning_maxed_untrained," ({0}/{1} modułów w pełni wyuczonych, {2} bez samouczenia)"
 module.days_faster,", ok. {0} dni szybciej"
 module.output,{0} ml/dzień
 module.attract,{0}% atrakcyjności

@@ -37,6 +37,10 @@ internal static class MachineInterior
     private const int MaxEntries = 8;
     /// <summary>耐久、水量、进度不改变物品列表也会变，缓存只挡同一次悬停里的重复构建。</summary>
     private const float CacheSeconds = 1f;
+    /// <summary>
+    /// tooltip 每帧重建；这段时间内同一台机器直接复用上次的行，不再逐面板读结构、比对签名。
+    /// </summary>
+    private const float RecheckSeconds = 0.25f;
 
     private static readonly HashSet<string> SkippedRoles = new(StringComparer.Ordinal)
     {
@@ -82,6 +86,8 @@ internal static class MachineInterior
         internal string Locale = "";
         internal int Flags;
         internal float At;
+        /// <summary>上次确认内容物没变的时间。</summary>
+        internal float CheckedAt;
         internal List<ContainerItemSignature> Items = new();
         internal List<TooltipLine> Lines = new();
     }
@@ -112,19 +118,26 @@ internal static class MachineInterior
         {
             if (LockedContainer.IsLocked(item)) return lines;
 
-            var ctx = Read(item);
-            if (ctx == null) return lines;
-            if (!ctx.IsMachine && !listing) return lines;
-
-            var all = AllItems(ctx);
             int flags = (listing ? 1 : 0) | (adapters ? 2 : 0) | (hiddenTruth ? 4 : 0) | (purity ? 8 : 0);
             string locale = Loc.Code;
             float now = UnityEngine.Time.unscaledTime;
 
             var entry = Find(item, locale, flags);
+            if (entry != null && now - entry.CheckedAt <= RecheckSeconds && now - entry.At <= CacheSeconds)
+            {
+                lines.AddRange(entry.Lines);
+                return lines;
+            }
+
+            var ctx = Read(item);
+            if (ctx == null) return lines;
+            if (!ctx.IsMachine && !listing) return lines;
+
+            var all = AllItems(ctx);
             if (entry != null && now - entry.At <= CacheSeconds
                 && ContainerItemSignature.Matches(entry.Items, all))
             {
+                entry.CheckedAt = now;
                 lines.AddRange(entry.Lines);
                 return lines;
             }
@@ -163,29 +176,23 @@ internal static class MachineInterior
     /// <summary>读出全部面板；不是机器、也不是槽位容器时返回 null。</summary>
     private static Context? Read(GameItem item)
     {
-        PixelElement? root = null;
-        try { root = item.contentWindow?.childElement; } catch { }
+        var root = item.contentWindow?.childElement;
         if (root == null) return null;
 
         var ctx = new Context { Machine = item };
         if (root is MachineryPanelRow row)
         {
             ctx.IsMachine = true;
-            IReadOnlyList<MachineryPanel>? panels = null;
-            try { panels = row.Panels; } catch { }
+            var panels = row.Panels;
             if (panels == null) return null;
 
             foreach (var mp in panels)
             {
                 if (mp == null) continue;
-                bool hidden = false;
-                try { hidden = mp.isHidden; } catch { }
-                if (hidden) continue;
+                if (mp.isHidden) continue;
 
-                string role = "";
-                try { role = mp.role ?? ""; } catch { }
-                PixelElement? content = null;
-                try { content = mp.content; } catch { }
+                string role = mp.role ?? "";
+                var content = mp.content;
 
                 if (role == "power")
                 {
@@ -235,8 +242,7 @@ internal static class MachineInterior
         foreach (var storage in storages)
         {
             if (storage is not GameInventory inv) continue;
-            List<GameItem>? children = null;
-            try { children = inv.childItems; } catch { }
+            var children = inv.childItems;
             if (children == null) continue;
             foreach (var child in children)
             {
@@ -503,9 +509,7 @@ internal static class MachineInterior
     internal static GameItem? FindPowerSource(GameItem? machine)
     {
         if (machine == null) return null;
-        PixelElement? root = null;
-        try { root = machine.contentWindow?.childElement; } catch { }
-
+        var root = machine.contentWindow?.childElement;
         if (root is MachineryPanelRow row)
         {
             try
@@ -547,8 +551,7 @@ internal static class MachineInterior
 
     private static string KindKey(GameItem item)
     {
-        string id = "";
-        try { id = item.identifier ?? ""; } catch { }
+        string id = item.identifier ?? "";
         if (id.Length == 0) id = "name:" + ContainerItemSignature.DisplayName(item);
         return id;
     }
@@ -590,6 +593,7 @@ internal static class MachineInterior
             Entries.Add(entry);
         }
         entry.At = now;
+        entry.CheckedAt = now;
         entry.Items = ContainerItemSignature.Capture(all);
         entry.Lines = lines;
         while (Entries.Count > MaxEntries) Entries.RemoveAt(0);

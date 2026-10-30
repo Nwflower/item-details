@@ -35,8 +35,12 @@ internal static class ModuleStatEffects
 
     /// <summary>向上试探下一档的最大加成增量（百分点）。</summary>
     private const int StepSearchLimit = 1000;
-    private const float CacheSeconds = 2f;
-    private const int MaxEntries = 16;
+    /// <summary>
+    /// 缓存键已覆盖全部会变的输入（三项加成、耗电、速度、进度、状态、语言），值不变结果就不变；
+    /// TTL 只兜底键外的变化，不能短到悬停时周期性重算。
+    /// </summary>
+    private const float CacheSeconds = 30f;
+    private const int MaxEntries = 32;
 
     private static GameItem? _probe;
 
@@ -172,38 +176,48 @@ internal static class ModuleStatEffects
 
     // ---------------- 组装 ----------------
 
+    /// <summary>
+    /// 每种加成状态只建一次探针：当前加成 1 次，性能/效率/质量各清零 1 次。
+    /// 同一状态下的只读函数与耗电模型共用这一次拷贝，不再每个差分各拷两次。
+    /// </summary>
     private static void Build(GameItem machine, Dictionary<char, string> notes)
     {
-        string id = "";
-        try { id = machine.identifier ?? ""; } catch { }
-        if (!Profiles.TryGetValue(id, out var profile)) return;
+        if (!Profiles.TryGetValue(machine.identifier ?? "", out var profile)) return;
 
         var power = PowerModel(machine, profile);
+        var now = Take(machine, profile, power);
+        if (now == null) return;
+        if (power != null && !Reproduces(machine, now)) power = null;
+
+        int perfBonus = GameRead.TagInt(machine, PerfTag) ?? 0;
+        int powerBonus = GameRead.TagInt(machine, PowerTag) ?? 0;
+        int qualityBonus = GameRead.TagInt(machine, QualityTag) ?? 0;
 
         // 效率：只算效率自己省下的电。
-        int? effPower = power == null ? null : Delta(machine, PowerTag, power, DrawnTag);
-        if (effPower is int ep)
+        if (power != null && powerBonus != 0
+            && Diff(now.Drawn, Take(machine, profile, power, (PowerTag, 0))?.Drawn) is int ep)
             notes[Efficiency] = Loc.T("module.power", "{0} power/day", Signed(ep));
 
         var perf = new List<string>();
-        if (power != null)
+        var noPerf = perfBonus != 0 && (power != null || profile.Performance != null)
+            ? Take(machine, profile, power, (PerfTag, 0))
+            : null;
+        if (power != null && noPerf != null)
         {
-            int? speed = Delta(machine, PerfTag, power, SpeedTag);
-            if (speed is int sp && sp != 0)
+            if (Diff(now.Speed, noPerf.Speed) is int sp && sp != 0)
             {
                 string text = Loc.T("module.speed", "{0} speed", Plus(sp));
-                int faster = DaysFaster(machine, power);
+                int faster = DaysFaster(machine, noPerf.Speed ?? 0);
                 if (faster > 0) text += Loc.T("module.days_faster", ", about {0} day(s) faster", faster);
                 perf.Add(text);
             }
             // 交易机、催陈器的性能也会降低耗电
-            int? perfPower = Delta(machine, PerfTag, power, DrawnTag);
-            if (perfPower is int pp && pp != 0)
+            if (Diff(now.Drawn, noPerf.Drawn) is int pp && pp != 0)
                 perf.Add(Loc.T("module.power", "{0} power/day", Signed(pp)));
         }
 
-        if (profile.Performance != null
-            && IntDelta(machine, PerfTag, profile.Performance) is int delta && delta != 0)
+        if (profile.Performance != null && noPerf != null
+            && Diff(now.Performance, noPerf.Performance) is int delta && delta != 0)
             perf.Add(Loc.T(profile.PerformanceKey, profile.PerformanceEn,
                 Plus(delta / profile.PerformanceDivisor)));
 
@@ -216,8 +230,8 @@ internal static class ModuleStatEffects
         {
             quality = NextTier(machine, QualityTag, profile.QualityTier);
         }
-        else if (profile.Quality != null
-                 && IntDelta(machine, QualityTag, profile.Quality) is int qualityDelta)
+        else if (profile.Quality != null && qualityBonus != 0
+                 && Diff(now.Quality, Take(machine, profile, null, (QualityTag, 0))?.Quality) is int qualityDelta)
         {
             quality = Loc.T(profile.QualityKey, profile.QualityEn, Plus(qualityDelta));
             if (profile.QualityNextStep)
@@ -228,53 +242,45 @@ internal static class ModuleStatEffects
         if (!string.IsNullOrEmpty(quality)) notes[Quality] = quality!;
     }
 
+    private static int? Diff(int? now, int? zero)
+        => now == null || zero == null ? null : now.Value - zero.Value;
+
     // ---------------- 耗电 / 速度模型 ----------------
 
-    /// <summary>
-    /// 这台机器把加成换算成耗电与速度用的游戏函数。探针在当前加成下必须复现机器上的实际值，
-    /// 否则说明有别的东西改过（涡轮增压、第三方公式），返回 null。
-    /// </summary>
+    /// <summary>这台机器把加成换算成耗电与速度用的游戏函数；能否采用由 <see cref="Reproduces"/> 校验。</summary>
     private static Action<GameItem>? PowerModel(GameItem machine, MachineEffectProfile profile)
     {
-        Action<GameItem> model;
-        bool system = GameRead.IsTag(machine, "SYSTEM_TAG");
-        if (profile.UseDealMakerPower)
-            model = MachineDealMaker.UpdatePowerUse;
-        else if (system)
-            model = ModuleHelper.ApplyModifiedPower;
-        else
-            model = p => ModuleHelper.ApplyBasicModuleEffect(null!, null!, p);
+        if (GameRead.TagInt(machine, DrawnTag) == null) return null;
+        if (profile.UseDealMakerPower) return MachineDealMaker.UpdatePowerUse;
+        if (GameRead.IsTag(machine, "SYSTEM_TAG")) return ModuleHelper.ApplyModifiedPower;
+        return p => ModuleHelper.ApplyBasicModuleEffect(null!, null!, p);
+    }
 
-        int? actualPower = GameRead.TagInt(machine, DrawnTag);
-        if (actualPower == null) return null;
-        var probe = Probe(machine);
-        if (probe == null) return null;
-        try { model(probe); }
-        catch { return null; }
-        if (GameRead.TagInt(probe, DrawnTag) != actualPower) return null;
+    /// <summary>
+    /// 探针在当前加成下必须复现机器上的实际值，否则说明有别的东西改过
+    /// （涡轮增压、第三方公式），不给耗电和速度。
+    /// </summary>
+    private static bool Reproduces(GameItem machine, Sample now)
+    {
+        if (now.Drawn == null || now.Drawn != GameRead.TagInt(machine, DrawnTag)) return false;
 
         // 有加工速度的机器，速度也要能复现；系统类模型不算速度，跳过
         int baseSpeed = GameRead.TagInt(machine, "BASE_PROCESSING_SPEED_TAG") ?? 0;
-        if (baseSpeed > 0 && !system
-            && GameRead.TagInt(probe, SpeedTag) != GameRead.TagInt(machine, SpeedTag))
-            return null;
-        return model;
+        if (baseSpeed > 0 && !GameRead.IsTag(machine, "SYSTEM_TAG")
+            && now.Speed != GameRead.TagInt(machine, SpeedTag))
+            return false;
+        return true;
     }
 
-    /// <summary>正在加工的进度型机器：去掉性能后要多花几天。</summary>
-    private static int DaysFaster(GameItem machine, Action<GameItem> power)
+    /// <summary>正在加工的进度型机器：去掉性能后要多花几天。<paramref name="speed0"/> 是性能清零后的速度。</summary>
+    private static int DaysFaster(GameItem machine, int speed0)
     {
+        if (speed0 <= 0) return 0;
         if (GameRead.TagString(machine, "MACHINE_STATE_TAG") != "STATE_WORKING") return 0;
         int cur = GameRead.TagInt(machine, "MACHINE_PROGRESS_CURRENT_TAG") ?? 0;
         int target = GameRead.TagInt(machine, "MACHINE_PROGRESS_TARGET_TAG") ?? 0;
         int speed = GameRead.TagInt(machine, SpeedTag) ?? 0;
         if (target <= cur || speed <= 0) return 0;
-
-        var probe = Probe(machine, (PerfTag, 0));
-        if (probe == null) return 0;
-        try { power(probe); } catch { return 0; }
-        int speed0 = GameRead.TagInt(probe, SpeedTag) ?? 0;
-        if (speed0 <= 0) return 0;
 
         int left = target - cur;
         return Ceil(left, speed0) - Ceil(left, speed);
@@ -282,49 +288,55 @@ internal static class ModuleStatEffects
 
     private static int Ceil(int a, int b) => (a + b - 1) / b;
 
-    // ---------------- 差分 ----------------
+    // ---------------- 采样 ----------------
 
-    /// <summary>当前加成与「该项清零」时，模型写出的某个标签值之差。</summary>
-    private static int? Delta(GameItem machine, string statTag, Action<GameItem> model, string outTag)
+    /// <summary>一种加成状态下的读数；读不到的项为 null。</summary>
+    private sealed class Sample
     {
-        if ((GameRead.TagInt(machine, statTag) ?? 0) == 0) return null;
-        var withStat = Probe(machine);
-        if (withStat == null) return null;
-        try { model(withStat); } catch { return null; }
-        int? now = GameRead.TagInt(withStat, outTag);
-
-        var without = Probe(machine, (statTag, 0));
-        if (without == null) return null;
-        try { model(without); } catch { return null; }
-        int? zero = GameRead.TagInt(without, outTag);
-
-        if (now == null || zero == null) return null;
-        return now.Value - zero.Value;
+        internal int? Performance;
+        internal int? Quality;
+        internal int? Drawn;
+        internal int? Speed;
     }
 
-    /// <summary>当前加成与「该项清零」时，游戏函数返回值之差；该项为 0 时不写。</summary>
-    private static int? IntDelta(GameItem machine, string statTag, Func<GameItem, int> f)
+    /// <summary>
+    /// 按 overrides 建一次探针：先调只读的性能/质量函数，再跑耗电模型（会改探针）读出耗电和速度。
+    /// 顺序不能反，否则只读函数会读到模型写过的标签。
+    /// </summary>
+    private static Sample? Take(GameItem machine, MachineEffectProfile profile, Action<GameItem>? model,
+                                params (string Tag, int Value)[] overrides)
     {
-        if ((GameRead.TagInt(machine, statTag) ?? 0) == 0) return null;
-        var withStat = Probe(machine);
-        if (withStat == null) return null;
-        int now;
-        try { now = f(withStat); } catch { return null; }
+        var probe = Probe(machine, overrides);
+        if (probe == null) return null;
 
-        var without = Probe(machine, (statTag, 0));
-        if (without == null) return null;
-        try { return now - f(without); } catch { return null; }
+        var s = new Sample();
+        if (profile.Performance != null) { try { s.Performance = profile.Performance(probe); } catch { } }
+        if (profile.Quality != null) { try { s.Quality = profile.Quality(probe); } catch { } }
+        if (model != null)
+        {
+            try
+            {
+                model(probe);
+                s.Drawn = GameRead.TagInt(probe, DrawnTag);
+                s.Speed = GameRead.TagInt(probe, SpeedTag);
+            }
+            catch { }
+        }
+        return s;
     }
 
     /// <summary>分档结果：当前档位下，再加多少百分点会进下一档；已到顶或找不到返回 -1。</summary>
     private static int NextStep<T>(GameItem machine, string statTag, Func<GameItem, T> f)
     {
         int cur = GameRead.TagInt(machine, statTag) ?? 0;
+        // f 只读：整个二分共用一次拷贝，每步只改这一项加成
+        var probe = Probe(machine);
+        if (probe == null || !probe.modifiedState.dict.TryGetValue(statTag, out var slot) || slot == null)
+            throw new InvalidOperationException("probe");
         T Eval(int bonus)
         {
-            var p = Probe(machine, (statTag, bonus));
-            if (p == null) throw new InvalidOperationException("probe");
-            return f(p);
+            slot.SetInt(bonus);
+            return f(probe);
         }
 
         var now = Eval(cur);

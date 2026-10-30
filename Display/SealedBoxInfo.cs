@@ -123,8 +123,7 @@ internal static class SealedBoxInfo
             if (child == null) { skipped++; continue; }
 
             int stack = ContainerItemSignature.ReadStack(child);
-            bool nestedContainer = false;
-            try { nestedContainer = child.contentWindow != null; } catch { }
+            bool nestedContainer = child.contentWindow != null;
 
             long unit = 0;
             bool read = false;

@@ -150,6 +150,8 @@ config.type_badge,Etiquetas de categoría
 config.type_badge.tip,Muestra las categorías del objeto sobre la descripción emergente.
 config.type_badge_muted,Atenuar colores de etiquetas
 config.type_badge_muted.tip,Las etiquetas no prohibidas usan el fondo oscuro del tooltip y un color de categoría aclarado; el contrabando mantiene el texto rojo de aviso.
+config.block_progress_bar,Barras de progreso en bloques
+config.block_progress_bar.tip,"Dibuja las barras de progreso de los tooltips (capacidad, durabilidad, salud, etc.) como bloques sólidos, con la parte sin llenar en un tono más oscuro. Desactívalo para volver al estilo original [=====]."
 config.container_name,Nombres de contenedores y máquinas
 config.container_name.tip,Muestra el nombre en la parte inferior del icono de contenedores y máquinas.
 config.container_name_bg,Fondo de los nombres
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
 learning.machine,"Aprendizaje: {0} módulo(s), faltan hasta {1} punto(s)"
 learning.machine_full,Aprendizaje: los {0} módulo(s) al máximo
+pen.learning_maxed," ({0}/{1} módulos al máximo)"
+pen.learning_maxed_untrained," ({0}/{1} módulos al máximo, {2} sin autoaprendizaje)"
 module.days_faster,", unos {0} día(s) antes"
 module.output,{0} ml al día
 module.attract,{0}% de atractivo

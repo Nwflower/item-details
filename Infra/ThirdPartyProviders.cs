@@ -68,8 +68,7 @@ internal static class ThirdPartyProviders
     internal static bool TryMachineNote(GameItem machine, char stat, out string note)
     {
         note = "";
-        string id = "";
-        try { id = machine.identifier ?? ""; } catch { }
+        string id = machine.identifier ?? "";
         if (id.Length == 0 || !Machines.TryGetValue(id, out var provider)) return false;
 
         var kind = stat switch

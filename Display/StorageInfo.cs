@@ -191,12 +191,7 @@ internal static class StorageInfo
             }
 
             int selfCells = 0;
-            GridShape? selfShape = null;
-            try { selfShape = item.modifiedShape; } catch { }
-            if (selfShape == null)
-            {
-                try { selfShape = item.shape; } catch { }
-            }
+            var selfShape = item.modifiedShape ?? item.shape;
             if (selfShape != null) selfCells = GameRead.OccupiedCells(selfShape);
             if (selfCells <= 0) return;
 

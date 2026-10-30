@@ -150,6 +150,8 @@ config.type_badge,Selos de categoria
 config.type_badge.tip,"Mostra as categorias do item acima da dica."
 config.type_badge_muted,Cores de selos suavizadas
 config.type_badge_muted.tip,Etiquetas fora do contrabando usam o fundo escuro da dica e uma cor de categoria clareada; o contrabando mantém o texto vermelho de alerta.
+config.block_progress_bar,Barras de progresso em blocos
+config.block_progress_bar.tip,"Desenha as barras de progresso das dicas (capacidade, durabilidade, vida etc.) como blocos sólidos, com a parte vazia em um tom mais escuro. Desative para voltar ao estilo original [=====]."
 config.container_name,Nomes de contêineres e máquinas
 config.container_name.tip,Mostra o nome na parte inferior do ícone de contêineres e máquinas.
 config.container_name_bg,Fundo dos nomes
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} no máximo
 learning.machine,"Aprendizado: {0} módulo(s), faltam até {1} ponto(s)"
 learning.machine_full,Aprendizado: todos os {0} módulo(s) no máximo
+pen.learning_maxed," ({0}/{1} módulos no máximo)"
+pen.learning_maxed_untrained," ({0}/{1} módulos no máximo, {2} sem autoaprendizado)"
 module.days_faster,", cerca de {0} dia(s) mais rápido"
 module.output,{0} ml por dia
 module.attract,{0}% de atratividade

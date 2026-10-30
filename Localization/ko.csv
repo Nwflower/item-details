@@ -150,6 +150,8 @@ config.type_badge,아이템 분류 배지
 config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
 config.type_badge_muted,배지 색상 줄이기
 config.type_badge_muted.tip,금지·제한 품목 외에는 툴팁의 어두운 배경과 밝게 조정한 분류 색을 사용합니다. 금지·제한 품목은 빨간 경고 텍스트를 유지합니다.
+config.block_progress_bar,블록형 진행 막대
+config.block_progress_bar.tip,"툴팁의 진행 막대(용량, 내구도, 체력 등)를 꽉 찬 블록으로 표시하고 채워지지 않은 부분은 어두운 색으로 보여 줍니다. 끄면 원래의 [=====] 표시로 돌아갑니다."
 config.container_name,컨테이너/기계 이름표
 config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
 config.container_name_bg,이름표 배경
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} 최대
 learning.machine,"자가 학습: 모듈 {0}개 학습 중, 최대 {1} 남음"
 learning.machine_full,자가 학습: 모듈 {0}개 모두 최대
+pen.learning_maxed," ({0}/{1}개 모듈 학습 완료)"
+pen.learning_maxed_untrained," ({0}/{1}개 모듈 학습 완료, {2}개는 자가 학습 없음)"
 module.days_faster,", 약 {0}일 단축"
 module.output,{0}ml/일
 module.attract,{0}% 매력

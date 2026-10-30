@@ -150,6 +150,8 @@ config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées
 config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
+config.block_progress_bar,Barres de progression en blocs
+config.block_progress_bar.tip,"Affiche les barres de progression des infobulles (capacité, durabilité, santé, etc.) en blocs pleins, la partie non remplie en teinte plus sombre. Désactivez pour revenir au style d'origine [=====]."
 config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} au maximum
 learning.machine,"Apprentissage : {0} module(s), jusqu'à {1} point(s) restant(s)"
 learning.machine_full,Apprentissage : les {0} module(s) sont au maximum
+pen.learning_maxed," ({0}/{1} modules au maximum)"
+pen.learning_maxed_untrained," ({0}/{1} modules au maximum, {2} sans auto-apprentissage)"
 module.days_faster,", environ {0} jour(s) plus tôt"
 module.output,{0} ml/jour
 module.attract,{0} % d'attractivité

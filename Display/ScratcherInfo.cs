@@ -98,8 +98,7 @@ internal static class ScratcherInfo
     {
         if (scratchedSymbols.Count == 0) return true;   // 还没刮过，游戏尚未按规则写值，无从核对
         long expected = Prize(scratchedSymbols, out _);
-        long actual;
-        try { actual = item.unitValue; } catch { return false; }
+        long actual = item.unitValue;
         if (actual == expected) return true;
 
         Log.Warn("ScratcherInfo.Rule",

@@ -65,6 +65,7 @@ internal static class ModSettings
     private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
     private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
+    private static readonly Toggle BlockProgressBarToggle = new(true);   // 方块进度条
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
     private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
@@ -113,6 +114,11 @@ internal static class ModSettings
                 Text("config.type_badge_muted", "Muted Badge Colors"),
                 Text("config.type_badge_muted.tip", "Non-contraband badges use the tooltip's dark background and a " +
                      "brightened category color. Contraband keeps its red warning text."));
+
+            BlockProgressBarToggle.Define(_cfg, "block_progress_bar", SecDisplayKey, SecDisplayEn,
+                Text("config.block_progress_bar", "Block Progress Bars"),
+                Text("config.block_progress_bar.tip", "Draws tooltip progress bars (capacity, durability, health and " +
+                     "so on) as solid blocks, with the unfilled part in a darker shade, instead of [=====     ]."));
 
             ContainerNameToggle.Define(_cfg, "show_container_name_display", SecDisplayKey, SecDisplayEn,
                 Text("config.container_name", "Container & Machine Labels"),
@@ -299,6 +305,7 @@ internal static class ModSettings
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
+    internal static bool BlockProgressBar => BlockProgressBarToggle.Value;
     internal static string ItemNameMode => ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
     internal static string ItemNamePosition => "底部 (Bottom)";
     internal static bool ItemNameBackground => ContainerNameBgToggle.Value;

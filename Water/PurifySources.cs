@@ -92,8 +92,7 @@ internal static class PurifySources
         foreach (var it in items)
         {
             if (it == null) continue;
-            string id;
-            try { id = it.identifier ?? ""; } catch { continue; }
+            string id = it.identifier ?? "";
             if (id.Length == 0) continue;
 
             try

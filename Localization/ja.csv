@@ -150,6 +150,8 @@ config.type_badge,アイテム分類バッジ
 config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
 config.type_badge_muted,バッジの色を控えめに
 config.type_badge_muted.tip,違法・制限品以外はツールチップの暗い背景と明るくした分類色を使います。違法・制限品は赤い警告文字のままです。
+config.block_progress_bar,ブロック式プログレスバー
+config.block_progress_bar.tip,ツールチップのプログレスバー（容量・耐久・体力など）を塗りつぶしのブロックで表示し、未達の部分を暗い色で示します。オフにすると元の [=====] 表示に戻ります。
 config.container_name,コンテナ/機械の名前ラベル
 config.container_name.tip,コンテナと機械のアイコン下部に名前を表示します。
 config.container_name_bg,名前ラベルの背景
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0}は上限
 learning.machine,自己学習：{0} 個のモジュールが学習中、最大あと {1}
 learning.machine_full,自己学習：{0} 個すべて上限
+pen.learning_maxed,（{0}/{1} 個のモジュールが学習完了）
+pen.learning_maxed_untrained,（{0}/{1} 個のモジュールが学習完了、{2} 個は自己学習なし）
 module.days_faster,、約 {0} 日短縮
 module.output,{0}ml/日
 module.attract,{0}%魅力

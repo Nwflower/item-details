@@ -134,9 +134,11 @@ public sealed partial class ModEntry : IMod
         });
         Try("TooltipPipeline", TooltipPipeline.Apply);
         Try("MachineBattery", MachineBatteryInfo.Apply);
+        Try("ProbeDestroyGuard", ProbeDestroyGuard.Apply);
         Try("WaterWarmup", WaterWarmupPatch.Apply);
         Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
         Try("TypeBadge", TypeBadge.Apply);
+        Try("ProgressBarStyle", ProgressBarStyle.Apply);
         Try("ItemNameLabel", ItemNameLabel.Apply);
     }
 
@@ -157,6 +159,7 @@ public sealed partial class ModEntry : IMod
         Quiet(CustomerHistory.Stop);
         Quiet(WaterWarmupPatch.Remove);
         Quiet(WaterAdvice.Stop);
+        Quiet(ProbeDestroyGuard.Remove);
         Quiet(ItemValueCache.Reset);
         Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
@@ -169,6 +172,7 @@ public sealed partial class ModEntry : IMod
         Quiet(MachineBatteryInfo.Remove);
         Quiet(ConfigSectionRefresh.Remove);
         Quiet(TypeBadge.Remove);
+        Quiet(ProgressBarStyle.Remove);
         Quiet(ItemNameLabel.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);

@@ -150,6 +150,8 @@ config.type_badge,Badge di categoria
 config.type_badge.tip,Mostra le categorie dell'oggetto sopra il riquadro informativo.
 config.type_badge_muted,Colori dei badge attenuati
 config.type_badge_muted.tip,I badge non di contrabbando usano lo sfondo scuro del tooltip e un colore di categoria schiarito; il contrabbando mantiene il testo rosso di avviso.
+config.block_progress_bar,Barre di avanzamento a blocchi
+config.block_progress_bar.tip,"Disegna le barre di avanzamento dei tooltip (capacità, durabilità, salute, ecc.) come blocchi pieni, con la parte vuota in una tonalità più scura. Disattiva per tornare allo stile originale [=====]."
 config.container_name,Nomi di contenitori e macchine
 config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
 config.container_name_bg,Sfondo dei nomi
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al massimo
 learning.machine,"Apprendimento: {0} modulo/i, mancano fino a {1} punto/i"
 learning.machine_full,Apprendimento: tutti i {0} moduli al massimo
+pen.learning_maxed," ({0}/{1} moduli al massimo)"
+pen.learning_maxed_untrained," ({0}/{1} moduli al massimo, {2} senza autoapprendimento)"
 module.days_faster,", circa {0} giorno/i prima"
 module.output,{0} ml al giorno
 module.attract,{0}% di attrattiva

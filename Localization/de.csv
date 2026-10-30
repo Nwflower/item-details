@@ -150,6 +150,8 @@ config.type_badge,Kategorie-Plaketten
 config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
 config.type_badge_muted,Plakettenfarben dämpfen
 config.type_badge_muted.tip,Plaketten außer Schmuggelware nutzen den dunklen Tooltip-Hintergrund und eine aufgehellte Kategoriefarbe; Schmuggelware behält roten Warntext.
+config.block_progress_bar,Block-Fortschrittsbalken
+config.block_progress_bar.tip,"Zeichnet Fortschrittsbalken in Tooltips (Füllmenge, Haltbarkeit, Gesundheit usw.) als volle Blöcke, der ungefüllte Teil erscheint dunkler. Ausgeschaltet gilt wieder die Originaldarstellung [=====]."
 config.container_name,Behälter- & Maschinennamen
 config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
 config.container_name_bg,Namenshintergrund
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0} ausgelernt
 learning.machine,"Lernen: {0} Modul(e), bis zu {1} Punkt(e) offen"
 learning.machine_full,Lernen: alle {0} Modul(e) ausgelernt
+pen.learning_maxed," ({0}/{1} Module ausgelernt)"
+pen.learning_maxed_untrained," ({0}/{1} Module ausgelernt, {2} ohne Selbstlernen)"
 module.days_faster,", etwa {0} Tag(e) schneller"
 module.output,{0} ml/Tag
 module.attract,{0} % Attraktivität

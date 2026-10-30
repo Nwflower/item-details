@@ -28,8 +28,8 @@ namespace ItemDetails;
 /// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束。
 ///
 /// 探针壳按 identifier 池化复用。实测单次 66ms 中 DirectoryMaster.Create 占 55ms，
-/// DeepCloneTags 仅 0.07ms；池化后新组成约 10ms，化学剂因 DissolveInto 会 Destroy
-/// 化学剂、仍需每次克隆，是剩余 Create 成本的主要来源。
+/// DeepCloneTags 仅 0.07ms；池化后新组成约 10ms。化学剂会被 DissolveInto 末尾 Destroy，
+/// 由 <see cref="ProbeDestroyGuard"/> 只对池化壳挡住这次销毁，同样复用；守卫不可用时退回逐次克隆。
 /// </summary>
 internal static class WaterAdvice
 {
@@ -61,7 +61,10 @@ internal static class WaterAdvice
     private static readonly Dictionary<string, GameItem> SourceShells = new(StringComparer.Ordinal);
 
     // 池化壳只在当前场景复用；每次 EmporiumEntry.Start 先销毁旧壳再预热，
-    // 不跨场景保留已经被 Unity 销毁的 UI 节点，也不需要全局 Harmony 守卫。
+    // 不跨场景保留已经被 Unity 销毁的 UI 节点。
+
+    /// <summary>池化壳在溶解后被第三方销毁过的化学剂 ID；本场景内改为逐次克隆。</summary>
+    private static readonly HashSet<string> UnpooledAgents = new(StringComparer.Ordinal);
 
     internal static List<Method> SimulateMethods(GameItem? item)
     {
@@ -152,19 +155,7 @@ internal static class WaterAdvice
             {
                 GameItem a = agent;
                 if (!ResetProbe(sharedProbe, item)) return result;
-                RunOnProbe(sharedProbe, a, usedNames, result, (probe, _) =>
-                {
-                    // DissolveInto 会 Destroy 化学剂，因此这里不能复用壳；
-                    // 每次克隆一份并在 finally 中清理。
-                    var dissolved = CloneItem(a);
-                    if (dissolved == null) return;
-                    try
-                    {
-                        ChemicalHelper.DissolveInto(dissolved, probe);
-                        ChemicalHelper.HandleTemperatureReaction(probe);
-                    }
-                    finally { try { dissolved.Destroy(); } catch { } }
-                });
+                RunOnProbe(sharedProbe, a, usedNames, result, (probe, _) => Dissolve(a, probe));
             }
 
             // 4) 滤芯：容器里已装的那支优先（它才是实际能用的），否则用背包里的。
@@ -304,7 +295,7 @@ internal static class WaterAdvice
 
             shell.modifiedState = cloned;
             shell.state = shell.modifiedState;
-            try { shell.unitValue = source.unitValue; } catch { }
+            shell.unitValue = source.unitValue;
             return true;
         }
         catch (Exception ex)
@@ -353,6 +344,8 @@ internal static class WaterAdvice
             var owned = PurifySources.Scan();
             foreach (var machine in owned.Machines) GetShell(SourceShells, machine);
             foreach (var filter in owned.Filters) GetShell(SourceShells, filter);
+            if (ProbeDestroyGuard.Active)
+                foreach (var agent in owned.ChemAgents) GetShell(SourceShells, agent);
 
             Log.Msg($"WaterAdvice prewarm: probes +{ProbeShells.Count - probesBefore} " +
                     $"sources +{SourceShells.Count - sourcesBefore}");
@@ -369,6 +362,7 @@ internal static class WaterAdvice
     {
         Cache.Clear();
         ClearShells();
+        UnpooledAgents.Clear();
 #if ITEMDETAILS_DIAG
         _diagHits = 0;
         _diagMisses = 0;
@@ -434,6 +428,43 @@ internal static class WaterAdvice
     {
         try { MachinePurifier.PurifyContainer(machineShell, probe); }
         catch (Exception ex) { Log.Warn("WaterAdvice.ApplyMachineShell", ex); }
+    }
+
+    /// <summary>
+    /// 化学剂溶入探针后跑游戏自己的反应链（净水片、以及第三方沉淀剂都走这里）。
+    /// DissolveInto 末尾会 Destroy 化学剂：有 <see cref="ProbeDestroyGuard"/> 时用池化壳并挡住这次销毁；
+    /// 没有补丁或壳被第三方销毁过的种类，退回每次克隆一份、用完清理。
+    /// </summary>
+    private static void Dissolve(GameItem agent, GameItem probe)
+    {
+        string id = agent.identifier ?? "";
+
+        if (ProbeDestroyGuard.Active && id.Length > 0 && !UnpooledAgents.Contains(id))
+        {
+            var shell = GetShell(SourceShells, agent);
+            if (shell != null && !ProbeDestroyGuard.IsDestroyed(shell) && ResetSource(shell, agent))
+            {
+                bool intact = ProbeDestroyGuard.Run(shell, () => ChemicalHelper.DissolveInto(shell, probe));
+                if (!intact)
+                {
+                    // 第三方在 Destroy 前缀里自己处理掉了这个壳：这种化学剂本次会话不再池化
+                    SourceShells.Remove(id);
+                    UnpooledAgents.Add(id);
+                    Log.Warn("WaterAdvice.ChemShell", $"「{id}」的池化壳在溶解后不可用，改为逐次克隆");
+                }
+                ChemicalHelper.HandleTemperatureReaction(probe);
+                return;
+            }
+        }
+
+        var dissolved = CloneItem(agent);
+        if (dissolved == null) return;
+        try
+        {
+            ChemicalHelper.DissolveInto(dissolved, probe);
+            ChemicalHelper.HandleTemperatureReaction(probe);
+        }
+        finally { try { dissolved.Destroy(); } catch { } }
     }
 
     /// <summary>在已重置的共享探针上跑一次手段，比较前后纯度。</summary>
@@ -510,7 +541,7 @@ internal static class WaterAdvice
 
             probe.modifiedState = cloned;
             probe.state = probe.modifiedState;
-            try { probe.unitValue = item.unitValue; } catch { }
+            probe.unitValue = item.unitValue;
 
             try
             {
@@ -567,7 +598,7 @@ internal static class WaterAdvice
 
             copy.modifiedState = cloned;
             copy.state = copy.modifiedState;
-            try { copy.unitValue = source.unitValue; } catch { }
+            copy.unitValue = source.unitValue;
 #if ITEMDETAILS_DIAG
             _diagCloneCount++;
 #endif

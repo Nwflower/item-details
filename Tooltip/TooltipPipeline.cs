@@ -156,6 +156,7 @@ internal static class TooltipPipeline
             // 原版方法照常执行，只在它们写出的那一行上改：标签行补价格影响、放大镜提示换成双击提示
             LabelImpact.TryRewrite(ref __0);
             if (!DoubleClickInspect.TryRewriteHint(ref __0, ref __2, ref __4)) return false;
+            LineAnnotations.TryAppend(ref __0, cur);
 
             if (_suppressEstimate)
             {
@@ -349,9 +350,8 @@ internal static class TooltipPipeline
 
             if (ModSettings.ValueEnhance)
             {
-                int cells = 0;
-                try { cells = GameRead.OccupiedCells(item.modifiedShape); } catch { }
-                if (cells <= 0) { try { cells = GameRead.OccupiedCells(item.shape); } catch { } }
+                int cells = GameRead.OccupiedCells(item.modifiedShape);
+                if (cells <= 0) cells = GameRead.OccupiedCells(item.shape);
                 if (cells > 0)
                 {
                     double per = (double)cal / cells;

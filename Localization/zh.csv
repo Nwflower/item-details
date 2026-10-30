@@ -150,6 +150,8 @@ config.type_badge,物品分类标签
 config.type_badge.tip,在物品提示框上方显示物品分类。
 config.type_badge_muted,淡化标签颜色
 config.type_badge_muted.tip,非违禁标签改用与提示框一致的深色底和提亮的分类文字色；违禁品保留红色警示文字。
+config.block_progress_bar,方块进度条
+config.block_progress_bar.tip,提示框中的进度条（容量、耐久、生命值等）改用实心方块绘制，未填充部分以暗色显示。关闭后恢复原版的 [=====] 样式。
 config.container_name,容器和机器名称标签
 config.container_name.tip,在容器和机器图标底部显示名称。
 config.container_name_bg,名称标签底色
@@ -199,6 +201,8 @@ learning.stat,{0} {1}/{2}
 learning.stat_full,{0}已学满
 learning.machine,自学习：{0} 个模组在学，最多还差 {1} 点
 learning.machine_full,自学习：{0} 个模组均已学满
+pen.learning_maxed,（{0}/{1} 个模组已学满）
+pen.learning_maxed_untrained,（{0}/{1} 个模组已学满，{2} 个无自学习词条）
 module.days_faster,，约快 {0} 天
 module.output,{0}毫升/天
 module.attract,{0}%吸引力

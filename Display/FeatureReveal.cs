@@ -101,8 +101,7 @@ internal static class FeatureReveal
     /// <summary>与 ConditionEffects 同一写法：转换型条件按点数，其余按百分比；0 不写。</summary>
     private static string RealSigned(ItemFeature f, int realMod)
     {
-        ItemCondition? cond = null;
-        try { cond = f.realCondition; } catch { }
+        var cond = f.realCondition;
         int amount = cond != null ? ConditionEffects.DisplayAmount(cond) : realMod;
         if (amount == 0) return "";
         string suffix = cond != null ? ConditionEffects.Suffix(cond) : "%";

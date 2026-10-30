@@ -107,9 +107,7 @@ internal static class ResultPrefill
         {
             var toggle = ToggleAt(insp, i);
             if (toggle == null) continue;
-            bool bad;
-            try { bad = GameRead.IsTag(item, checks[i].Tag); } catch { bad = false; }
-            toggle.SetIsOnWithoutNotify(bad);
+            toggle.SetIsOnWithoutNotify(GameRead.IsTag(item, checks[i].Tag));
         }
     }
 

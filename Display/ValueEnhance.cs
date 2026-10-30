@@ -84,9 +84,7 @@ internal static class ValueEnhance
     {
         try
         {
-            int count = 1;
-            try { count = item.unitCount; } catch { }
-            if (count < 1) count = 1;
+            int count = Math.Max(1, item.unitCount);
 
             // 占格：按实心格计算，非矩形物品不能用外接矩形宽×高。
             int cells = GameRead.OccupiedCells(item.modifiedShape);
