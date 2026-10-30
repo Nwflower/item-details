@@ -152,18 +152,12 @@ config.cost_performance,Wartość na kratkę
 config.cost_performance.tip,Pokazuje wartość na kratkę ekwipunku i stopień kompresji pojemników.
 config.container_contents,Zawartość pojemnika
 config.container_contents.tip,"Wyświetla zawartość odblokowanych pojemników bez osobnej łącznej wartości."
-config.contents_grid,Siatka ikon zawartości
-config.contents_grid.tip,"Pokazuje zawartość pojemnika jako ikony z liczbą sztuk w panelu obok podpowiedzi i skraca listę tekstową do jednowierszowego podsumowania. Zamknięte pojemniki wymagają też prześwietlania."
 config.info_enhance,Dodatkowe informacje
 config.info_enhance.tip,"Dodaje szczegóły zależne od przedmiotu: działanie etykiet i modułów, energię baterii, modyfikatory rynkowe, wyniki loterii, przygaszone opisy i czytelniejsze oznaczenia cen."
 config.type_badge,Plakietki kategorii
 config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
 config.type_badge_muted,Stonowane kolory plakietek
 config.type_badge_muted.tip,Etykiety poza kontrabandą używają ciemnego tła podpowiedzi i rozjaśnionego koloru kategorii; kontrabanda zachowuje czerwony tekst ostrzegawczy.
-config.block_progress_bar,Paski postępu z bloków
-config.block_progress_bar.tip,"Rysuje paski postępu w podpowiedziach (pojemność, wytrzymałość, zdrowie itp.) jako pełne bloki, a niewypełnioną część ciemniejszym odcieniem. Po wyłączeniu wraca oryginalny styl [=====]."
-config.manufacturer_inline,Producent obok nazwy
-config.manufacturer_inline.tip,"Pokazuje producenta wyrównanego do prawej w wierszu z nazwą przedmiotu zamiast w osobnym wierszu. Gdy nazwa jest za długa, producent zostaje w osobnym wierszu."
 config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
 config.container_name_bg,Tło nazw

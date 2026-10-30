@@ -152,18 +152,12 @@ config.cost_performance,Valor por célula
 config.cost_performance.tip,Mostra o valor por célula do inventário e a compressão dos contêineres.
 config.container_contents,Conteúdo do contêiner
 config.container_contents.tip,"Lista o conteúdo de contêineres desbloqueados, sem um valor total separado."
-config.contents_grid,Grade de ícones do conteúdo
-config.contents_grid.tip,"Mostra o conteúdo do contêiner como ícones com quantidades em um painel ao lado da dica e reduz a lista de texto a um resumo. Contêineres trancados também precisam do raio-X."
 config.info_enhance,Informações extras
 config.info_enhance.tip,"Adiciona detalhes conforme o item: efeitos de rótulos e módulos, carga de baterias, modificadores de mercado, resultados da loteria, descrições esmaecidas e rótulos de preço mais claros."
 config.type_badge,Selos de categoria
 config.type_badge.tip,"Mostra as categorias do item acima da dica."
 config.type_badge_muted,Cores de selos suavizadas
 config.type_badge_muted.tip,Etiquetas fora do contrabando usam o fundo escuro da dica e uma cor de categoria clareada; o contrabando mantém o texto vermelho de alerta.
-config.block_progress_bar,Barras de progresso em blocos
-config.block_progress_bar.tip,"Desenha as barras de progresso das dicas (capacidade, durabilidade, vida etc.) como blocos sólidos, com a parte vazia em um tom mais escuro. Desative para voltar ao estilo original [=====]."
-config.manufacturer_inline,Fabricante ao lado do nome
-config.manufacturer_inline.tip,"Mostra o fabricante alinhado à direita na linha do nome do item, em vez de em uma linha própria. Se o nome for longo demais, ele continua em uma linha separada."
 config.container_name,Nomes de contêineres e máquinas
 config.container_name.tip,Mostra o nome na parte inferior do ícone de contêineres e máquinas.
 config.container_name_bg,Fundo dos nomes
