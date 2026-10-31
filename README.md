@@ -16,10 +16,14 @@
 基础 100 + 碳复合材料 50 + EMG+ 接口 45 + 刀刃 80 = 275
 ```
 
-其他模组可以通过显式注册接口提供自己物品的价值构成；本模组不采样或反推第三方定价规则。
-
 **详细显示**
-物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物（默认以图标格显示在提示框旁，带件数）、违禁品黑市溢价、机器电池可用天数和彩票结果。机器与水壶会列出内部物品：滤芯耐久、容器水量、工具剩余次数、预计还需几天完成、水培机的水还够几天、净水器预计今晚净化量与净化前后水质档位（有电时显示，可能揭示未经试纸检测的污染信息）、冰箱里有几件不起作用、催陈器每天陈化几天。机器「模组效果」的每项加成后面补上实际影响，例如集水器 +136 毫升/天、投影仪 +20% 吸引力、催陈器质量再加多少能多陈化一天。带「自学习算法」的模组显示各项学习进度与上限，机器上汇总还差多少。果酿会显示分数、成分与赝品。第三方机器可以通过显式注册接口提供自己的加成注释。
+物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物、违禁品黑市溢价、电池可用天数和彩票结果。果酿会显示分数与成分。
+
+**机器内部**
+机器与水壶列出里面的东西：滤芯耐久、水量、工具剩余次数、还需几天完成、净水器今晚能净化多少（会间接透露水质）。
+
+**模组效果**
+机器的每项模组加成补上实际影响，例如集水器 +136 毫升/天；带「自学习算法」的模组显示学习进度与上限。
 
 **荧光莓品质**
 直接显示正常、较小、发霉、未熟、干枯。
@@ -31,27 +35,27 @@
 顾客到店时提示谁是改造体、谁是通缉犯，并给出举报奖励、真名，以及改造体的击杀奖励与威胁值。提示条可以拖动。
 
 **顾客对话回看**
-鼠标停在店内顾客身上，可以看到本次接待已经说过的台词（含你自己那几句）；换下一位顾客时自动清空。只记本次接待，不存档、不跨天。
+鼠标停在店内顾客身上，可以回看本次接待说过的台词（含你自己那几句）。不存档，换下一位顾客即清空。
 
 **双击鉴定**
 双击待鉴定物品直接打开鉴定面板，不必先拿放大镜再拖动；面板打开时双击另一件可直接切换。
 
 **双击扫描**
-拥有对应设备时，双击物品直接打开扫描结果：化学品对应化学扫描仪，上锁补给箱对应便携式X射线扫描仪，种子对应植物分析仪，普通液体容器（塑料水瓶、药瓶、烧杯等）对应水质／化学扫描仪。判定不按物品名写白名单：原版双击对这件物品已经有结果性动作时不接管——会打开容器窗口的（水罐插过滤器、酒瓶投料发酵、保险箱）、会执行物品自己激活动作的（食品券兑换、模组物品的自定义双击），全部保持原版；锁着的容器窗口不算，所以上锁补给箱仍由 X 射线接管。没有设备时保持原版双击。
+拥有对应设备时，双击液体、化学品、种子或上锁补给箱，直接打开扫描结果。原版双击已有用途的物品（水罐、保险箱、食品券等）保持原样。
 
 **透视（可选）**
 这一组会明显降低难度，按喜好开启：
 
 | 功能 | 效果 | 默认 |
 |---|---|---|
-| 真伪鉴定 | 正品／赝品结论与不合格项、肋明治赝品原因、荧光莓品质、未分析的种子性状 | 开 |
-| 估价计算 | 真实价值构成与完美报价区间、鉴定服务标题的标价与最优报价 | 开 |
+| 真伪鉴定 | 正品／赝品结论与不合格项、荧光莓品质、种子性状 | 开 |
+| 估价计算 | 真实价值构成、完美报价区间、鉴定服务标题 | 开 |
 | 顾客到店提示 | 见上文「改造体与通缉犯提醒」 | 开 |
 | 揭示伪装与真实属性 | 被伪装特性的真实情况、真实耐久度与纯度 | 开 |
-| 液体组分分析 | 水质纯度与杂质、药物与化学品的成分和药效；可选关闭／有扫描器时开启／总是开启 | 有扫描器时开启 |
+| 液体组分分析 | 水质与杂质、药物和化学品的成分 | 有扫描器时 |
 | 刮刮乐预知 | 刮开前就知道能否中奖、奖金多少 | 关 |
 | 带锁容器透视 | 保险箱、枪柜未开锁时也能看到内容物与总价值 | 关 |
-| 鉴定结果预填 | 打开检视面板时勾好赝品问题，按设置填真实估价或最优报价，不会替你提交 | 关 |
+| 鉴定结果预填 | 打开检视面板时勾好赝品问题、填好报价，不会替你提交 | 关 |
 
 所有功能都能在游戏「模组」菜单里本模组的设置中单独开关，改完立即生效。
 
@@ -60,13 +64,12 @@
 - **只读游戏数据**：不改价格、不改顾客、不碰存档。
 - **无需权限**：不联网、不启动进程，不声明任何额外能力，启用时不会弹出权限确认。唯一写入的是游戏自带的模组设置文件。
 - **数值自校验**：价值拆解的合计必须与游戏自己算出的数值完全一致才显示；对不上就不显示，而不是显示错的。
-- **第三方显式接入**：模组可按类型注册鉴定分解、按机器 ID 注册加成注释；不扫描补丁、不反射猜测第三方内部实现。
+- **第三方显式接入**：其他模组可以注册自己的价值构成和机器加成说明；不去猜测它们的内部实现。
 
 ## 安装
 
 - **创意工坊**：[订阅](https://steamcommunity.com/sharedfiles/filedetails/?id=3828868413)后在游戏「模组」菜单中启用，按提示重启游戏。
-- **手动**：将发布 ZIP 解压到游戏的 `Mods/` 目录，得到 `Mods/item_details/ItemDetails.dll` 和
-  `Mods/item_details/manifest.xml`，再在「模组」菜单中启用并重启。
+- **手动**：将发布 ZIP 解压到游戏的 `Mods/` 目录，得到 `Mods/item_details/`，再在「模组」菜单中启用并重启。
 
 需要游戏正式版（运行时版本 0.46D）。遇到问题时按 `F8` 打开控制台，输入 `mod-scan item_details` 查看加载状态。
 
@@ -98,17 +101,20 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 
 - **Authenticity check** — Immunivax Injectors, Hemingway cigarettes and Food Stamps are marked genuine or counterfeit, and a counterfeit lists exactly which check failed. Counterfeit Ribwiches list their reasons too.
 - **True value** — Cybernetic Hands, Ribwiches and Plasma Cartridges show the total value plus a line-by-line breakdown, e.g. `Base 100 + Carbon composite 50 + EMG+ interface 45 + Blade add-on 80 = 275`.
-- **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, machine battery days and lottery results. Machines and pitchers list what is inside: filter durability, water in containers, tool uses left, days until a job finishes, how long a hydroponic unit's water lasts, a purifier’s projected nightly removal and water-grade change (when powered; may reveal untested water quality), fridge items that get no effect, and how many days an AgeWell ages per day. Each module bonus on a machine shows its real effect, such as +136 ml/day on a Moisture Farm, +20% attractiveness on a projector, or how much more quality an AgeWell needs for an extra aging day. Learning Algorithm modules show each stat's progress toward its cap, and machines sum up what is left. Third-party machines can provide their own effect notes through the explicit registration API.
+- **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, battery days and lottery results. Fruit wine shows its score and composition.
+- **Inside machines** — filter durability, water level, tool uses left, days until a job finishes, and how much a purifier will clean tonight (this hints at water quality).
+- **Module effects** — each module bonus shows its real effect, such as +136 ml/day on a Moisture Farm; Learning Algorithm modules show progress toward their caps.
 - **BloomBerry quality** — Normal, Small, Moldy, Underripe or Dried.
 - **Appraisal Service title** — shows the item's list price and the best offer.
-- **Augmented / wanted alerts** — bounty, real name, and an augmented customer's kill reward plus the current aug threat when such a customer arrives.
+- **Augmented / wanted alerts** — bounty, real name, and an augmented customer's kill reward and threat when they arrive.
+- **Conversation recall** — hover over a customer to reread what was said during this visit.
 - **Double-click to inspect** — open the inspection panel without the Magnifying Glass; double-click another item to switch.
-- **Double-click to scan** — while you own the matching device, double-click an item to open its scan panel: water or chem scanner for liquids and chemicals, portable X-ray scanner for locked supply crates, plant analyser for seeds. Without the device the original double-click applies.
-- **Reveal (optional)** — Authenticity Check (verdicts, Ribwich reasons, BloomBerry quality, unanalyzed seed traits), Appraisal Calculator (value breakdown, perfect price range, Appraisal Service title), Customer Arrival Alert and Reveal Disguises & True Stats are on by default; Liquid Composition Analysis (off / when you own a water or chem scanner / always), Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off by default because they make the game noticeably easier.
+- **Double-click to scan** — while you own the matching device, double-click a liquid, chemical, seed or locked supply crate to open its scan. Items whose double-click already does something keep the original behavior.
+- **Reveal (optional)** — Authenticity Check, Appraisal Calculator, Customer Arrival Alert and Reveal Disguises & True Stats are on by default. Liquid Composition Analysis turns on when you own a scanner. Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off, because they make the game noticeably easier.
 
 Every feature can be toggled in this mod's settings in the game's Mods menu.
 
-**Design** — read-only (no price, customer or save changes); declares no capabilities, with no network access or processes (the only thing written is the game's own mod settings file); a breakdown is shown only when it exactly matches the game's own value; third-party mods explicitly register their own appraisal breakdowns and machine effect notes instead of being probed or inferred.
+**Design** — read-only: no price, customer or save changes. No capabilities, network access or processes; the only file written is the game's own mod settings. A breakdown is shown only when it exactly matches the game's own value. Other mods register their own breakdowns and effect notes instead of being guessed at.
 
 **Install** — [subscribe on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3828868413), or extract the release ZIP into `Mods/` (it contains the `item_details/` folder), then enable it in the Mods menu and restart. Requires the full release of the game (runtime version 0.46D).
 
