@@ -15,7 +15,7 @@ namespace ItemDetails;
 ///   "透视"       —— 揭示本应靠鉴定/分析才能知道的东西（会降低难度）
 ///   "交互与外观" —— 操作方式与视觉权重
 ///
-/// 合并过的项（旧键已废弃，读取时回落到默认）：
+/// 合并过的项（旧键已废弃，读取时回落到默认；水质旧键有迁移，见 <see cref="MigrateLegacyWaterToggle"/>）：
 ///   show_berry            + show_seed_traits      → show_plant
 ///   show_lock_preview     + show_scratcher（现已按分级拆回独立开关，默认值不同）
 ///   show_storage_ratio    + show_container_contents → show_container
@@ -198,6 +198,8 @@ internal static class ModSettings
                      "True value fills the game's real value; best offer fills the top of the perfect range. " +
                      "Same rule the tooltip shows."));
 
+            MigrateLegacyWaterToggle();
+
             _cfg.Save();
 
             // 漏网的条目也要登记：`_cfg.Define` 直接注册的下拉框没有经过
@@ -223,6 +225,62 @@ internal static class ModSettings
 
     /// <summary>首次重写时记一次语言判定结果：这是本模组第一次、也是唯一一次主动读 locale。</summary>
     private static bool _localeLogged;
+
+    /// <summary>
+    /// 旧版用来控制水质面板的布尔键，按"新 → 旧"顺序尝试。0.7.x 是 <c>show_water_purity</c>；
+    /// <c>show_water_advice</c> 见于更早的合并记录，这里一并兼容。
+    /// </summary>
+    private static readonly string[] LegacyWaterKeys = { "show_water_purity", "show_water_advice" };
+
+    /// <summary>
+    /// 把旧版布尔「水质检测」迁移到新版三档 <c>liquid_analysis</c>：
+    ///   · 旧值开 → 有扫描器时开启（With scanner）
+    ///   · 旧值关 → 关闭（Off）
+    ///
+    /// 只在文件里还没有 <c>liquid_analysis</c> 时迁移。最后一个公开版本 0.7.1 只写
+    /// <c>show_water_purity</c>，三档是它之后才加的，所以从公开版升级上来的玩家一定没有新键；
+    /// 已经有新键的说明跑过带三档的构建或手改过文件，那就是玩家当前的选择，旧键不再插手。
+    ///
+    /// 迁移后不需要额外标记：`Init` 末尾的 `_cfg.Save()` 会把新键写进文件，下次启动就不再满足条件。
+    /// 旧键不删——`ModConfig.Save()` 会保留未注册条目，退回旧版本时原值还在。
+    ///
+    /// 读旧键只能走 <see cref="ModConfig"/> 的私有 <c>rawValues</c>：公开 API 只按已注册的键取值，
+    /// 对旧键 <c>Get(key)</c> 返回 null；改读配置文件则要 <c>files</c> 能力，不值得。
+    /// 取不到字段就当没配过，不猜。
+    /// </summary>
+    private static void MigrateLegacyWaterToggle()
+    {
+        if (_cfg == null || _liquidAnalysis == null) return;
+        try
+        {
+            if (AccessTools.Field(typeof(ModConfig), "rawValues")?.GetValue(_cfg)
+                is not Dictionary<string, string> raw)
+            {
+                Log.Warn("ModSettings.Migrate", "读不到 ModConfig.rawValues，旧水质设置不迁移");
+                return;
+            }
+
+            if (raw.ContainsKey("liquid_analysis")) return;   // 已有新键：玩家当前的选择优先
+
+            foreach (string key in LegacyWaterKeys)
+            {
+                if (!raw.TryGetValue(key, out string? stored)) continue;
+                if (!bool.TryParse(stored, out bool on))
+                {
+                    Log.Warn("ModSettings.Migrate", $"旧设置 {key}='{stored}' 不是布尔值，保留新默认");
+                    return;
+                }
+
+                _liquidAnalysis.Set(on ? LiquidScannerChoice : LiquidOffChoice);
+                Log.Msg($"ModSettings: 旧设置 {key}={stored} → liquid_analysis={_liquidAnalysis.Value}");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("ModSettings.Migrate", ex);
+        }
+    }
 
     /// <summary>
     /// 英文分组名 → 本地化键。用于把「注册时写下的英文分组名」反查回键，
