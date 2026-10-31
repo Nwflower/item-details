@@ -213,7 +213,7 @@ machine.eta_water," (agua para {0} {0|día|días})"
 machine.paused,En pausa: {0}
 hydro.water,"Agua {0}{3}, para {1} {1|día|días} ({2} ml/día)"
 purifier.estimate,"Eliminación estimada esta noche: {0} ml"
-purifier.tier," ({0} -> {1})"
+purifier.tier," ({0} → {1})"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", {0} sin efecto"
 wine.rack,"{0} {0|botella|botellas} envejeciendo, +{1} {1|día|días}/día"

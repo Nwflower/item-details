@@ -213,7 +213,7 @@ machine.eta_water," (Wasser reicht {0} {0|Tag|Tage})"
 machine.paused,Pausiert: {0}
 hydro.water,"Wasser {0}{3}, für {1} {1|Tag|Tage} ({2} ml/Tag)"
 purifier.estimate,"Geschätzte Entfernung heute Nacht: {0} ml"
-purifier.tier," ({0} -> {1})"
+purifier.tier," ({0} → {1})"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", {0} ohne Wirkung"
 wine.rack,"{0} {0|Flasche reift|Flaschen reifen}, +{1} {1|Tag|Tage}/Tag"

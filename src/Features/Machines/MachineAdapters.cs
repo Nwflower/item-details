@@ -173,7 +173,7 @@ internal static class MachineAdapters
             string from = WaterFeatureHelper.GetWaterDisplayName(purityBefore) ?? "";
             string to = WaterFeatureHelper.GetWaterDisplayName(purityAfter) ?? "";
             if (from.Length == 0 || to.Length == 0) return "";
-            return Loc.T("purifier.tier", " ({0} -> {1})", from, to);
+            return Loc.T("purifier.tier", " ({0} → {1})", from, to);
         }
         catch { return ""; }
     }
