@@ -48,8 +48,8 @@ appraisal.seal_ll,Bônus Wild's Rides
 appraisal.seal_republic,Bônus Requisição Naval da República
 appraisal.seal_zhonghua,Bônus Estaleiro ZhongHua
 appraisal.worn,Desgaste
-auth.counterfeit,✘ Falsificação ({0})
-auth.genuine,✔ Autêntico
+auth.counterfeit,× Falsificação ({0})
+auth.genuine,√ Autêntico
 berry.dried,Seca
 berry.line,Qualidade da baga: {0}
 berry.wine, (valor do vinho {0})
@@ -133,6 +133,16 @@ water.head,Água: {0}% {1}
 water.impurities,"Impurezas: "
 water.mismatch," (rótulo não confere)"
 water.trace,traço (abaixo do limite de exibição)
+water.composition,Composição: 
+chem.effects,Efeitos: {0}
+chem.lethal,letal ({0}x a dose letal)
+chem.toxic,tóxico
+chem.euphoria_weak,euforia leve
+chem.euphoria_mild,euforia moderada
+chem.euphoria_strong,euforia forte
+chem.euphoria_extreme,euforia extrema
+chem.synaprest,antivício
+chem.contraceptive,anticoncepcional
 wine.aging,Bônus de envelhecimento: +{0}/dia (total +{1})
 wine.composition,"Composição: extrato {0}‰, contaminantes {1}‰"
 wine.counterfeit,Falsificado: levedura ilegal
@@ -153,7 +163,7 @@ config.cost_performance.tip,Mostra o valor por célula do inventário e a compre
 config.container_contents,Conteúdo do contêiner
 config.container_contents.tip,"Lista o conteúdo de contêineres desbloqueados, sem um valor total separado."
 config.info_enhance,Informações extras
-config.info_enhance.tip,"Adiciona detalhes conforme o item: efeitos de rótulos e módulos, carga de baterias, modificadores de mercado, resultados da loteria, descrições esmaecidas e rótulos de preço mais claros."
+config.info_enhance.tip,"Adiciona detalhes conforme o item: efeitos de rótulos e módulos, carga de baterias, modificadores de mercado, resultados da loteria, descrições esmaecidas e rótulos de preço mais claros. Também mostra a pontuação e a composição do vinho."
 config.type_badge,Selos de categoria
 config.type_badge.tip,"Mostra as categorias do item acima da dica."
 config.type_badge_muted,Cores de selos suavizadas
@@ -169,11 +179,13 @@ config.customer_history.tip,Ao passar o mouse sobre um cliente da loja mostra a 
 config.section.interaction,Controles
 config.double_click_inspect,Clique duplo para inspecionar
 config.double_click_inspect.tip,"Clique duas vezes em um item de avaliação ou de verificação de autenticidade (injetores, cigarros, vales-alimentação etc.) para abrir o painel de inspeção sem a lupa. Com o painel aberto, um clique duplo em outro item troca direto para ele. A dica da lupa passa a ser ""Clique duplo para inspecionar"". Desative para voltar ao fluxo original."
+config.double_click_scan,Clique duplo para escanear
+config.double_click_scan.tip,"Se você tiver o dispositivo correspondente, clique duas vezes em um item para abrir o painel de escaneamento: scanner de água ou químico para líquidos e produtos químicos, scanner de raios X para caixas de suprimentos trancadas e analisador de plantas para sementes. Sem o dispositivo, o clique duplo original continua valendo."
 config.section.reveal,Revelação
 config.hidden_truth,Revelar disfarces e valores reais
 config.hidden_truth.tip,"Mostra o que as características disfarçadas escondem, a durabilidade real e a pureza real de lingotes e produtos químicos. Expõe falsificações na hora e facilita muito a avaliação."
-config.water_wine,Análise de água e vinho
-config.water_wine.tip,"Mostra a pureza e as impurezas da água e os dados de fermentação do vinho, sem tira de teste."
+config.liquid_analysis,Análise de componentes líquidos
+config.liquid_analysis.tip,"Mostra a pureza e as impurezas da água, além da composição e dos efeitos de medicamentos e produtos químicos. «With scanner» só mostra enquanto você tiver um scanner de água ou químico."
 config.scratcher,Prévia da raspadinha
 config.scratcher.tip,"Antes de raspar, mostra se a raspadinha é premiada, quanto paga e quanto já foi raspado. Somente leitura com as regras do jogo; nunca raspa por você."
 config.sealed_box,Raio-X de contêineres trancados

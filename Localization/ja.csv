@@ -48,8 +48,8 @@ appraisal.seal_ll,ワイルド・ライドボーナス
 appraisal.seal_republic,共和国海軍徴発ボーナス
 appraisal.seal_zhonghua,Zhonghua造船ボーナス
 appraisal.worn,摩耗
-auth.counterfeit,✘ 偽造品（{0}）
-auth.genuine,✔ 正規品
+auth.counterfeit,× 偽造品（{0}）
+auth.genuine,√ 正規品
 berry.dried,乾燥
 berry.line,ブルームベリーの品質：{0}
 berry.wine,（ワイン評価 {0}）
@@ -133,6 +133,16 @@ water.head,水質：{0}% {1}
 water.impurities,不純物：
 water.mismatch,（ラベルと不一致）
 water.trace,微量（表示閾値未満）
+water.composition,成分：
+chem.effects,効果：{0}
+chem.lethal,致死（致死量の {0} 倍）
+chem.toxic,有毒
+chem.euphoria_weak,弱い多幸感
+chem.euphoria_mild,中程度の多幸感
+chem.euphoria_strong,強い多幸感
+chem.euphoria_extreme,極度の多幸感
+chem.synaprest,依存抑制
+chem.contraceptive,避妊
 wine.aging,熟成ボーナス：+{0}/日（計 +{1}）
 wine.composition,成分：糖度 {0}‰、汚染物質 {1}‰
 wine.counterfeit,偽造品：違法酵母
@@ -153,7 +163,7 @@ config.cost_performance.tip,1マスあたりの価値とコンテナの圧縮率
 config.container_contents,コンテナ内容
 config.container_contents.tip,"ロックされていないコンテナの中身を表示し、合計価値は別途表示しません。"
 config.info_enhance,追加アイテム情報
-config.info_enhance.tip,ラベルやモジュールの効果、バッテリー残量、市場補正、宝くじの結果、説明文の淡色表示、分かりやすい価格表記など、アイテムに応じた情報を追加します。
+config.info_enhance.tip,ラベルやモジュールの効果、バッテリー残量、市場補正、宝くじの結果、説明文の淡色表示、分かりやすい価格表記など、アイテムに応じた情報を追加します。 ワインのスコアと成分も表示します。
 config.type_badge,アイテム分類バッジ
 config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
 config.type_badge_muted,バッジの色を控えめに
@@ -169,11 +179,13 @@ config.customer_history.tip,店内の顧客にマウスを合わせると、今�
 config.section.interaction,操作
 config.double_click_inspect,ダブルクリックで鑑定
 config.double_click_inspect.tip,鑑定品や真偽確認が必要な品（注射器・タバコ・フードスタンプなど）をダブルクリックすると、虫眼鏡なしで検査パネルを開きます。パネル表示中に別の品をダブルクリックすると切り替わります。虫眼鏡のヒントは「ダブルクリックで鑑定」に変わります。オフにすると元の操作に戻ります。
+config.double_click_scan,ダブルクリックでスキャン
+config.double_click_scan.tip,対応する装置を持っていると、アイテムをダブルクリックしてスキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。装置がない場合は元のダブルクリック動作になります。
 config.section.reveal,透視
 config.hidden_truth,偽装と真の値を暴く
 config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。
-config.water_wine,水質・ワイン分析
-config.water_wine.tip,水質試験紙なしで、水の純度と不純物、ワインの醸造データを表示します。
+config.liquid_analysis,液体成分分析
+config.liquid_analysis.tip,水の純度と不純物、薬品・化学品の成分と効果を表示します。「With scanner」では、水質スキャナーかケミカルスキャナーを持っている間だけ表示します。
 config.scratcher,スクラッチカードの事前確認
 config.scratcher.tip,削る前に、スクラッチカードの当たり外れ・賞金・削った進み具合を表示します。ゲームと同じルールで読み取るだけで、代わりに削ることはありません。
 config.sealed_box,施錠コンテナ透視

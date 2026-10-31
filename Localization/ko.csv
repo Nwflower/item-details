@@ -48,8 +48,8 @@ appraisal.seal_ll,와일드 라이드 보너스
 appraisal.seal_republic,공화국 해군 징발부 보너스
 appraisal.seal_zhonghua,중화 조선 보너스
 appraisal.worn,마모
-auth.counterfeit,✘ 위조품 ({0})
-auth.genuine,✔ 정품
+auth.counterfeit,× 위조품 ({0})
+auth.genuine,√ 정품
 berry.dried,마름
 berry.line,블룸베리 품질: {0}
 berry.wine, (와인 점수 {0})
@@ -133,6 +133,16 @@ water.head,수질: {0}% {1}
 water.impurities,"불순물: "
 water.mismatch," (라벨과 불일치)"
 water.trace,미량 (표시 임계값 미만)
+water.composition,성분: 
+chem.effects,효과: {0}
+chem.lethal,치명적 (치사량의 {0}배)
+chem.toxic,유독
+chem.euphoria_weak,약한 도취
+chem.euphoria_mild,보통 도취
+chem.euphoria_strong,강한 도취
+chem.euphoria_extreme,극도의 도취
+chem.synaprest,중독 억제
+chem.contraceptive,피임
 wine.aging,숙성 보너스: +{0}/일 (총 +{1})
 wine.composition,"성분: 당도 {0}‰, 오염물 {1}‰"
 wine.counterfeit,위조품: 불법 효모
@@ -153,7 +163,7 @@ config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시�
 config.container_contents,컨테이너 내용
 config.container_contents.tip,"잠기지 않은 컨테이너의 내용물을 표시하며 총가치는 따로 표시하지 않습니다."
 config.info_enhance,추가 아이템 정보
-config.info_enhance.tip,"라벨·모듈 효과, 배터리 잔량, 시장 보정, 복권 결과, 흐리게 표시한 설명, 더 명확한 가격 표기 등 아이템별 정보를 추가합니다."
+config.info_enhance.tip,"라벨·모듈 효과, 배터리 잔량, 시장 보정, 복권 결과, 흐리게 표시한 설명, 더 명확한 가격 표기 등 아이템별 정보를 추가합니다. 와인 점수와 성분도 표시합니다."
 config.type_badge,아이템 분류 배지
 config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
 config.type_badge_muted,배지 색상 줄이기
@@ -169,11 +179,13 @@ config.customer_history.tip,매장 손님 위에 마우스를 올리면 이번 �
 config.section.interaction,조작
 config.double_click_inspect,더블클릭으로 감정
 config.double_click_inspect.tip,"감정품이나 진위 확인이 필요한 물품(주사기, 담배, 식량 배급표 등)을 더블클릭하면 돋보기 없이 검사 패널이 열립니다. 패널이 열린 상태에서 다른 물품을 더블클릭하면 바로 전환됩니다. 돋보기 안내는 '더블클릭하여 감정'으로 바뀝니다. 끄면 원래 방식으로 돌아갑니다."
+config.double_click_scan,더블 클릭으로 스캔
+config.double_click_scan.tip,"해당 장치를 보유하고 있으면 아이템을 더블 클릭해 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다. 장치가 없으면 기존 더블 클릭 동작이 유지됩니다."
 config.section.reveal,투시
 config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."
-config.water_wine,수질·와인 분석
-config.water_wine.tip,"수질 검사지 없이 물의 순도와 불순물, 와인 양조 데이터를 표시합니다."
+config.liquid_analysis,액체 성분 분석
+config.liquid_analysis.tip,"물의 순도와 불순물, 약품 및 화학 물질의 성분과 효과를 표시합니다. 'With scanner'는 수질 스캐너나 화학 스캐너를 보유한 동안에만 표시합니다."
 config.scratcher,스크래치 복권 미리보기
 config.scratcher.tip,"긁기 전에 스크래치 복권의 당첨 여부, 당첨금, 긁은 진행도를 표시합니다. 게임과 같은 규칙으로 읽기만 하며 대신 긁지 않습니다."
 config.sealed_box,잠긴 컨테이너 투시

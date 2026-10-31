@@ -48,8 +48,8 @@ appraisal.seal_ll,Bonus Escapades Wild
 appraisal.seal_republic,Bonus Réquisition Navale Républicaine
 appraisal.seal_zhonghua,Bonus ZhongHua Aéronautique
 appraisal.worn,État usé
-auth.counterfeit,✘ Contrefaçon ({0})
-auth.genuine,✔ Authentique
+auth.counterfeit,× Contrefaçon ({0})
+auth.genuine,√ Authentique
 berry.dried,Desséchée
 berry.line,Qualité de la grappe : {0}
 berry.wine, (valeur du vin {0})
@@ -133,6 +133,16 @@ water.head,Eau : {0}% {1}
 water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
 water.trace,trace (sous le seuil d'affichage)
+water.composition,Composition : 
+chem.effects,Effets : {0}
+chem.lethal,mortel ({0}x la dose létale)
+chem.toxic,toxique
+chem.euphoria_weak,euphorie légère
+chem.euphoria_mild,euphorie modérée
+chem.euphoria_strong,euphorie forte
+chem.euphoria_extreme,euphorie extrême
+chem.synaprest,anti-addiction
+chem.contraceptive,contraceptif
 wine.aging,Bonus de vieillissement : +{0}/jour (total +{1})
 wine.composition,"Composition : extrait {0}‰, polluants {1}‰"
 wine.counterfeit,Contrefaçon : levure illégale
@@ -153,7 +163,7 @@ config.cost_performance.tip,Affiche la valeur par case d'inventaire et le taux d
 config.container_contents,Contenu du conteneur
 config.container_contents.tip,"Liste le contenu des conteneurs déverrouillés, sans valeur totale distincte."
 config.info_enhance,Infos supplémentaires
-config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets des étiquettes et modules, autonomie des batteries, modificateurs de marché, résultats de loterie, descriptions atténuées et libellés de prix plus clairs."
+config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets des étiquettes et modules, autonomie des batteries, modificateurs de marché, résultats de loterie, descriptions atténuées et libellés de prix plus clairs. Affiche aussi la note et la composition du vin."
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées
@@ -169,11 +179,13 @@ config.customer_history.tip,Survoler un client du magasin affiche les répliques
 config.section.interaction,Commandes
 config.double_click_inspect,Double-clic pour analyser
 config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus. L'indication de la loupe devient « Double-clic pour analyser ». Désactivez pour revenir au fonctionnement d'origine."
+config.double_click_scan,Double-clic pour analyser
+config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Sans l'appareil, le double-clic d'origine s'applique."
 config.section.reveal,Révélation
 config.hidden_truth,Révéler déguisements et vraies stats
 config.hidden_truth.tip,"Montre ce que cachent les caractéristiques déguisées, la vraie durabilité et la pureté réelle des lingots et produits chimiques. Démasque les faux et facilite beaucoup l'estimation."
-config.water_wine,Analyse de l'eau et du vin
-config.water_wine.tip,"Affiche la pureté et les impuretés de l'eau ainsi que les données de fermentation du vin, sans bandelette de test."
+config.liquid_analysis,Analyse des composants liquides
+config.liquid_analysis.tip,"Affiche la pureté et les impuretés de l'eau, ainsi que la composition et les effets des médicaments et produits chimiques. « With scanner » ne l'affiche que si vous possédez un scanner d'eau ou chimique."
 config.scratcher,Aperçu des tickets à gratter
 config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant, combien il rapporte et où en est le grattage. Lecture seule selon les règles du jeu ; ne gratte jamais à votre place."
 config.sealed_box,Radiographie des conteneurs verrouillés

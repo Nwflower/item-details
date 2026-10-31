@@ -48,8 +48,8 @@ appraisal.seal_ll,Bonus: Wild’s Rides
 appraisal.seal_republic,Bonus: Republikanische Flottenrequirierung
 appraisal.seal_zhonghua,Bonus: ZhongHua Schiffsbau
 appraisal.worn,Abnutzung
-auth.counterfeit,✘ Fälschung ({0})
-auth.genuine,✔ Echt
+auth.counterfeit,× Fälschung ({0})
+auth.genuine,√ Echt
 berry.dried,Getrocknet
 berry.line,Blühbeerenqualität: {0}
 berry.wine, (Weinwert {0})
@@ -133,6 +133,16 @@ water.head,Wasser: {0}% {1}
 water.impurities,"Verunreinigungen: "
 water.mismatch," (Etikett passt nicht)"
 water.trace,Spur (unter der Anzeigeschwelle)
+water.composition,Zusammensetzung: 
+chem.effects,Wirkung: {0}
+chem.lethal,tödlich ({0}-fache tödliche Dosis)
+chem.toxic,giftig
+chem.euphoria_weak,leichte Euphorie
+chem.euphoria_mild,mäßige Euphorie
+chem.euphoria_strong,starke Euphorie
+chem.euphoria_extreme,extreme Euphorie
+chem.synaprest,gegen Sucht
+chem.contraceptive,verhütend
 wine.aging,Reifebonus: +{0}/Tag (gesamt +{1})
 wine.composition,"Zusammensetzung: Extrakt {0}‰, Schadstoffe {1}‰"
 wine.counterfeit,Fälschung: illegale Hefe
@@ -153,7 +163,7 @@ config.cost_performance.tip,Zeigt den Wert pro Inventarfeld und das Kompressions
 config.container_contents,Behälterinhalt
 config.container_contents.tip,"Listet den Inhalt unverschlossener Behälter auf, ohne separaten Gesamtwert."
 config.info_enhance,Zusätzliche Gegenstandsinfos
-config.info_enhance.tip,"Ergänzt je nach Gegenstand Etiketten- und Moduleffekte, Batterielaufzeit, Marktmodifikatoren, Lotterieergebnisse, abgedunkelte Beschreibungen und klarere Preisangaben."
+config.info_enhance.tip,"Ergänzt je nach Gegenstand Etiketten- und Moduleffekte, Batterielaufzeit, Marktmodifikatoren, Lotterieergebnisse, abgedunkelte Beschreibungen und klarere Preisangaben. Zeigt außerdem Weinbewertung und -zusammensetzung."
 config.type_badge,Kategorie-Plaketten
 config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
 config.type_badge_muted,Plakettenfarben dämpfen
@@ -169,11 +179,13 @@ config.customer_history.tip,Beim Hovern über einem Kunden im Laden wird der Ver
 config.section.interaction,Bedienung
 config.double_click_inspect,Doppelklick zum Untersuchen
 config.double_click_inspect.tip,"Ein Doppelklick auf Gutachten- oder Echtheitsprüfungsobjekte (Injektoren, Zigaretten, Lebensmittelmarken usw.) öffnet die Untersuchungsansicht ohne Lupe. Ist sie geöffnet, wechselt ein Doppelklick auf einen anderen Gegenstand direkt dorthin. Der Lupen-Hinweis wird zu „Zum Untersuchen doppelklicken“. Deaktivieren stellt den Originalablauf wieder her."
+config.double_click_scan,Doppelklick zum Scannen
+config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein Doppelklick auf einen Gegenstand die Scanansicht: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen. Ohne Gerät bleibt der ursprüngliche Doppelklick."
 config.section.reveal,Einblick
 config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."
-config.water_wine,Wasser- & Weinanalyse
-config.water_wine.tip,Zeigt ohne Teststreifen Wasserreinheit und Verunreinigungen sowie Daten zur Weingärung.
+config.liquid_analysis,Flüssigkeitsanalyse
+config.liquid_analysis.tip,"Zeigt Wasserreinheit und Verunreinigungen sowie Zusammensetzung und Wirkung von Medikamenten und Chemikalien. „With scanner“ zeigt dies nur, solange Sie einen Wasser- oder Chemiescanner besitzen."
 config.scratcher,Rubbellos-Vorschau
 config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewinnt und wie weit es freigerubbelt ist. Nur Auslesen nach den Spielregeln; es wird nie für dich gerubbelt."
 config.sealed_box,Röntgenblick für verschlossene Behälter

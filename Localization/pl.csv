@@ -48,8 +48,8 @@ appraisal.seal_ll,Premia Wild's Rides
 appraisal.seal_republic,Premia Republic Naval Requisition
 appraisal.seal_zhonghua,Premia ZhongHua Shipbuilding
 appraisal.worn,Zużycie
-auth.counterfeit,✘ Podróbka ({0})
-auth.genuine,✔ Oryginał
+auth.counterfeit,× Podróbka ({0})
+auth.genuine,√ Oryginał
 berry.dried,Wysuszona
 berry.line,Jakość KwiatoGody: {0}
 berry.wine, (wartość wina {0})
@@ -133,6 +133,16 @@ water.head,Woda: {0}% {1}
 water.impurities,"Zanieczyszczenia: "
 water.mismatch," (niezgodność etykiety)"
 water.trace,śladowe (poniżej progu wyświetlania)
+water.composition,Skład: 
+chem.effects,Działanie: {0}
+chem.lethal,śmiertelne ({0}x dawka śmiertelna)
+chem.toxic,toksyczne
+chem.euphoria_weak,słaba euforia
+chem.euphoria_mild,umiarkowana euforia
+chem.euphoria_strong,silna euforia
+chem.euphoria_extreme,skrajna euforia
+chem.synaprest,przeciw uzależnieniu
+chem.contraceptive,antykoncepcyjne
 wine.aging,Bonus leżakowania: +{0}/dzień (razem +{1})
 wine.composition,"Skład: ekstrakt {0}‰, zanieczyszczenia {1}‰"
 wine.counterfeit,Podróbka: nielegalne drożdże
@@ -153,7 +163,7 @@ config.cost_performance.tip,Pokazuje wartość na kratkę ekwipunku i stopień k
 config.container_contents,Zawartość pojemnika
 config.container_contents.tip,"Wyświetla zawartość odblokowanych pojemników bez osobnej łącznej wartości."
 config.info_enhance,Dodatkowe informacje
-config.info_enhance.tip,"Dodaje szczegóły zależne od przedmiotu: działanie etykiet i modułów, energię baterii, modyfikatory rynkowe, wyniki loterii, przygaszone opisy i czytelniejsze oznaczenia cen."
+config.info_enhance.tip,"Dodaje szczegóły zależne od przedmiotu: działanie etykiet i modułów, energię baterii, modyfikatory rynkowe, wyniki loterii, przygaszone opisy i czytelniejsze oznaczenia cen. Pokazuje też ocenę i skład wina."
 config.type_badge,Plakietki kategorii
 config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
 config.type_badge_muted,Stonowane kolory plakietek
@@ -169,11 +179,13 @@ config.customer_history.tip,Najechanie na klienta w sklepie pokazuje rozmowę z 
 config.section.interaction,Sterowanie
 config.double_click_inspect,Sprawdzanie dwuklikiem
 config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny lub weryfikacji autentyczności (iniektory, papierosy, kartki żywnościowe itp.) otwiera panel oględzin bez szkła powiększającego. Gdy panel jest otwarty, dwuklik na innym przedmiocie od razu się na niego przełącza. Podpowiedź o szkle powiększającym zmienia się na „Kliknij dwukrotnie, by sprawdzić”. Wyłącz, aby przywrócić oryginalny przebieg."
+config.double_click_scan,"Podwójne kliknięcie, aby zeskanować"
+config.double_click_scan.tip,"Jeśli masz odpowiednie urządzenie, dwuklik na przedmiocie otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion. Bez urządzenia działa oryginalny dwuklik."
 config.section.reveal,Ujawnianie
 config.hidden_truth,Ujawniaj maskowanie i prawdziwe wartości
 config.hidden_truth.tip,"Pokazuje, co kryją zamaskowane cechy, rzeczywistą trwałość oraz rzeczywistą czystość sztabek i chemikaliów. Od razu zdradza podróbki i znacznie ułatwia wycenę."
-config.water_wine,Analiza wody i wina
-config.water_wine.tip,Pokazuje czystość i zanieczyszczenia wody oraz dane fermentacji wina bez paska testowego.
+config.liquid_analysis,Analiza składu cieczy
+config.liquid_analysis.tip,"Pokazuje czystość i zanieczyszczenia wody oraz skład i działanie leków i chemikaliów. „With scanner” pokazuje to tylko, gdy masz skaner wody lub chemiczny."
 config.scratcher,Podgląd zdrapek
 config.scratcher.tip,"Przed zdrapaniem pokazuje, czy zdrapka wygrywa, ile i jak daleko jest już zdrapana. Tylko odczyt według zasad gry; nigdy nie zdrapuje za ciebie."
 config.sealed_box,Prześwietlanie zamkniętych pojemników

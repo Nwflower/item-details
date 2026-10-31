@@ -48,8 +48,8 @@ appraisal.seal_ll,Bonificación de Expediciones Wild
 appraisal.seal_republic,Bonificación de Requisición Naval de la República
 appraisal.seal_zhonghua,Bonificación de Construcciones Navales ZhongHua
 appraisal.worn,Marcas de uso
-auth.counterfeit,✘ Falsificación ({0})
-auth.genuine,✔ Auténtico
+auth.counterfeit,× Falsificación ({0})
+auth.genuine,√ Auténtico
 berry.dried,Seca
 berry.line,Calidad de la bayaúva: {0}
 berry.wine, (valor del vino {0})
@@ -133,6 +133,16 @@ water.head,Agua: {0}% {1}
 water.impurities,"Impurezas: "
 water.mismatch," (etiqueta no coincide)"
 water.trace,trazas (bajo el umbral de visualización)
+water.composition,Composición: 
+chem.effects,Efectos: {0}
+chem.lethal,letal ({0}x dosis letal)
+chem.toxic,tóxico
+chem.euphoria_weak,euforia leve
+chem.euphoria_mild,euforia moderada
+chem.euphoria_strong,euforia fuerte
+chem.euphoria_extreme,euforia extrema
+chem.synaprest,antiadicción
+chem.contraceptive,anticonceptivo
 wine.aging,Bono de crianza: +{0}/día (total +{1})
 wine.composition,"Composición: extracto {0}‰, contaminantes {1}‰"
 wine.counterfeit,Falso: levadura ilegal
@@ -153,7 +163,7 @@ config.cost_performance.tip,Muestra el valor por celda del inventario y la compr
 config.container_contents,Contenido del contenedor
 config.container_contents.tip,"Enumera el contenido de contenedores desbloqueados, sin un valor total aparte."
 config.info_enhance,Información adicional
-config.info_enhance.tip,"Añade datos según el objeto: efectos de etiquetas y módulos, carga de baterías, modificadores de mercado, resultados de lotería, descripciones atenuadas y etiquetas de precio más claras."
+config.info_enhance.tip,"Añade datos según el objeto: efectos de etiquetas y módulos, carga de baterías, modificadores de mercado, resultados de lotería, descripciones atenuadas y etiquetas de precio más claras. También muestra la puntuación y la composición del vino."
 config.type_badge,Etiquetas de categoría
 config.type_badge.tip,Muestra las categorías del objeto sobre la descripción emergente.
 config.type_badge_muted,Atenuar colores de etiquetas
@@ -169,11 +179,13 @@ config.customer_history.tip,Al pasar el cursor sobre un cliente de la tienda se 
 config.section.interaction,Controles
 config.double_click_inspect,Doble clic para inspeccionar
 config.double_click_inspect.tip,"Haz doble clic en un objeto de tasación o de verificación de autenticidad (inyectores, cigarrillos, tarjetas de alimentos, etc.) para abrir el panel de inspección sin la lupa. Con el panel abierto, haz doble clic en otro objeto para cambiar a él. La indicación de la lupa pasa a ser «Haz doble clic para inspeccionar el objeto». Desactívalo para volver al funcionamiento original."
+config.double_click_scan,Doble clic para escanear
+config.double_click_scan.tip,"Si tienes el dispositivo correspondiente, haz doble clic en un objeto para abrir su panel de escaneo: escáner de agua o químico para líquidos y productos químicos, escáner de rayos X para cajas de suministros cerradas y analizador de plantas para semillas. Sin el dispositivo se mantiene el doble clic original."
 config.section.reveal,Revelación
 config.hidden_truth,Revelar disfraces y valores reales
 config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."
-config.water_wine,Análisis de agua y vino
-config.water_wine.tip,"Muestra la pureza y las impurezas del agua, y los datos de fermentación del vino, sin tira reactiva."
+config.liquid_analysis,Análisis de componentes líquidos
+config.liquid_analysis.tip,"Muestra la pureza y las impurezas del agua, y la composición y los efectos de medicamentos y productos químicos. «With scanner» solo lo muestra mientras tengas un escáner de agua o químico."
 config.scratcher,Vista previa de Rasca y Gana
 config.scratcher.tip,"Antes de rascar, muestra si un Rasca y Gana tiene premio, cuánto y cuánto se ha rascado ya. Solo lectura con las reglas del juego; nunca rasca por ti."
 config.sealed_box,Rayos X de contenedores cerrados

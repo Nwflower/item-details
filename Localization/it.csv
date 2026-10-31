@@ -48,8 +48,8 @@ appraisal.seal_ll,Bonus Wild's Rides
 appraisal.seal_republic,Bonus Requisizione Navale della Repubblica
 appraisal.seal_zhonghua,Bonus Cantieri ZhongHua
 appraisal.worn,Usura
-auth.counterfeit,✘ Falso ({0})
-auth.genuine,✔ Autentico
+auth.counterfeit,× Falso ({0})
+auth.genuine,√ Autentico
 berry.dried,Secca
 berry.line,Qualità della bacca: {0}
 berry.wine, (valore del vino {0})
@@ -133,6 +133,16 @@ water.head,Acqua: {0}% {1}
 water.impurities,"Impurità: "
 water.mismatch," (etichetta non corrispondente)"
 water.trace,tracce (sotto la soglia di visualizzazione)
+water.composition,Composizione: 
+chem.effects,Effetti: {0}
+chem.lethal,letale ({0}x dose letale)
+chem.toxic,tossico
+chem.euphoria_weak,euforia lieve
+chem.euphoria_mild,euforia moderata
+chem.euphoria_strong,euforia forte
+chem.euphoria_extreme,euforia estrema
+chem.synaprest,anti-dipendenza
+chem.contraceptive,contraccettivo
 wine.aging,Bonus di affinamento: +{0}/giorno (totale +{1})
 wine.composition,"Composizione: estratto {0}‰, contaminanti {1}‰"
 wine.counterfeit,Falso: lievito illegale
@@ -153,7 +163,7 @@ config.cost_performance.tip,Mostra il valore per cella dell'inventario e la comp
 config.container_contents,Contenuto del contenitore
 config.container_contents.tip,"Elenca il contenuto dei contenitori sbloccati, senza un valore totale separato."
 config.info_enhance,Informazioni extra
-config.info_enhance.tip,"Aggiunge dettagli specifici per oggetto: effetti di etichette e moduli, carica delle batterie, modificatori di mercato, risultati della lotteria, descrizioni attenuate ed etichette di prezzo più chiare."
+config.info_enhance.tip,"Aggiunge dettagli specifici per oggetto: effetti di etichette e moduli, carica delle batterie, modificatori di mercato, risultati della lotteria, descrizioni attenuate ed etichette di prezzo più chiare. Mostra anche il punteggio e la composizione del vino."
 config.type_badge,Badge di categoria
 config.type_badge.tip,Mostra le categorie dell'oggetto sopra il riquadro informativo.
 config.type_badge_muted,Colori dei badge attenuati
@@ -169,11 +179,13 @@ config.customer_history.tip,Passando il mouse su un cliente del negozio mostra l
 config.section.interaction,Controlli
 config.double_click_inspect,Doppio clic per ispezionare
 config.double_click_inspect.tip,"Fai doppio clic su un oggetto da periziare o da autenticare (iniettori, sigarette, buoni alimentari, ecc.) per aprire il pannello di ispezione senza lente. Con il pannello aperto, un doppio clic su un altro oggetto passa direttamente a quello. L'indicazione della lente diventa «Doppio clic per ispezionare». Disattivalo per ripristinare il funzionamento originale."
+config.double_click_scan,Doppio clic per analizzare
+config.double_click_scan.tip,"Se possiedi il dispositivo corrispondente, un doppio clic su un oggetto apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi. Senza il dispositivo resta il doppio clic originale."
 config.section.reveal,Rivelazione
 config.hidden_truth,Rivela travestimenti e valori reali
 config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."
-config.water_wine,Analisi di acqua e vino
-config.water_wine.tip,"Mostra purezza e impurità dell'acqua e i dati di fermentazione del vino, senza striscia reattiva."
+config.liquid_analysis,Analisi dei componenti liquidi
+config.liquid_analysis.tip,"Mostra la purezza e le impurità dell'acqua, nonché la composizione e gli effetti di medicinali e prodotti chimici. «With scanner» lo mostra solo se possiedi uno scanner dell'acqua o chimico."
 config.scratcher,Anteprima gratta e vinci
 config.scratcher.tip,"Prima di grattare, mostra se un gratta e vinci è vincente, quanto vale e quanto è già stato grattato. Sola lettura con le regole del gioco; non gratta mai al posto tuo."
 config.sealed_box,Raggi X per contenitori chiusi

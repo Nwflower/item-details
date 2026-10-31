@@ -48,8 +48,8 @@ appraisal.seal_ll,王尔德载具加成
 appraisal.seal_republic,共和国海军征用部加成
 appraisal.seal_zhonghua,中华船舶加成
 appraisal.worn,磨损
-auth.counterfeit,✘ 赝品（{0}）
-auth.genuine,✔ 正品
+auth.counterfeit,× 赝品（{0}）
+auth.genuine,√ 正品
 berry.dried,干枯
 berry.line,荧光莓品质：{0}
 berry.wine,（酿酒值 {0}）
@@ -133,6 +133,16 @@ water.head,水质：{0}% {1}
 water.impurities,杂质：
 water.mismatch,（与标签不符）
 water.trace,微量（低于显示阈值）
+water.composition,成分：
+chem.effects,药效：{0}
+chem.lethal,致死（{0} 倍致死量）
+chem.toxic,有毒
+chem.euphoria_weak,轻微欣快
+chem.euphoria_mild,中度欣快
+chem.euphoria_strong,强烈欣快
+chem.euphoria_extreme,极度欣快
+chem.synaprest,戒瘾
+chem.contraceptive,避孕
 wine.aging,陈化加成：+{0}/天（共 +{1}）
 wine.composition,成分：糖度 {0}‰、污染物 {1}‰
 wine.counterfeit,赝品：使用了非法酵母
@@ -153,7 +163,7 @@ config.cost_performance.tip,显示每格价值与容器压缩率。
 config.container_contents,容器内容物
 config.container_contents.tip,"列出未上锁容器内的物品，不单独显示合计价值。"
 config.info_enhance,信息增强
-config.info_enhance.tip,补充随物品变化的附加信息：标签与模组效果、电池续航、市场修正、彩票结果、淡化的描述文字，以及更清楚的价格用词。
+config.info_enhance.tip,补充随物品变化的附加信息：标签与模组效果、电池续航、市场修正、彩票结果、淡化的描述文字，以及更清楚的价格用词。 另外显示果酿的分数与成分。
 config.type_badge,物品分类标签
 config.type_badge.tip,在物品提示框上方显示物品分类。
 config.type_badge_muted,淡化标签颜色
@@ -169,11 +179,13 @@ config.customer_history.tip,鼠标停在店内顾客身上时，显示本次接�
 config.section.interaction,操作优化
 config.double_click_inspect,双击鉴定
 config.double_click_inspect.tip,双击待鉴定物品或需辨别真伪的物品（注射器、香烟、食品券等），无需放大镜即可打开检视面板；面板打开时，双击另一件物品可直接切换。物品上的放大镜提示改为“双击以鉴定”。关闭后恢复原版流程。
+config.double_click_scan,双击扫描
+config.double_click_scan.tip,拥有对应设备时，双击物品直接打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。没有设备时保持原版双击。
 config.section.reveal,透视
 config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。
-config.water_wine,水质与果酿分析
-config.water_wine.tip,无需检测试纸即可显示水质纯度与杂质，以及果酿的酿造数据。
+config.liquid_analysis,液体组分分析
+config.liquid_analysis.tip,显示液体的水质纯度与杂质，以及药品和化学品的成分与药效。「有扫描器时开启」只在拥有水质扫描仪或化学扫描仪时显示。
 config.scratcher,刮刮乐预知
 config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多少以及已刮进度。按游戏同一套规则只读推算，不会替你刮开。
 config.sealed_box,带锁容器透视
