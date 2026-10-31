@@ -22,42 +22,70 @@ internal static class Authenticity
     }
 
     /// <summary>
-    /// 一项检查：原版标签键 + 本地化键 + 英文兜底。
+    /// 一项检查：原版标签键 + 本地化键 + 英文兜底 + 鉴定面板上对应的原版标题键。
     /// 这里只存键不存成品文案：分析随时可能被调用，语言却可能在两次悬停之间切换。
     /// </summary>
     internal readonly struct Check
     {
-        internal readonly string Tag;   // 原版标签键（item.IsTag 用）
-        internal readonly string Key;   // 本地化键（Localization/*.csv）
-        internal readonly string En;    // 英文兜底
-        internal Check(string tag, string key, string en) { Tag = tag; Key = key; En = en; }
+        internal readonly string Tag;       // 原版标签键（item.IsTag 用）
+        internal readonly string Key;       // 本地化键（Localization/*.csv）
+        internal readonly string En;        // 英文兜底
+        internal readonly string? GameKey;  // 原版 UI 表里鉴定面板的问题标题
+        internal Check(string tag, string key, string en, string? gameKey = null)
+        {
+            Tag = tag; Key = key; En = en; GameKey = gameKey;
+        }
+
+        /// <summary>
+        /// 优先用鉴定面板上的原版标题：玩家勾选问题时看到的就是这几个字。
+        /// 原版对话里的同名词条（ins_*_issue_*）是嵌进整句的变格碎片，单独显示在德俄波等语言里不通，所以不用。
+        /// 意、韩、巴葡的原版 UI 表基本是空的，盒体也没有标题，这些情况用本模组词条。
+        /// </summary>
+        internal string Name()
+        {
+            if (GameKey != null && Loc.GameTranslated)
+            {
+                try
+                {
+                    if (LocHelper.HasLocalizedUI(GameKey))
+                    {
+                        string text = LocHelper.GetLocalizedUI(GameKey);
+                        if (!string.IsNullOrWhiteSpace(text)
+                            && !LocHelper.TryParseMissingTranslation(text, out _, out _))
+                            return text.Trim();
+                    }
+                }
+                catch { }
+            }
+            return Loc.T(Key, En);
+        }
     }
 
     private static readonly Check[] InjectorChecks =
     {
-        new("ISSUE_INDICATOR", "auth.indicator", "Indicator issue"),
-        new("ISSUE_LABEL", "auth.label", "Label issue"),
-        new("ISSUE_SERIAL", "auth.serial", "Serial number issue"),
-        new("ISSUE_BODY", "auth.body", "Body damage"),
-        new("ISSUE_COLOR", "auth.color", "Color issue"),
+        new("ISSUE_INDICATOR", "auth.indicator", "Indicator Issues", "ins_inj_indicator_issues"),
+        new("ISSUE_LABEL", "auth.label", "Label Issues", "ins_inj_label_issues"),
+        new("ISSUE_SERIAL", "auth.serial", "Serial Number", "ins_inj_serial_number_issues"),
+        new("ISSUE_BODY", "auth.body", "Body Issues", "ins_inj_body_issues"),
+        new("ISSUE_COLOR", "auth.color", "Color Issues", "ins_general_color_issues"),
     };
 
     private static readonly Check[] CigaretteChecks =
     {
-        new("CIGARETTE_LETTERING_ISSUE", "auth.lettering", "Lettering issue"),
-        new("CIGARETTE_COLOR_ISSUE", "auth.color", "Color issue"),
-        new("CIGARETTE_SEAL_ISSUE", "auth.seal", "Seal issue"),
-        new("CIGARETTE_LOGO_ISSUE", "auth.logo", "Logo issue"),
-        new("CIGARETTE_BOX_ISSUE", "auth.box", "Box issue"),
+        new("CIGARETTE_LETTERING_ISSUE", "auth.lettering", "Lettering Issues", "ins_general_lettering_issues"),
+        new("CIGARETTE_COLOR_ISSUE", "auth.color", "Color Issues", "ins_general_color_issues"),
+        new("CIGARETTE_SEAL_ISSUE", "auth.seal", "Security Seal Issues", "ins_general_security_seal_issues"),
+        new("CIGARETTE_LOGO_ISSUE", "auth.logo", "Logo Issues", "ins_general_logo_issues"),
+        new("CIGARETTE_BOX_ISSUE", "auth.box", "Box Issues"),   // 鉴定面板没有盒体标题
     };
 
     private static readonly Check[] StampChecks =
     {
-        new("STAMP_LETTERING_ISSUE", "auth.lettering", "Lettering issue"),
-        new("STAMP_LOGO_ISSUE", "auth.logo", "Logo issue"),
-        new("STAMP_SEAL_ISSUE", "auth.seal", "Seal issue"),
-        new("STAMP_AMOUNT_ISSUE", "auth.amount", "Face value issue"),
-        new("STAMP_CHIP_ISSUE", "auth.chip", "Chip issue"),
+        new("STAMP_LETTERING_ISSUE", "auth.lettering", "Lettering Issues", "ins_general_lettering_issues"),
+        new("STAMP_LOGO_ISSUE", "auth.logo", "Logo Issues", "ins_general_logo_issues"),
+        new("STAMP_SEAL_ISSUE", "auth.seal", "Security Seal Issues", "ins_general_security_seal_issues"),
+        new("STAMP_AMOUNT_ISSUE", "auth.amount", "Stamp Value", "ins_stamp_value"),
+        new("STAMP_CHIP_ISSUE", "auth.chip", "Chip", "ins_stamp_chip"),
     };
 
     internal static Check[] ChecksFor(ItemKind kind) => kind switch
@@ -102,7 +130,7 @@ internal static class Authenticity
                 // IsTag 返回 false 表示"没有这个问题"；true 表示有问题
                 bool bad = item!.IsTag(c.Tag);
                 readable++;
-                if (bad) { faults++; names.Add(Loc.T(c.Key, c.En)); }
+                if (bad) { faults++; names.Add(c.Name()); }
                 Log.MarkOk("Auth." + c.Tag);
             }
             catch (Exception ex)

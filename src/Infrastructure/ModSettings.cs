@@ -90,17 +90,24 @@ internal static class ModSettings
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
     private static readonly Toggle ResultPrefillToggle = new(false);     // 鉴定结果预填
 
-    /// <summary>液体组分分析：三档。选项是纯字符串（ModConfig 不做本地化），沿用中英并列写法。</summary>
-    private static ConfigEntry<string>? _liquidAnalysis;
-    internal const string LiquidOffChoice = "关闭 (Off)";
-    internal const string LiquidScannerChoice = "有扫描器时开启 (With scanner)";
-    internal const string LiquidAlwaysChoice = "总是开启 (Always)";
-    private const string DefaultLiquidChoice = LiquidScannerChoice;
+    /// <summary>液体组分分析：三档，序号即 <see cref="LiquidMode"/>。</summary>
+    private static readonly Choice LiquidChoice = new(1,
+        new[] { "关闭 (Off)", "有扫描器时开启 (With scanner)", "总是开启 (Always)" },
+        new[]
+        {
+            Text("config.liquid_analysis.off", "Off"),
+            Text("config.liquid_analysis.scanner", "With scanner"),
+            Text("config.liquid_analysis.always", "Always"),
+        });
 
-    /// <summary>「鉴定结果预填」下面那项：预填哪种价格。选项是纯字符串，中英并列。</summary>
-    private static ConfigEntry<string>? _prefillPrice;
-    private const string PrefillTrueValueChoice = "真实估价 (True value)";
-    private const string PrefillBestOfferChoice = "最优报价 (Best offer)";
+    /// <summary>「鉴定结果预填」下面那项：预填哪种价格。0 = 真实估价，1 = 最优报价。</summary>
+    private static readonly Choice PrefillChoice = new(1,
+        new[] { "真实估价 (True value)", "最优报价 (Best offer)" },
+        new[]
+        {
+            Text("config.result_prefill_source.true", "True value"),
+            Text("config.result_prefill_source.best", "Best offer"),
+        });
 
     /// <summary>外显文本底色的不透明度（0–100，滑条）；0 即不加底色。</summary>
     private static ConfigEntry<int>? _nameBgOpacity;
@@ -187,9 +194,8 @@ internal static class ModSettings
                 Text("config.hidden_truth.tip", "Shows what disguised features really are, true durability, and true " +
                      "ingot/chemical purity. Exposes fakes directly and makes appraisal much easier."));
 
-            _liquidAnalysis = _cfg.Define("liquid_analysis", DefaultLiquidChoice, SecRevealEn,
+            LiquidChoice.Define(_cfg, "liquid_analysis", SecRevealEn,
                 Text("config.liquid_analysis", "Liquid Composition Analysis"),
-                new[] { LiquidOffChoice, LiquidScannerChoice, LiquidAlwaysChoice },
                 Text("config.liquid_analysis.tip", "Shows water purity and impurities, and the composition and effects " +
                      "of drugs and chemicals. \"With scanner\" only shows it while you own a water or chemical scanner."));
 
@@ -209,10 +215,8 @@ internal static class ModSettings
                      "and fills the appraisal price with the true value or the best offer, as chosen below. It only " +
                      "fills in the controls and never submits or confirms. Off by default."));
 
-            // 下拉框的选项是纯字符串（ModConfig 不做本地化），沿用本工程既有写法：中英并列。
-            _prefillPrice = _cfg.Define("result_prefill_price", PrefillBestOfferChoice, SecRevealEn,
+            PrefillChoice.Define(_cfg, "result_prefill_price", SecRevealEn,
                 Text("config.result_prefill_source", "Prefilled Price"),
-                new[] { PrefillTrueValueChoice, PrefillBestOfferChoice },
                 Text("config.result_prefill_source.tip",
                      "True value fills the game's real value; best offer fills the top of the perfect range. " +
                      "Same rule the tooltip shows."));
@@ -271,7 +275,7 @@ internal static class ModSettings
     /// </summary>
     private static void MigrateLegacyWaterToggle()
     {
-        if (_cfg == null || _liquidAnalysis == null) return;
+        if (_cfg == null || !LiquidChoice.Defined) return;
         try
         {
             var raw = RawValues();
@@ -288,8 +292,8 @@ internal static class ModSettings
                     return;
                 }
 
-                _liquidAnalysis.Set(on ? LiquidScannerChoice : LiquidOffChoice);
-                Log.Msg($"ModSettings: 旧设置 {key}={stored} → liquid_analysis={_liquidAnalysis.Value}");
+                LiquidChoice.Select((int)(on ? LiquidMode.WithScanner : LiquidMode.Off));
+                Log.Msg($"ModSettings: 旧设置 {key}={stored} → liquid_analysis={LiquidAnalysis}");
                 return;
             }
         }
@@ -485,20 +489,28 @@ internal static class ModSettings
         Always,
     }
 
-    internal static LiquidMode LiquidAnalysis
-    {
-        get
-        {
-            string value = _liquidAnalysis?.Value ?? DefaultLiquidChoice;
-            if (string.Equals(value, LiquidAlwaysChoice, StringComparison.Ordinal)) return LiquidMode.Always;
-            if (string.Equals(value, LiquidOffChoice, StringComparison.Ordinal)) return LiquidMode.Off;
-            return LiquidMode.WithScanner;
-        }
-    }
+    internal static LiquidMode LiquidAnalysis => (LiquidMode)LiquidChoice.Index;
+
+    /// <summary>自检用：当前选项列表里对应档位的那串文字（面板打开过时是当前语言的）。</summary>
+    internal static string LiquidChoiceValue(LiquidMode mode) => LiquidChoice.ValueAt((int)mode);
 
     /// <summary>预填价格用「最优报价」；为 false 时用真实估价。</summary>
-    internal static bool PrefillBestOffer =>
-        !string.Equals(_prefillPrice?.Value, PrefillTrueValueChoice, StringComparison.Ordinal);
+    internal static bool PrefillBestOffer => PrefillChoice.Index == 1;
+
+    /// <summary>设置面板打开前：下拉框选项换成当前语言。由 <see cref="ConfigSectionRefresh"/> 调用。</summary>
+    internal static void LocalizeChoices()
+    {
+        LiquidChoice.Localize();
+        PrefillChoice.Localize();
+    }
+
+    /// <summary>本模组配置写盘前：选项换回固定文字，配置文件里只出现这一套。</summary>
+    internal static void RestoreChoices(ModConfig config)
+    {
+        if (!ReferenceEquals(config, _cfg)) return;
+        LiquidChoice.Restore();
+        PrefillChoice.Restore();
+    }
 
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
     internal static bool DoubleClickScan => DoubleClickScanToggle.Value;
@@ -536,5 +548,99 @@ internal static class ModSettings
 
         /// <summary>迁移旧设置用；不单独保存，由 Init 末尾统一 Save。</summary>
         internal void Set(bool value) => _entry?.Set(value);
+    }
+
+    /// <summary>
+    /// 下拉框。ModConfig 不翻译选项，存进配置文件的就是选项文字本身，而且写入时只认当前选项列表
+    /// （不在列表里的值会被重置成默认值）。所以：
+    ///   · 注册时用固定的中英并列文字，历史配置文件里存的都是这几串；
+    ///   · 面板打开前把选项和当前值一起换成当前语言（<see cref="Localize"/>），
+    ///     写盘前再一起换回固定文字（<see cref="Restore"/>）；
+    ///   · 读值一律按序号，哪套文字在用都一样。面板控件也是按序号读写的，换回之后照常工作。
+    /// Choices 和 ApplyBoxed 是 internal，只能反射；目标都是游戏自己的类型，不需要声明能力。
+    /// </summary>
+    private sealed class Choice
+    {
+        private static MethodInfo? _choicesSetter;
+        private static MethodInfo? _apply;
+
+        private readonly int _default;
+        private readonly string[] _canonical;
+        private readonly Func<string>[] _labels;
+        private ConfigEntry<string>? _entry;
+
+        internal Choice(int defaultIndex, string[] canonical, Func<string>[] labels)
+        {
+            _default = defaultIndex;
+            _canonical = canonical;
+            _labels = labels;
+        }
+
+        internal bool Defined => _entry != null;
+
+        internal void Define(ModConfig cfg, string key, string sectionEn, Func<string> label, Func<string> tip)
+            => _entry = cfg.Define(key, _canonical[_default], sectionEn, label, _canonical, tip);
+
+        internal int Index
+        {
+            get
+            {
+                var entry = _entry;
+                if (entry == null) return _default;
+                string value = entry.Value;
+                int i = entry.Choices != null ? Array.IndexOf(entry.Choices, value) : -1;
+                if (i < 0) i = Array.IndexOf(_canonical, value);
+                return i >= 0 && i < _canonical.Length ? i : _default;
+            }
+        }
+
+        internal string ValueAt(int index)
+        {
+            var choices = _entry?.Choices;
+            return choices != null && index >= 0 && index < choices.Length ? choices[index] : _canonical[index];
+        }
+
+        /// <summary>迁移旧设置用：按序号选中，Set 会顺带保存。</summary>
+        internal void Select(int index) => _entry?.Set(ValueAt(index));
+
+        internal void Localize()
+        {
+            var shown = new string[_labels.Length];
+            for (int i = 0; i < shown.Length; i++)
+            {
+                string text = "";
+                try { text = _labels[i](); } catch { }
+                shown[i] = string.IsNullOrWhiteSpace(text) ? _canonical[i] : text;
+            }
+            // 译文撞车时下拉框无法区分，干脆保持固定文字
+            if (new HashSet<string>(shown, StringComparer.Ordinal).Count != shown.Length) return;
+            Swap(shown);
+        }
+
+        internal void Restore() => Swap(_canonical);
+
+        /// <summary>先换列表再写值：写值时按新列表校验。</summary>
+        private void Swap(string[] choices)
+        {
+            var entry = _entry;
+            if (entry == null || entry.Choices == choices) return;
+            try
+            {
+                int index = Index;
+                _choicesSetter ??= AccessTools.PropertySetter(typeof(ConfigEntry), "Choices");
+                _apply ??= AccessTools.Method(typeof(ConfigEntry), "ApplyBoxed");
+                if (_choicesSetter == null || _apply == null)
+                {
+                    Log.Warn("ModSettings.Choice", "ConfigEntry.Choices/ApplyBoxed 不可用，下拉框保持固定文字");
+                    return;
+                }
+                _choicesSetter.Invoke(entry, new object[] { choices });
+                _apply.Invoke(entry, new object[] { choices[index] });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("ModSettings.Choice", ex);
+            }
+        }
     }
 }

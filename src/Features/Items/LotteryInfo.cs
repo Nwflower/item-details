@@ -49,7 +49,7 @@ internal static class LotteryInfo
             if (string.IsNullOrWhiteSpace(winning))
             {
                 lines.Add(new TooltipLine(
-                    Loc.T("lottery.not_drawn", "Draw {0}: results not out yet (every Saturday morning)", edition),
+                    Loc.T("lottery.not_drawn", "Draw {0}: not drawn yet (Sat. mornings)", edition),
                     RenderHandler.ColorPalette.LightYellow));
                 return lines;
             }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 
 namespace ItemDetails;
@@ -179,6 +180,7 @@ internal static class TooltipPipeline
             // 价格术语本地化：预估价值→售价、基础价值→标价、购买价格→进价
             if (!RewritePriceTerms(ref __0, __instance, __2)) return false;
             if (!RewriteCalorieLine(ref __0, __instance)) return false;
+            RewriteLiquidVolume(ref __0, cur);
 
             // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)
             if (ModuleEffectAnnotation.TryApply(ref __0, __instance, __2, cur)) return false;
@@ -189,6 +191,22 @@ internal static class TooltipPipeline
             return true;
         }
         catch { return true; }
+    }
+
+    /// <summary>原版液体容器行：` " " + F0 + " ml / " + F0 + " ml"`，单位写死 ml、不走本地化。</summary>
+    private static readonly Regex LiquidLine = new(@"^ (\d+) ml / (\d+) ml$", RegexOptions.CultureInvariant);
+
+    /// <summary>容量超过 3 L 的液体容器把那一行改写成 L；单位沿用原版不本地化的写法。</summary>
+    private static void RewriteLiquidVolume(ref string text, GameItem item)
+    {
+        if (!ModSettings.InfoEnhance || !text.EndsWith(" ml", StringComparison.Ordinal)) return;
+        if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return;
+        var m = LiquidLine.Match(text);
+        if (!m.Success
+            || !int.TryParse(m.Groups[1].Value, out int cur)
+            || !int.TryParse(m.Groups[2].Value, out int max)
+            || !Volume.UseLiters(max)) return;
+        text = " " + Volume.Number(cur, true, Loc.Culture) + " L / " + Volume.Number(max, true, Loc.Culture) + " L";
     }
 
     /// <summary>
@@ -384,7 +402,7 @@ internal static class TooltipPipeline
                 {
                     double per = (double)cal / cells;
                     builder.Add(Loc.T("calorie.per_cell", " ({0} {1}/cell)",
-                                      per.ToString("0.#"), core),
+                                      per.ToString("0.#", Loc.Culture), core),
                                 RenderHandler.ColorPalette.Gray);
                 }
             }
@@ -439,8 +457,11 @@ internal static class TooltipPipeline
                 if (diff != 0) width += diffTxt.Length;
             }
 
-            const int MaxWidth = 30;
-            bool splitLines = width > MaxWidth;
+            // 中日韩沿用按显示宽度估的 30（全角算 2）；其余语言原版按字符数在空格处折行，
+            // 直接用它的折行宽度，否则西文价格行会过早拆成两行
+            float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
+            int maxWidth = scale > 1f ? 30 : builder.maxCharWidth;
+            bool splitLines = width > maxWidth;
 
             builder.Add(sellPart, color);
             if (buy != 0)

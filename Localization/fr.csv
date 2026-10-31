@@ -1,18 +1,18 @@
 # Item Details Français (fr)
-auth.amount,Défaut de valeur faciale
-auth.body,Corps endommagé
-auth.box,Défaut de boîte
-auth.chip,Défaut de puce
-auth.color,Défaut de couleur
-auth.indicator,Défaut d'indicateur
-auth.label,Défaut d'étiquette
-auth.lettering,Défaut de typographie
-auth.logo,Défaut de logo
-auth.seal,Défaut du sceau de sécurité
-auth.serial,Défaut de numéro de série
+auth.amount,Valeur
+auth.body,Injecteur
+auth.box,Boîte
+auth.chip,Puce
+auth.color,Couleurs
+auth.indicator,Indicateur
+auth.label,Étiquette
+auth.lettering,Typographie
+auth.logo,Logo
+auth.seal,Sceau de sécurité
+auth.serial,Numéro de série
 # key,value
-alert.aug_kill_reward,Prime d'élimination : {0}
-alert.aug_presence,Menace augmentée : {0}/100
+alert.aug_kill_reward,Prime d'élimination : {0}
+alert.aug_presence,Menace augmentée : {0}/100
 alert.bounty," (prime {0})"
 alert.real_name,Vrai nom : {0}
 alert.title_augmented,Client augmenté
@@ -65,16 +65,16 @@ contraband.markup,Marché noir : +{0}%
 generic.line,Source : {0}
 hidden.chem_purity,Pureté chimique : {0}%
 hidden.durability,Durabilité : {0}/{1}
-hidden.durability_faked,"Vraie durabilité : {0}/{1} (affichée {2}/{3}, probablement trafiquée)"
+hidden.durability_faked,Vraie durabilité : {0}/{1} (affiche {2}/{3})
 hidden.purity,Pureté : {0}
-hidden.purity_faked,"Vraie pureté : {0} (affichée {1}, probablement falsifiée)"
-hidden.purity_level,Pureté : {0}/10
-hidden.purity_level_faked,Pureté réelle : {0}/10 (affiche {1}/10, probablement falsifiée)
+hidden.purity_faked,Pureté réelle : {0} (affiche {1})
+hidden.purity_level,Pureté : {0}/10
+hidden.purity_level_faked,Pureté réelle : {0}/10 (affiche {1}/10)
 hint.double_click,Double-clic pour analyser
 list.sep,", "
 lottery.matched_none,Bons numéros {0}/6 -> aucun gain
 lottery.matched_prize,Bons numéros {0}/6 -> gain {1}
-lottery.not_drawn,Tirage {0} : résultats pas encore connus (chaque samedi matin)
+lottery.not_drawn,Tirage {0} : à venir (samedi matin)
 lottery.winning,Numéros gagnants : {0}
 market.line,Marché : {0}
 module.power,énergie {0}/jour
@@ -89,17 +89,17 @@ reveal.real,Réel : {0} (déguisé en {1})
 reveal.real_with_mod,Réel : {0} {1} (déguisé en {2})
 ribwich.header,Raisons de la contrefaçon :
 ribwich.more,... et {0} de plus
-ribwich.reason_bun_no_pickles,Pain au sésame sans cornichons supplémentaires (l'édition prestige exige les deux)
+ribwich.reason_bun_no_pickles,Pain au sésame sans cornichons en plus
 ribwich.reason_date_missing,Date de production absente
 ribwich.reason_davre_missing,Logo Davre absent
 ribwich.reason_davre_wrong,Logo Davre incorrect
-ribwich.reason_first_sticker,Le 1er cycle ne doit pas avoir d'autocollant Viandwich
+ribwich.reason_first_sticker,1er cycle : sans autocollant Viandwich
 ribwich.reason_month_range,Mois {0} hors de 1-12
-ribwich.reason_pickles_no_bun,Cornichons supplémentaires sans pain au sésame (l'édition prestige exige les deux)
+ribwich.reason_pickles_no_bun,Cornichons en plus sans pain au sésame
 ribwich.reason_plant_missing,Code usine absent
 ribwich.reason_plant_range,Code usine {0} hors de 01-35
-ribwich.reason_second_sticker_missing,Autocollant Viandwich manquant (2e cycle)
-ribwich.reason_second_sticker_wrong,Autocollant Viandwich incorrect (2e cycle)
+ribwich.reason_second_sticker_missing,2e cycle : sans autocollant Viandwich
+ribwich.reason_second_sticker_wrong,2e cycle : mauvais autocollant Viandwich
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
@@ -107,34 +107,34 @@ scratcher.progress_part,", gratté {0}/3"
 scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
 sealed.contents,Contenu: {0}{1}
 sealed.empty,Contenu: vide
-sealed.more," …{0} objets au total"
+sealed.more," …{0} {0|objet|objets} au total"
 sealed.contents_total,Contenu (valeur {0}): {1}{2}
-sealed.summary,"Contenu: {0} types, {1} objets"
-sealed.summary_total,"Contenu (valeur {0}): {1} types, {2} objets"
+sealed.summary,"Contenu : {0} {0|type|types}, {1} {1|objet|objets}"
+sealed.summary_total,"Valeur {0} : {1} {1|type|types}, {2} {2|objet|objets}"
 sealed.count,{0}[{1}]
 seed.line,Traits (non analysés) : {0}
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})
 storage.contains,"Contient : "
-storage.summary,"Contient : {0} types, {1} objets"
-storage.more_kinds," ... {0} types au total"
-storage.ratio,Compression : {0} ({1}/{2} cases)
+storage.summary,"Contient : {0} {0|type|types}, {1} {1|objet|objets}"
+storage.more_kinds," ... {0} {0|type|types} au total"
+storage.ratio,Compression : {0} ({1}/{2} {2|case|cases})
 grid.title,Contenu {0}
 grid.title_sealed,Contenu {0}
 title.appraisal_suffix,"{0} Prix {1}, meilleure offre {2}"
 value.from,"Source : "
 value.cost_perf,Valeur par case : {0}
-value.cost_perf_detail," ({0}/{1} cases)"
+value.cost_perf_detail," ({0}/{1} {1|case|cases})"
 value.perfect_range," | parfait {0}-{1}"
 value.total_line,Total : {0}
-water.actives,"Principes actifs : "
-water.other,"Autres : "
+water.actives,"Principes actifs : "
+water.other,"Autres : "
 water.head,Eau : {0}% {1}
 water.impurities,"Impuretés : "
 water.mismatch," (étiquette incohérente)"
 water.trace,trace (sous le seuil d'affichage)
-water.composition,Composition : 
-chem.effects,Effets : {0}
+water.composition,Composition : 
+chem.effects,Effets : {0}
 chem.lethal,mortel ({0}x la dose létale)
 chem.toxic,toxique
 chem.euphoria_weak,euphorie légère
@@ -143,7 +143,7 @@ chem.euphoria_strong,euphorie forte
 chem.euphoria_extreme,euphorie extrême
 chem.synaprest,anti-addiction
 chem.contraceptive,contraceptif
-wine.aging,Bonus de vieillissement : +{0}/jour (total +{1})
+wine.aging,Bonus de garde : +{0}/jour (total +{1})
 wine.composition,"Composition : extrait {0}‰, polluants {1}‰"
 wine.counterfeit,Contrefaçon : levure illégale
 wine.empty,Vide
@@ -151,15 +151,15 @@ wine.fermenting,En fermentation
 wine.finished,Terminé
 wine.score_part,", score {0}"
 wine.state,Vin : {0}
-wine.preview,Score après fermentation : {0}
+wine.preview,Score après fermentation : {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu ({0})
 wine.yeast_power,Force de la levure : {0}/cycle
-wine.yeast_effect,"Dans le vin : score +{0} (non cumulable), fermente en {1} cycle(s)"
+wine.yeast_effect,"Vin +{0} (sans cumul), fermente en {1} {1|cycle|cycles}"
 wine.yeast_illegal,Le vin sera une contrefaçon
-machine.energy_label,"Consommation : "
+machine.energy_label,"Consommation : "
 machine.energy_unit,/jour
-machine.energy_battery," (reste {0}, pour {1} jours)"
+machine.energy_battery," (reste {0}, pour {1} {1|jour|jours})"
 config.section.display,Affichage
 config.authenticity,Vérification d'authenticité
 config.authenticity.tip,"Distingue l'authentique de la contrefaçon, indique les défauts et les raisons de la contrefaçon, et affiche la qualité de la grappe et les traits non analysés des graines."
@@ -174,11 +174,11 @@ config.info_enhance.tip,"Ajoute des détails propres à chaque objet : effets d
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées
-config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
+config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
 config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms
-config.container_name_bg.tip,"Opacité du fond noir derrière le nom (0–100 %) ; à 0, aucun fond."
+config.container_name_bg.tip,"Opacité du fond noir derrière le nom (0–100 %) ; à 0, aucun fond."
 config.customer_alert,Alerte à l'arrivée d'un client
 config.customer_alert.tip,Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom, ainsi que la prime d'élimination et la menace des clients augmentés.
 config.customer_history,Historique au survol du client
@@ -187,12 +187,15 @@ config.section.interaction,Commandes
 config.double_click_inspect,Double-clic pour analyser
 config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus. L'indication de la loupe devient « Double-clic pour analyser ». Désactivez pour revenir au fonctionnement d'origine."
 config.double_click_scan,Double-clic pour analyser
-config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Sans l'appareil, le double-clic d'origine s'applique."
+config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Sans l'appareil, le double-clic d'origine s'applique."
 config.section.reveal,Révélation
 config.hidden_truth,Révéler déguisements et vraies stats
 config.hidden_truth.tip,"Montre ce que cachent les caractéristiques déguisées, la vraie durabilité et la pureté réelle des lingots et produits chimiques. Démasque les faux et facilite beaucoup l'estimation."
 config.liquid_analysis,Analyse des composants liquides
-config.liquid_analysis.tip,"Affiche la pureté et les impuretés de l'eau, ainsi que la composition et les effets des médicaments et produits chimiques. « With scanner » ne l'affiche que si vous possédez un scanner d'eau ou chimique."
+config.liquid_analysis.tip,"Affiche la pureté et les impuretés de l'eau, ainsi que la composition et les effets des médicaments et produits chimiques. « Avec scanner » ne l'affiche que si vous possédez un scanner d'eau ou chimique."
+config.liquid_analysis.off,Désactivé
+config.liquid_analysis.scanner,Avec scanner
+config.liquid_analysis.always,Toujours
 config.scratcher,Aperçu des tickets à gratter
 config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant, combien il rapporte et où en est le grattage. Lecture seule selon les règles du jeu ; ne gratte jamais à votre place."
 config.sealed_box,Radiographie des conteneurs verrouillés
@@ -200,16 +203,18 @@ config.sealed_box.tip,"Liste le contenu et la valeur totale des conteneurs verro
 config.result_prefill,Préremplir l'analyse
 config.result_prefill.tip,À l'ouverture du panneau d'inspection, coche les vrais défauts de contrefaçon et remplit le prix d'expertise avec la valeur réelle ou la meilleure offre, selon le choix ci-dessous. Ne remplit que les champs, sans jamais valider. Désactivé par défaut.
 config.result_prefill_source,Prix prérempli
-config.result_prefill_source.tip,Valeur réelle = la valeur réelle du jeu ; meilleure offre = le haut de la fourchette parfaite affichée dans l'infobulle.
-machine.eta,Fin dans environ {0} jour(s)
+config.result_prefill_source.tip,Valeur réelle = la valeur réelle du jeu ; meilleure offre = le haut de la fourchette parfaite affichée dans l'infobulle.
+config.result_prefill_source.true,Valeur réelle
+config.result_prefill_source.best,Meilleure offre
+machine.eta,Fin dans environ {0} {0|jour|jours}
 machine.eta_battery," (batterie pour {0} j)"
 machine.eta_battery_short," (batterie insuffisante)"
 machine.eta_water," (eau pour {0} j)"
 machine.paused,En pause : {0}
-hydro.water,"Eau : {0} ml, suffit pour {1} jour(s) ({2} ml/jour)"
+hydro.water,"Eau {0}{3}, pour {1} {1|jour|jours} ({2} ml/jour)"
 fridge.summary,"{0} : {1}, {2} : {3}"
 fridge.no_effect,", {0} sans effet"
-wine.rack,"{0} bouteille(s) en vieillissement, +{1} jour(s) d'âge par jour"
+wine.rack,"{0} {0|bouteille|bouteilles} en cave, +{1} {1|jour|jours}/jour"
 wine.rack_idle,", {0} ne vieillissent pas"
 inner.line,{0} : {1}
 inner.durability,{0} : durabilité {1}/{2}
@@ -217,19 +222,21 @@ inner.faked," (affiche {0})"
 inner.filter_spent," (usé, ne filtre plus)"
 inner.filters,Filtres ×{0} : durabilité minimale {1}/{2}
 inner.spent_count,", {0} usé(s)"
-inner.liquid,{0}/{1} ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,vide
 inner.liquid_purity,", {0}% {1}"
+unit.ml," ml"
+unit.liter," L"
 inner.uses,{0} : utilisations restantes {1}/{2}
-inner.tools,Outils ×{0} : moins d'utilisations restantes {1} ({2}/{3})
+inner.tools,"Outils ×{0}, moins d'usages : {1} ({2}/{3})"
 inner.energy,{0} : énergie {1}/{2}
 learning.progress,Apprentissage : {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} au maximum
-learning.machine,Apprentissage : {0}/{1} module(s) en cours
-learning.bar_left,{0} : encore {1} point(s)
+learning.machine,Apprentissage : {0}/{1} {1|module|modules}
+learning.bar_left,{0} : encore {1} {1|point|points}
 learning.bar_full,au maximum
-module.days_faster,", environ {0} jour(s) plus tôt"
+module.days_faster,", environ {0} {0|jour|jours} plus tôt"
 module.output,{0} ml/jour
 module.attract,{0} % d'attractivité
 module.bargain,{0} % de réussite au marchandage
@@ -238,11 +245,11 @@ module.aging_next,+{0} % pour +1 vitesse de vieillissement
 module.print_quality,qualité d'impression {0}
 module.success,{0} % de chances de réussite
 module.harvest,{0} % de récolte
-module.water_next,+{0} % pour produire : {1}
-module.water_top,produit : {0}
-module.purifier_next,+{0} % pour purifier jusqu'à : {1}
-module.purifier_top,purifie jusqu'à : {0}
+module.water_next,+{0} % pour produire : {1}
+module.water_top,produit : {0}
+module.purifier_next,+{0} % pour purifier jusqu'à : {1}
+module.purifier_top,purifie jusqu'à : {0}
 history.empty,Aucune réplique pour l'instant.
-history.earlier,…{0} répliques précédentes
+history.earlier,…{0} {0|réplique précédente|répliques précédentes}
 history.unknown,Client
 appraisal.minimum_adjustment,Ajustement à la valeur minimale

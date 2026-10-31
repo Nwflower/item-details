@@ -121,16 +121,16 @@ internal static class RibwichReasons
     {
         Reason.ProductionDateMissing => "No production date",
         Reason.MonthOutOfRange => "Month {0} not within 1-12",
-        Reason.YearOutOfRange => "Year {0} not within 425-429 or 432-438",
+        Reason.YearOutOfRange => "Year {0} not in 425-429/432-438",
         Reason.FacilityMissing => "No packing facility number",
         Reason.FacilityOutOfRange => "Facility {0} not within 01-35",
         Reason.DavreMissing => "Davre logo missing",
         Reason.DavreWrong => "Wrong Davre logo",
-        Reason.FirstRunHasSticker => "First run should have no Ribwich sticker",
-        Reason.SecondRunStickerMissing => "Second run is missing its Ribwich sticker",
-        Reason.SecondRunStickerWrong => "Second run has the wrong Ribwich sticker",
-        Reason.BunWithoutPickles => "Sesame bun without extra pickles (Deluxe needs both)",
-        Reason.PicklesWithoutBun => "Extra pickles without sesame bun (Deluxe needs both)",
+        Reason.FirstRunHasSticker => "First run: no Ribwich sticker allowed",
+        Reason.SecondRunStickerMissing => "Second run: Ribwich sticker missing",
+        Reason.SecondRunStickerWrong => "Second run: wrong Ribwich sticker",
+        Reason.BunWithoutPickles => "Sesame bun but no extra pickles",
+        Reason.PicklesWithoutBun => "Extra pickles but no sesame bun",
         _ => "{0}",
     };
 

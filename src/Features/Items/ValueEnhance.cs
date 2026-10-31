@@ -73,7 +73,7 @@ internal static class ValueEnhance
 
         var v = r.Value;
         builder.Add(Loc.T("value.cost_perf", "Value per cell: {0}", v.Value.ToString("0.#")), Color);
-        builder.Add(Loc.T("value.cost_perf_detail", " ({0}/{1} cells)", v.Total, v.Cells),
+        builder.Add(Loc.T("value.cost_perf_detail", " ({0}/{1} {1|cell|cells})", v.Total, v.Cells),
             RenderHandler.ColorPalette.Gray);
         builder.NextLine();
         if (TooltipPipeline.IsBuilding) _writtenBuild = TooltipPipeline.BuildId;

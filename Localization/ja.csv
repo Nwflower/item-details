@@ -1,15 +1,15 @@
 # Item Details 日本語 (ja)
-auth.amount,額面の異常
-auth.body,本体の損傷
-auth.box,箱の異常
-auth.chip,チップの異常
-auth.color,色の異常
-auth.indicator,表示の異常
-auth.label,ラベルの異常
-auth.lettering,文字の異常
-auth.logo,ロゴの異常
-auth.seal,シールの異常
-auth.serial,シリアル番号の異常
+auth.amount,スタンプの価格
+auth.body,本体の問題
+auth.box,箱の問題
+auth.chip,チップ
+auth.color,色の問題
+auth.indicator,表示の問題
+auth.label,ラベルの問題
+auth.lettering,文字の問題
+auth.logo,ロゴの問題
+auth.seal,セキュリティシールの問題
+auth.serial,シリアル番号
 # key,value
 alert.aug_kill_reward,撃破報酬：{0}
 alert.aug_presence,改造体の脅威：{0}/100
@@ -65,11 +65,11 @@ contraband.markup,闇市場：+{0}%
 generic.line,出所：{0}
 hidden.chem_purity,化学純度：{0}%
 hidden.durability,耐久性：{0}/{1}
-hidden.durability_faked,真の耐久性：{0}/{1}（表示は{2}/{3}、改ざんの疑い）
+hidden.durability_faked,実耐久度：{0}/{1}（表示 {2}/{3}）
 hidden.purity,純度：{0}
-hidden.purity_faked,真の純度：{0}（表示は{1}、偽装の疑い）
+hidden.purity_faked,実純度：{0}（表示 {1}）
 hidden.purity_level,純度：{0}/10
-hidden.purity_level_faked,実際の純度：{0}/10（表示は {1}/10、偽装の疑い）
+hidden.purity_level_faked,実純度：{0}/10（表示 {1}/10）
 hint.double_click,ダブルクリックで鑑定
 list.sep,、
 lottery.matched_none,一致 {0}/6 -> はずれ
@@ -89,19 +89,19 @@ reveal.real,真の値：{0}（偽装 {1}）
 reveal.real_with_mod,真の値：{0} {1}（偽装 {2}）
 ribwich.header,偽物の理由：
 ribwich.more,…ほか {0} 件
-ribwich.reason_bun_no_pickles,ゴマのパンなのに追加ピクルスが無い（デラックス版は両方必要）
+ribwich.reason_bun_no_pickles,ゴマのパンなのに追加ピクルス無し
 ribwich.reason_date_missing,製造日の記載が無い
 ribwich.reason_davre_missing,Davre社のロゴが無い
 ribwich.reason_davre_wrong,Davre社のロゴが間違っている
 ribwich.reason_first_sticker,第1次製造分にリブイッチのステッカーは無いはず
 ribwich.reason_month_range,製造月 {0} が 1–12 の範囲外
-ribwich.reason_pickles_no_bun,追加ピクルスがあるのにゴマのパンではない（デラックス版は両方必要）
+ribwich.reason_pickles_no_bun,追加ピクルスなのにゴマのパン無し
 ribwich.reason_plant_missing,包装施設の番号が無い
 ribwich.reason_plant_range,包装施設番号 {0} が 01–35 の範囲外
 ribwich.reason_second_sticker_missing,第2次製造分なのにリブイッチのステッカーが無い
 ribwich.reason_second_sticker_wrong,第2次製造分のリブイッチのステッカーが間違っている
 ribwich.reason_unknown,{0}
-ribwich.reason_year_range,製造年 {0} が 425–429 / 432–438 の範囲外
+ribwich.reason_year_range,製造年 {0} は 425-429/432-438 外
 scratcher.no_prize,スクラッチカード：はずれ
 scratcher.progress_part,、削り済み {0}/3
 scratcher.win,スクラッチカード：当たり {0}（{1}個一致）
@@ -155,7 +155,7 @@ wine.preview,発酵後の点数 {0}
 wine.tier,、第 {0} 段階
 wine.unknown_state,不明（{0}）
 wine.yeast_power,酵母の力：{0}/回
-wine.yeast_effect,果実酒に入れると：点数 +{0}（重複しない）、{1} 回で発酵完了
+wine.yeast_effect,果実酒 +{0}（重複なし）、{1} 回で発酵
 wine.yeast_illegal,偽造品になる
 machine.energy_label,消費電力：
 machine.energy_unit,/日
@@ -192,7 +192,10 @@ config.section.reveal,透視
 config.hidden_truth,偽装と真の値を暴く
 config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。
 config.liquid_analysis,液体成分分析
-config.liquid_analysis.tip,水の純度と不純物、薬品・化学品の成分と効果を表示します。「With scanner」では、水質スキャナーかケミカルスキャナーを持っている間だけ表示します。
+config.liquid_analysis.tip,水の純度と不純物、薬品・化学品の成分と効果を表示します。「スキャナー所持時」では、水質スキャナーかケミカルスキャナーを持っている間だけ表示します。
+config.liquid_analysis.off,オフ
+config.liquid_analysis.scanner,スキャナー所持時
+config.liquid_analysis.always,常に表示
 config.scratcher,スクラッチカードの事前確認
 config.scratcher.tip,削る前に、スクラッチカードの当たり外れ・賞金・削った進み具合を表示します。ゲームと同じルールで読み取るだけで、代わりに削ることはありません。
 config.sealed_box,施錠コンテナ透視
@@ -201,12 +204,14 @@ config.result_prefill,鑑定結果の事前入力
 config.result_prefill.tip,検査パネルを開いたとき、実際の偽造不具合にチェックを入れ、査定価格を下の選択に従って実価値か最高提示額で埋めます。入力のみで、送信や確定はしません。既定はオフ。
 config.result_prefill_source,埋める価格
 config.result_prefill_source.tip,実価値＝ゲームが算出する真の価値、最高提示額＝ツールチップに出る完璧範囲の上限。
+config.result_prefill_source.true,実価値
+config.result_prefill_source.best,最高提示額
 machine.eta,完了まで約 {0} 日
 machine.eta_battery,（電池は {0} 日分）
 machine.eta_battery_short,（電池が足りない）
 machine.eta_water,（水は {0} 日分）
 machine.paused,停止中：{0}
-hydro.water,水：{0}ml、{1} 日分（1日 {2}ml）
+hydro.water,水：{0}{3}、{1} 日分（1日 {2}ml）
 fridge.summary,{0}：{1} 個／{2}：{3} 個
 fridge.no_effect,、効果なし {0} 個
 wine.rack,{0} 本熟成中、1日ごとに {1} 日分熟成
@@ -217,11 +222,13 @@ inner.faked,（表示は {0}）
 inner.filter_spent,（使い切り、ろ過しない）
 inner.filters,ろ過器 ×{0}：最低耐久性 {1}/{2}
 inner.spent_count,、{0} 個使い切り
-inner.liquid,{0}/{1}ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,空
 inner.liquid_purity,、{0}% {1}
+unit.ml,ml
+unit.liter,L
 inner.uses,{0}：残り使用回数 {1}/{2}
-inner.tools,道具 ×{0}：残り使用回数が最少 {1}（{2}/{3}）
+inner.tools,道具 ×{0}：残り最少 {1}（{2}/{3}）
 inner.energy,{0}：エネルギー {1}/{2}
 learning.progress,学習進度：{0}
 learning.stat,{0} {1}/{2}

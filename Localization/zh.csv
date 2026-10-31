@@ -1,15 +1,15 @@
 # Item Details 简体中文 (zh)
-auth.amount,面额异常
-auth.body,瓶体损伤
-auth.box,盒体异常
-auth.chip,芯片异常
-auth.color,颜色异常
-auth.indicator,指示灯异常
-auth.label,标签异常
-auth.lettering,字母印刷异常
-auth.logo,商标异常
-auth.seal,防伪标异常
-auth.serial,序列号异常
+auth.amount,票券面值
+auth.body,瓶体问题
+auth.box,包装盒问题
+auth.chip,芯片
+auth.color,颜色问题
+auth.indicator,指示灯问题
+auth.label,标签问题
+auth.lettering,字母印刷问题
+auth.logo,商标问题
+auth.seal,防伪标问题
+auth.serial,序列号
 # key,value
 alert.aug_kill_reward,击杀奖励：{0}
 alert.aug_presence,改造体威胁：{0}/100
@@ -65,11 +65,11 @@ contraband.markup,黑市溢价：+{0}%
 generic.line,来源：{0}
 hidden.chem_purity,化学纯度：{0}%
 hidden.durability,耐久度：{0}/{1}
-hidden.durability_faked,真实耐久度：{0}/{1}（显示 {2}/{3}，疑似篡改）
+hidden.durability_faked,真实耐久度：{0}/{1}（显示 {2}/{3}）
 hidden.purity,纯度：{0}
-hidden.purity_faked,真实纯度：{0}（显示为 {1}，疑似造假）
+hidden.purity_faked,真实纯度：{0}（显示 {1}）
 hidden.purity_level,纯度：{0}/10
-hidden.purity_level_faked,真实纯度：{0}/10（显示为 {1}/10，疑似造假）
+hidden.purity_level_faked,真实纯度：{0}/10（显示 {1}/10）
 hint.double_click,双击以鉴定
 list.sep,、
 lottery.matched_none,命中 {0}/6 → 未中奖
@@ -89,19 +89,19 @@ reveal.real,真实：{0}（伪装为 {1}）
 reveal.real_with_mod,真实：{0} {1}（伪装为 {2}）
 ribwich.header,赝品原因：
 ribwich.more,…另有 {0} 项
-ribwich.reason_bun_no_pickles,有芝麻面包但没有加量酸黄瓜（豪华版须两者兼备）
+ribwich.reason_bun_no_pickles,有芝麻面包，缺加量酸黄瓜
 ribwich.reason_date_missing,缺少生产日期
 ribwich.reason_davre_missing,缺少达夫雷标志
 ribwich.reason_davre_wrong,达夫雷标志错误
 ribwich.reason_first_sticker,第一生产批次不应带 Ribwich 贴纸
 ribwich.reason_month_range,生产月份 {0} 不在 1–12 之内
-ribwich.reason_pickles_no_bun,有加量酸黄瓜但没有芝麻面包（豪华版须两者兼备）
+ribwich.reason_pickles_no_bun,有加量酸黄瓜，缺芝麻面包
 ribwich.reason_plant_missing,缺少包装工厂编号
 ribwich.reason_plant_range,包装工厂编号 {0} 不在 01–35 之内
 ribwich.reason_second_sticker_missing,第二生产批次缺少 Ribwich 贴纸
 ribwich.reason_second_sticker_wrong,第二生产批次的 Ribwich 贴纸错误
 ribwich.reason_unknown,{0}
-ribwich.reason_year_range,生产年份 {0} 不在 425–429 或 432–438 之内
+ribwich.reason_year_range,年份 {0} 不在 425-429/432-438
 scratcher.no_prize,刮刮乐：不中奖
 scratcher.progress_part,，已刮开 {0}/3
 scratcher.win,刮刮乐：中奖 {0}（{1} 个相同）
@@ -155,7 +155,7 @@ wine.preview,发酵后评分 {0}
 wine.tier,，第 {0} 档
 wine.unknown_state,未知（{0}）
 wine.yeast_power,酵母强度：{0}/次
-wine.yeast_effect,加入果酿：评分 +{0}（多放不叠加），发酵 {1} 次完成
+wine.yeast_effect,果酿评分 +{0}（不叠加），发酵 {1} 次
 wine.yeast_illegal,会酿成赝品
 machine.energy_label,耗能：
 machine.energy_unit,/天
@@ -193,6 +193,9 @@ config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。
 config.liquid_analysis,液体组分分析
 config.liquid_analysis.tip,显示液体的水质纯度与杂质，以及药品和化学品的成分与药效。「有扫描器时开启」只在拥有水质扫描仪或化学扫描仪时显示。
+config.liquid_analysis.off,关闭
+config.liquid_analysis.scanner,有扫描器时开启
+config.liquid_analysis.always,总是开启
 config.scratcher,刮刮乐预知
 config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多少以及已刮进度。按游戏同一套规则只读推算，不会替你刮开。
 config.sealed_box,带锁容器透视
@@ -201,12 +204,14 @@ config.result_prefill,鉴定结果预填
 config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并按下面的选项把鉴定报价填为真实估价或最优报价。只填写控件，不会提交或确认。默认关闭。
 config.result_prefill_source,预填价格
 config.result_prefill_source.tip,真实估价＝游戏算出的真实价值；最优报价＝完美区间上沿，也就是 tooltip 里显示的那个上限。
+config.result_prefill_source.true,真实估价
+config.result_prefill_source.best,最优报价
 machine.eta,预计还需 {0} 天完成
 machine.eta_battery,（电量只够 {0} 天）
 machine.eta_battery_short,（电力不足）
 machine.eta_water,（水只够 {0} 天）
 machine.paused,暂停：{0}
-hydro.water,水量：{0}毫升，够用 {1} 天（每天 {2}毫升）
+hydro.water,水量：{0}{3}，够用 {1} 天（每天 {2}毫升）
 fridge.summary,{0}：{1} 件；{2}：{3} 件
 fridge.no_effect,，{0} 件无效果
 wine.rack,{0} 瓶陈化中，每天陈化 {1} 天
@@ -217,11 +222,13 @@ inner.faked,（标示为 {0}）
 inner.filter_spent,（已耗尽，不再过滤）
 inner.filters,滤水器 ×{0}：最低耐久度 {1}/{2}
 inner.spent_count,，{0} 件已耗尽
-inner.liquid,{0}/{1}毫升
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,已空
 inner.liquid_purity,，{0}% {1}
+unit.ml,毫升
+unit.liter,升
 inner.uses,{0}：剩余使用次数 {1}/{2}
-inner.tools,工具 ×{0}：剩余使用次数最少的是 {1}（{2}/{3}）
+inner.tools,工具 ×{0}：最少剩余 {1}（{2}/{3}）
 inner.energy,{0}：能量 {1}/{2}
 learning.progress,学习进度：{0}
 learning.stat,{0} {1}/{2}

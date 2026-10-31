@@ -263,7 +263,7 @@ public sealed partial class ModEntry
 
             // 水相关百分比统一两位小数；标签行由 LabelImpact 原样输出，此处不重复。
             string head = Loc.T("water.head", "Water: {0}% {1}",
-                purityPct.ToString("0.00"), r.Tier);
+                purityPct.ToString("0.00", Loc.Culture), r.Tier);
 
             var headColor = r.Purity >= WaterInfo.PurityGood ? RenderHandler.ColorPalette.LightGreen
                           : r.Purity >= WaterInfo.PurityFair ? RenderHandler.ColorPalette.LightYellow
@@ -327,7 +327,7 @@ public sealed partial class ModEntry
 
                 if (any) sb.Append(' ');
                 any = true;
-                sb.Append(part.Name).Append(' ').Append(partPct.ToString("0.00")).Append('%');
+                sb.Append(part.Name).Append(' ').Append(partPct.ToString("0.00", Loc.Culture)).Append('%');
             }
             if (!any) sb.Append(Loc.T("water.trace", "trace (below display threshold)"));
 
@@ -401,7 +401,7 @@ public sealed partial class ModEntry
         foreach (var mtd in methods)
         {
             if (wrote) builder.Add("　", RenderHandler.ColorPalette.Gray);
-            builder.Add($"{mtd.Name} +{mtd.GainPct:0.00}%", RenderHandler.ColorPalette.LightTurquoise);
+            builder.Add(mtd.Name + " +" + mtd.GainPct.ToString("0.00", Loc.Culture) + "%", RenderHandler.ColorPalette.LightTurquoise);
             wrote = true;
         }
         builder.NextLine();

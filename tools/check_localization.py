@@ -31,6 +31,8 @@ CALL_PATTERNS = (
 )
 LIT = re.compile(r'\$?"((?:[^"\\]|\\.)*)"')
 # Composite items used by the runtime, including alignment and formats such as {0:D2}.
+# 复数写法 {1|Tag|Tage}：运行时按语言规则换成词（Plural.Pure.cs），编号计入占位符
+PLURAL_ITEM = re.compile(r"\{([0-9]+)\|[^{}]*\}")
 FORMAT_ITEM = re.compile(r"\{([0-9]+) *(?:, *-?[0-9]+ *)?(?::[^{}]*)?\}")
 EXCLUDED_SOURCE_DIRS = {"out", "tools", "tests", "bin", "obj", ".git"}
 
@@ -153,7 +155,7 @@ def placeholder_indexes(text: str) -> set[int]:
         if text.startswith("{{", pos) or text.startswith("}}", pos):
             pos += 2
         elif text[pos] == "{":
-            item = FORMAT_ITEM.match(text, pos)
+            item = PLURAL_ITEM.match(text, pos) or FORMAT_ITEM.match(text, pos)
             if item is None:
                 raise ValueError(f"无效占位符，位置 {pos}: {text[pos:]}")
             indexes.add(int(item.group(1)))
@@ -165,11 +167,38 @@ def placeholder_indexes(text: str) -> set[int]:
     return indexes
 
 
+# 原版折行宽度（RichTextBuilder.Build）：中日韩 40 × 0.66 = 26 字，其余语言 40 字符。
+# 只是提示：多段拼接的行量不到，设置面板（config.*）也不受 tooltip 宽度限制。
+WRAP_LIMITS = {"zh": 26, "ja": 26, "ko": 26}
+DEFAULT_WRAP_LIMIT = 40
+
+
+def sample_text(text: str) -> str:
+    """代入示例数字后的样子：复数取最长的词形，占位符按两位数算。"""
+    text = PLURAL_ITEM.sub(lambda m: max(m.group(0)[1:-1].split("|")[1:], key=len), text)
+    text = FORMAT_ITEM.sub("88", text)
+    return text.replace("{{", "{").replace("}}", "}")
+
+
+def overlong_keys(code: str, rows: dict[str, str], keys: dict[str, str]) -> list[tuple[str, int]]:
+    limit = WRAP_LIMITS.get(code, DEFAULT_WRAP_LIMIT)
+    found = []
+    for key in sorted(set(keys) & set(rows)):
+        if key.startswith("config."):
+            continue
+        length = max((len(line) for line in sample_text(rows[key]).splitlines()), default=0)
+        if length > limit:
+            found.append((key, length))
+    return found
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict-placeholders", action="store_true",
                     help="兼容已有命令；两种模式都要求占位符编号集合一致")
-    ap.parse_args()
+    ap.add_argument("--lengths", action="store_true",
+                    help="逐条列出代入示例数字后超过折行宽度的词条")
+    args = ap.parse_args()
 
     if not LOC_DIR.is_dir():
         print(f"找不到 {LOC_DIR}")
@@ -224,6 +253,15 @@ def main() -> int:
         file_problems += len(missing) + len(orphans)
         if file_problems == 0:
             print(f"[{code}] OK（{len(rows)} 条）")
+
+        long_rows = overlong_keys(code, rows, keys)
+        if long_rows:
+            limit = WRAP_LIMITS.get(code, DEFAULT_WRAP_LIMIT)
+            print(f"[{code}] 提示：{len(long_rows)} 条超过折行宽度 {limit}，会被游戏折成多行"
+                  + ("" if args.lengths else "（--lengths 列出）"))
+            if args.lengths:
+                for key, length in long_rows:
+                    print(f"    {key}: {length}")
         problems += file_problems
 
     return 1 if problems else 0

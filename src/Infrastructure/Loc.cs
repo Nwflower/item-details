@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace ItemDetails;
@@ -87,6 +88,50 @@ internal static class Loc
     /// 当前语言是否为中文。只用于排版差异（宽度估算、分隔符习惯），
     /// 不用于选文案——选文案一律走 <see cref="T"/>。
     /// </summary>
+    /// <summary>
+    /// 游戏自带完整译文的语言（设置里能选的那 8 种）。意、韩、巴葡游戏有词表但基本是空的，
+    /// 想借用原版文案时这三种要回落到本模组词条。
+    /// </summary>
+    internal static bool GameTranslated
+    {
+        get
+        {
+            string lang = BaseLanguage(Code);
+            return lang is "zh" or "en" or "ja" or "ru" or "de" or "fr" or "es" or "pl";
+        }
+    }
+
+    private static readonly Dictionary<string, CultureInfo> Cultures = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// 数字格式跟游戏语言走（德法俄等用小数逗号），而不是跟 Windows 区域设置走：
+    /// 否则中文游戏在德语系统上会出现「98,50%」，同一行里还可能和固定格式的数字混用。
+    /// 建不出对应区域时用 InvariantCulture。
+    /// </summary>
+    internal static CultureInfo Culture
+    {
+        get
+        {
+            string code = Code;
+            if (Cultures.TryGetValue(code, out var cached)) return cached;
+            var culture = CultureInfo.InvariantCulture;
+            string name = code switch
+            {
+                "" or "en" => "",
+                "ptbr" or "pt-br" or "pt_br" => "pt-BR",
+                _ when code.StartsWith("zh", StringComparison.Ordinal) => "zh-CN",
+                _ => code,
+            };
+            if (name.Length > 0)
+            {
+                try { culture = CultureInfo.GetCultureInfo(name); }
+                catch (Exception ex) { Log.Warn("Loc.Culture", ex); }
+            }
+            Cultures[code] = culture;
+            return culture;
+        }
+    }
+
     internal static bool IsChinese
     {
         get
@@ -104,6 +149,7 @@ internal static class Loc
     internal static string T(string key, string english, params object[] args)
     {
         string text = english;
+        string lang = "en";
         try
         {
             string code = Code;
@@ -112,14 +158,27 @@ internal static class Loc
                 var table = Table(code);
                 if (table != null && table.TryGetValue(key, out string? translated)
                     && !string.IsNullOrEmpty(translated))
+                {
                     text = translated;
+                    lang = BaseLanguage(code);
+                }
             }
         }
         catch { }
 
-        if (TryFormat(text, args, out string formatted)) return formatted;
+        // 复数写法 {1|Tag|Tage} 要在 Format 前按各自语言的规则换成词
+        if (TryFormat(Plural.Apply(text, args, lang), args, out string formatted)) return formatted;
+        english = Plural.Apply(english, args, "en");
         if (TryFormat(english, args, out formatted)) return formatted;
         return english;
+    }
+
+    /// <summary>基础语言码：zh-hans → zh，pt-br / ptbr → pt。</summary>
+    private static string BaseLanguage(string code)
+    {
+        if (code.StartsWith("pt", StringComparison.Ordinal)) return "pt";
+        int cut = code.IndexOfAny(new[] { '-', '_' });
+        return cut > 0 ? code.Substring(0, cut) : code;
     }
 
     /// <summary>只取译文、没有兜底文案的场合（极少用：只在兜底已在别处确定时）。</summary>
@@ -151,7 +210,7 @@ internal static class Loc
 
         try
         {
-            result = string.Format(text, args);
+            result = string.Format(Culture, text, args);
             return true;
         }
         catch (FormatException)

@@ -65,16 +65,16 @@ contraband.markup,Mercato nero: +{0}%
 generic.line,Origine: {0}
 hidden.chem_purity,Purezza chimica: {0}%
 hidden.durability,Durabilità: {0}/{1}
-hidden.durability_faked,"Durabilità reale: {0}/{1} (mostra {2}/{3}, probabilmente manomessa)"
+hidden.durability_faked,Durabilità reale: {0}/{1} (mostra {2}/{3})
 hidden.purity,Purezza: {0}
-hidden.purity_faked,"Purezza reale: {0} (mostra {1}, probabilmente falsificata)"
+hidden.purity_faked,Purezza reale: {0} (mostra {1})
 hidden.purity_level,Purezza: {0}/10
-hidden.purity_level_faked,Purezza reale: {0}/10 (mostra {1}/10, probabilmente falsificata)
+hidden.purity_level_faked,Purezza reale: {0}/10 (mostra {1}/10)
 hint.double_click,Doppio clic per ispezionare
 list.sep,", "
 lottery.matched_none,Azzeccati {0}/6 -> nessun premio
 lottery.matched_prize,Azzeccati {0}/6 -> premio {1}
-lottery.not_drawn,Estrazione {0}: risultati non ancora disponibili (ogni sabato mattina)
+lottery.not_drawn,Estrazione {0}: in attesa (sab. mattina)
 lottery.winning,Numeri vincenti: {0}
 market.line,Mercato: {0}
 module.power,{0} energia/giorno
@@ -84,22 +84,22 @@ price.cost_close,)
 price.cost_open," (Costo "
 price.list," Prezzo: {0}"
 price.sell,Vendita: {0}
-reveal.modifier,Modificatore reale: {0}% (mascherato da {1}%)
+reveal.modifier,Modificatore reale: {0}% (mostra {1}%)
 reveal.real,Reale: {0} (mascherato da {1})
 reveal.real_with_mod,Reale: {0} {1} (mascherato da {2})
 ribwich.header,Motivi del falso:
 ribwich.more,... e altri {0}
-ribwich.reason_bun_no_pickles,Pane al sesamo senza cetriolini extra (l'Edizione Deluxe richiede entrambi)
+ribwich.reason_bun_no_pickles,Pane al sesamo senza cetriolini extra
 ribwich.reason_date_missing,Data di produzione assente
 ribwich.reason_davre_missing,Logo Davre assente
 ribwich.reason_davre_wrong,Logo Davre errato
-ribwich.reason_first_sticker,Il primo ciclo non deve avere l'adesivo Ribwich
+ribwich.reason_first_sticker,1° ciclo: niente adesivo Ribwich
 ribwich.reason_month_range,Mese {0} fuori da 1-12
-ribwich.reason_pickles_no_bun,Cetriolini extra senza pane al sesamo (l'Edizione Deluxe richiede entrambi)
+ribwich.reason_pickles_no_bun,Cetriolini extra senza pane al sesamo
 ribwich.reason_plant_missing,Numero di stabilimento assente
 ribwich.reason_plant_range,Stabilimento n. {0} fuori da 01-35
-ribwich.reason_second_sticker_missing,Manca l'adesivo Ribwich del secondo ciclo
-ribwich.reason_second_sticker_wrong,Adesivo Ribwich errato nel secondo ciclo
+ribwich.reason_second_sticker_missing,2° ciclo: manca l'adesivo Ribwich
+ribwich.reason_second_sticker_wrong,2° ciclo: adesivo Ribwich errato
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Anno {0} fuori da 425-429 / 432-438
 scratcher.no_prize,Gratta e vinci: nessun premio
@@ -107,24 +107,24 @@ scratcher.progress_part,", grattato {0}/3"
 scratcher.win,Gratta e vinci: vince {0} ({1} uguali)
 sealed.contents,Contenuto: {0}{1}
 sealed.empty,Contenuto: vuoto
-sealed.more," …{0} oggetti in totale"
+sealed.more," …{0} {0|oggetto|oggetti} in totale"
 sealed.contents_total,Contenuto (valore {0}): {1}{2}
-sealed.summary,"Contenuto: {0} tipi, {1} oggetti"
-sealed.summary_total,"Contenuto (valore {0}): {1} tipi, {2} oggetti"
+sealed.summary,"Contenuto: {0} {0|tipo|tipi}, {1} {1|oggetto|oggetti}"
+sealed.summary_total,"Valore {0}: {1} {1|tipo|tipi}, {2} {2|oggetto|oggetti}"
 sealed.count,{0}[{1}]
 seed.line,Tratti (non analizzati): {0}
 seed.more,... e altri {0}
 seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
-storage.summary,"Contiene: {0} tipi, {1} oggetti"
-storage.more_kinds," ... {0} tipi in totale"
-storage.ratio,Compressione: {0} ({1}/{2} celle)
+storage.summary,"Contiene: {0} {0|tipo|tipi}, {1} {1|oggetto|oggetti}"
+storage.more_kinds," ... {0} {0|tipo|tipi} in totale"
+storage.ratio,Compressione: {0} ({1}/{2} {2|cella|celle})
 grid.title,Contenuto {0}
 grid.title_sealed,Contenuto {0}
 title.appraisal_suffix,"{0} Prezzo {1}, offerta migliore {2}"
 value.from,"Origine: "
 value.cost_perf,Valore per cella: {0}
-value.cost_perf_detail," ({0}/{1} celle)"
+value.cost_perf_detail," ({0}/{1} {1|cella|celle})"
 value.perfect_range," | perfetto {0}-{1}"
 value.total_line,Totale: {0}
 water.actives,"Principi attivi: "
@@ -132,7 +132,7 @@ water.other,"Altri: "
 water.head,Acqua: {0}% {1}
 water.impurities,"Impurità: "
 water.mismatch," (etichetta non corrispondente)"
-water.trace,tracce (sotto la soglia di visualizzazione)
+water.trace,tracce (sotto soglia)
 water.composition,Composizione: 
 chem.effects,Effetti: {0}
 chem.lethal,letale ({0}x dose letale)
@@ -143,8 +143,8 @@ chem.euphoria_strong,euforia forte
 chem.euphoria_extreme,euforia estrema
 chem.synaprest,anti-dipendenza
 chem.contraceptive,contraccettivo
-wine.aging,Bonus di affinamento: +{0}/giorno (totale +{1})
-wine.composition,"Composizione: estratto {0}‰, contaminanti {1}‰"
+wine.aging,Bonus affinamento: +{0}/giorno (tot. +{1})
+wine.composition,"Contenuto: estratto {0}‰, impurità {1}‰"
 wine.counterfeit,Falso: lievito illegale
 wine.empty,Vuoto
 wine.fermenting,In fermentazione
@@ -155,11 +155,11 @@ wine.preview,Punteggio dopo la fermentazione: {0}
 wine.tier,", livello {0}"
 wine.unknown_state,Sconosciuto ({0})
 wine.yeast_power,Potenza del lievito: {0}/ciclo
-wine.yeast_effect,"Nel vino: punteggio +{0} (non cumulabile), fermenta in {1} ciclo/i"
+wine.yeast_effect,"Vino +{0} (non somma), fermenta in {1} {1|ciclo|cicli}"
 wine.yeast_illegal,Il vino sarà un falso
 machine.energy_label,"Consumo: "
 machine.energy_unit,/giorno
-machine.energy_battery," (restano {0}, per {1} giorni)"
+machine.energy_battery," (restano {0}, per {1} {1|giorno|giorni})"
 config.section.display,Visualizzazione
 config.authenticity,Verifica di autenticità
 config.authenticity.tip,"Distingue l'originale dal falso, indica difetti e motivi del falso e mostra la qualità della bacca e i tratti non analizzati dei semi."
@@ -192,7 +192,10 @@ config.section.reveal,Rivelazione
 config.hidden_truth,Rivela travestimenti e valori reali
 config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."
 config.liquid_analysis,Analisi dei componenti liquidi
-config.liquid_analysis.tip,"Mostra la purezza e le impurità dell'acqua, nonché la composizione e gli effetti di medicinali e prodotti chimici. «With scanner» lo mostra solo se possiedi uno scanner dell'acqua o chimico."
+config.liquid_analysis.tip,"Mostra la purezza e le impurità dell'acqua, nonché la composizione e gli effetti di medicinali e prodotti chimici. «Con scanner» lo mostra solo se possiedi uno scanner dell'acqua o chimico."
+config.liquid_analysis.off,Disattivato
+config.liquid_analysis.scanner,Con scanner
+config.liquid_analysis.always,Sempre
 config.scratcher,Anteprima gratta e vinci
 config.scratcher.tip,"Prima di grattare, mostra se un gratta e vinci è vincente, quanto vale e quanto è già stato grattato. Sola lettura con le regole del gioco; non gratta mai al posto tuo."
 config.sealed_box,Raggi X per contenitori chiusi
@@ -201,15 +204,17 @@ config.result_prefill,Precompila esito ispezione
 config.result_prefill.tip,All'apertura del pannello di ispezione spunta i difetti reali di contraffazione e compila il prezzo di perizia con il valore reale o l'offerta migliore, secondo la scelta qui sotto. Compila solo i campi, non invia né conferma. Disattivato per impostazione predefinita.
 config.result_prefill_source,Prezzo precompilato
 config.result_prefill_source.tip,Valore reale = il valore reale del gioco; offerta migliore = il limite superiore dell'intervallo perfetto mostrato nel tooltip.
-machine.eta,Circa {0} giorno/i al completamento
-machine.eta_battery," (batteria per {0})"
+config.result_prefill_source.true,Valore reale
+config.result_prefill_source.best,Offerta migliore
+machine.eta,Circa {0} {0|giorno|giorni} al completamento
+machine.eta_battery," (batteria per {0} {0|giorno|giorni})"
 machine.eta_battery_short," (batteria insufficiente)"
-machine.eta_water," (acqua per {0})"
+machine.eta_water," (acqua per {0} {0|giorno|giorni})"
 machine.paused,In pausa: {0}
-hydro.water,"Acqua: {0} ml, basta per {1} giorno/i ({2} ml al giorno)"
+hydro.water,"Acqua {0}{3}, per {1} {1|giorno|giorni} ({2} ml/giorno)"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", {0} senza effetto"
-wine.rack,"{0} bottiglia/e in invecchiamento, +{1} giorno/i di età al giorno"
+wine.rack,"{0} {0|bottiglia|bottiglie} in cantina, +{1} {1|giorno|giorni}/giorno"
 wine.rack_idle,", {0} non invecchiano"
 inner.line,{0}: {1}
 inner.durability,{0}: durabilità {1}/{2}
@@ -217,19 +222,21 @@ inner.faked," (indicata {0})"
 inner.filter_spent," (esaurito, non filtra più)"
 inner.filters,Filtri ×{0}: durabilità minima {1}/{2}
 inner.spent_count,", {0} esauriti"
-inner.liquid,{0}/{1} ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,vuoto
 inner.liquid_purity,", {0}% {1}"
+unit.ml," ml"
+unit.liter," L"
 inner.uses,{0}: usi rimasti {1}/{2}
-inner.tools,Attrezzi ×{0}: meno usi rimasti {1} ({2}/{3})
+inner.tools,"Attrezzi ×{0}, meno usi: {1} ({2}/{3})"
 inner.energy,{0}: energia {1}/{2}
 learning.progress,Apprendimento: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al massimo
-learning.machine,Apprendimento: {0}/{1} moduli in apprendimento
-learning.bar_left,{0}: mancano {1} punti
+learning.machine,Apprendimento: {0}/{1} {1|modulo|moduli}
+learning.bar_left,{0}: {1|manca|mancano} {1} {1|punto|punti}
 learning.bar_full,al massimo
-module.days_faster,", circa {0} giorno/i prima"
+module.days_faster,", circa {0} {0|giorno|giorni} prima"
 module.output,{0} ml al giorno
 module.attract,{0}% di attrattiva
 module.bargain,{0}% di successo nella trattativa
@@ -243,6 +250,6 @@ module.water_top,produce {0}
 module.purifier_next,+{0}% per purificare fino a {1}
 module.purifier_top,purifica fino a {0}
 history.empty,Ancora nessuna battuta.
-history.earlier,…{0} battute precedenti
+history.earlier,…{0} {0|battuta precedente|battute precedenti}
 history.unknown,Cliente
 appraisal.minimum_adjustment,Adeguamento al valore minimo

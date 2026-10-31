@@ -1,15 +1,15 @@
 # Item Details Deutsch (de)
-auth.amount,Nennwertfehler
-auth.body,Gehäuseschaden
+auth.amount,Markenwert
+auth.body,Materialfehler
 auth.box,Schachtelfehler
-auth.chip,Chipfehler
+auth.chip,Chip
 auth.color,Farbfehler
 auth.indicator,Anzeigefehler
 auth.label,Etikettierungsfehler
 auth.lettering,Beschriftungsfehler
 auth.logo,Logografik-Fehler
-auth.seal,Siegelfehler
-auth.serial,Seriennummerfehler
+auth.seal,Fehlerhaftes Siegel
+auth.serial,Seriennummer
 # key,value
 alert.aug_kill_reward,Abschussprämie: {0}
 alert.aug_presence,Augment-Bedrohung: {0}/100
@@ -65,16 +65,16 @@ contraband.markup,Schwarzmarkt: +{0}%
 generic.line,Quelle: {0}
 hidden.chem_purity,Chemische Reinheit: {0}%
 hidden.durability,Haltbarkeit: {0}/{1}
-hidden.durability_faked,"Echte Haltbarkeit: {0}/{1} (angezeigt {2}/{3}, vermutlich manipuliert)"
+hidden.durability_faked,Echte Haltbarkeit: {0}/{1} (Anzeige {2}/{3})
 hidden.purity,Reinheit: {0}
-hidden.purity_faked,"Echte Reinheit: {0} (angezeigt {1}, vermutlich gefälscht)"
+hidden.purity_faked,Echte Reinheit: {0} (Anzeige {1})
 hidden.purity_level,Reinheit: {0}/10
-hidden.purity_level_faked,Tatsächliche Reinheit: {0}/10 (angezeigt: {1}/10, vermutlich gefälscht)
+hidden.purity_level_faked,Echte Reinheit: {0}/10 (Anzeige {1}/10)
 hint.double_click,Zum Untersuchen doppelklicken
 list.sep,", "
 lottery.matched_none,Treffer {0}/6 -> kein Gewinn
 lottery.matched_prize,Treffer {0}/6 -> Gewinn {1}
-lottery.not_drawn,Ziehung {0}: noch nicht gezogen (jeden Samstagmorgen)
+lottery.not_drawn,Ziehung {0}: noch offen (samstags früh)
 lottery.winning,Gewinnzahlen: {0}
 market.line,Markt: {0}
 module.power,{0} Energie/Tag
@@ -89,17 +89,17 @@ reveal.real,Echt: {0} (getarnt als {1})
 reveal.real_with_mod,Echt: {0} {1} (getarnt als {2})
 ribwich.header,Warum gefälscht:
 ribwich.more,... und {0} weitere
-ribwich.reason_bun_no_pickles,Sesambrötchen ohne Extragürkchen (Deluxe-Version braucht beides)
+ribwich.reason_bun_no_pickles,Sesambrötchen ohne Extragürkchen
 ribwich.reason_date_missing,Kein Produktionsdatum
 ribwich.reason_davre_missing,Davre-Logo fehlt
 ribwich.reason_davre_wrong,Davre-Logo falsch
-ribwich.reason_first_sticker,Erster Produktionslauf darf keinen Ribwich-Aufkleber haben
+ribwich.reason_first_sticker,1. Lauf: kein Ribwich-Aufkleber erlaubt
 ribwich.reason_month_range,Monat {0} nicht zwischen 1 und 12
-ribwich.reason_pickles_no_bun,Extragürkchen ohne Sesambrötchen (Deluxe-Version braucht beides)
+ribwich.reason_pickles_no_bun,Extragürkchen ohne Sesambrötchen
 ribwich.reason_plant_missing,Keine Anlagennummer
-ribwich.reason_plant_range,Anlagennummer {0} nicht zwischen 01 und 35
-ribwich.reason_second_sticker_missing,Zweiter Produktionslauf: Ribwich-Aufkleber fehlt
-ribwich.reason_second_sticker_wrong,Zweiter Produktionslauf: falscher Ribwich-Aufkleber
+ribwich.reason_plant_range,Anlagennummer {0} nicht in 01-35
+ribwich.reason_second_sticker_missing,2. Lauf: Ribwich-Aufkleber fehlt
+ribwich.reason_second_sticker_wrong,2. Lauf: falscher Ribwich-Aufkleber
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Jahr {0} nicht in 425-429 / 432-438
 scratcher.no_prize,Rubbellos: kein Gewinn
@@ -109,22 +109,22 @@ sealed.contents,Inhalt: {0}{1}
 sealed.empty,Inhalt: leer
 sealed.more," …insgesamt {0} Stück"
 sealed.contents_total,Inhalt (Wert {0}): {1}{2}
-sealed.summary,"Inhalt: {0} Sorten, {1} Stück"
-sealed.summary_total,"Inhalt (Wert {0}): {1} Sorten, {2} Stück"
+sealed.summary,"Inhalt: {0} {0|Sorte|Sorten}, {1} Stück"
+sealed.summary_total,"Inhalt (Wert {0}): {1} {1|Sorte|Sorten}, {2} Stück"
 sealed.count,{0}[{1}]
 seed.line,Merkmale (unanalysiert): {0}
 seed.more,... und {0} weitere
 seed.trait_rank,{0} (Rang {1})
 storage.contains,"Enthält: "
-storage.summary,"Enthält: {0} Sorten, {1} Stück"
-storage.more_kinds," ... insgesamt {0} Sorten"
-storage.ratio,Kompressionsrate: {0} ({1}/{2} Felder)
+storage.summary,"Enthält: {0} {0|Sorte|Sorten}, {1} Stück"
+storage.more_kinds," ... insgesamt {0} {0|Sorte|Sorten}"
+storage.ratio,Kompressionsrate: {0} ({1}/{2} {2|Feld|Felder})
 grid.title,Inhalt {0}
 grid.title_sealed,Inhalt {0}
 title.appraisal_suffix,"{0} Preis {1}, bestes Angebot {2}"
 value.from,"Quelle: "
 value.cost_perf,Wert pro Feld: {0}
-value.cost_perf_detail," ({0}/{1} Felder)"
+value.cost_perf_detail," ({0}/{1} {1|Feld|Felder})"
 value.perfect_range," | perfekt {0}-{1}"
 value.total_line,Gesamt: {0}
 water.actives,"Wirkstoffe: "
@@ -144,7 +144,7 @@ chem.euphoria_extreme,extreme Euphorie
 chem.synaprest,gegen Sucht
 chem.contraceptive,verhütend
 wine.aging,Reifebonus: +{0}/Tag (gesamt +{1})
-wine.composition,"Zusammensetzung: Extrakt {0}‰, Schadstoffe {1}‰"
+wine.composition,"Gehalt: Extrakt {0}‰, Schadstoffe {1}‰"
 wine.counterfeit,Fälschung: illegale Hefe
 wine.empty,Leer
 wine.fermenting,Gärt
@@ -155,11 +155,11 @@ wine.preview,Wertung nach der Gärung: {0}
 wine.tier,", Stufe {0}"
 wine.unknown_state,Unbekannt ({0})
 wine.yeast_power,Hefestärke: {0}/Tick
-wine.yeast_effect,"Im Wein: Wertung +{0} (nicht stapelbar), gärt in {1} Tick(s)"
+wine.yeast_effect,"Wein +{0} (einmalig), Gärung: {1} {1|Tick|Ticks}"
 wine.yeast_illegal,Der Wein wird eine Fälschung
 machine.energy_label,"Verbrauch: "
 machine.energy_unit,/Tag
-machine.energy_battery," (Rest {0}, reicht {1} Tage)"
+machine.energy_battery," (Rest {0}, reicht {1} {1|Tag|Tage})"
 config.section.display,Anzeige
 config.authenticity,Echtheitsprüfung
 config.authenticity.tip,"Unterscheidet echt von gefälscht, nennt Mängel und Fälschungsgründe und zeigt Blühbeerenqualität sowie unanalysierte Samenmerkmale."
@@ -192,7 +192,10 @@ config.section.reveal,Einblick
 config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."
 config.liquid_analysis,Flüssigkeitsanalyse
-config.liquid_analysis.tip,"Zeigt Wasserreinheit und Verunreinigungen sowie Zusammensetzung und Wirkung von Medikamenten und Chemikalien. „With scanner“ zeigt dies nur, solange Sie einen Wasser- oder Chemiescanner besitzen."
+config.liquid_analysis.tip,"Zeigt Wasserreinheit und Verunreinigungen sowie Zusammensetzung und Wirkung von Medikamenten und Chemikalien. „Mit Scanner“ zeigt dies nur, solange Sie einen Wasser- oder Chemiescanner besitzen."
+config.liquid_analysis.off,Aus
+config.liquid_analysis.scanner,Mit Scanner
+config.liquid_analysis.always,Immer
 config.scratcher,Rubbellos-Vorschau
 config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewinnt und wie weit es freigerubbelt ist. Nur Auslesen nach den Spielregeln; es wird nie für dich gerubbelt."
 config.sealed_box,Röntgenblick für verschlossene Behälter
@@ -201,15 +204,17 @@ config.result_prefill,Prüfergebnis vorausfüllen
 config.result_prefill.tip,Öffnet das Prüffenster, hakt die tatsächlichen Fälschungsmängel ab und trägt den Prüfpreis ein – echter Wert oder bestes Angebot, wie unten gewählt. Füllt nur die Felder aus, sendet oder bestätigt nichts. Standardmäßig aus.
 config.result_prefill_source,Vorausgefüllter Preis
 config.result_prefill_source.tip,Echter Wert = der reale Wert des Spiels; bestes Angebot = die Obergrenze des perfekten Bereichs aus dem Tooltip.
-machine.eta,Fertig in etwa {0} Tag(en)
-machine.eta_battery," (Batterie reicht {0} Tag(e))"
+config.result_prefill_source.true,Echter Wert
+config.result_prefill_source.best,Bestes Angebot
+machine.eta,Fertig in etwa {0} {0|Tag|Tagen}
+machine.eta_battery," (Batterie reicht {0} {0|Tag|Tage})"
 machine.eta_battery_short," (Batterie reicht nicht)"
-machine.eta_water," (Wasser reicht {0} Tag(e))"
+machine.eta_water," (Wasser reicht {0} {0|Tag|Tage})"
 machine.paused,Pausiert: {0}
-hydro.water,"Wasser: {0} ml, reicht für {1} Tag(e) ({2} ml/Tag)"
+hydro.water,"Wasser {0}{3}, für {1} {1|Tag|Tage} ({2} ml/Tag)"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", {0} ohne Wirkung"
-wine.rack,"{0} Flasche(n) reifen, +{1} Tag(e) Reifung pro Tag"
+wine.rack,"{0} {0|Flasche reift|Flaschen reifen}, +{1} {1|Tag|Tage}/Tag"
 wine.rack_idle,", {0} reifen nicht"
 inner.line,{0}: {1}
 inner.durability,{0}: Haltbarkeit {1}/{2}
@@ -217,19 +222,21 @@ inner.faked," (angezeigt: {0})"
 inner.filter_spent," (verbraucht, filtert nicht mehr)"
 inner.filters,Filter ×{0}: niedrigste Haltbarkeit {1}/{2}
 inner.spent_count,", {0} verbraucht"
-inner.liquid,{0}/{1} ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,Leer
 inner.liquid_purity,", {0}% {1}"
+unit.ml," ml"
+unit.liter," L"
 inner.uses,{0}: verbleibende Anwendungen {1}/{2}
-inner.tools,Werkzeuge ×{0}: wenigste verbleibende Anwendungen {1} ({2}/{3})
+inner.tools,"Werkzeuge ×{0}, am wenigsten: {1} ({2}/{3})"
 inner.energy,{0}: Energie {1}/{2}
 learning.progress,Lernfortschritt: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} ausgelernt
-learning.machine,Lernen: {0}/{1} Modul(e) lernen
-learning.bar_left,{0}: noch {1} Punkt(e)
+learning.machine,Lernen: {0}/{1} {1|Modul|Module}
+learning.bar_left,{0}: noch {1} {1|Punkt|Punkte}
 learning.bar_full,ausgelernt
-module.days_faster,", etwa {0} Tag(e) schneller"
+module.days_faster,", etwa {0} {0|Tag|Tage} schneller"
 module.output,{0} ml/Tag
 module.attract,{0} % Attraktivität
 module.bargain,{0} % Feilscherfolg
@@ -243,6 +250,6 @@ module.water_top,erzeugt {0}
 module.purifier_next,+{0} % zum Reinigen bis {1}
 module.purifier_top,reinigt bis {0}
 history.empty,Noch keine Unterhaltung.
-history.earlier,…{0} frühere Zeilen
+history.earlier,…{0} frühere {0|Zeile|Zeilen}
 history.unknown,Kunde
 appraisal.minimum_adjustment,Mindestwertanpassung

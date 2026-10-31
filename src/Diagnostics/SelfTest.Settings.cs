@@ -36,7 +36,7 @@ internal static partial class SelfTest
                 var liquid = config.Get("liquid_analysis")
                     ?? throw new InvalidOperationException("Missing self-test setting: liquid_analysis");
                 _saved.Add((liquid, liquid.BoxedValue));
-                _apply.Invoke(liquid, new object[] { ModSettings.LiquidAlwaysChoice });
+                _apply.Invoke(liquid, new object[] { ModSettings.LiquidChoiceValue(ModSettings.LiquidMode.Always) });
             }
             catch
             {

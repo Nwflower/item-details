@@ -169,7 +169,7 @@ internal static class CustomerHistory
         int shown = Math.Min(ShowLines, Lines.Count);
         int hidden = Lines.Count - shown;
         if (hidden > 0)
-            sb.Append('\n').Append(Loc.T("history.earlier", "…{0} earlier lines", hidden));
+            sb.Append('\n').Append(Loc.T("history.earlier", "…{0} earlier {0|line|lines}", hidden));
 
         for (int i = Lines.Count - shown; i < Lines.Count; i++)
             sb.Append('\n').Append(Lines[i]);

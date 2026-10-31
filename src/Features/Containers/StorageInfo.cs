@@ -233,8 +233,8 @@ internal static class StorageInfo
 
             double ratio = (double)innerCells / selfCells;
             lines.Add(new TooltipLine(
-                Loc.T("storage.ratio", "Compression: {0} ({1}/{2} cells)",
-                    ratio.ToString("0.0"), innerCells, selfCells),
+                Loc.T("storage.ratio", "Compression: {0} ({1}/{2} {2|cell|cells})",
+                    ratio.ToString("0.0", Loc.Culture), innerCells, selfCells),
                 Color));
         }
         catch (Exception ex) { Log.Warn("StorageInfo.Ratio", ex); }
@@ -261,7 +261,7 @@ internal static class StorageInfo
         {
             int pieces = 0;
             foreach (int count in counts.Values) pieces += count;
-            lines.Add(new TooltipLine(Loc.T("storage.summary", "Contains: {0} kinds, {1} items", order.Count, pieces), Color));
+            lines.Add(new TooltipLine(Loc.T("storage.summary", "Contains: {0} {0|kind|kinds}, {1} {1|item|items}", order.Count, pieces), Color));
             return;
         }
 
@@ -277,7 +277,7 @@ internal static class StorageInfo
             shown++;
         }
         if (order.Count > MaxKinds)
-            sb.Append(Loc.T("storage.more_kinds", " ... {0} kinds in total", order.Count));
+            sb.Append(Loc.T("storage.more_kinds", " ... {0} {0|kind|kinds} in total", order.Count));
 
         lines.Add(new TooltipLine(sb.ToString(), Color));
     }

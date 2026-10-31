@@ -1,15 +1,15 @@
 # Item Details Español (es)
-auth.amount,Fallo del valor nominal
-auth.body,Daño en el cuerpo
-auth.box,Fallo de la caja
-auth.chip,Fallo del microchip
-auth.color,Fallo de color
-auth.indicator,Fallo del indicador
-auth.label,Fallo de etiqueta
-auth.lettering,Fallo de tipografía
-auth.logo,Fallo del logotipo
-auth.seal,Fallo del sello
-auth.serial,Fallo de número de serie
+auth.amount,Valor de la tarjeta
+auth.body,Desperfectos en el objeto
+auth.box,Caja
+auth.chip,Microchip
+auth.color,Colores
+auth.indicator,Estado
+auth.label,Etiqueta
+auth.lettering,Tipografía
+auth.logo,Logotipo
+auth.seal,Sello de Seguridad
+auth.serial,Número de serie
 # key,value
 alert.aug_kill_reward,Recompensa al matar: {0}
 alert.aug_presence,Amenaza de aumentados: {0}/100
@@ -43,10 +43,10 @@ appraisal.ribwich_month_edge,Primer o último mes
 appraisal.ribwich_opened,Abierto o falso (40 fijo)
 appraisal.ribwich_plant_grade_a,Instalación de alta calidad {0:D2}
 appraisal.ribwich_plant_grade_c,Instalación de baja calidad {0:D2}
-appraisal.seal_ignition,Bonificación de Laboratorios Ignición
-appraisal.seal_ll,Bonificación de Expediciones Wild
-appraisal.seal_republic,Bonificación de Requisición Naval de la República
-appraisal.seal_zhonghua,Bonificación de Construcciones Navales ZhongHua
+appraisal.seal_ignition,Bono: Laboratorios Ignición
+appraisal.seal_ll,Bono: Expediciones Wild
+appraisal.seal_republic,Bono: Requisición Naval de la República
+appraisal.seal_zhonghua,Bono: Construcciones Navales ZhongHua
 appraisal.worn,Marcas de uso
 auth.counterfeit,× Falsificación ({0})
 auth.genuine,√ Auténtico
@@ -65,16 +65,16 @@ contraband.markup,Mercado negro: +{0}%
 generic.line,Origen: {0}
 hidden.chem_purity,Pureza química: {0}%
 hidden.durability,Durabilidad: {0}/{1}
-hidden.durability_faked,"Durabilidad real: {0}/{1} (muestra {2}/{3}, probablemente manipulada)"
+hidden.durability_faked,Durabilidad real: {0}/{1} (muestra {2}/{3})
 hidden.purity,Pureza: {0}
-hidden.purity_faked,"Pureza real: {0} (muestra {1}, probablemente falsificada)"
+hidden.purity_faked,Pureza real: {0} (muestra {1})
 hidden.purity_level,Pureza: {0}/10
-hidden.purity_level_faked,Pureza real: {0}/10 (muestra {1}/10, probablemente falsa)
-hint.double_click,Haz doble clic para inspeccionar el objeto.
+hidden.purity_level_faked,Pureza real: {0}/10 (muestra {1}/10)
+hint.double_click,Doble clic para inspeccionar
 list.sep,", "
 lottery.matched_none,Acertados {0}/6 -> sin premio
 lottery.matched_prize,Acertados {0}/6 -> premio {1}
-lottery.not_drawn,Sorteo {0}: aún sin resultados (cada sábado por la mañana)
+lottery.not_drawn,Sorteo {0}: pendiente (sáb. mañana)
 lottery.winning,Números ganadores: {0}
 market.line,Mercado: {0}
 module.power,{0} energía/día
@@ -84,22 +84,22 @@ price.cost_close,)
 price.cost_open," (Coste "
 price.list," Precio: {0}"
 price.sell,Venta: {0}
-reveal.modifier,Modificador real: {0}% (disfrazado como {1}%)
+reveal.modifier,Modificador real: {0}% (muestra {1}%)
 reveal.real,Real: {0} (disfrazado como {1})
 reveal.real_with_mod,Real: {0} {1} (disfrazado como {2})
 ribwich.header,Motivos del falso:
 ribwich.more,... y {0} más
-ribwich.reason_bun_no_pickles,Pan de sésamo sin extra de pepinillos (el Deluxe exige ambos)
+ribwich.reason_bun_no_pickles,Pan de sésamo sin extra de pepinillos
 ribwich.reason_date_missing,Sin fecha de producción
 ribwich.reason_davre_missing,Falta el logotipo de Davre
 ribwich.reason_davre_wrong,Logotipo de Davre incorrecto
-ribwich.reason_first_sticker,El primer lote no debe llevar pegatina de costidillo
+ribwich.reason_first_sticker,1.er lote: sin pegatina de costidillo
 ribwich.reason_month_range,Mes {0} fuera de 1-12
-ribwich.reason_pickles_no_bun,Extra de pepinillos sin pan de sésamo (el Deluxe exige ambos)
+ribwich.reason_pickles_no_bun,Extra de pepinillos sin pan de sésamo
 ribwich.reason_plant_missing,Sin código de instalación
 ribwich.reason_plant_range,Instalación {0} fuera de 01-35
-ribwich.reason_second_sticker_missing,Al segundo lote le falta la pegatina de costidillo
-ribwich.reason_second_sticker_wrong,El segundo lote lleva una pegatina de costidillo incorrecta
+ribwich.reason_second_sticker_missing,2.º lote: falta pegatina de costidillo
+ribwich.reason_second_sticker_wrong,2.º lote: pegatina de costidillo errónea
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Año {0} fuera de 425-429 / 432-438
 scratcher.no_prize,Rasca y Gana: sin premio
@@ -107,24 +107,24 @@ scratcher.progress_part,", rascado {0}/3"
 scratcher.win,Rasca y Gana: gana {0} ({1} coincidencias)
 sealed.contents,Contenido: {0}{1}
 sealed.empty,Contenido: vacío
-sealed.more," …{0} objetos en total"
+sealed.more," …{0} {0|objeto|objetos} en total"
 sealed.contents_total,Contenido (valor {0}): {1}{2}
-sealed.summary,"Contenido: {0} tipos, {1} objetos"
-sealed.summary_total,"Contenido (valor {0}): {1} tipos, {2} objetos"
+sealed.summary,"Contenido: {0} {0|tipo|tipos}, {1} {1|objeto|objetos}"
+sealed.summary_total,"Valor {0}: {1} {1|tipo|tipos}, {2} {2|objeto|objetos}"
 sealed.count,{0}[{1}]
 seed.line,Rasgos (sin analizar): {0}
 seed.more,... y {0} más
 seed.trait_rank,{0} (rango {1})
 storage.contains,"Contiene: "
-storage.summary,"Contiene: {0} tipos, {1} objetos"
-storage.more_kinds," ... {0} tipos en total"
-storage.ratio,Compresión: {0} ({1}/{2} celdas)
+storage.summary,"Contiene: {0} {0|tipo|tipos}, {1} {1|objeto|objetos}"
+storage.more_kinds," ... {0} {0|tipo|tipos} en total"
+storage.ratio,Compresión: {0} ({1}/{2} {2|celda|celdas})
 grid.title,Contenido {0}
 grid.title_sealed,Contenido {0}
 title.appraisal_suffix,"{0} Precio {1}, mejor oferta {2}"
 value.from,"Origen: "
 value.cost_perf,Valor por celda: {0}
-value.cost_perf_detail," ({0}/{1} celdas)"
+value.cost_perf_detail," ({0}/{1} {1|celda|celdas})"
 value.perfect_range," | perfecto {0}-{1}"
 value.total_line,Total: {0}
 water.actives,"Principios activos: "
@@ -144,7 +144,7 @@ chem.euphoria_extreme,euforia extrema
 chem.synaprest,antiadicción
 chem.contraceptive,anticonceptivo
 wine.aging,Bono de crianza: +{0}/día (total +{1})
-wine.composition,"Composición: extracto {0}‰, contaminantes {1}‰"
+wine.composition,"Contenido: extracto {0}‰, impurezas {1}‰"
 wine.counterfeit,Falso: levadura ilegal
 wine.empty,Vacío
 wine.fermenting,Fermentando
@@ -155,11 +155,11 @@ wine.preview,Puntuación tras fermentar: {0}
 wine.tier,", nivel {0}"
 wine.unknown_state,Desconocido ({0})
 wine.yeast_power,Potencia de levadura: {0}/ciclo
-wine.yeast_effect,"En el vino: puntuación +{0} (no se acumula), fermenta en {1} ciclo(s)"
+wine.yeast_effect,"Vino +{0} (no acumula), fermenta {1} {1|ciclo|ciclos}"
 wine.yeast_illegal,El vino será falso
 machine.energy_label,"Consumo: "
 machine.energy_unit,/día
-machine.energy_battery," (quedan {0}, para {1} días)"
+machine.energy_battery," (quedan {0}, para {1} {1|día|días})"
 config.section.display,Visualización
 config.authenticity,Comprobación de autenticidad
 config.authenticity.tip,"Distingue lo auténtico de lo falso, indica los defectos y los motivos del falso, y muestra la calidad de la bayaúva y los rasgos sin analizar de las semillas."
@@ -192,7 +192,10 @@ config.section.reveal,Revelación
 config.hidden_truth,Revelar disfraces y valores reales
 config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."
 config.liquid_analysis,Análisis de componentes líquidos
-config.liquid_analysis.tip,"Muestra la pureza y las impurezas del agua, y la composición y los efectos de medicamentos y productos químicos. «With scanner» solo lo muestra mientras tengas un escáner de agua o químico."
+config.liquid_analysis.tip,"Muestra la pureza y las impurezas del agua, y la composición y los efectos de medicamentos y productos químicos. «Con escáner» solo lo muestra mientras tengas un escáner de agua o químico."
+config.liquid_analysis.off,Desactivado
+config.liquid_analysis.scanner,Con escáner
+config.liquid_analysis.always,Siempre
 config.scratcher,Vista previa de Rasca y Gana
 config.scratcher.tip,"Antes de rascar, muestra si un Rasca y Gana tiene premio, cuánto y cuánto se ha rascado ya. Solo lectura con las reglas del juego; nunca rasca por ti."
 config.sealed_box,Rayos X de contenedores cerrados
@@ -201,15 +204,17 @@ config.result_prefill,Rellenar resultado de inspección
 config.result_prefill.tip,Al abrir el panel de inspección, marca los defectos reales de falsificación y rellena el precio de tasación con el valor real o la mejor oferta, según lo elegido abajo. Solo rellena los controles; nunca envía ni confirma. Desactivado por defecto.
 config.result_prefill_source,Precio rellenado
 config.result_prefill_source.tip,Valor real = el valor real del juego; mejor oferta = el límite superior del rango perfecto que muestra la descripción.
-machine.eta,Faltan unos {0} día(s) para terminar
-machine.eta_battery," (batería para {0})"
+config.result_prefill_source.true,Valor real
+config.result_prefill_source.best,Mejor oferta
+machine.eta,{0|Falta|Faltan} unos {0} {0|día|días} para terminar
+machine.eta_battery," (batería para {0} {0|día|días})"
 machine.eta_battery_short," (batería insuficiente)"
-machine.eta_water," (agua para {0})"
+machine.eta_water," (agua para {0} {0|día|días})"
 machine.paused,En pausa: {0}
-hydro.water,"Agua: {0} ml, alcanza para {1} día(s) ({2} ml al día)"
+hydro.water,"Agua {0}{3}, para {1} {1|día|días} ({2} ml/día)"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", {0} sin efecto"
-wine.rack,"{0} botella(s) envejeciendo, +{1} día(s) de edad por día"
+wine.rack,"{0} {0|botella|botellas} envejeciendo, +{1} {1|día|días}/día"
 wine.rack_idle,", {0} no envejecen"
 inner.line,{0}: {1}
 inner.durability,{0}: durabilidad {1}/{2}
@@ -217,24 +222,26 @@ inner.faked," (indica {0})"
 inner.filter_spent," (agotado, ya no filtra)"
 inner.filters,Filtros ×{0}: durabilidad mínima {1}/{2}
 inner.spent_count,", {0} agotados"
-inner.liquid,{0}/{1} ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,vacío
 inner.liquid_purity,", {0}% {1}"
+unit.ml," ml"
+unit.liter," L"
 inner.uses,{0}: usos restantes {1}/{2}
-inner.tools,Herramientas ×{0}: menos usos restantes {1} ({2}/{3})
+inner.tools,"Herramientas ×{0}, menos usos: {1} ({2}/{3})"
 inner.energy,{0}: energía {1}/{2}
 learning.progress,Aprendizaje: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
-learning.machine,Aprendizaje: {0}/{1} módulo(s) aprendiendo
-learning.bar_left,{0}: faltan {1} punto(s)
+learning.machine,Aprendizaje: {0}/{1} {1|módulo|módulos}
+learning.bar_left,{0}: {1|falta|faltan} {1} {1|punto|puntos}
 learning.bar_full,al máximo
-module.days_faster,", unos {0} día(s) antes"
+module.days_faster,", unos {0} {0|día|días} antes"
 module.output,{0} ml al día
 module.attract,{0}% de atractivo
 module.bargain,{0}% de éxito al regatear
 module.theft,{0}% de prevención de robos
-module.aging_next,+{0}% para +1 de velocidad de envejecimiento
+module.aging_next,+{0}% para +1 vel. de envejecimiento
 module.print_quality,{0} de calidad de impresión
 module.success,{0}% de probabilidad de éxito
 module.harvest,{0}% de cosecha
@@ -243,6 +250,6 @@ module.water_top,produce {0}
 module.purifier_next,+{0}% para purificar hasta {1}
 module.purifier_top,purifica hasta {0}
 history.empty,Todavía no hay diálogo.
-history.earlier,…{0} líneas anteriores
+history.earlier,…{0} {0|línea anterior|líneas anteriores}
 history.unknown,Cliente
 appraisal.minimum_adjustment,Ajuste al valor mínimo

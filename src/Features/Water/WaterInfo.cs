@@ -173,7 +173,11 @@ internal static class WaterInfo
     internal static int ImpurityPermille(Result r)
         => r.TotalParts <= 0 ? 0 : (int)((long)(r.TotalParts - r.WaterParts) * PurityFull / r.TotalParts);
 
-    internal static string Ml(int parts) => (parts / 1000.0).ToString("0.#");
+    internal static string Ml(int parts) => (parts / 1000.0).ToString("0.#", Loc.Culture);
+
+    /// <summary>本模组自己写的体积行的单位；用 ml 还是 L 由调用方按 <see cref="Volume.UseLiters"/> 决定。</summary>
+    internal static string VolumeUnit(bool liters)
+        => liters ? Loc.T("unit.liter", " L") : Loc.T("unit.ml", " ml");
 
     /// <summary>
     /// 精确用量：直接复用游戏扫描仪的格式（≥1 ml 用 mL、&lt;1 ml 用 µl）。
@@ -184,8 +188,8 @@ internal static class WaterInfo
         try { return WaterScannerUIManager.FormatAmount(parts); }
         catch { }
 
-        if (parts >= 1000000) return (parts / 1000000.0).ToString("0.00") + " L";
-        if (parts >= 1000) return (parts / 1000.0).ToString("0.00") + " mL";
+        if (parts >= 1000000) return (parts / 1000000.0).ToString("0.00", Loc.Culture) + " L";
+        if (parts >= 1000) return (parts / 1000.0).ToString("0.00", Loc.Culture) + " mL";
         return parts + " uL";
     }
 

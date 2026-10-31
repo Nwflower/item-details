@@ -174,7 +174,7 @@ internal static class WineInfo
         int power = Math.Max(1, TagInt(item, "WINE_YEAST_POWER_INT"));
         int ticks = (FermentationTotal + power - 1) / power;
         lines.Add(new TooltipLine(
-            Loc.T("wine.yeast_effect", "In wine: score +{0} (does not stack), ferments in {1} tick(s)",
+            Loc.T("wine.yeast_effect", "Wine +{0} (no stacking), ferments in {1} {1|tick|ticks}",
                 YeastScoreBonus, ticks),
             Good));
         if (SafeIsTag(item, "WINE_YEAST_ILLEGAL_TAG"))

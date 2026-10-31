@@ -123,11 +123,10 @@ internal static class ProgressBarStyle
             : RenderAscii(ratio, length, fullLength);
     }
 
-    /// <summary>格数与原版一致：已填 = floor(比例 × 长度)。</summary>
+    /// <summary>格数同原版 floor(比例 × 长度)，只是接近满时按满画（见 <see cref="ProgressFill"/>）。</summary>
     private static string RenderBlocks(float rawRatio, int length, RenderHandler.ColorPalette dark, bool fullLength)
     {
-        float ratio = float.IsFinite(rawRatio) ? Math.Clamp(rawRatio, 0f, 1f) : 0f;
-        int filled = (int)(ratio * length);
+        int filled = ProgressFill.Filled(rawRatio, length);
         int empty = fullLength ? length - filled : 0;
 
         var sb = new StringBuilder(length + 32);
@@ -144,8 +143,7 @@ internal static class ProgressBarStyle
 
     private static string RenderAscii(float rawRatio, int length, bool fullLength)
     {
-        float ratio = float.IsFinite(rawRatio) ? Math.Clamp(rawRatio, 0f, 1f) : 0f;
-        int filled = (int)(ratio * length);
+        int filled = ProgressFill.Filled(rawRatio, length);
         int empty = fullLength ? length - filled : 0;
         var sb = new StringBuilder(length + 2);
         sb.Append('[');

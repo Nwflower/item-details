@@ -203,7 +203,7 @@ internal static class ModuleStatEffects
             {
                 string text = Loc.T("module.speed", "{0} speed", Plus(sp));
                 int faster = DaysFaster(machine, noPerf.Speed ?? 0);
-                if (faster > 0) text += Loc.T("module.days_faster", ", about {0} day(s) faster", faster);
+                if (faster > 0) text += Loc.T("module.days_faster", ", about {0} {0|day|days} faster", faster);
                 perf.Add(text);
             }
             // 交易机、催陈器的性能也会降低耗电

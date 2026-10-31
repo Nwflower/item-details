@@ -347,13 +347,15 @@ internal static class MachineInterior
             }
             else
             {
-                state = Loc.T("inner.liquid", "{0}/{1} ml", cur, max);
+                bool liters = Volume.UseLiters(max);
+                state = Loc.T("inner.liquid", "{0}/{1}{2}",
+                    Volume.Number(cur, liters, Loc.Culture), Volume.Number(max, liters, Loc.Culture), WaterInfo.VolumeUnit(liters));
                 if (purity)
                 {
                     var r = WaterInfo.Analyze(it);
                     if (r.HasData && r.WaterParts > 0)
                         state += Loc.T("inner.liquid_purity", ", {0}% {1}",
-                            (r.Purity / 100.0).ToString("0.00"), r.Tier);
+                            (r.Purity / 100.0).ToString("0.00", Loc.Culture), r.Tier);
                 }
             }
 
@@ -397,7 +399,7 @@ internal static class MachineInterior
             if (t.Cur <= 0) spent++;
             if (t.Cur < fewest.Cur) fewest = t;
         }
-        string text = Loc.T("inner.tools", "Tools ×{0}: fewest uses remaining {1} ({2}/{3})",
+        string text = Loc.T("inner.tools", "Tools ×{0}, fewest uses: {1} ({2}/{3})",
             tools.Count, ContainerItemSignature.DisplayName(fewest.Item), fewest.Cur, fewest.Max);
         if (spent > 0) text += Loc.T("inner.spent_count", ", {0} spent", spent);
         lines.Add(new TooltipLine(text, spent > 0 ? Bad : Level(fewest.Cur, fewest.Max)));
@@ -482,7 +484,7 @@ internal static class MachineInterior
             shown++;
         }
         if (order.Count > MaxKinds)
-            sb.Append(Loc.T("storage.more_kinds", " ... {0} kinds in total", order.Count));
+            sb.Append(Loc.T("storage.more_kinds", " ... {0} {0|kind|kinds} in total", order.Count));
         return sb.ToString();
     }
 

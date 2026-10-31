@@ -219,7 +219,7 @@ internal static class MachineBatteryInfo
                       : RenderHandler.ColorPalette.LightRed;
 
             return new TooltipLine(
-                Loc.T("machine.energy_battery", " ({0} left, lasts {1} days)", energy, days),
+                Loc.T("machine.energy_battery", " ({0} left, lasts {1} {1|day|days})", energy, days),
                 color);
         }
         catch (Exception ex)

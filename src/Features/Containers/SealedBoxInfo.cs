@@ -179,9 +179,9 @@ internal static class SealedBoxInfo
         if (useGrid)
         {
             string summary = sum > 0 || skipped > 0
-                ? Loc.T("sealed.summary_total", "Inside (value {0}): {1} kinds, {2} items",
+                ? Loc.T("sealed.summary_total", "Inside (value {0}): {1} {1|kind|kinds}, {2} {2|item|items}",
                     skipped > 0 ? sum.ToString() + "+" : sum.ToString(), names.Count, pieces)
-                : Loc.T("sealed.summary", "Inside: {0} kinds, {1} items", names.Count, pieces);
+                : Loc.T("sealed.summary", "Inside: {0} {0|kind|kinds}, {1} {1|item|items}", names.Count, pieces);
             lines.Add(new TooltipLine(summary, Color));
             return;
         }
@@ -198,7 +198,7 @@ internal static class SealedBoxInfo
         }
 
         string more = names.Count > shown
-            ? Loc.T("sealed.more", " ... {0} items in total", pieces)
+            ? Loc.T("sealed.more", " ... {0} {0|item|items} in total", pieces)
             : "";
         if (sum > 0 || skipped > 0)
         {

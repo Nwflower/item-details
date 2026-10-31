@@ -78,7 +78,7 @@ internal static class MachineAdapters
         }
 
         int days = (target - cur + speed - 1) / speed;
-        string text = Loc.T("machine.eta", "About {0} more day(s) to finish", days);
+        string text = Loc.T("machine.eta", "About {0} more {0|day|days} to finish", days);
         var color = Good;
 
         int batteryDays = BatteryDays(ctx);
@@ -89,7 +89,7 @@ internal static class MachineAdapters
         }
         if (ctx.WaterDays > 0 && ctx.WaterDays < days)
         {
-            text += Loc.T("machine.eta_water", " (water lasts {0})", ctx.WaterDays);
+            text += Loc.T("machine.eta_water", " (water lasts {0} {0|day|days})", ctx.WaterDays);
             color = Warn;
         }
         lines.Add(new TooltipLine(text, color));
@@ -119,8 +119,10 @@ internal static class MachineAdapters
 
         ctx.WaterDays = days;
         waterPanel.Claimed = true;
+        bool liters = Volume.UseLiters(WaterHelper.GetTotalCapacityML(water));
         lines.Add(new TooltipLine(
-            Loc.T("hydro.water", "Water {0} ml, enough for {1} day(s) ({2} ml/day)", ml, days, perNight),
+            Loc.T("hydro.water", "Water {0}{3}, enough for {1} {1|day|days} ({2} ml/day)",
+                Volume.Number(ml, liters, Loc.Culture), days, perNight, WaterInfo.VolumeUnit(liters)),
             days == 0 ? Bad : days < 3 ? Warn : Info));
     }
 
@@ -194,7 +196,7 @@ internal static class MachineAdapters
         int idle = rack.Items.Count - aging;
         int days = MachineWineRack.GetAgingDays(m);
 
-        string text = Loc.T("wine.rack", "{0} bottle(s) aging, +{1} day(s) of age per day", aging, days);
+        string text = Loc.T("wine.rack", "{0} {0|bottle|bottles} aging, +{1} {1|day|days}/day", aging, days);
         if (idle > 0) text += Loc.T("wine.rack_idle", ", {0} not aging", idle);
         lines.Add(new TooltipLine(text, idle > 0 ? Warn : Info));
 
@@ -256,13 +258,13 @@ internal static class MachineAdapters
 
             learning++;
             bars.Add(new TooltipLine(" ", (float)cur / max, LearningBar,
-                Loc.T("learning.bar_left", "{0}: {1} point(s) to go", ContainerItemSignature.DisplayName(module), remaining),
+                Loc.T("learning.bar_left", "{0}: {1} {1|point|points} to go", ContainerItemSignature.DisplayName(module), remaining),
                 Info, RenderHandler.ColorPalette.VeryDarkCyan));
         }
         if (bars.Count == 0) return;
 
         lines.Add(new TooltipLine(
-            Loc.T("learning.machine", "Learning: {0}/{1} module(s) training", learning, total),
+            Loc.T("learning.machine", "Learning: {0}/{1} {1|module|modules}", learning, total),
             learning == 0 ? Good : Info));
         lines.AddRange(bars);
     }
@@ -299,7 +301,7 @@ internal static class MachineAdapters
     private static string BatteryShort(int batteryDays)
         => ModSettings.MachineBattery
             ? Loc.T("machine.eta_battery_short", " (not enough power)")
-            : Loc.T("machine.eta_battery", " (battery lasts {0})", batteryDays);
+            : Loc.T("machine.eta_battery", " (battery lasts {0} {0|day|days})", batteryDays);
 
     /// <summary>普通电池按当前每天耗能还能撑几天；转换器、超科技电池等返回 -1（不适用）。</summary>
     private static int BatteryDays(MachineInterior.Context ctx)

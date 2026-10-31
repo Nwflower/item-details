@@ -1,15 +1,15 @@
 # Item Details Русский (ru)
-auth.amount,Проблема с номиналом
-auth.body,Повреждён корпус
-auth.box,Проблема с пачкой
-auth.chip,Проблема с чипом
-auth.color,Проблема с цветом
-auth.indicator,Проблема с индикатором
-auth.label,Проблема с маркировкой
-auth.lettering,Проблема с текстом
-auth.logo,Проблема с логотипом
-auth.seal,Проблема с пломбой
-auth.serial,Проблема с серийным номером
+auth.amount,Номиналы карточек
+auth.body,Проблемы с корпусом
+auth.box,Проблемы с упаковкой
+auth.chip,Чип
+auth.color,Проблемы с цветом
+auth.indicator,Показания индикатора
+auth.label,Проблемы с маркировкой
+auth.lettering,Проблемы с текстом
+auth.logo,Проблемы с логотипом
+auth.seal,Проблемы с пломбой
+auth.serial,Серийные номера
 # key,value
 alert.aug_kill_reward,Награда за убийство: {0}
 alert.aug_presence,Угроза аугментации: {0}/100
@@ -65,16 +65,16 @@ contraband.markup,Чёрный рынок: +{0}%
 generic.line,Источник: {0}
 hidden.chem_purity,Химическая чистота: {0}%
 hidden.durability,Прочность: {0}/{1}
-hidden.durability_faked,"Реальная прочность: {0}/{1} (показано {2}/{3}, вероятно, подделано)"
+hidden.durability_faked,Реальная прочность: {0}/{1} (видно {2}/{3})
 hidden.purity,Чистота: {0}
-hidden.purity_faked,"Реальная чистота: {0} (показано {1}, вероятно, подделка)"
+hidden.purity_faked,Реальная чистота: {0} (видно {1})
 hidden.purity_level,Чистота: {0}/10
-hidden.purity_level_faked,Реальная чистота: {0}/10 (отображается {1}/10, вероятно подделка)
-hint.double_click,"Выполните двойной щелчок, чтобы осмотреть"
+hidden.purity_level_faked,Реальная чистота: {0}/10 (видно {1}/10)
+hint.double_click,Двойной щелчок — осмотреть
 list.sep,", "
 lottery.matched_none,Совпало {0}/6 -> без приза
 lottery.matched_prize,Совпало {0}/6 -> приз {1}
-lottery.not_drawn,Тираж {0}: результатов ещё нет (каждую субботу утром)
+lottery.not_drawn,Тираж {0}: ждёт розыгрыша (сб. утром)
 lottery.winning,Выигрышные номера: {0}
 market.line,Рынок: {0}
 module.power,{0} энергии/день
@@ -84,33 +84,33 @@ price.cost_close,)
 price.cost_open," (Закупка "
 price.list," Цена: {0}"
 price.sell,Продажа: {0}
-reveal.modifier,Реальный модификатор: {0}% (выдаётся за {1}%)
+reveal.modifier,Реальный модификатор: {0}% (видно {1}%)
 reveal.real,На самом деле: {0} (выдаётся за {1})
 reveal.real_with_mod,На самом деле: {0} {1} (выдаётся за {2})
 ribwich.header,Почему подделка:
 ribwich.more,... и ещё {0}
-ribwich.reason_bun_no_pickles,"Булочка с кунжутом без доп. огурцов (для Deluxe Edition нужно и то, и другое)"
+ribwich.reason_bun_no_pickles,Булочка с кунжутом без доп. огурцов
 ribwich.reason_date_missing,Нет даты производства
 ribwich.reason_davre_missing,Нет логотипа DAVRE
 ribwich.reason_davre_wrong,Неверный логотип DAVRE
-ribwich.reason_first_sticker,У первой партии не должно быть наклейки RIBWICH
+ribwich.reason_first_sticker,1-я партия: без наклейки RIBWICH
 ribwich.reason_month_range,Месяц {0} вне диапазона 1-12
-ribwich.reason_pickles_no_bun,"Доп. огурцы без булочки с кунжутом (для Deluxe Edition нужно и то, и другое)"
+ribwich.reason_pickles_no_bun,Доп. огурцы без булочки с кунжутом
 ribwich.reason_plant_missing,Нет номера места производства
-ribwich.reason_plant_range,Номер места производства {0} вне диапазона 01-35
-ribwich.reason_second_sticker_missing,У второй партии нет наклейки RIBWICH
-ribwich.reason_second_sticker_wrong,У второй партии неверная наклейка RIBWICH
+ribwich.reason_plant_range,Место производства {0} вне 01-35
+ribwich.reason_second_sticker_missing,2-я партия: нет наклейки RIBWICH
+ribwich.reason_second_sticker_wrong,2-я партия: неверная наклейка RIBWICH
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Год {0} вне диапазонов 425-429 / 432-438
 scratcher.no_prize,Скретч-карта: без выигрыша
 scratcher.progress_part,", стёрто {0}/3"
-scratcher.win,Скретч-карта: выигрыш {0} (совпадений: {1})
+scratcher.win,Скретч-карта: выигрыш {0} ({1} совп.)
 sealed.contents,Внутри: {0}{1}
 sealed.empty,Внутри: пусто
 sealed.more," …всего {0} шт."
 sealed.contents_total,Внутри (стоимость {0}): {1}{2}
 sealed.summary,"Внутри: видов {0}, предметов {1}"
-sealed.summary_total,"Внутри (стоимость {0}): видов {1}, предметов {2}"
+sealed.summary_total,"Стоимость {0}: видов {1}, предметов {2}"
 sealed.count,{0}[{1}]
 seed.line,Признаки (не проанализированы): {0}
 seed.more,... и ещё {0}
@@ -118,13 +118,13 @@ seed.trait_rank,{0} (ранг {1})
 storage.contains,"Содержит: "
 storage.summary,"Содержит: видов {0}, предметов {1}"
 storage.more_kinds," ... всего видов: {0}"
-storage.ratio,Сжатие: {0} ({1}/{2} клеток)
+storage.ratio,Сжатие: {0} ({1}/{2} {2|клетка|клетки|клеток})
 grid.title,Содержимое {0}
 grid.title_sealed,Внутри {0}
 title.appraisal_suffix,"{0} цена {1}, лучшее предложение {2}"
 value.from,"Источник: "
 value.cost_perf,Стоимость за клетку: {0}
-value.cost_perf_detail," ({0}/{1} клеток)"
+value.cost_perf_detail," ({0}/{1} {1|клетка|клетки|клеток})"
 value.perfect_range," | идеально {0}-{1}"
 value.total_line,Итого: {0}
 water.actives,"Активные вещества: "
@@ -155,7 +155,7 @@ wine.preview,Оценка после брожения: {0}
 wine.tier,", уровень {0}"
 wine.unknown_state,Неизвестно ({0})
 wine.yeast_power,Сила дрожжей: {0}/тик
-wine.yeast_effect,"В вине: оценка +{0} (не суммируется), брожение за {1} тик."
+wine.yeast_effect,"Вино +{0} (не сумм.), брожение {1} тик."
 wine.yeast_illegal,Вино станет подделкой
 machine.energy_label,"Расход: "
 machine.energy_unit,/дн.
@@ -192,7 +192,10 @@ config.section.reveal,Раскрытие
 config.hidden_truth,Раскрывать маскировку и реальные параметры
 config.hidden_truth.tip,"Показывает, что скрывается за замаскированными особенностями, реальную прочность и реальную чистоту слитков и химикатов. Сразу выдаёт подделки и сильно упрощает оценку."
 config.liquid_analysis,Анализ состава жидкостей
-config.liquid_analysis.tip,"Показывает чистоту и примеси воды, а также состав и действие лекарств и химикатов. «With scanner» показывает это только при наличии сканера воды или химического сканера."
+config.liquid_analysis.tip,"Показывает чистоту и примеси воды, а также состав и действие лекарств и химикатов. «При наличии сканера» показывает это только при наличии сканера воды или химического сканера."
+config.liquid_analysis.off,Выкл.
+config.liquid_analysis.scanner,При наличии сканера
+config.liquid_analysis.always,Всегда
 config.scratcher,Предпросмотр скретч-карты
 config.scratcher.tip,"До стирания показывает, выиграет ли скретч-карта, сколько и насколько она уже стёрта. Только чтение по правилам игры — карта за вас не стирается."
 config.sealed_box,Просвечивание запертых контейнеров
@@ -201,15 +204,17 @@ config.result_prefill,Предзаполнение результата осмо
 config.result_prefill.tip,При открытии панели осмотра отмечает реальные дефекты подделки и подставляет цену оценки — реальную стоимость или лучшее предложение, как выбрано ниже. Только заполняет поля, ничего не отправляет и не подтверждает. По умолчанию выключено.
 config.result_prefill_source,Подставляемая цена
 config.result_prefill_source.tip,Реальная стоимость = настоящая стоимость по игре; лучшее предложение = верхняя граница идеального диапазона из подсказки.
+config.result_prefill_source.true,Реальная стоимость
+config.result_prefill_source.best,Лучшее предложение
 machine.eta,До завершения примерно {0} дн.
 machine.eta_battery," (батареи хватит на {0} дн.)"
 machine.eta_battery_short," (батареи не хватит)"
 machine.eta_water," (воды хватит на {0} дн.)"
 machine.paused,Пауза: {0}
-hydro.water,"Вода: {0} мл, хватит на {1} дн. ({2} мл в день)"
+hydro.water,"Вода {0}{3}, на {1} дн. ({2} мл/день)"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", без эффекта: {0}"
-wine.rack,"Выдерживается бутылок: {0}, +{1} дн. выдержки в день"
+wine.rack,"Выдерживается бутылок: {0}, +{1} дн./день"
 wine.rack_idle,", не выдерживается: {0}"
 inner.line,{0}: {1}
 inner.durability,{0}: прочность {1}/{2}
@@ -217,16 +222,18 @@ inner.faked," (указано {0})"
 inner.filter_spent," (израсходован, больше не фильтрует)"
 inner.filters,Фильтры ×{0}: минимальная прочность {1}/{2}
 inner.spent_count,", израсходовано: {0}"
-inner.liquid,{0}/{1} мл
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,пусто
 inner.liquid_purity,", {0}% {1}"
+unit.ml," мл"
+unit.liter," л"
 inner.uses,{0}: осталось использований {1}/{2}
-inner.tools,Инструменты ×{0}: меньше всего использований у {1} ({2}/{3})
+inner.tools,"Инструменты ×{0}, минимум: {1} ({2}/{3})"
 inner.energy,{0}: энергия {1}/{2}
 learning.progress,Обучение: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} — максимум
-learning.machine,Обучение: учатся {0}/{1} модулей
+learning.machine,Обучение: {0}/{1} {1|модуль|модуля|модулей}
 learning.bar_left,{0}: осталось {1} ед.
 learning.bar_full,максимум
 module.days_faster,", примерно на {0} дн. быстрее"
@@ -243,6 +250,6 @@ module.water_top,производит: {0}
 module.purifier_next,ещё +{0}% — очистка до: {1}
 module.purifier_top,очистка до: {0}
 history.empty,Разговора ещё не было.
-history.earlier,…ещё {0} реплик
+history.earlier,…ещё {0} {0|реплика|реплики|реплик}
 history.unknown,Клиент
 appraisal.minimum_adjustment,Поправка до минимальной стоимости

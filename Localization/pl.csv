@@ -1,15 +1,15 @@
 # Item Details Polski (pl)
-auth.amount,Problem z nominałem
-auth.body,Uszkodzenie korpusu
-auth.box,Problem z opakowaniem
-auth.chip,Problem z czipem
-auth.color,Problem z kolorem
-auth.indicator,Problem ze wskaźnikiem
-auth.label,Problem z etykietą
-auth.lettering,Problem z tekstem
-auth.logo,Problem z logo
-auth.seal,Problem z plombą
-auth.serial,Problem z numerem seryjnym
+auth.amount,Wartość kartki
+auth.body,Problemy z korpusem
+auth.box,Problemy z pudełkiem
+auth.chip,Czip
+auth.color,Problemy z kolorystyką
+auth.indicator,Problemy ze wskaźnikiem
+auth.label,Problemy z etykietą
+auth.lettering,Problemy z tekstem
+auth.logo,Problemy z logo
+auth.seal,Problemy z plombą
+auth.serial,Numer seryjny
 # key,value
 alert.aug_kill_reward,Nagroda za zabicie: {0}
 alert.aug_presence,Zagrożenie ulepszonych: {0}/100
@@ -65,16 +65,16 @@ contraband.markup,Czarny rynek: +{0}%
 generic.line,Źródło: {0}
 hidden.chem_purity,Czystość chemiczna: {0}%
 hidden.durability,Trwałość: {0}/{1}
-hidden.durability_faked,"Prawdziwa trwałość: {0}/{1} (pokazuje {2}/{3}, prawdopodobnie zmanipulowana)"
+hidden.durability_faked,Prawdziwa trwałość: {0}/{1} (widać {2}/{3})
 hidden.purity,Czystość: {0}
-hidden.purity_faked,"Prawdziwa czystość: {0} (pokazuje {1}, prawdopodobnie fałszywa)"
+hidden.purity_faked,Prawdziwa czystość: {0} (widać {1})
 hidden.purity_level,Czystość: {0}/10
-hidden.purity_level_faked,Rzeczywista czystość: {0}/10 (wyświetla {1}/10, prawdopodobnie sfałszowana)
+hidden.purity_level_faked,Prawdziwa czystość: {0}/10 (widać {1}/10)
 hint.double_click,"Kliknij dwukrotnie, by sprawdzić"
 list.sep,", "
 lottery.matched_none,Trafiono {0}/6 -> brak nagrody
 lottery.matched_prize,Trafiono {0}/6 -> nagroda {1}
-lottery.not_drawn,Losowanie {0}: jeszcze bez wyników (w każdą sobotę rano)
+lottery.not_drawn,Losowanie {0}: oczekuje (soboty rano)
 lottery.winning,Wylosowane liczby: {0}
 market.line,Rynek: {0}
 module.power,{0} energii/dzień
@@ -89,17 +89,17 @@ reveal.real,Prawdziwa cecha: {0} (udaje {1})
 reveal.real_with_mod,Prawdziwa cecha: {0} {1} (udaje {2})
 ribwich.header,Dlaczego podróbka:
 ribwich.more,... i jeszcze {0}
-ribwich.reason_bun_no_pickles,Bułka z sezamem bez dodatkowych ogórków (Edycja Deluxe wymaga obu)
+ribwich.reason_bun_no_pickles,Bułka z sezamem bez dodatkowych ogórków
 ribwich.reason_date_missing,Brak daty produkcji
 ribwich.reason_davre_missing,Brak logo Davre
 ribwich.reason_davre_wrong,Nieprawidłowe logo Davre
-ribwich.reason_first_sticker,Pierwszy cykl nie powinien mieć naklejki żebronapki
+ribwich.reason_first_sticker,1. cykl: bez naklejki żebronapki
 ribwich.reason_month_range,Miesiąc {0} poza 1-12
-ribwich.reason_pickles_no_bun,Dodatkowe ogórki bez bułki z sezamem (Edycja Deluxe wymaga obu)
+ribwich.reason_pickles_no_bun,Dodatkowe ogórki bez bułki z sezamem
 ribwich.reason_plant_missing,Brak numeru zakładu pakowania
 ribwich.reason_plant_range,Nr zakładu {0} poza 01-35
-ribwich.reason_second_sticker_missing,Drugi cykl bez naklejki żebronapki
-ribwich.reason_second_sticker_wrong,Drugi cykl ma nieprawidłową naklejkę żebronapki
+ribwich.reason_second_sticker_missing,2. cykl: brak naklejki żebronapki
+ribwich.reason_second_sticker_wrong,2. cykl: zła naklejka żebronapki
 ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Rok {0} poza 425-429 / 432-438
 scratcher.no_prize,Zdrapka: bez nagrody
@@ -118,13 +118,13 @@ seed.trait_rank,{0} (ranga {1})
 storage.contains,"Zawiera: "
 storage.summary,"Zawiera: {0} rodz., {1} szt."
 storage.more_kinds," ... łącznie rodzajów: {0}"
-storage.ratio,Kompresja: {0} ({1}/{2} kratek)
+storage.ratio,Kompresja: {0} ({1}/{2} {2|kratka|kratki|kratek})
 grid.title,Zawartość {0}
 grid.title_sealed,W środku {0}
 title.appraisal_suffix,"{0} cena {1}, najlepsza oferta {2}"
 value.from,"Źródło: "
 value.cost_perf,Wartość na kratkę: {0}
-value.cost_perf_detail," ({0}/{1} kratek)"
+value.cost_perf_detail," ({0}/{1} {1|kratka|kratki|kratek})"
 value.perfect_range," | idealnie {0}-{1}"
 value.total_line,Razem: {0}
 water.actives,"Substancje czynne: "
@@ -155,11 +155,11 @@ wine.preview,Ocena po fermentacji: {0}
 wine.tier,", próg {0}"
 wine.unknown_state,Nieznany ({0})
 wine.yeast_power,Moc drożdży: {0}/takt
-wine.yeast_effect,"W winie: ocena +{0} (nie sumuje się), fermentacja w {1} takt."
+wine.yeast_effect,"Wino +{0} (nie sumuje), {1} takt. fermentacji"
 wine.yeast_illegal,Wino będzie podróbką
 machine.energy_label,"Zużycie: "
 machine.energy_unit,/dzień
-machine.energy_battery," (zostało {0}, starczy na dni: {1})"
+machine.energy_battery," (zostało {0}, starczy na {1} {1|dzień|dni|dni})"
 config.section.display,Wyświetlanie
 config.authenticity,Sprawdzanie autentyczności
 config.authenticity.tip,"Odróżnia oryginał od podróbki, wymienia wady i powody podróbki, pokazuje jakość KwiatoGody i niezbadane cechy nasion."
@@ -192,7 +192,10 @@ config.section.reveal,Ujawnianie
 config.hidden_truth,Ujawniaj maskowanie i prawdziwe wartości
 config.hidden_truth.tip,"Pokazuje, co kryją zamaskowane cechy, rzeczywistą trwałość oraz rzeczywistą czystość sztabek i chemikaliów. Od razu zdradza podróbki i znacznie ułatwia wycenę."
 config.liquid_analysis,Analiza składu cieczy
-config.liquid_analysis.tip,"Pokazuje czystość i zanieczyszczenia wody oraz skład i działanie leków i chemikaliów. „With scanner” pokazuje to tylko, gdy masz skaner wody lub chemiczny."
+config.liquid_analysis.tip,"Pokazuje czystość i zanieczyszczenia wody oraz skład i działanie leków i chemikaliów. „Ze skanerem” pokazuje to tylko, gdy masz skaner wody lub chemiczny."
+config.liquid_analysis.off,Wyłączone
+config.liquid_analysis.scanner,Ze skanerem
+config.liquid_analysis.always,Zawsze
 config.scratcher,Podgląd zdrapek
 config.scratcher.tip,"Przed zdrapaniem pokazuje, czy zdrapka wygrywa, ile i jak daleko jest już zdrapana. Tylko odczyt według zasad gry; nigdy nie zdrapuje za ciebie."
 config.sealed_box,Prześwietlanie zamkniętych pojemników
@@ -201,15 +204,17 @@ config.result_prefill,Wstępne wypełnianie oględzin
 config.result_prefill.tip,Po otwarciu panelu inspekcji zaznacza rzeczywiste wady podróbki i wypełnia cenę wyceny prawdziwą wartością lub najlepszą ofertą, zgodnie z wyborem poniżej. Wypełnia tylko pola, nigdy nie wysyła ani nie zatwierdza. Domyślnie wyłączone.
 config.result_prefill_source,Wypełniana cena
 config.result_prefill_source.tip,Prawdziwa wartość = rzeczywista wartość z gry; najlepsza oferta = górna granica idealnego przedziału z podpowiedzi.
-machine.eta,Do końca około dni: {0}
-machine.eta_battery," (bateria na dni: {0})"
+config.result_prefill_source.true,Prawdziwa wartość
+config.result_prefill_source.best,Najlepsza oferta
+machine.eta,Do końca około {0} {0|dnia|dni|dni}
+machine.eta_battery," (bateria na {0} {0|dzień|dni|dni})"
 machine.eta_battery_short," (za mało baterii)"
-machine.eta_water," (woda na dni: {0})"
+machine.eta_water," (woda na {0} {0|dzień|dni|dni})"
 machine.paused,Wstrzymano: {0}
-hydro.water,"Woda: {0} ml, wystarczy na dni: {1} ({2} ml/dzień)"
+hydro.water,"Woda {0}{3}, na {1} {1|dzień|dni|dni} ({2} ml/dzień)"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", bez efektu: {0}"
-wine.rack,"Butelki dojrzewające: {0}, +{1} dni wieku dziennie"
+wine.rack,"Butelki dojrzewające: {0}, +{1} {1|dzień|dni|dni}/dzień"
 wine.rack_idle,", niedojrzewające: {0}"
 inner.line,{0}: {1}
 inner.durability,{0}: trwałość {1}/{2}
@@ -217,19 +222,21 @@ inner.faked," (oznaczono {0})"
 inner.filter_spent," (zużyty, już nie filtruje)"
 inner.filters,Filtry ×{0}: najniższa trwałość {1}/{2}
 inner.spent_count,", zużyte: {0}"
-inner.liquid,{0}/{1} ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,pusty
 inner.liquid_purity,", {0}% {1}"
+unit.ml," ml"
+unit.liter," L"
 inner.uses,{0}: pozostałe użycia {1}/{2}
-inner.tools,Narzędzia ×{0}: najmniej pozostałych użyć {1} ({2}/{3})
+inner.tools,"Narzędzia ×{0}, najmniej użyć: {1} ({2}/{3})"
 inner.energy,{0}: energia {1}/{2}
 learning.progress,Postęp nauki: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} maks.
-learning.machine,Nauka: uczy się {0}/{1} modułów
+learning.machine,Nauka: {0}/{1} {1|moduł|moduły|modułów}
 learning.bar_left,{0}: brakuje {1} pkt
 learning.bar_full,maks.
-module.days_faster,", ok. {0} dni szybciej"
+module.days_faster,", ok. {0} {0|dzień|dni|dni} szybciej"
 module.output,{0} ml/dzień
 module.attract,{0}% atrakcyjności
 module.bargain,{0}% skuteczności targowania
@@ -243,6 +250,6 @@ module.water_top,produkuje: {0}
 module.purifier_next,+{0}% do oczyszczania do: {1}
 module.purifier_top,oczyszcza do: {0}
 history.empty,Nie było jeszcze rozmowy.
-history.earlier,…{0} wcześniejszych kwestii
+history.earlier,…{0} {0|wcześniejsza kwestia|wcześniejsze kwestie|wcześniejszych kwestii}
 history.unknown,Klient
 appraisal.minimum_adjustment,Korekta do wartości minimalnej

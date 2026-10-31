@@ -65,16 +65,16 @@ contraband.markup,암시장: +{0}%
 generic.line,출처: {0}
 hidden.chem_purity,화학 순도: {0}%
 hidden.durability,내구도: {0}/{1}
-hidden.durability_faked,"실제 내구도: {0}/{1} (표시 {2}/{3}, 조작 의심)"
+hidden.durability_faked,실제 내구도: {0}/{1} (표시 {2}/{3})
 hidden.purity,순도: {0}
-hidden.purity_faked,"실제 순도: {0} (표시 {1}, 위조 의심)"
+hidden.purity_faked,실제 순도: {0} (표시 {1})
 hidden.purity_level,순도: {0}/10
-hidden.purity_level_faked,실제 순도: {0}/10 (표시 {1}/10, 위조 의심)
+hidden.purity_level_faked,실제 순도: {0}/10 (표시 {1}/10)
 hint.double_click,더블클릭하여 감정
 list.sep,", "
 lottery.matched_none,적중 {0}/6 -> 미당첨
 lottery.matched_prize,적중 {0}/6 -> 상금 {1}
-lottery.not_drawn,제{0}회: 아직 미추첨 (매주 토요일 아침 발표)
+lottery.not_drawn,제{0}회: 미추첨 (매주 토요일 아침)
 lottery.winning,당첨 번호: {0}
 market.line,시장: {0}
 module.power,{0} 전력/일
@@ -89,19 +89,19 @@ reveal.real,실제: {0} (위장 {1})
 reveal.real_with_mod,실제: {0} {1} (위장 {2})
 ribwich.header,위조 사유:
 ribwich.more,…외 {0} 항목
-ribwich.reason_bun_no_pickles,참깨 빵인데 추가 피클 없음 (디럭스 에디션은 둘 다 필요)
+ribwich.reason_bun_no_pickles,참깨 빵인데 추가 피클 없음
 ribwich.reason_date_missing,생산일자 없음
 ribwich.reason_davre_missing,Davre 로고 없음
 ribwich.reason_davre_wrong,Davre 로고가 틀림
-ribwich.reason_first_sticker,1차 생산분에는 Ribwich 스티커가 없어야 함
+ribwich.reason_first_sticker,1차 생산분: Ribwich 스티커 없어야 함
 ribwich.reason_month_range,생산월 {0}이(가) 1–12 범위 밖
-ribwich.reason_pickles_no_bun,추가 피클은 있는데 참깨 빵 아님 (디럭스 에디션은 둘 다 필요)
+ribwich.reason_pickles_no_bun,추가 피클인데 참깨 빵 없음
 ribwich.reason_plant_missing,포장 시설 번호 없음
 ribwich.reason_plant_range,포장 시설 번호 {0}이(가) 01–35 범위 밖
 ribwich.reason_second_sticker_missing,2차 생산분인데 Ribwich 스티커 없음
 ribwich.reason_second_sticker_wrong,2차 생산분의 Ribwich 스티커가 틀림
 ribwich.reason_unknown,{0}
-ribwich.reason_year_range,생산연도 {0}이(가) 425–429 / 432–438 범위 밖
+ribwich.reason_year_range,생산연도 {0}: 425-429/432-438 밖
 scratcher.no_prize,스크래치 복권: 꽝
 scratcher.progress_part,", 긁은 칸 {0}/3"
 scratcher.win,스크래치 복권: 당첨 {0} ({1}개 일치)
@@ -155,7 +155,7 @@ wine.preview,발효 후 점수 {0}
 wine.tier,", {0} 단계"
 wine.unknown_state,알 수 없음 ({0})
 wine.yeast_power,효모 강도: {0}/회
-wine.yeast_effect,"과실주에 넣으면: 점수 +{0}(중복 안 됨), {1}회 만에 발효 완료"
+wine.yeast_effect,"과실주 +{0}(중복 없음), {1}회 발효"
 wine.yeast_illegal,위조품이 됨
 machine.energy_label,"소비 전력: "
 machine.energy_unit,/일
@@ -192,7 +192,10 @@ config.section.reveal,투시
 config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."
 config.liquid_analysis,액체 성분 분석
-config.liquid_analysis.tip,"물의 순도와 불순물, 약품 및 화학 물질의 성분과 효과를 표시합니다. 'With scanner'는 수질 스캐너나 화학 스캐너를 보유한 동안에만 표시합니다."
+config.liquid_analysis.tip,"물의 순도와 불순물, 약품 및 화학 물질의 성분과 효과를 표시합니다. '스캐너 보유 시'는 수질 스캐너나 화학 스캐너를 보유한 동안에만 표시합니다."
+config.liquid_analysis.off,끄기
+config.liquid_analysis.scanner,스캐너 보유 시
+config.liquid_analysis.always,항상
 config.scratcher,스크래치 복권 미리보기
 config.scratcher.tip,"긁기 전에 스크래치 복권의 당첨 여부, 당첨금, 긁은 진행도를 표시합니다. 게임과 같은 규칙으로 읽기만 하며 대신 긁지 않습니다."
 config.sealed_box,잠긴 컨테이너 투시
@@ -201,12 +204,14 @@ config.result_prefill,감정 결과 미리 채우기
 config.result_prefill.tip,검사 패널을 열면 실제 위조 결함을 체크하고, 아래 선택에 따라 감정 가격을 실제 가치나 최적 제안가로 채웁니다. 입력만 하며 제출이나 확인은 하지 않습니다. 기본값은 꺼짐.
 config.result_prefill_source,채울 가격
 config.result_prefill_source.tip,실제 가치 = 게임이 계산한 진짜 가치, 최적 제안가 = 툴팁에 표시되는 완벽 범위의 상한.
+config.result_prefill_source.true,실제 가치
+config.result_prefill_source.best,최적 제안가
 machine.eta,완료까지 약 {0}일
 machine.eta_battery," (배터리 {0}일분)"
 machine.eta_battery_short," (배터리 부족)"
 machine.eta_water," (물 {0}일분)"
 machine.paused,일시 정지: {0}
-hydro.water,"물: {0}ml, {1}일분 (하루 {2}ml)"
+hydro.water,"물: {0}{3}, {1}일분 (하루 {2}ml)"
 fridge.summary,{0}: {1}개; {2}: {3}개
 fridge.no_effect,", 효과 없음 {0}개"
 wine.rack,"{0}병 숙성 중, 하루에 {1}일씩 숙성"
@@ -217,11 +222,13 @@ inner.faked," (표시 {0})"
 inner.filter_spent," (소진됨, 더 이상 거르지 않음)"
 inner.filters,필터 ×{0}: 최저 내구도 {1}/{2}
 inner.spent_count,", {0}개 소진"
-inner.liquid,{0}/{1}ml
+inner.liquid,{0}/{1}{2}
 inner.liquid_empty,비어 있음
 inner.liquid_purity,", {0}% {1}"
+unit.ml,ml
+unit.liter,L
 inner.uses,{0}: 남은 사용 횟수 {1}/{2}
-inner.tools,도구 ×{0}: 남은 사용 횟수 최소 {1} ({2}/{3})
+inner.tools,도구 ×{0}: 최소 잔여 {1} ({2}/{3})
 inner.energy,{0}: 에너지 {1}/{2}
 learning.progress,학습 진행: {0}
 learning.stat,{0} {1}/{2}
