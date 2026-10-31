@@ -43,7 +43,7 @@ internal static class MachineAdapters
         if (ById.TryGetValue(id, out var adapter)) adapter(ctx, lines);
 
         Progress(ctx, lines);
-        Learning(ctx, lines);
+        Learning(ctx, lines, id);
     }
 
     // ---------------- 进度型机器：还需几天 ----------------
@@ -207,13 +207,28 @@ internal static class MachineAdapters
     /// <summary>学习进度条格数：比原版的 10 格短，给条后的模组名留位置。</summary>
     private const int LearningBar = 6;
 
+    /// <summary>已学满的条：紫色。</summary>
+    private const RenderHandler.ColorPalette Maxed = RenderHandler.ColorPalette.LightPurple;
+
+    /// <summary>Pen 的自学习强化机（工坊 3828925546，v1.0.5 的 identifier）。</summary>
+    private const string PenLearningMachine = "Pen_mod_selflearning.machine";
+
+    /// <summary>更早版本用的 identifier；Pen 读档时会自己迁移到上面那个，这里两个都认。</summary>
+    private const string PenLearningMachineLegacy = "pen_selflearning.machine";
+
+    private static bool IsPenLearningMachine(string id)
+        => string.Equals(id, PenLearningMachine, StringComparison.Ordinal)
+        || string.Equals(id, PenLearningMachineLegacy, StringComparison.Ordinal);
+
     /// <summary>
     /// 模块舱里有「自学习算法」模块时：「1/3 个模组学习中」（分母是全部模组），
-    /// 下面每个会学习的模组一条进度条（上限只读标签，见 <see cref="ModuleLearning"/>）；不会学习的模组不画。
-    /// 进度 = 各项加成之和 / 各项上限之和；在学的条后写模组名和最多还差几点，学满写已学满。
+    /// 在学中的每个模组一条进度条（上限只读标签，见 <see cref="ModuleLearning"/>）；不会学习的模组不画。
+    /// 进度 = 各项加成之和 / 各项上限之和；在学的条后写模组名和最多还差几点。
+    /// 已学满的条只在 Pen 的自学习强化机上显示（紫色）：只有那台机器会把模块练到上限，
+    /// 其它机器上显示“已学满”既没有信息量，也白占版面。
     /// 哪天运转以及每晚推进几次取决于具体机器；没有显式规则时不折算天数。
     /// </summary>
-    private static void Learning(MachineInterior.Context ctx, List<TooltipLine> lines)
+    private static void Learning(MachineInterior.Context ctx, List<TooltipLine> lines, string machineId)
     {
         var bars = new List<TooltipLine>();
         int learning = 0, total = 0;
@@ -233,8 +248,9 @@ internal static class MachineAdapters
             }
             if (remaining == 0)
             {
+                if (!IsPenLearningMachine(machineId)) continue;
                 bars.Add(new TooltipLine(" ", 1f, LearningBar, Loc.T("learning.bar_full", "Maxed"),
-                    Good, RenderHandler.ColorPalette.VeryDarkGreen));
+                    Maxed, RenderHandler.ColorPalette.DarkPurple));
                 continue;
             }
 
