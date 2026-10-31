@@ -411,13 +411,17 @@ public sealed partial class ModEntry
         return lines.Count > 0;
     }
 
-    /// <summary>与原版护甲行同样的写法：前缀 → AddProgressBar → AddLine(后缀)。</summary>
+    /// <summary>
+    /// 输出进度条行：前缀 → 条文本 → 后缀。
+    /// 不调用原版 AddProgressBar()，避免该方法添加的 noBreak 标记改变整个 tooltip 在 CJK 下的换行宽度。
+    /// </summary>
     private static void AddBarLine(RichTextBuilder builder, TooltipLine ln)
     {
         try
         {
             if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
-            builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, null, " ");
+            string bar = ProgressBarStyle.Format(ln.Bar, ln.BarLength, ln.BarDark, fullLength: true);
+            builder.Add(bar, ln.Color, end: " ");
             AddLine(builder, ln.Tail ?? "", ln.Color);
         }
         catch (Exception ex)
