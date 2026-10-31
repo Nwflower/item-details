@@ -5,7 +5,9 @@
   1. 源码里用到的每个键，在每份 Localization/*.csv 里都必须有译文；
   2. CSV 里不能有源码中已不存在的键（改键名/删功能后留下的孤儿词条）；
   3. 译文的占位符集合必须与英文兜底一致（`{0}` `{1}` … 不能多、不能少、不能改编号）；
-  4. 同一份 CSV 内键不能重复，值不能为空。
+  4. 同一份 CSV 内键不能重复，值不能为空；
+  5. 译文不能用游戏字体（NotoSansSC）不覆盖的装饰符号与 emoji——TMP 找不到字形会
+     替换成 □，并且每重建一次文本就往 Player.log 写一条警告（实测 U+2714/U+2718）。
 
 用法（在 Mod 仓库根目录）：
     python tools/check_localization.py
@@ -30,7 +32,7 @@ CALL_PATTERNS = (
 LIT = re.compile(r'\$?"((?:[^"\\]|\\.)*)"')
 # Composite items used by the runtime, including alignment and formats such as {0:D2}.
 FORMAT_ITEM = re.compile(r"\{([0-9]+) *(?:, *-?[0-9]+ *)?(?::[^{}]*)?\}")
-EXCLUDED_SOURCE_DIRS = {"out", "tools", "bin", "obj", ".git"}
+EXCLUDED_SOURCE_DIRS = {"out", "tools", "tests", "bin", "obj", ".git"}
 
 # 间接引用的键：常量传给 RefreshSections 的循环变量，字面量不出现在 Loc.T(...) 里。
 # 少了它们，设置面板的分组标题在非英语下仍是英文，而校验器还会说「齐全」。
@@ -61,7 +63,7 @@ def source_keys() -> dict[str, str]:
 
 
 def pure_keys(text: str) -> dict[str, str]:
-    """纯逻辑层（Pure/*.cs）里以数据形式出现的键。
+    """纯逻辑层（src/Domain/*.cs）里以数据形式出现的键。
 
     这些键不经过 Loc.T 调用点：
       - ValueFormula.Pure.cs：`new("appraisal.xxx", "English {0}", amount, ...)`
@@ -133,6 +135,16 @@ def parse_csv(path: Path) -> tuple[dict[str, str], int]:
     return rows, problems + len(dupes)
 
 
+# 游戏 UI 字体 NotoSansSC 不覆盖装饰符号（Dingbats）与 emoji 区：
+# TMP 找不到字形时替换成 □，并在每次文本重建时写一条警告，容易刷屏。
+UNSUPPORTED_GLYPH_RANGES = ((0x2700, 0x27BF), (0x1F300, 0x1FAFF))
+
+
+def unsupported_glyphs(text: str) -> set[str]:
+    """返回游戏字体大概率没有字形的字符。"""
+    return {ch for ch in text if any(lo <= ord(ch) <= hi for lo, hi in UNSUPPORTED_GLYPH_RANGES)}
+
+
 def placeholder_indexes(text: str) -> set[int]:
     """Read composite argument indexes, ignoring escaped literal braces."""
     indexes: set[int] = set()
@@ -201,6 +213,12 @@ def main() -> int:
                 continue
             if want != got:
                 print(f"[{code}] 占位符不一致：{key} 期望 {sorted(want)} 实际 {sorted(got)}")
+                file_problems += 1
+
+            bad = unsupported_glyphs(rows[key])
+            if bad:
+                shown = " ".join(f"U+{ord(ch):04X}({ch})" for ch in sorted(bad))
+                print(f"[{code}] 字体不支持的符号：{key} → {shown}，会显示成 □ 并刷日志")
                 file_problems += 1
 
         file_problems += len(missing) + len(orphans)

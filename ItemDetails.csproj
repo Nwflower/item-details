@@ -63,10 +63,19 @@
       <HintPath>$(ManagedDir)\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- 延迟 Harmony 装配用 InitializationOperation.IsDone 判断本地化是否就绪 -->
+    <Reference Include="Unity.Localization">
+      <HintPath>$(ManagedDir)\Unity.Localization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>$(ManagedDir)\Unity.ResourceManager.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="tools\**\*.cs;out\**\*.cs;obj\**\*.cs;bin\**\*.cs" />
+    <Compile Remove="tools\**\*.cs;tests\**\*.cs;out\**\*.cs;obj\**\*.cs;bin\**\*.cs" />
     <None Update="manifest.xml;Textures\**\*;Sounds\**\*;Localization\**\*;LootTables\**\*;Books\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

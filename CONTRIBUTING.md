@@ -55,7 +55,7 @@ pwsh -NoProfile -File scripts/test.ps1 -GameDir "<游戏目录>"
 ```
 
 带游戏目录的检查会编译自检构建；游戏内用例仍需按下文启动参数运行。
-单个回归检查保留在 `tools/` 中，可按需单独运行。
+单个回归检查保留在 `tests/` 中，可按需单独运行。
 
 ## 游戏内自检
 
@@ -138,9 +138,16 @@ GitHub 托管 runner 没有游戏程序集，因此完整模组编译、原生�
 
 ## 目录
 
-- 原有功能目录与 `Pure/`：模组代码与共享公式。
-- `scripts/`：构建、打包和检查入口。
-- `tools/`：校验器及各项回归检查。
+- `src/Bootstrap/`：`IMod` 入口、生命周期与功能注册。
+- `src/Features/`：按业务领域划分的玩家功能；功能自己的 Harmony 补丁随功能放置。
+- `src/Domain/`：不依赖 Unity 的纯业务公式，供离线测试直接编译。
+- `src/Presentation/`：tooltip 管线、共享行模型、通用行改写与 UI 控件。
+- `src/Infrastructure/`：设置、本地化、日志、游戏读取、缓存与跨功能补丁。
+- `src/Compatibility/Vanilla/`：原版问题修复；这些不是模组业务功能，不放进对应 `Features/`。
+- `src/Compatibility/ThirdParty/`：第三方模组兼容；公开接入契约位于 `src/Api/`。
+- `src/Diagnostics/`：条件编译进 Diag/SelfTest 构建的诊断与游戏内自检。
+- `tests/`：离线公式测试、校验器回归和构建/包级检查。
+- `scripts/`：构建、打包和检查入口；`tools/` 只保留校验器等开发工具。
 - `bin/<Variant>/netstandard2.1/`：各构建的 DLL 与资源；`obj/` 为编译中间文件。
 - `dist/`：安装用 Release ZIP。生成目录不提交到 Git。
 - `Localization/`、`Textures/`、`Sounds/`、`LootTables/`、`Books/`：官方加载方式使用的资源目录；空目录的占位文件仅保留在源码中。
@@ -148,5 +155,5 @@ GitHub 托管 runner 没有游戏程序集，因此完整模组编译、原生�
 ## 写代码时
 
 - 所有玩家可见的文字都经过 `Loc.T("key", "English text", args)`，英文写在调用处，再到各语言 CSV 补译文。
-- 定价公式和赝品规则放在 `Pure/`，不依赖 Unity，便于离线测试；常量改动后需要与游戏原值比对。
+- 定价公式和赝品规则放在 `src/Domain/`，不依赖 Unity，便于离线测试；常量改动后需要与游戏原值比对。
 - 读不到或算不准时宁可不显示，不要用默认值拼出一个确定结论。
