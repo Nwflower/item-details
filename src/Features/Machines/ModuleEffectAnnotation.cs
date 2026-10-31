@@ -100,7 +100,7 @@ internal static class ModuleEffectAnnotation
         return note.Length == 0 ? "" : Wrap(note);
     }
 
-    private static string Wrap(string body) => "(" + body + ")";
+    private static string Wrap(string body) => " (" + body + ")";
 
     /// <summary>三项加成的标签名走游戏本地化；换语言后自动重建。</summary>
     private static void EnsureLabels()

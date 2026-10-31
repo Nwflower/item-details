@@ -103,7 +103,7 @@ internal static class ProgressBarStyle
         {
             string text = __0;
             if (text == null || text.Length < 2 || text[0] != '[' || text[text.Length - 1] != ']') return;
-            __0 = Render(p);
+            __0 = RenderBlocks(p.Ratio, p.Length, p.Dark, p.FullLength);
         }
         catch (Exception ex)
         {
@@ -111,22 +111,47 @@ internal static class ProgressBarStyle
         }
     }
 
-    /// <summary>格数与原版一致：已填 = floor(比例 × 长度)。</summary>
-    private static string Render(Pending p)
+    /// <summary>
+    /// 直接生成进度条文本。供模组内新增行（如学习进度）直接写入 RichTextBuilder，
+    /// 避免调用原生 AddProgressBar 引入 noBreak 影响整段 tooltip 折行宽度。
+    /// </summary>
+    internal static string Format(float ratio, int length, RenderHandler.ColorPalette dark, bool fullLength = true)
     {
-        float ratio = float.IsFinite(p.Ratio) ? Math.Clamp(p.Ratio, 0f, 1f) : 0f;
-        int filled = (int)(ratio * p.Length);
-        int empty = p.FullLength ? p.Length - filled : 0;
+        if (length <= 0) return "";
+        return ModSettings.BlockProgressBar
+            ? RenderBlocks(ratio, length, dark, fullLength)
+            : RenderAscii(ratio, length, fullLength);
+    }
 
-        var sb = new StringBuilder(p.Length + 32);
+    /// <summary>格数与原版一致：已填 = floor(比例 × 长度)。</summary>
+    private static string RenderBlocks(float rawRatio, int length, RenderHandler.ColorPalette dark, bool fullLength)
+    {
+        float ratio = float.IsFinite(rawRatio) ? Math.Clamp(rawRatio, 0f, 1f) : 0f;
+        int filled = (int)(ratio * length);
+        int empty = fullLength ? length - filled : 0;
+
+        var sb = new StringBuilder(length + 32);
         if (filled > 0) sb.Append(Block, filled);
         if (empty > 0)
         {
             string rest = new string(Block, empty);
-            sb.Append(p.Dark != RenderHandler.ColorPalette.None
-                ? RenderHandler.ApplyRichTextColorTag(rest, p.Dark)
+            sb.Append(dark != RenderHandler.ColorPalette.None
+                ? RenderHandler.ApplyRichTextColorTag(rest, dark)
                 : DimAlpha + rest + "<alpha=#FF>");
         }
+        return sb.ToString();
+    }
+
+    private static string RenderAscii(float rawRatio, int length, bool fullLength)
+    {
+        float ratio = float.IsFinite(rawRatio) ? Math.Clamp(rawRatio, 0f, 1f) : 0f;
+        int filled = (int)(ratio * length);
+        int empty = fullLength ? length - filled : 0;
+        var sb = new StringBuilder(length + 2);
+        sb.Append('[');
+        if (filled > 0) sb.Append('=', filled);
+        if (empty > 0) sb.Append(' ', empty);
+        sb.Append(']');
         return sb.ToString();
     }
 }
