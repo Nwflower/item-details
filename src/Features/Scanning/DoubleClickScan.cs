@@ -8,8 +8,13 @@ namespace ItemDetails;
 /// 对应关系（照 0.46D 原版各扫描器自己的目标判定）：
 ///   · 上锁补给箱（SUPPLY_CRATE + LOCK_STATUS）   → 便携式X射线扫描仪（xray_scanner）
 ///   · 化学品（CHEM_ITEM_TAG / CHEMICAL_PRODUCT_TAG）→ 化学扫描仪（chem_scanner）
-///   · 其它液体容器（LIQUID_CONTAINER_TAG）        → 水质扫描仪优先，没有则化学扫描仪
+///   · 普通液体容器（LIQUID_CONTAINER_TAG）        → 水质扫描仪优先，没有则化学扫描仪
 ///   · 种子（SEED_ITEM_TAG）                       → 植物分析仪（plant_analyser）
+///
+/// 接管前先问物品自己有没有“结果性动作”（见 <see cref="VanillaDoubleClickHasResult"/>）：
+/// 原版双击会打开容器窗口，或执行物品自己的激活动作时，一律交还原版。判定照抄
+/// <c>ItemMouseDoubleClickHandler.ClickAction</c> 的分支，不按物品名/标签开白名单——
+/// 模组物品给自己注册了内容窗口或激活动作，同样会被让开。
 ///
 /// 不接管的三类：基因扫描仪是常开开关、没有结果面板；拾荒扫描仪与改造体扫描仪不针对
 /// 物品 / 只针对顾客；成分光谱仪（spectral_analyser）在 0.46D 没有任何投放途径。
@@ -104,6 +109,10 @@ internal static class DoubleClickScan
         if (IsLockedSupplyCrate(item) && ScannerInventory.Has(ScannerInventory.XrayScanner))
             return Kind.Xray;
 
+        // 除上锁补给箱外，剩下的三类都要先确认这次双击"没人要"：物品自己有容器窗口
+        // 或激活动作时，原版双击已经在做事，扫描不许顶掉它。
+        if (VanillaDoubleClickHasResult(item)) return Kind.None;
+
         if (IsChem(item) && ScannerInventory.Has(ScannerInventory.ChemScanner))
             return Kind.Chem;
 
@@ -117,6 +126,39 @@ internal static class DoubleClickScan
             return Kind.Plant;
 
         return Kind.None;
+    }
+
+    /// <summary>
+    /// 原版双击对这件物品有没有“结果性动作”。有就说明这个手势已经有主，扫描必须让开。
+    ///
+    /// 判定照抄 <c>ItemMouseDoubleClickHandler.ClickAction</c> 的两条分支，不按物品名或标签
+    /// 开白名单——模组物品给自己注册了内容窗口或激活动作，同样会命中：
+    ///
+    ///   · <c>contentWindow</c> 存在且未上锁 → 原版双击是开/关这个窗口。
+    ///     水罐的过滤器槽、酒瓶的投料与发酵、保险箱与补给箱的内容格都走这条。
+    ///   · <c>MayActivateSlotItem() &amp;&amp; CanActivateSlotItem()</c> → 原版双击会执行物品
+    ///     自己的激活动作（食品券兑换、使用道具；模组物品注册的自定义双击通常也挂这里）。
+    ///
+    /// 锁着的容器窗口不算：原版双击打开它也只是看一个动不了的界面，上锁补给箱因此仍由
+    /// X 射线扫描接管（见 <see cref="IsLockedSupplyCrate"/>）。
+    ///
+    /// “拿起 / 开关状态”（<c>MaySelectSlotItem</c>、<c>MayToggleSlotItem</c>）不在其中：
+    /// 它们只是可逆的通用状态切换、不改变物品，玩家仍有拖拽等替代手势，而扫描对水质容器
+    /// 给出的信息更直接。若哪天要连这两条也让开，把对应判定加进来即可。
+    ///
+    /// 任何一步判定抛异常都按“有动作”处理：宁可少一个快捷方式，也不吞掉原版双击。
+    /// </summary>
+    private static bool VanillaDoubleClickHasResult(GameItem item)
+    {
+        try
+        {
+            var window = item.contentWindow;
+            if (window != null && !window.isLocked) return true;
+        }
+        catch { return true; }
+
+        try { return item.MayActivateSlotItem() && item.CanActivateSlotItem(); }
+        catch { return true; }
     }
 
     /// <summary>与原版 X 射线扫描仪的目标判定一致：锁定中的补给箱。</summary>
