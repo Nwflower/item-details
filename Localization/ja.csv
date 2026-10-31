@@ -159,10 +159,12 @@ wine.yeast_effect,果実酒に入れると：点数 +{0}（重複しない）、
 wine.yeast_illegal,偽造品になる
 machine.energy_label,消費電力：
 machine.energy_unit,/日
-machine.energy_battery,（残り{0}、{1}日）
+machine.energy_battery,（残り{0}、{1}日分）
 config.section.display,表示
-config.item_appraisal,アイテム鑑定
-config.item_appraisal.tip,アイテムの種類に応じて、真偽の判定と価値の内訳を表示します。
+config.authenticity,真偽鑑定
+config.authenticity.tip,本物か偽物かを判定し、欠陥と偽物の理由、ブルームベリーの品質、未分析の種の形質を表示します。
+config.valuation,査定計算
+config.valuation.tip,鑑定アイテムの真の価値の内訳と完璧な価格帯を表示し、鑑定サービスのタイトルに定価と最良の提示額を表示します。
 config.cost_performance,マス単価
 config.cost_performance.tip,1マスあたりの価値とコンテナの圧縮率を表示します。
 config.container_contents,コンテナ内容
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,違法・制限品以外はツールチップの暗�
 config.container_name,コンテナ/機械の名前ラベル
 config.container_name.tip,コンテナと機械のアイコン下部に名前を表示します。
 config.container_name_bg,名前ラベルの背景
-config.container_name_bg.tip,名前ラベルの後ろに半透明の黒い背景（不透明度60%）を付けます。
+config.container_name_bg.tip,名前ラベルの後ろの黒い背景の不透明度（0–100%）。0 で背景なし。
 config.customer_alert,来客アラート
 config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・撃破報酬・改造体の脅威を表示します。
 config.customer_history,顧客にカーソルで今回の会話

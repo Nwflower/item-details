@@ -883,9 +883,9 @@ internal static partial class SelfTest
             string required = "";
             try { required = LocHelper.GetLocalizedMechanic("mech_machinery_required_energy") ?? ""; } catch { }
             string energyLine = Loc.T("machine.energy_label", "Power: ")
-                + (baseDrawn > 0 && baseDrawn != drawn ? baseDrawn + "→" : "")
+                + (baseDrawn > 0 && baseDrawn != drawn ? baseDrawn + " → " : "")
                 + drawn + Loc.T("machine.energy_unit", "/day")
-                + Loc.T("machine.energy_battery", " ({0} left, {1} days)", 100, days);
+                + Loc.T("machine.energy_battery", " ({0} left, lasts {1} days)", 100, days);
 
             bool merged = text.IndexOf(energyLine, StringComparison.Ordinal) >= 0;
             bool vanillaGone = required.Trim().Length == 0

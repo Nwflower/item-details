@@ -159,10 +159,12 @@ wine.yeast_effect,"과실주에 넣으면: 점수 +{0}(중복 안 됨), {1}회 �
 wine.yeast_illegal,위조품이 됨
 machine.energy_label,"소비 전력: "
 machine.energy_unit,/일
-machine.energy_battery," (남은 {0}, {1}일)"
+machine.energy_battery," (남은 {0}, {1}일 사용 가능)"
 config.section.display,표시
-config.item_appraisal,아이템 감정
-config.item_appraisal.tip,아이템 종류에 맞춰 진위 판정과 가치 내역을 표시합니다.
+config.authenticity,진위 감정
+config.authenticity.tip,"진품과 위조품을 판정해 결함과 위조 사유를 보여 주고, 블룸베리 품질과 미분석 씨앗 형질을 표시합니다."
+config.valuation,감정가 계산
+config.valuation.tip,"감정 아이템의 실제 가치 내역과 완벽 가격 범위를 보여 주고, 감정 서비스 제목에 정가와 최고 제시가를 표시합니다."
 config.cost_performance,칸당 가치
 config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시합니다."
 config.container_contents,컨테이너 내용
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,금지·제한 품목 외에는 툴팁의 어두운 
 config.container_name,컨테이너/기계 이름표
 config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
 config.container_name_bg,이름표 배경
-config.container_name_bg.tip,이름표 뒤에 반투명 검정 배경(불투명도 60%)을 추가합니다.
+config.container_name_bg.tip,이름표 뒤 검정 배경의 불투명도(0–100%)입니다. 0이면 배경이 없습니다.
 config.customer_alert,손님 방문 알림
 config.customer_alert.tip,수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 처치 보상, 개조 위협을 표시합니다.
 config.customer_history,손님에 커서를 올려 이번 대화 보기

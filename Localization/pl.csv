@@ -159,10 +159,12 @@ wine.yeast_effect,"W winie: ocena +{0} (nie sumuje się), fermentacja w {1} takt
 wine.yeast_illegal,Wino będzie podróbką
 machine.energy_label,"Zużycie: "
 machine.energy_unit,/dzień
-machine.energy_battery," (zostało {0}, dni: {1})"
+machine.energy_battery," (zostało {0}, starczy na dni: {1})"
 config.section.display,Wyświetlanie
-config.item_appraisal,Wycena przedmiotów
-config.item_appraisal.tip,Pokazuje werdykt autentyczności i rozbicie wartości zależnie od typu przedmiotu.
+config.authenticity,Sprawdzanie autentyczności
+config.authenticity.tip,"Odróżnia oryginał od podróbki, wymienia wady i powody podróbki, pokazuje jakość KwiatoGody i niezbadane cechy nasion."
+config.valuation,Kalkulator wyceny
+config.valuation.tip,Pokazuje rozbicie prawdziwej wartości i idealny przedział ceny przedmiotów do wyceny oraz cenę i najlepszą ofertę w tytule usługi wyceny.
 config.cost_performance,Wartość na kratkę
 config.cost_performance.tip,Pokazuje wartość na kratkę ekwipunku i stopień kompresji pojemników.
 config.container_contents,Zawartość pojemnika
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,Etykiety poza kontrabandą używają ciemnego tła p
 config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
 config.container_name_bg,Tło nazw
-config.container_name_bg.tip,Dodaje półprzezroczyste czarne tło (krycie 60%) za nazwą.
+config.container_name_bg.tip,Krycie czarnego tła za nazwą (0–100%); przy 0 bez tła.
 config.customer_alert,Powiadomienie o przybyciu klienta
 config.customer_alert.tip,Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz nagrodę za zabicie i zagrożenie ulepszonych.
 config.customer_history,Historia rozmowy po najechaniu

@@ -159,10 +159,12 @@ wine.yeast_effect,"Nel vino: punteggio +{0} (non cumulabile), fermenta in {1} ci
 wine.yeast_illegal,Il vino sarà un falso
 machine.energy_label,"Consumo: "
 machine.energy_unit,/giorno
-machine.energy_battery," (restano {0}, {1} giorni)"
+machine.energy_battery," (restano {0}, per {1} giorni)"
 config.section.display,Visualizzazione
-config.item_appraisal,Perizia degli oggetti
-config.item_appraisal.tip,Mostra il verdetto di autenticità e la ripartizione del valore in base al tipo di oggetto.
+config.authenticity,Verifica di autenticità
+config.authenticity.tip,"Distingue l'originale dal falso, indica difetti e motivi del falso e mostra la qualità della bacca e i tratti non analizzati dei semi."
+config.valuation,Calcolo della perizia
+config.valuation.tip,"Mostra la ripartizione del valore reale e la fascia di prezzo perfetta degli oggetti da periziare, oltre al prezzo e alla migliore offerta nel titolo del servizio di perizia."
 config.cost_performance,Valore per cella
 config.cost_performance.tip,Mostra il valore per cella dell'inventario e la compressione dei contenitori.
 config.container_contents,Contenuto del contenitore
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,I badge non di contrabbando usano lo sfondo scuro de
 config.container_name,Nomi di contenitori e macchine
 config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
 config.container_name_bg,Sfondo dei nomi
-config.container_name_bg.tip,Aggiunge uno sfondo nero traslucido (opacità 60%) dietro il nome.
+config.container_name_bg.tip,Opacità dello sfondo nero dietro il nome (0–100%); a 0 nessuno sfondo.
 config.customer_alert,Avviso di arrivo clienti
 config.customer_alert.tip,Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome, e la ricompensa per l'uccisione e la minaccia dei potenziati.
 config.customer_history,Cronologia al passaggio del mouse

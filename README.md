@@ -44,6 +44,9 @@
 
 | 功能 | 效果 | 默认 |
 |---|---|---|
+| 真伪鉴定 | 正品／赝品结论与不合格项、肋明治赝品原因、荧光莓品质、未分析的种子性状 | 开 |
+| 估价计算 | 真实价值构成与完美报价区间、鉴定服务标题的标价与最优报价 | 开 |
+| 顾客到店提示 | 见上文「改造体与通缉犯提醒」 | 开 |
 | 揭示伪装与真实属性 | 被伪装特性的真实情况、真实耐久度与纯度 | 开 |
 | 液体组分分析 | 水质纯度与杂质、药物与化学品的成分和药效；可选关闭／有扫描器时开启／总是开启 | 有扫描器时开启 |
 | 刮刮乐预知 | 刮开前就知道能否中奖、奖金多少 | 关 |
@@ -101,7 +104,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 - **Augmented / wanted alerts** — bounty, real name, and an augmented customer's kill reward plus the current aug threat when such a customer arrives.
 - **Double-click to inspect** — open the inspection panel without the Magnifying Glass; double-click another item to switch.
 - **Double-click to scan** — while you own the matching device, double-click an item to open its scan panel: water or chem scanner for liquids and chemicals, portable X-ray scanner for locked supply crates, plant analyser for seeds. Without the device the original double-click applies.
-- **Reveal (optional)** — Reveal Disguises & True Stats is on by default; Liquid Composition Analysis (off / when you own a water or chem scanner / always), Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off by default because they make the game noticeably easier.
+- **Reveal (optional)** — Authenticity Check (verdicts, Ribwich reasons, BloomBerry quality, unanalyzed seed traits), Appraisal Calculator (value breakdown, perfect price range, Appraisal Service title), Customer Arrival Alert and Reveal Disguises & True Stats are on by default; Liquid Composition Analysis (off / when you own a water or chem scanner / always), Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off by default because they make the game noticeably easier.
 
 Every feature can be toggled in this mod's settings in the game's Mods menu.
 

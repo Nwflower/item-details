@@ -159,10 +159,12 @@ wine.yeast_effect,加入果酿：评分 +{0}（多放不叠加），发酵 {1} �
 wine.yeast_illegal,会酿成赝品
 machine.energy_label,耗能：
 machine.energy_unit,/天
-machine.energy_battery,（剩余{0}，{1}天）
+machine.energy_battery,（剩余{0}，可用{1}天）
 config.section.display,显示优化
-config.item_appraisal,物品鉴定
-config.item_appraisal.tip,按物品类型显示真伪结论与价值构成。
+config.authenticity,真伪鉴定
+config.authenticity.tip,判定真品或赝品并列出瑕疵与赝品原因，显示荧光莓品质和未分析的种子性状。
+config.valuation,估价计算
+config.valuation.tip,显示待鉴定物品的真实价值构成与完美报价区间，并在鉴定服务标题显示标价与最优报价。
 config.cost_performance,性价比
 config.cost_performance.tip,显示每格价值与容器压缩率。
 config.container_contents,容器内容物
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,非违禁标签改用与提示框一致的深色底�
 config.container_name,容器和机器名称标签
 config.container_name.tip,在容器和机器图标底部显示名称。
 config.container_name_bg,名称标签底色
-config.container_name_bg.tip,在名称标签后加一层半透明黑底（不透明度 60%）。
+config.container_name_bg.tip,名称标签后黑底的不透明度（0–100%），拉到 0 不加底色。
 config.customer_alert,顾客到店提示
 config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名，以及改造体的击杀奖励与威胁值。
 config.customer_history,悬停顾客查看本次对话

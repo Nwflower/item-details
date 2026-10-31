@@ -93,7 +93,7 @@ public sealed partial class ModEntry
     // ---------------- 赝品肋明治：具体原因 ----------------
     private bool TryAppendRibwichReasons(RichTextBuilder builder, GameItem item)
     {
-        if (!ModSettings.Value) return false;
+        if (!ModSettings.Auth) return false;   // 赝品原因属于真伪鉴定
 
         var lines = RibwichCounterfeit.Collect(item);
         if (lines.Count == 0) return false;

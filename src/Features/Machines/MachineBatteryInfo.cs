@@ -5,12 +5,13 @@ namespace ItemDetails;
 
 /// <summary>
 /// 机器能量行：把原版「所需能量：8/天 （基础：10/天）」与电池余量压成一行
-///   `耗能：10→8/天（剩余12，1天）`
+///   `耗能：10 → 8/天（剩余12，可用1天）`
 /// 基础值灰色；当前值比基础低绿、高红，不变时只写当前值；括号按可运行天数着色。
 ///
 /// 原版在 CreateMachineryTooltip 里先 Add("所需能量")，耗能变化时再 Add("X/天")，
 /// 最后 AddLine 结束能量块。这里跟踪这次构建：吞掉标签与数值段，在那次 AddLine 处改写出整行。
-/// 原版在能量块前、以及后面模组加成/加工进度段前各写一行 AddLine(" ")，紧贴这一行的两个空行一并去掉。
+/// 原版在能量块前、以及后面模组加成/加工进度段前各写一行 AddLine(" ")：去掉前一行，
+/// 保留后一行，让能量行与下面的段落隔开。
 ///
 /// 电池按 role 为 power 的面板找（见 <see cref="MachineInterior.FindPowerSource"/>），
 /// 只认普通电池；第三方机器面板顺序不同也不会把别的物品当成电池。
@@ -25,7 +26,6 @@ internal static class MachineBatteryInfo
     private static bool _labelSeen;
     private static bool _written;
     private static bool _leadBlankSkipped;
-    private static bool _trailBlankPending;
     private static string _labelLocale = "";
     private static string _requiredLabel = "";
 
@@ -97,12 +97,7 @@ internal static class MachineBatteryInfo
     /// </summary>
     private static bool AddPrefix(string __0)
     {
-        if (_machine == null) return true;
-        if (_written)
-        {
-            _trailBlankPending = false;   // 能量行后先来了别的内容，后面的空行不再算紧贴
-            return true;
-        }
+        if (_machine == null || _written) return true;
         if (_labelSeen) return false;
         try
         {
@@ -122,15 +117,15 @@ internal static class MachineBatteryInfo
 
     /// <summary>
     /// 能量块以一次 AddLine 结束（“X/天”或“基础 Y/天”），在这里写出合并后的整行；
-    /// 能量块前的那行空行、能量行后紧跟的那行空行直接丢掉。
+    /// 能量块前的那行空行直接丢掉。
     /// </summary>
     private static bool AddLinePrefix(RichTextBuilder __instance, string __0)
     {
-        if (_machine == null) return true;
-        bool blank = __0 != null && __0.Trim().Length == 0;
+        if (_machine == null || _written) return true;
 
         if (!_labelSeen)
         {
+            bool blank = __0 != null && __0.Trim().Length == 0;
             if (blank && !_leadBlankSkipped && RequiredLabel().Trim().Length > 0)
             {
                 _leadBlankSkipped = true;
@@ -139,18 +134,10 @@ internal static class MachineBatteryInfo
             return true;
         }
 
-        if (_written)
-        {
-            if (!_trailBlankPending) return true;
-            _trailBlankPending = false;
-            return !blank;
-        }
-
         _written = true;   // 先置位：下面自己的 Add 不能再被吞
         try
         {
             WriteEnergyLine(__instance, _machine);
-            _trailBlankPending = true;
             return false;
         }
         catch (Exception ex)
@@ -171,7 +158,7 @@ internal static class MachineBatteryInfo
         builder.Add(Loc.T("machine.energy_label", "Power: "), RenderHandler.ColorPalette.LightCyan);
         if (baseDrawn > 0 && baseDrawn != drawn)
         {
-            builder.Add(baseDrawn + "→", RenderHandler.ColorPalette.Gray);
+            builder.Add(baseDrawn + " → ", RenderHandler.ColorPalette.Gray);
             var color = drawn < baseDrawn
                 ? RenderHandler.ColorPalette.LightGreen   // 比基础省电
                 : RenderHandler.ColorPalette.LightRed;    // 比基础费电
@@ -193,7 +180,6 @@ internal static class MachineBatteryInfo
         _labelSeen = false;
         _written = false;
         _leadBlankSkipped = false;
-        _trailBlankPending = false;
     }
 
     private static string RequiredLabel()
@@ -233,7 +219,7 @@ internal static class MachineBatteryInfo
                       : RenderHandler.ColorPalette.LightRed;
 
             return new TooltipLine(
-                Loc.T("machine.energy_battery", " ({0} left, {1} days)", energy, days),
+                Loc.T("machine.energy_battery", " ({0} left, lasts {1} days)", energy, days),
                 color);
         }
         catch (Exception ex)

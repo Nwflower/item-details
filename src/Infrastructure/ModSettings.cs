@@ -15,6 +15,13 @@ namespace ItemDetails;
 ///   "透视"       —— 揭示本应靠鉴定/分析才能知道的东西（会降低难度）
 ///   "交互与外观" —— 操作方式与视觉权重
 ///
+/// 拆分过的项（旧值迁移到全部新键，见 <see cref="MigrateLegacyAppraisalToggle"/>）：
+///   show_item_appraisal → show_authenticity（真伪鉴定）+ show_valuation（估价计算），并移到「透视」
+/// 换了控件的项：
+///   show_container_name_bg（开关）→ container_name_bg_opacity（0–100 滑条；旧值关 → 0）
+/// 换了分组的项（键不变，值原样保留）：
+///   show_customer_alert：显示优化 → 透视
+///
 /// 合并过的项（旧键已废弃，读取时回落到默认；水质旧键有迁移，见 <see cref="MigrateLegacyWaterToggle"/>）：
 ///   show_berry            + show_seed_traits      → show_plant
 ///   show_lock_preview     + show_scratcher（现已按分级拆回独立开关，默认值不同）
@@ -62,15 +69,12 @@ internal static class ModSettings
     private static readonly List<(ConfigEntry Entry, string Key, string En)> Sections = new();
 
     // ---- 显示优化 ----
-    private static readonly Toggle ItemAppraisalToggle = new(true);      // 真伪 + 价值构成 + 植物
     private static readonly Toggle CostPerformanceToggle = new(true);    // 性价比 + 压缩率
     private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
     private static readonly Toggle InfoEnhanceToggle = new(true);        // 标签/模块/电池/黑市/彩票/描述/价格
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
     private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
-    private static readonly Toggle ContainerNameBgToggle = new(true);    // 外显文本半透明底
-    private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
     private static readonly Toggle CustomerHistoryToggle = new(true);    // 顾客对话历史（悬停）
 
     // ---- 操作优化 ----
@@ -78,6 +82,9 @@ internal static class ModSettings
     private static readonly Toggle DoubleClickScanToggle = new(true);    // 双击扫描
 
     // ---- 透视 ----
+    private static readonly Toggle AuthenticityToggle = new(true);       // 真伪结论 + 赝品原因 + 植物品质
+    private static readonly Toggle ValuationToggle = new(true);          // 价值构成 + 完美区间 + 鉴定标题报价
+    private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
     private static readonly Toggle HiddenTruthToggle = new(true);        // 揭示伪装与真实属性
     private static readonly Toggle ScratcherToggle = new(false);         // 刮刮乐预知
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
@@ -95,6 +102,10 @@ internal static class ModSettings
     private const string PrefillTrueValueChoice = "真实估价 (True value)";
     private const string PrefillBestOfferChoice = "最优报价 (Best offer)";
 
+    /// <summary>外显文本底色的不透明度（0–100，滑条）；0 即不加底色。</summary>
+    private static ConfigEntry<int>? _nameBgOpacity;
+    private const int DefaultNameBgOpacity = 60;
+
     internal static void Init(string modId)
     {
         try
@@ -103,10 +114,6 @@ internal static class ModSettings
             Sections.Clear();
 
             // ================= 显示优化 =================
-            ItemAppraisalToggle.Define(_cfg, "show_item_appraisal", SecDisplayKey, SecDisplayEn,
-                Text("config.item_appraisal", "Item Appraisal"),
-                Text("config.item_appraisal.tip", "Shows authenticity verdicts and value breakdowns, adapted to each item type."));
-
             CostPerformanceToggle.Define(_cfg, "show_cost_performance", SecDisplayKey, SecDisplayEn,
                 Text("config.cost_performance", "Value per Cell"),
                 Text("config.cost_performance.tip", "Shows value per inventory cell and the compression ratio of containers."));
@@ -133,14 +140,11 @@ internal static class ModSettings
                 Text("config.container_name", "Container & Machine Labels"),
                 Text("config.container_name.tip", "Shows the name at the bottom of container and machine icons."));
 
-            ContainerNameBgToggle.Define(_cfg, "show_container_name_bg", SecDisplayKey, SecDisplayEn,
-                Text("config.container_name_bg", "Label Background"),
-                Text("config.container_name_bg.tip", "Adds a translucent black background (60% opacity) behind the label."));
-
-            CustomerAlertToggle.Define(_cfg, "show_customer_alert", SecDisplayKey, SecDisplayEn,
-                Text("config.customer_alert", "Customer Arrival Alert"),
-                Text("config.customer_alert.tip", "When a wanted or augmented customer arrives, shows a notice with the " +
-                     "actual bounty, real name, and an augmented customer's kill reward and threat level."));
+            // 有范围的 int 条目，面板渲染成整数滑条。
+            _nameBgOpacity = _cfg.Define("container_name_bg_opacity", DefaultNameBgOpacity, SecDisplayEn,
+                Text("config.container_name_bg", "Label Background"), 0, 100,
+                Text("config.container_name_bg.tip", "Opacity of the black background behind the label (0–100%). " +
+                     "At 0 there is no background."));
 
             CustomerHistoryToggle.Define(_cfg, "show_customer_history", SecDisplayKey, SecDisplayEn,
                 Text("config.customer_history", "Customer Dialogue on Hover"),
@@ -163,6 +167,21 @@ internal static class ModSettings
                      "crates, plant analyser for seeds. Without the device the original double-click still applies."));
 
             // ================= 透视 =================
+            AuthenticityToggle.Define(_cfg, "show_authenticity", SecRevealKey, SecRevealEn,
+                Text("config.authenticity", "Authenticity Check"),
+                Text("config.authenticity.tip", "Tells genuine from counterfeit and names the flaws, explains why a " +
+                     "ribwich is counterfeit, and shows bloomberry quality and unanalyzed seed traits."));
+
+            ValuationToggle.Define(_cfg, "show_valuation", SecRevealKey, SecRevealEn,
+                Text("config.valuation", "Appraisal Calculator"),
+                Text("config.valuation.tip", "Shows the true value breakdown and perfect price range of appraisal " +
+                     "items, and the list price and best offer in the appraisal service title."));
+
+            CustomerAlertToggle.Define(_cfg, "show_customer_alert", SecRevealKey, SecRevealEn,
+                Text("config.customer_alert", "Customer Arrival Alert"),
+                Text("config.customer_alert.tip", "When a wanted or augmented customer arrives, shows a notice with the " +
+                     "actual bounty, real name, and an augmented customer's kill reward and threat level."));
+
             HiddenTruthToggle.Define(_cfg, "show_hidden_truth", SecRevealKey, SecRevealEn,
                 Text("config.hidden_truth", "Reveal Disguises & True Stats"),
                 Text("config.hidden_truth.tip", "Shows what disguised features really are, true durability, and true " +
@@ -198,6 +217,8 @@ internal static class ModSettings
                      "True value fills the game's real value; best offer fills the top of the perfect range. " +
                      "Same rule the tooltip shows."));
 
+            MigrateLegacyAppraisalToggle();
+            MigrateLegacyNameBgToggle();
             MigrateLegacyWaterToggle();
 
             _cfg.Save();
@@ -253,12 +274,8 @@ internal static class ModSettings
         if (_cfg == null || _liquidAnalysis == null) return;
         try
         {
-            if (AccessTools.Field(typeof(ModConfig), "rawValues")?.GetValue(_cfg)
-                is not Dictionary<string, string> raw)
-            {
-                Log.Warn("ModSettings.Migrate", "读不到 ModConfig.rawValues，旧水质设置不迁移");
-                return;
-            }
+            var raw = RawValues();
+            if (raw == null) return;
 
             if (raw.ContainsKey("liquid_analysis")) return;   // 已有新键：玩家当前的选择优先
 
@@ -280,6 +297,80 @@ internal static class ModSettings
         {
             Log.Warn("ModSettings.Migrate", ex);
         }
+    }
+
+    /// <summary>
+    /// 把旧版「物品鉴定」（<c>show_item_appraisal</c>）的取值带给拆出来的两个开关：
+    /// 旧值关，真伪鉴定与估价计算都关；旧值开（或没配过）就保持新默认（都开）。
+    ///
+    /// 每个新键单独判断：文件里已经有某个新键，说明玩家在新版里设过它，不再覆盖。
+    /// 旧键不删，理由同 <see cref="MigrateLegacyWaterToggle"/>。
+    /// </summary>
+    private static void MigrateLegacyAppraisalToggle()
+    {
+        if (_cfg == null) return;
+        try
+        {
+            var raw = RawValues();
+            if (raw == null || !raw.TryGetValue("show_item_appraisal", out string? stored)) return;
+            if (!bool.TryParse(stored, out bool on))
+            {
+                Log.Warn("ModSettings.Migrate", $"旧设置 show_item_appraisal='{stored}' 不是布尔值，保留新默认");
+                return;
+            }
+
+            foreach (var (toggle, key) in new[] { (AuthenticityToggle, "show_authenticity"), (ValuationToggle, "show_valuation") })
+            {
+                if (raw.ContainsKey(key)) continue;
+                toggle.Set(on);
+                Log.Msg($"ModSettings: 旧设置 show_item_appraisal={stored} → {key}={on}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("ModSettings.Migrate", ex);
+        }
+    }
+
+    /// <summary>
+    /// 旧版布尔「名称标签底色」（<c>show_container_name_bg</c>）→ 不透明度滑条：
+    /// 旧值关 → 0（不加底色）；旧值开就保持新默认 60%，与旧版固定的不透明度一致。
+    /// 文件里已有新键时不覆盖；旧键不删，理由同 <see cref="MigrateLegacyWaterToggle"/>。
+    /// </summary>
+    private static void MigrateLegacyNameBgToggle()
+    {
+        if (_cfg == null || _nameBgOpacity == null) return;
+        try
+        {
+            var raw = RawValues();
+            if (raw == null || raw.ContainsKey("container_name_bg_opacity")) return;
+            if (!raw.TryGetValue("show_container_name_bg", out string? stored)) return;
+            if (!bool.TryParse(stored, out bool on))
+            {
+                Log.Warn("ModSettings.Migrate", $"旧设置 show_container_name_bg='{stored}' 不是布尔值，保留新默认");
+                return;
+            }
+            if (on) return;
+
+            _nameBgOpacity.Set(0);
+            Log.Msg($"ModSettings: 旧设置 show_container_name_bg={stored} → container_name_bg_opacity=0");
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("ModSettings.Migrate", ex);
+        }
+    }
+
+    /// <summary>
+    /// 配置文件里的原始键值（含未注册的旧键）。公开 API 只按已注册的键取值，
+    /// 读旧键只能走 <see cref="ModConfig"/> 的私有 <c>rawValues</c>；取不到就当没配过，不猜。
+    /// </summary>
+    private static Dictionary<string, string>? RawValues()
+    {
+        if (AccessTools.Field(typeof(ModConfig), "rawValues")?.GetValue(_cfg) is Dictionary<string, string> raw)
+            return raw;
+        Log.Warn("ModSettings.Migrate", "读不到 ModConfig.rawValues，旧设置不迁移");
+        return null;
     }
 
     /// <summary>
@@ -364,9 +455,9 @@ internal static class ModSettings
     /// <summary>标签/说明延迟到面板渲染时求值，可随语言切换。</summary>
     private static Func<string> Text(string key, string en) => () => Loc.T(key, en);
 
-    internal static bool Auth => ItemAppraisalToggle.Value;
-    internal static bool Value => ItemAppraisalToggle.Value;
-    internal static bool Plant => ItemAppraisalToggle.Value;
+    internal static bool Auth => AuthenticityToggle.Value;
+    internal static bool Value => ValuationToggle.Value;
+    internal static bool Plant => AuthenticityToggle.Value;
     internal static bool InfoEnhance => InfoEnhanceToggle.Value;
     internal static bool ValueEnhance => CostPerformanceToggle.Value;
     internal static bool Container => ContainerContentsToggle.Value;
@@ -417,8 +508,9 @@ internal static class ModSettings
     internal static bool ManufacturerInline => InfoEnhanceToggle.Value;
     internal static string ItemNameMode => ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
     internal static string ItemNamePosition => "底部 (Bottom)";
-    internal static bool ItemNameBackground => ContainerNameBgToggle.Value;
-    internal static float ItemNameBackgroundAlpha => 0.6f;
+    internal static bool ItemNameBackground => NameBgOpacity > 0;
+    internal static float ItemNameBackgroundAlpha => NameBgOpacity / 100f;
+    private static int NameBgOpacity => Math.Max(0, Math.Min(100, _nameBgOpacity?.Value ?? DefaultNameBgOpacity));
 
     /// <summary>
     /// 单个开关：默认值只声明一次，Define 用它注册，Init 之前或失败时也用它兜底。
@@ -441,5 +533,8 @@ internal static class ModSettings
         }
 
         internal bool Value => _entry?.Value ?? _default;
+
+        /// <summary>迁移旧设置用；不单独保存，由 Init 末尾统一 Save。</summary>
+        internal void Set(bool value) => _entry?.Set(value);
     }
 }

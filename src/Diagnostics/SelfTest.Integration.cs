@@ -20,7 +20,7 @@ internal static partial class SelfTest
     {
         ok = false;
         GameItem? item = null;
-        var setting = ModConfig.Find("item_details")?.Get("show_item_appraisal");
+        var setting = ModConfig.Find("item_details")?.Get("show_valuation");
         object? previous = setting?.BoxedValue;
         var apply = AccessTools.Method(typeof(ConfigEntry), "ApplyBoxed");
         try

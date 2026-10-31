@@ -159,10 +159,12 @@ wine.yeast_effect,"Im Wein: Wertung +{0} (nicht stapelbar), gärt in {1} Tick(s)
 wine.yeast_illegal,Der Wein wird eine Fälschung
 machine.energy_label,"Verbrauch: "
 machine.energy_unit,/Tag
-machine.energy_battery," (Rest {0}, {1} Tage)"
+machine.energy_battery," (Rest {0}, reicht {1} Tage)"
 config.section.display,Anzeige
-config.item_appraisal,Gegenstandsgutachten
-config.item_appraisal.tip,"Zeigt Echtheitsurteil und Wertaufschlüsselung, abgestimmt auf den Gegenstandstyp."
+config.authenticity,Echtheitsprüfung
+config.authenticity.tip,"Unterscheidet echt von gefälscht, nennt Mängel und Fälschungsgründe und zeigt Blühbeerenqualität sowie unanalysierte Samenmerkmale."
+config.valuation,Gutachtenrechner
+config.valuation.tip,Zeigt die Aufschlüsselung des wahren Werts und den perfekten Preisbereich von Gutachtenobjekten sowie Listenpreis und bestes Angebot im Titel des Gutachtendienstes.
 config.cost_performance,Wert pro Feld
 config.cost_performance.tip,Zeigt den Wert pro Inventarfeld und das Kompressionsverhältnis von Behältern.
 config.container_contents,Behälterinhalt
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,Plaketten außer Schmuggelware nutzen den dunklen To
 config.container_name,Behälter- & Maschinennamen
 config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
 config.container_name_bg,Namenshintergrund
-config.container_name_bg.tip,Legt eine halbtransparente schwarze Fläche (60 % Deckkraft) hinter den Namen.
+config.container_name_bg.tip,Deckkraft der schwarzen Fläche hinter dem Namen (0–100 %); bei 0 kein Hintergrund.
 config.customer_alert,Hinweis bei Kundenankunft
 config.customer_alert.tip,Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen sowie Abschussprämie und Bedrohung bei Augmentierten.
 config.customer_history,Gesprächsverlauf beim Hovern

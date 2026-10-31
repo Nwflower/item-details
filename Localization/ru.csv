@@ -159,10 +159,12 @@ wine.yeast_effect,"В вине: оценка +{0} (не суммируется),
 wine.yeast_illegal,Вино станет подделкой
 machine.energy_label,"Расход: "
 machine.energy_unit,/дн.
-machine.energy_battery," (осталось {0}, {1} дн.)"
+machine.energy_battery," (осталось {0}, хватит на {1} дн.)"
 config.section.display,Отображение
-config.item_appraisal,Оценка предметов
-config.item_appraisal.tip,Показывает вердикт о подлинности и разбивку стоимости с учётом типа предмета.
+config.authenticity,Проверка подлинности
+config.authenticity.tip,"Отличает подлинник от подделки, называет дефекты и причины подделки, показывает качество цветоягоды и непроанализированные признаки семян."
+config.valuation,Расчёт оценки
+config.valuation.tip,"Показывает разбивку реальной стоимости и идеальный диапазон цены для предметов на оценку, а в заголовке услуги оценки — цену и лучшее предложение."
 config.cost_performance,Стоимость за клетку
 config.cost_performance.tip,Показывает стоимость за клетку инвентаря и степень сжатия контейнеров.
 config.container_contents,Содержимое контейнера
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,Плашки кроме контрабанды ис�
 config.container_name,Подписи контейнеров и машин
 config.container_name.tip,Показывает название внизу значка контейнера или машины.
 config.container_name_bg,Фон подписей
-config.container_name_bg.tip,Добавляет полупрозрачный чёрный фон (непрозрачность 60%) под подписью.
+config.container_name_bg.tip,Непрозрачность чёрного фона под подписью (0–100%); при 0 фона нет.
 config.customer_alert,Оповещение о приходе клиента
 config.customer_alert.tip,Сообщает о приходе разыскиваемого или аугментированного клиента и показывает фактическую награду, настоящее имя, а также награду за убийство и угрозу аугментации.
 config.customer_history,История разговора при наведении

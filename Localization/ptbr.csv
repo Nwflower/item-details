@@ -159,10 +159,12 @@ wine.yeast_effect,"No vinho: pontuação +{0} (não acumula), fermenta em {1} ci
 wine.yeast_illegal,O vinho será falsificado
 machine.energy_label,"Consumo: "
 machine.energy_unit,/dia
-machine.energy_battery," (restam {0}, {1} dias)"
+machine.energy_battery," (restam {0}, para {1} dias)"
 config.section.display,Exibição
-config.item_appraisal,Avaliação de itens
-config.item_appraisal.tip,Mostra o veredito de autenticidade e o detalhamento do valor conforme o tipo de item.
+config.authenticity,Verificação de autenticidade
+config.authenticity.tip,"Distingue original de falsificado, aponta defeitos e motivos da falsificação e mostra a qualidade da baga e as características não analisadas das sementes."
+config.valuation,Cálculo da avaliação
+config.valuation.tip,"Mostra o detalhamento do valor real e a faixa de preço perfeita dos itens de avaliação, além do preço pedido e da melhor oferta no título do serviço de avaliação."
 config.cost_performance,Valor por célula
 config.cost_performance.tip,Mostra o valor por célula do inventário e a compressão dos contêineres.
 config.container_contents,Conteúdo do contêiner
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,Etiquetas fora do contrabando usam o fundo escuro da
 config.container_name,Nomes de contêineres e máquinas
 config.container_name.tip,Mostra o nome na parte inferior do ícone de contêineres e máquinas.
 config.container_name_bg,Fundo dos nomes
-config.container_name_bg.tip,Adiciona um fundo preto translúcido (60% de opacidade) atrás do nome.
+config.container_name_bg.tip,"Opacidade do fundo preto atrás do nome (0–100%); em 0, sem fundo."
 config.customer_alert,Alerta de chegada de cliente
 config.customer_alert.tip,Avisa quando chega um cliente procurado ou ciberaumentado e mostra a recompensa real, o nome verdadeiro, e a recompensa por abate-lo e a ameaça ciberaumentada.
 config.customer_history,Histórico ao passar o mouse

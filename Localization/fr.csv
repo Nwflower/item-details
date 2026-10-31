@@ -159,10 +159,12 @@ wine.yeast_effect,"Dans le vin : score +{0} (non cumulable), fermente en {1} cyc
 wine.yeast_illegal,Le vin sera une contrefaçon
 machine.energy_label,"Consommation : "
 machine.energy_unit,/jour
-machine.energy_battery," (reste {0}, {1} jours)"
+machine.energy_battery," (reste {0}, pour {1} jours)"
 config.section.display,Affichage
-config.item_appraisal,Estimation des objets
-config.item_appraisal.tip,Affiche le verdict d'authenticité et la décomposition de la valeur selon le type d'objet.
+config.authenticity,Vérification d'authenticité
+config.authenticity.tip,"Distingue l'authentique de la contrefaçon, indique les défauts et les raisons de la contrefaçon, et affiche la qualité de la grappe et les traits non analysés des graines."
+config.valuation,Calcul de l'estimation
+config.valuation.tip,"Affiche la décomposition de la vraie valeur et la fourchette de prix parfaite des objets à estimer, ainsi que le prix et la meilleure offre dans le titre du service d'estimation."
 config.cost_performance,Valeur par case
 config.cost_performance.tip,Affiche la valeur par case d'inventaire et le taux de compression des conteneurs.
 config.container_contents,Contenu du conteneur
@@ -176,7 +178,7 @@ config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre
 config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms
-config.container_name_bg.tip,Ajoute un fond noir translucide (opacité 60 %) derrière le nom.
+config.container_name_bg.tip,"Opacité du fond noir derrière le nom (0–100 %) ; à 0, aucun fond."
 config.customer_alert,Alerte à l'arrivée d'un client
 config.customer_alert.tip,Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom, ainsi que la prime d'élimination et la menace des clients augmentés.
 config.customer_history,Historique au survol du client
