@@ -31,6 +31,8 @@ internal static class MachineAdapters
         ["hydroponic"] = Hydroponic,
         ["fridge"] = Fridge,
         ["wine_rack"] = WineRack,
+        // 酿酒拓展（工坊 3829730904）的流年：由 MachineWineRack.AgeWell() 改 ID 而来，陈化规则同原版
+        ["be_liunian_ager"] = WineRack,
     };
 
     internal static void Run(MachineInterior.Context ctx, List<TooltipLine> lines)
@@ -275,7 +277,7 @@ internal static class MachineAdapters
     }
 
     /// <summary>
-    /// 电量撑不到完成时的提示。电池行（MachineBatteryInfo）开着时，它已在「所需能量」下写了可运行天数，
+    /// 电量撑不到完成时的提示。能量行改写（MachineBatteryInfo）开着时，「耗能」行括号里已写了可运行天数，
     /// 这里只说不够，不再重复天数。
     /// </summary>
     private static string BatteryShort(int batteryDays)

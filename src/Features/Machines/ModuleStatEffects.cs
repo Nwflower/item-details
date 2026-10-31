@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace ItemDetails;
 
@@ -9,10 +8,10 @@ namespace ItemDetails;
 /// 「当前加成」与「这一项清零」，差值就是这一项的贡献。
 ///
 /// 为什么用差分而不是照抄公式：
-///   · 性能、效率、质量在每台机器上含义不同（集水器是出水量、投影仪是吸引力、净水器是残留下限……），
+///   · 性能、效率、质量在每台机器上含义不同（集水器是出水量、投影仪是吸引力、净水器是纯度上限……），
 ///     数值全交给游戏函数算，其它模组用 Harmony 改了这些函数，显示自动跟上；
 ///   · 两项都影响耗电的机器（交易机的性能也省电、催陈器的性能抵扣耗电）能拆开各算各的；
-///   · 分档的质量能向上试探出「再加多少升一档」。
+///   · 分档的质量能向上试探出「再加多少到下一档」，并写明下一档是什么（优质水、+1 陈化速度、纯水）。
 ///
 /// 耗电和加工速度先做模型校验：探针按原版公式算出的值必须等于机器上的实际值，
 /// 对不上（涡轮增压、第三方改了耗电等）就不给这两项，宁可少写也不写错。
@@ -113,8 +112,6 @@ internal static class ModuleStatEffects
         internal Func<GameItem, int>? Quality;
         internal string QualityKey = "";
         internal string QualityEn = "";
-        internal bool QualityNextStep;
-        internal Func<GameItem, string>? QualityTier;
         internal Func<GameItem, string?>? CustomQuality;
         internal bool UseDealMakerPower;
     }
@@ -131,7 +128,7 @@ internal static class ModuleStatEffects
         {
             Performance = MachineMoistureFarm.GetOutputVolume,
             PerformanceKey = "module.output", PerformanceEn = "{0} ml/day", PerformanceDivisor = 1000,
-            QualityTier = MachineMoistureFarm.GetOutputQuality,
+            CustomQuality = MoistureNextWater,
         },
         ["mirage_projector"] = new()
         {
@@ -151,12 +148,10 @@ internal static class ModuleStatEffects
             Performance = p => MachineAlarm.GetAlarmeStopRate(p),
             PerformanceKey = "module.theft", PerformanceEn = "{0}% theft prevention",
         },
-        ["wine_rack"] = new()
-        {
-            Quality = MachineWineRack.GetAgingDays,
-            QualityKey = "module.aging", QualityEn = "{0} day(s) of aging per day", QualityNextStep = true,
-        },
-        ["water_purifier"] = new() { CustomQuality = PurifierResidual },
+        ["wine_rack"] = new() { CustomQuality = WineNextAging },
+        // 酿酒拓展（工坊 3829730904）的流年：AgeWell() 改 ID，耗电与陈化都走原版函数
+        ["be_liunian_ager"] = new() { CustomQuality = WineNextAging },
+        ["water_purifier"] = new() { CustomQuality = PurifierPureWater },
         ["printer"] = new()
         {
             Quality = ModuleHelper.GetAjustedQuality,
@@ -226,16 +221,10 @@ internal static class ModuleStatEffects
         {
             quality = profile.CustomQuality(machine);
         }
-        else if (profile.QualityTier != null)
-        {
-            quality = NextTier(machine, QualityTag, profile.QualityTier);
-        }
         else if (profile.Quality != null && qualityBonus != 0
                  && Diff(now.Quality, Take(machine, profile, null, (QualityTag, 0))?.Quality) is int qualityDelta)
         {
             quality = Loc.T(profile.QualityKey, profile.QualityEn, Plus(qualityDelta));
-            if (profile.QualityNextStep)
-                quality = WithNextStep(quality, machine, QualityTag, profile.Quality);
         }
 
         if (perf.Count > 0) notes[Performance] = string.Join(Loc.T("list.sep", ", "), perf);
@@ -353,47 +342,59 @@ internal static class ModuleStatEffects
         return lo;
     }
 
-    private static string? NextTier(GameItem machine, string statTag, Func<GameItem, string> f)
+    /// <summary>集水器：再加多少质量出水升到下一档，档名用游戏自己的水质名。</summary>
+    private static string? MoistureNextWater(GameItem machine)
     {
         try
         {
-            int step = NextStep(machine, statTag, f);
-            return step > 0
-                ? Loc.T("module.next_tier", "+{0}% for next tier", step)
-                : Loc.T("module.top_tier", "top tier");
+            int step = NextStep(machine, QualityTag, MachineMoistureFarm.GetOutputQuality);
+            if (step < 0)
+                return Loc.T("module.water_top", "producing {0}", MachineMoistureFarm.GetOutputQualityDisplay(machine));
+
+            int cur = GameRead.TagInt(machine, QualityTag) ?? 0;
+            var probe = Probe(machine, (QualityTag, cur + step));
+            if (probe == null) return null;
+            return Loc.T("module.water_next", "+{0}% to produce {1}",
+                step, MachineMoistureFarm.GetOutputQualityDisplay(probe));
         }
         catch { return null; }
     }
 
-    private static string WithNextStep(string text, GameItem machine, string statTag, Func<GameItem, int> f)
+    /// <summary>催陈器：再加多少质量每天多陈化一天。陈化天数随质量无上限递增。</summary>
+    private static string? WineNextAging(GameItem machine)
     {
         try
         {
-            int step = NextStep(machine, statTag, f);
-            if (step > 0) text += Loc.T("list.sep", ", ") + Loc.T("module.next_tier", "+{0}% for next tier", step);
+            int step = NextStep(machine, QualityTag, MachineWineRack.GetAgingDays);
+            return step > 0 ? Loc.T("module.aging_next", "+{0}% for +1 aging speed", step) : null;
         }
-        catch { }
-        return text;
+        catch { return null; }
     }
 
-    private static string? PurifierResidual(GameItem machine)
+    /// <summary>
+    /// 净水器：原版已写「纯度上限」，这里只补再加多少质量上限能到纯水。
+    /// 上限与纯水线都取游戏的（GetMaxPurityCap、WATER_PURITIES[0]），按原始质量算，不除比率。
+    /// </summary>
+    private static string? PurifierPureWater(GameItem machine)
     {
         try
         {
             int q = GameRead.TagInt(machine, QualityTag) ?? 0;
-            double now = MachinePurifier.GetPurityMult(q);
-            string text = Loc.T("module.residual", "residual ×{0}", now.ToString("0.##", CultureInfo.InvariantCulture));
+            int pure = WaterFeatureHelper.WATER_PURITIES[0];
+            string name = LocHelper.GetLocalizedMechanic("mech_condition_pure_water");
+            if (MachinePurifier.GetMaxPurityCap(q) >= pure)
+                return Loc.T("module.purifier_top", "can purify to {0}", name);
 
             // 纯函数，直接按质量值试探，不需要探针
-            if (MachinePurifier.GetPurityMult(q + StepSearchLimit) == now) return text;
+            if (MachinePurifier.GetMaxPurityCap(q + StepSearchLimit) < pure) return null;
             int lo = 1, hi = StepSearchLimit;
             while (lo < hi)
             {
                 int mid = (lo + hi) / 2;
-                if (MachinePurifier.GetPurityMult(q + mid) == now) lo = mid + 1;
+                if (MachinePurifier.GetMaxPurityCap(q + mid) < pure) lo = mid + 1;
                 else hi = mid;
             }
-            return text + Loc.T("list.sep", ", ") + Loc.T("module.next_tier", "+{0}% for next tier", lo);
+            return Loc.T("module.purifier_next", "+{0}% to purify to {1}", lo, name);
         }
         catch { return null; }
     }

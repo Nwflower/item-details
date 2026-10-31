@@ -151,10 +151,15 @@ wine.fermenting,Fermentuje
 wine.finished,Gotowe
 wine.score_part,", ocena {0}"
 wine.state,Wino: {0}
+wine.preview,Ocena po fermentacji: {0}
 wine.tier,", próg {0}"
 wine.unknown_state,Nieznany ({0})
 wine.yeast_power,Moc drożdży: {0}/takt
-machine.battery_line,Pozostała energia: {0} ({1} dni)
+wine.yeast_effect,"W winie: ocena +{0} (nie sumuje się), fermentacja w {1} takt."
+wine.yeast_illegal,Wino będzie podróbką
+machine.energy_label,"Zużycie: "
+machine.energy_unit,/dzień
+machine.energy_battery," (zostało {0}, dni: {1})"
 config.section.display,Wyświetlanie
 config.item_appraisal,Wycena przedmiotów
 config.item_appraisal.tip,Pokazuje werdykt autentyczności i rozbicie wartości zależnie od typu przedmiotu.
@@ -227,13 +232,14 @@ module.output,{0} ml/dzień
 module.attract,{0}% atrakcyjności
 module.bargain,{0}% skuteczności targowania
 module.theft,{0}% ochrony przed kradzieżą
-module.aging,{0} dni dojrzewania/dzień
+module.aging_next,+{0}% do +1 szybkości dojrzewania
 module.print_quality,{0} jakości druku
 module.success,{0}% szansy powodzenia
 module.harvest,{0}% plonu
-module.next_tier,+{0}% do następnego progu
-module.top_tier,najwyższy próg
-module.residual,pozostałość ×{0}
+module.water_next,+{0}% do: {1}
+module.water_top,produkuje: {0}
+module.purifier_next,+{0}% do oczyszczania do: {1}
+module.purifier_top,oczyszcza do: {0}
 history.empty,Nie było jeszcze rozmowy.
 history.earlier,…{0} wcześniejszych kwestii
 history.unknown,Klient

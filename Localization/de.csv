@@ -151,10 +151,15 @@ wine.fermenting,Gärt
 wine.finished,Fertig
 wine.score_part,", Wertung {0}"
 wine.state,Wein: {0}
+wine.preview,Wertung nach der Gärung: {0}
 wine.tier,", Stufe {0}"
 wine.unknown_state,Unbekannt ({0})
 wine.yeast_power,Hefestärke: {0}/Tick
-machine.battery_line,Restenergie: {0} ({1} Tage)
+wine.yeast_effect,"Im Wein: Wertung +{0} (nicht stapelbar), gärt in {1} Tick(s)"
+wine.yeast_illegal,Der Wein wird eine Fälschung
+machine.energy_label,"Verbrauch: "
+machine.energy_unit,/Tag
+machine.energy_battery," (Rest {0}, {1} Tage)"
 config.section.display,Anzeige
 config.item_appraisal,Gegenstandsgutachten
 config.item_appraisal.tip,"Zeigt Echtheitsurteil und Wertaufschlüsselung, abgestimmt auf den Gegenstandstyp."
@@ -227,13 +232,14 @@ module.output,{0} ml/Tag
 module.attract,{0} % Attraktivität
 module.bargain,{0} % Feilscherfolg
 module.theft,{0} % Diebstahlschutz
-module.aging,{0} Tag(e) Reifung/Tag
+module.aging_next,+{0} % für +1 Reifetempo
 module.print_quality,{0} Druckqualität
 module.success,{0} % Erfolgschance
 module.harvest,{0} % Ernte
-module.next_tier,+{0} % bis zur nächsten Stufe
-module.top_tier,höchste Stufe
-module.residual,Rückstand ×{0}
+module.water_next,+{0} % für {1}
+module.water_top,erzeugt {0}
+module.purifier_next,+{0} % zum Reinigen bis {1}
+module.purifier_top,reinigt bis {0}
 history.empty,Noch keine Unterhaltung.
 history.earlier,…{0} frühere Zeilen
 history.unknown,Kunde

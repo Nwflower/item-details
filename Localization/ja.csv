@@ -151,10 +151,15 @@ wine.fermenting,発酵中
 wine.finished,醸成済み
 wine.score_part,、点数 {0}
 wine.state,ワイン：{0}
+wine.preview,発酵後の点数 {0}
 wine.tier,、第 {0} 段階
 wine.unknown_state,不明（{0}）
 wine.yeast_power,酵母の力：{0}/回
-machine.battery_line,残りエネルギー：{0}（{1}日）
+wine.yeast_effect,果実酒に入れると：点数 +{0}（重複しない）、{1} 回で発酵完了
+wine.yeast_illegal,偽造品になる
+machine.energy_label,消費電力：
+machine.energy_unit,/日
+machine.energy_battery,（残り{0}、{1}日）
 config.section.display,表示
 config.item_appraisal,アイテム鑑定
 config.item_appraisal.tip,アイテムの種類に応じて、真偽の判定と価値の内訳を表示します。
@@ -227,13 +232,14 @@ module.output,{0}ml/日
 module.attract,{0}%魅力
 module.bargain,{0}%交渉成功率
 module.theft,{0}%盗難防止率
-module.aging,{0}日熟成/日
+module.aging_next,あと+{0}%で熟成速度+1
 module.print_quality,{0}印刷品質
 module.success,{0}%成功率
 module.harvest,{0}%収穫量
-module.next_tier,あと+{0}%で次の段階
-module.top_tier,最高段階
-module.residual,残留上限×{0}
+module.water_next,あと+{0}%で{1}を生産
+module.water_top,{0}を生産中
+module.purifier_next,あと+{0}%で{1}まで浄化可能
+module.purifier_top,{0}まで浄化可能
 history.empty,まだ会話がありません。
 history.earlier,…さらに前の {0} 件
 history.unknown,顧客

@@ -151,10 +151,15 @@ wine.fermenting,发酵中
 wine.finished,已酿成
 wine.score_part,，评分 {0}
 wine.state,果酿：{0}
+wine.preview,发酵后评分 {0}
 wine.tier,，第 {0} 档
 wine.unknown_state,未知（{0}）
 wine.yeast_power,酵母强度：{0}/次
-machine.battery_line,剩余能量：{0}（{1}天）
+wine.yeast_effect,加入果酿：评分 +{0}（多放不叠加），发酵 {1} 次完成
+wine.yeast_illegal,会酿成赝品
+machine.energy_label,耗能：
+machine.energy_unit,/天
+machine.energy_battery,（剩余{0}，{1}天）
 config.section.display,显示优化
 config.item_appraisal,物品鉴定
 config.item_appraisal.tip,按物品类型显示真伪结论与价值构成。
@@ -227,13 +232,14 @@ module.output,{0}毫升/天
 module.attract,{0}%吸引力
 module.bargain,{0}%议价成功率
 module.theft,{0}%防盗率
-module.aging,{0}天陈化/天
+module.aging_next,+{0}%后+1陈化速度
 module.print_quality,{0}打印品质
 module.success,{0}%成功率
 module.harvest,{0}%收获数量
-module.next_tier,再+{0}%升一档
-module.top_tier,已是最高档
-module.residual,残留下限×{0}
+module.water_next,+{0}%后产出{1}
+module.water_top,已产出{0}
+module.purifier_next,+{0}%后可产出{1}
+module.purifier_top,已可产出{0}
 history.empty,还没有对话。
 history.earlier,…更早 {0} 条
 history.unknown,顾客

@@ -65,6 +65,7 @@ internal static class TypeBadge
     private const float ChipGap = 4f;
     private const float PadX = 6f;    // 带底板时左右留白，避免文字贴边
     private const float PadY = 2f;
+    private const float OutlineDistance = 1f;   // 描边向四周外扩的距离，对齐时要算进去
     private const float StaleSeconds = 0.5f;
 
     private sealed class Entry
@@ -487,7 +488,7 @@ internal static class TypeBadge
             // 淡化模式保留一圈分类色细边：底色是深色，边框是分类色，两者不会混在一起。
             outline.enabled = true;
             outline.effectColor = border;
-            outline.effectDistance = new Vector2(1f, 1f);
+            outline.effectDistance = new Vector2(OutlineDistance, OutlineDistance);
             outline.useGraphicAlpha = false;
         }
     }
@@ -602,7 +603,7 @@ internal static class TypeBadge
         }
     }
 
-    /// <summary>整排放在 tooltip 正上方并水平居中。</summary>
+    /// <summary>整排放在 tooltip 正上方，左边缘与 tooltip 外框左边缘对齐。</summary>
     private static void Place(RectTransform tooltipRect)
     {
         if (_badge == null) return;
@@ -610,8 +611,7 @@ internal static class TypeBadge
         if (rect == null) return;
 
         // 不能用 tooltipRect.position 当中心：该 RectTransform 的 pivot 不一定在中心
-        // （像素风窗口常以左上为 pivot）。改用顶边中点换算到世界坐标，与 pivot 无关。
-        // 左对齐：容器左边缘贴住 tooltip 左边缘（不再整排居中）
+        // （像素风窗口常以左上为 pivot）。改用左上角换算到世界坐标，与 pivot 无关。
         Vector3 leftTop = tooltipRect.TransformPoint(
             new Vector3(tooltipRect.rect.xMin, tooltipRect.rect.yMax, 0f));
 
@@ -621,8 +621,10 @@ internal static class TypeBadge
         float gap = 4f * scale;
         float halfBadge = rect.rect.height * 0.5f * scale;
         float halfWidth = rect.rect.width * 0.5f * scale;
+        // 描边画在底板外侧：右移一个描边宽度，让描边外沿（而不是底板）贴住 tooltip 外框
+        float outline = OutlineDistance * scale;
 
-        Vector3 pos = leftTop + new Vector3(halfWidth, gap + halfBadge, 0f);
+        Vector3 pos = leftTop + new Vector3(halfWidth + outline, gap + halfBadge, 0f);
         pos.z = leftTop.z;
         rect.position = pos;
     }

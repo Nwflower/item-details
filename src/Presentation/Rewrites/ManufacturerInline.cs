@@ -160,7 +160,9 @@ internal static class ManufacturerInline
         // 原版公司行前面带一个空格（DisplayManufacturer 先 Add(" ")），比较时要去掉。
         int c = Array.FindIndex(fg, line => string.Equals(Visible(line).Trim(), company, StringComparison.Ordinal));
         if (c < 1 || c + 1 >= fg.Length) return null;
-        if (CellWidth(Visible(fg[c - 1])) + Gap + CellWidth(company) > WrapWidth(builder)) return null;
+        // 与 Build 的折行同一口径：一个字符算 1（中日韩的字宽已由 WrapWidth 的 0.66 折算），
+        // 不能按全角算 2，否则中文物品名几乎都会被判成放不下。
+        if (VisibleLength(fg[c - 1]) + Gap + company.Length > WrapWidth(builder)) return null;
 
         // 名称行末尾补一段全透明的「间隔 + 公司名」，保证本行至少有这么宽，靠右的公司名不会压住名称。
         string companyLine = fg[c].TrimStart(' ');
@@ -196,14 +198,6 @@ internal static class ManufacturerInline
     }
 
     private static int VisibleLength(string text) => Visible(text).Length;
-
-    /// <summary>按显示宽度估算格数：中日韩等全角字符算 2 格，其余算 1 格。</summary>
-    private static int CellWidth(string text)
-    {
-        int n = 0;
-        foreach (char ch in text) n += ch >= (char)0x2E80 ? 2 : 1;
-        return n;
-    }
 
     /// <summary>跳过富文本标签与控制字符，按显示文本匹配公司行。</summary>
     private static string Visible(string text)

@@ -18,6 +18,10 @@ namespace ItemDetails;
 ///   FERMENTATION_TIME_REMAINING_INT             发酵剩余（次）
 ///   WINE_YEAST_POWER_INT                        酵母力度（每次推进的发酵量）
 ///
+/// 酵母物品（WINE_YEAST_TAG）另写一行它对果酿的作用，依据 WineHelper.StartFermentation：
+///   瓶里有任意酵母评分 +1（多放不叠加，与力度无关）；力度只决定发酵快慢；
+///   非法酵母（WINE_YEAST_ILLEGAL_TAG）会让成品成为赝品。
+///
 /// 只读，不写任何游戏对象。
 /// </summary>
 internal static class WineInfo
@@ -27,12 +31,22 @@ internal static class WineInfo
     private const RenderHandler.ColorPalette Bad = RenderHandler.ColorPalette.LightRed;
     private const RenderHandler.ColorPalette Info = RenderHandler.ColorPalette.LightCyan;
 
+    /// <summary>StartFermentation 写入的发酵总量（原版字面量 4，无常量可读），每次推进扣掉酵母力度。</summary>
+    private const int FermentationTotal = 4;
+    /// <summary>StartFermentation：瓶里有酵母时评分固定 +1。</summary>
+    private const int YeastScoreBonus = 1;
+
     internal static List<TooltipLine> Collect(GameItem? item)
     {
         var lines = new List<TooltipLine>();
         try
         {
             if (item == null) return lines;
+            if (SafeIsTag(item, "WINE_YEAST_TAG"))
+            {
+                CollectYeast(item, lines);
+                return lines;
+            }
             if (!SafeIsTag(item, "WINE_CONTAINER_TAG")) return lines;
 
             int? stateRaw = GameRead.TagInt(item, "WINE_CONTAINER_STATE");
@@ -60,6 +74,9 @@ internal static class WineInfo
                 if (tier >= 4) headColor = Good;
             }
             lines.Add(new TooltipLine(head, headColor));
+
+            // 2b) 空瓶已放原料/酵母：按原版开酿公式预估评分
+            if (state == 0) AddPreview(item, lines);
 
             // 3) 成分（‰）：糖度与污染物
             if (state == 2)
@@ -106,6 +123,62 @@ internal static class WineInfo
             Log.Warn("WineInfo", ex);
         }
         return lines;
+    }
+
+    /// <summary>
+    /// 还没点发酵的瓶子：照 WineHelper.StartFermentation 算开酿后的评分。
+    ///   每个原料 + BERRY_CONDITION_INT（负数先 +1）；原料 ≥2 个 +1；有酵母 +1；再加水质分（GetWaterQualityScore）。
+    /// 第三方果实只要沿用原版 WINE_INGREDIENT_TAG / BERRY_CONDITION_INT 就一并算进去。
+    /// </summary>
+    private static void AddPreview(GameItem bottle, List<TooltipLine> lines)
+    {
+        int score = TagInt(bottle, "WINE_SCORE_INT");
+        int ingredients = 0;
+        bool yeast = false, illegal = false;
+        foreach (var child in GraphUtils.FindAllChildrenType<GameItem>(bottle))
+        {
+            if (SafeIsTag(child, "WINE_INGREDIENT_TAG"))
+            {
+                int cond = TagInt(child, "BERRY_CONDITION_INT");
+                if (cond < 0) cond++;
+                score += cond;
+                ingredients++;
+            }
+            if (SafeIsTag(child, "WINE_YEAST_TAG")) yeast = true;
+            if (SafeIsTag(child, "WINE_YEAST_ILLEGAL_TAG")) illegal = true;
+        }
+        if (ingredients == 0 && !yeast) return;   // 什么都没放，没有可预估的
+
+        if (ingredients >= 2) score++;
+        if (yeast) score += YeastScoreBonus;
+        score += WineHelper.GetWaterQualityScore(bottle);
+
+        int tier = Tier(score);
+        string text = Loc.T("wine.preview", "Score after fermenting: {0}", score)
+                    + (tier > 0 ? Loc.T("wine.tier", ", tier {0}", tier) : "");
+        lines.Add(new TooltipLine(text, tier >= 4 ? Good : Info));
+        if (illegal)
+            lines.Add(new TooltipLine(Loc.T("wine.yeast_illegal", "The wine will be a counterfeit"), Bad));
+    }
+
+    /// <summary>
+    /// 评分 → 档位，与 WineHelper.GetWineQualityTier 相同（≥6 五档、5 四档、3–4 三档、2、1、其余 0）。
+    /// 原版函数只读瓶上的标签，预估时分数还没写进去，只能照抄。
+    /// </summary>
+    private static int Tier(int score)
+        => score >= 6 ? 5 : score == 5 ? 4 : score >= 3 ? 3 : score >= 1 ? score : 0;
+
+    /// <summary>酵母放进果酿瓶的效果：评分 +1、发酵几次完成；非法酵母另提示会成赝品。</summary>
+    private static void CollectYeast(GameItem item, List<TooltipLine> lines)
+    {
+        int power = Math.Max(1, TagInt(item, "WINE_YEAST_POWER_INT"));
+        int ticks = (FermentationTotal + power - 1) / power;
+        lines.Add(new TooltipLine(
+            Loc.T("wine.yeast_effect", "In wine: score +{0} (does not stack), ferments in {1} tick(s)",
+                YeastScoreBonus, ticks),
+            Good));
+        if (SafeIsTag(item, "WINE_YEAST_ILLEGAL_TAG"))
+            lines.Add(new TooltipLine(Loc.T("wine.yeast_illegal", "The wine will be a counterfeit"), Bad));
     }
 
     private static int TagInt(GameItem item, string tag) => GameRead.TagInt(item, tag) ?? 0;

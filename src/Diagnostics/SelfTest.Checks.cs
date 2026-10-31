@@ -878,20 +878,24 @@ internal static partial class SelfTest
             string text = tooltip.Build()?.nakedText ?? "";
 
             int drawn = GameRead.TagInt(machine, "machinery_drawn_power") ?? 0;
+            int baseDrawn = GameRead.TagInt(machine, "MACHINERY_DRAWN_POWER_BASE") ?? 0;
             int days = drawn > 0 ? 100 / drawn : 0;
             string required = "";
             try { required = LocHelper.GetLocalizedMechanic("mech_machinery_required_energy") ?? ""; } catch { }
-            string batteryLine = Loc.T("machine.battery_line",
-                "Remaining energy: {0} ({1} days)", 100, days);
+            string energyLine = Loc.T("machine.energy_label", "Power: ")
+                + (baseDrawn > 0 && baseDrawn != drawn ? baseDrawn + "→" : "")
+                + drawn + Loc.T("machine.energy_unit", "/day")
+                + Loc.T("machine.energy_battery", " ({0} left, {1} days)", 100, days);
 
-            int requiredAt = required.Length > 0 ? text.IndexOf(required, StringComparison.Ordinal) : -1;
-            int batteryAt = text.IndexOf(batteryLine, StringComparison.Ordinal);
-            bool placedAfter = requiredAt >= 0 && batteryAt > requiredAt;
+            bool merged = text.IndexOf(energyLine, StringComparison.Ordinal) >= 0;
+            bool vanillaGone = required.Trim().Length == 0
+                || text.IndexOf(required.Trim(), StringComparison.Ordinal) < 0;
 
             bool inserted = remaining == 0 && ReferenceEquals(slot.childItem, battery);
-            ok = inserted && placedAfter;
-            return $"machine battery: remaining={remaining} inserted={inserted} drawn={drawn} text='{text.Replace('\n', ' ')}' " +
-                   $"(期望电池行位于所需能量之后)";
+            ok = inserted && merged && vanillaGone;
+            return $"machine battery: remaining={remaining} inserted={inserted} drawn={drawn} base={baseDrawn} " +
+                   $"merged={merged} vanillaGone={vanillaGone} text='{text.Replace('\n', ' ')}' " +
+                   $"(期望原版所需能量行被合并为「{energyLine}」)";
         }
         catch (Exception ex)
         {

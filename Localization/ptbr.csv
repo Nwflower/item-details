@@ -151,10 +151,15 @@ wine.fermenting,Fermentando
 wine.finished,Pronto
 wine.score_part,", pontuação {0}"
 wine.state,Vinho: {0}
+wine.preview,Pontuação após fermentar: {0}
 wine.tier,", faixa {0}"
 wine.unknown_state,Desconhecido ({0})
 wine.yeast_power,Força da levedura: {0}/ciclo
-machine.battery_line,Energia restante: {0} ({1} dias)
+wine.yeast_effect,"No vinho: pontuação +{0} (não acumula), fermenta em {1} ciclo(s)"
+wine.yeast_illegal,O vinho será falsificado
+machine.energy_label,"Consumo: "
+machine.energy_unit,/dia
+machine.energy_battery," (restam {0}, {1} dias)"
 config.section.display,Exibição
 config.item_appraisal,Avaliação de itens
 config.item_appraisal.tip,Mostra o veredito de autenticidade e o detalhamento do valor conforme o tipo de item.
@@ -227,13 +232,14 @@ module.output,{0} ml por dia
 module.attract,{0}% de atratividade
 module.bargain,{0}% de sucesso na barganha
 module.theft,{0}% de prevenção de roubo
-module.aging,{0} dia(s) de envelhecimento por dia
+module.aging_next,+{0}% para +1 de velocidade de envelhecimento
 module.print_quality,{0} de qualidade de impressão
 module.success,{0}% de chance de sucesso
 module.harvest,{0}% de colheita
-module.next_tier,+{0}% para o próximo nível
-module.top_tier,nível máximo
-module.residual,resíduo ×{0}
+module.water_next,+{0}% para produzir {1}
+module.water_top,produz {0}
+module.purifier_next,+{0}% para purificar até {1}
+module.purifier_top,purifica até {0}
 history.empty,Ainda não há diálogo.
 history.earlier,…{0} falas anteriores
 history.unknown,Cliente

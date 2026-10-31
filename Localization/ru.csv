@@ -151,10 +151,15 @@ wine.fermenting,Бродит
 wine.finished,Готово
 wine.score_part,", оценка {0}"
 wine.state,Вино: {0}
+wine.preview,Оценка после брожения: {0}
 wine.tier,", уровень {0}"
 wine.unknown_state,Неизвестно ({0})
 wine.yeast_power,Сила дрожжей: {0}/тик
-machine.battery_line,Остаток энергии: {0} ({1} дн.)
+wine.yeast_effect,"В вине: оценка +{0} (не суммируется), брожение за {1} тик."
+wine.yeast_illegal,Вино станет подделкой
+machine.energy_label,"Расход: "
+machine.energy_unit,/дн.
+machine.energy_battery," (осталось {0}, {1} дн.)"
 config.section.display,Отображение
 config.item_appraisal,Оценка предметов
 config.item_appraisal.tip,Показывает вердикт о подлинности и разбивку стоимости с учётом типа предмета.
@@ -227,13 +232,14 @@ module.output,{0} мл в день
 module.attract,{0}% привлекательности
 module.bargain,{0}% успеха торга
 module.theft,{0}% защиты от краж
-module.aging,{0} дн. выдержки в день
+module.aging_next,ещё +{0}% — скорость выдержки +1
 module.print_quality,{0} качества печати
 module.success,{0}% шанса успеха
 module.harvest,{0}% урожая
-module.next_tier,ещё +{0}% до следующего уровня
-module.top_tier,максимальный уровень
-module.residual,остаток ×{0}
+module.water_next,ещё +{0}% — будет {1}
+module.water_top,производит: {0}
+module.purifier_next,ещё +{0}% — очистка до: {1}
+module.purifier_top,очистка до: {0}
 history.empty,Разговора ещё не было.
 history.earlier,…ещё {0} реплик
 history.unknown,Клиент

@@ -4,11 +4,13 @@ using HarmonyLib;
 namespace ItemDetails;
 
 /// <summary>
-/// 机器电池电量：显示剩余能量与按当前每日耗能估算的可运行天数。
+/// 机器能量行：把原版「所需能量：8/天 （基础：10/天）」与电池余量压成一行
+///   `耗能：10→8/天（剩余12，1天）`
+/// 基础值灰色；当前值比基础低绿、高红，不变时只写当前值；括号按可运行天数着色。
 ///
-/// 位置要求：紧贴在游戏自己的「所需能量：X/天」段之后，而不是 tooltip 末尾。
-/// 游戏先 Add("所需能量")，再 AddLine("X/天")；修改耗能时还会再 AddLine 基准值。
-/// 因此这里跟踪 CreateMachineryTooltip 的构建，在能量行块结束时插入。
+/// 原版在 CreateMachineryTooltip 里先 Add("所需能量")，耗能变化时再 Add("X/天")，
+/// 最后 AddLine 结束能量块。这里跟踪这次构建：吞掉标签与数值段，在那次 AddLine 处改写出整行。
+/// 原版在能量块前、以及后面模组加成/加工进度段前各写一行 AddLine(" ")，紧贴这一行的两个空行一并去掉。
 ///
 /// 电池按 role 为 power 的面板找（见 <see cref="MachineInterior.FindPowerSource"/>），
 /// 只认普通电池；第三方机器面板顺序不同也不会把别的物品当成电池。
@@ -21,9 +23,9 @@ internal static class MachineBatteryInfo
 
     private static GameItem? _machine;
     private static bool _labelSeen;
-    private static bool _inserted;
-    private static int _energyLines;
-    private static int _expectedEnergyLines;
+    private static bool _written;
+    private static bool _leadBlankSkipped;
+    private static bool _trailBlankPending;
     private static string _labelLocale = "";
     private static string _requiredLabel = "";
 
@@ -48,7 +50,7 @@ internal static class MachineBatteryInfo
             });
             if (machineTooltip == null || add == null || addLine == null)
             {
-                Log.Warn("MachineBattery.Apply", "未找到机器 tooltip 构建目标，电池行跳过");
+                Log.Warn("MachineBattery.Apply", "未找到机器 tooltip 构建目标，能量行改写跳过");
                 return;
             }
 
@@ -57,7 +59,7 @@ internal static class MachineBatteryInfo
                 prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(BeforeMachineTooltip)),
                 postfix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AfterMachineTooltip)));
             _harmony.Patch(add, prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddPrefix)));
-            _harmony.Patch(addLine, postfix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddLinePostfix)));
+            _harmony.Patch(addLine, prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddLinePrefix)));
             _patched = true;
             Log.Msg("MachineBatteryInfo: patched CreateMachineryTooltip/Add/AddLine");
         }
@@ -79,14 +81,9 @@ internal static class MachineBatteryInfo
     {
         Reset();
         if (!ModSettings.MachineBattery || item == null) return;
-
+        // 与原版同一条件：耗能为 0 时不写能量块
+        if ((GameRead.TagInt(item, "machinery_drawn_power") ?? 0) <= 0) return;
         _machine = item;
-        int drawn = GameRead.TagInt(item, "machinery_drawn_power") ?? 0;
-        // 游戏在「所需能量」之后只调用一次 AddLine：
-        //   耗能未变 → AddLine("X/天")；
-        //   耗能变化 → Add("X/天") + AddLine("基准 Y/天")。
-        // 两种情况的能量行块都结束在这次 AddLine，所以预期固定为 1。
-        _expectedEnergyLines = drawn > 0 ? 1 : 0;
     }
 
     private static void AfterMachineTooltip()
@@ -94,42 +91,109 @@ internal static class MachineBatteryInfo
         Reset();
     }
 
-    /// <summary>识别游戏单独 Add 的“所需能量”标签，随后开始计数能量行。</summary>
-    private static void AddPrefix(string __0)
+    /// <summary>
+    /// 吞掉能量块里的 Add：先是“所需能量”标签，耗能变化时还有一段“X/天”。
+    /// AddLine 内部也走 Add，但能量块的那次 AddLine 已在 <see cref="AddLinePrefix"/> 被拦下。
+    /// </summary>
+    private static bool AddPrefix(string __0)
     {
-        if (_machine == null || _inserted || _expectedEnergyLines <= 0 || _labelSeen) return;
+        if (_machine == null) return true;
+        if (_written)
+        {
+            _trailBlankPending = false;   // 能量行后先来了别的内容，后面的空行不再算紧贴
+            return true;
+        }
+        if (_labelSeen) return false;
         try
         {
             // 本地化标签可能带尾随空格；按 Trim 后比较，避免“所需能量： ”
-            // 与“所需能量：”不相等而永远不触发插入。
+            // 与“所需能量：”不相等而永远不触发改写。
             string text = (__0 ?? "").Trim();
             string label = RequiredLabel().Trim();
             if (label.Length > 0 && string.Equals(text, label, StringComparison.Ordinal))
+            {
                 _labelSeen = true;
+                return false;
+            }
         }
         catch { }
+        return true;
     }
 
-    private static void AddLinePostfix(RichTextBuilder __instance, string __0)
+    /// <summary>
+    /// 能量块以一次 AddLine 结束（“X/天”或“基础 Y/天”），在这里写出合并后的整行；
+    /// 能量块前的那行空行、能量行后紧跟的那行空行直接丢掉。
+    /// </summary>
+    private static bool AddLinePrefix(RichTextBuilder __instance, string __0)
     {
-        if (_machine == null || !_labelSeen || _inserted) return;
-        _energyLines++;
-        if (_energyLines < _expectedEnergyLines) return;
+        if (_machine == null) return true;
+        bool blank = __0 != null && __0.Trim().Length == 0;
 
-        _inserted = true;
-        var line = Collect(_machine);
-        if (line == null) return;
-        try { __instance.AddLine(line.Value.Text, false, line.Value.Color); }
-        catch (Exception ex) { Log.Warn("MachineBattery.Insert", ex); }
+        if (!_labelSeen)
+        {
+            if (blank && !_leadBlankSkipped && RequiredLabel().Trim().Length > 0)
+            {
+                _leadBlankSkipped = true;
+                return false;
+            }
+            return true;
+        }
+
+        if (_written)
+        {
+            if (!_trailBlankPending) return true;
+            _trailBlankPending = false;
+            return !blank;
+        }
+
+        _written = true;   // 先置位：下面自己的 Add 不能再被吞
+        try
+        {
+            WriteEnergyLine(__instance, _machine);
+            _trailBlankPending = true;
+            return false;
+        }
+        catch (Exception ex)
+        {
+            // 标签已被吞掉，补回去再让原版这行照常写出
+            Log.Warn("MachineBattery.Write", ex);
+            try { __instance.Add(RequiredLabel(), RenderHandler.ColorPalette.LightCyan); } catch { }
+            return true;
+        }
+    }
+
+    private static void WriteEnergyLine(RichTextBuilder builder, GameItem machine)
+    {
+        int drawn = GameRead.TagInt(machine, "machinery_drawn_power") ?? 0;
+        int baseDrawn = GameRead.TagInt(machine, "MACHINERY_DRAWN_POWER_BASE") ?? 0;
+        string unit = Loc.T("machine.energy_unit", "/day");
+
+        builder.Add(Loc.T("machine.energy_label", "Power: "), RenderHandler.ColorPalette.LightCyan);
+        if (baseDrawn > 0 && baseDrawn != drawn)
+        {
+            builder.Add(baseDrawn + "→", RenderHandler.ColorPalette.Gray);
+            var color = drawn < baseDrawn
+                ? RenderHandler.ColorPalette.LightGreen   // 比基础省电
+                : RenderHandler.ColorPalette.LightRed;    // 比基础费电
+            builder.Add(drawn + unit, color);
+        }
+        else
+        {
+            builder.Add(drawn + unit, RenderHandler.ColorPalette.LightCyan);
+        }
+
+        var battery = Collect(machine);
+        if (battery != null) builder.Add(battery.Value.Text, battery.Value.Color);
+        builder.NextLine();
     }
 
     private static void Reset()
     {
         _machine = null;
         _labelSeen = false;
-        _inserted = false;
-        _energyLines = 0;
-        _expectedEnergyLines = 0;
+        _written = false;
+        _leadBlankSkipped = false;
+        _trailBlankPending = false;
     }
 
     private static string RequiredLabel()
@@ -145,7 +209,7 @@ internal static class MachineBatteryInfo
         return _requiredLabel;
     }
 
-    /// <summary>剩余能量 + 按当前每日耗能向下取整的可运行天数。</summary>
+    /// <summary>能量行末尾的括号：剩余能量 + 按当前每日耗能向下取整的可运行天数。</summary>
     internal static TooltipLine? Collect(GameItem? item)
     {
         if (item == null) return null;
@@ -169,7 +233,7 @@ internal static class MachineBatteryInfo
                       : RenderHandler.ColorPalette.LightRed;
 
             return new TooltipLine(
-                Loc.T("machine.battery_line", "Remaining energy: {0} ({1} days)", energy, days),
+                Loc.T("machine.energy_battery", " ({0} left, {1} days)", energy, days),
                 color);
         }
         catch (Exception ex)

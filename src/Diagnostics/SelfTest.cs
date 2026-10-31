@@ -431,7 +431,7 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
-        // 额外验证：机器电池槽里的电量应显示为 current/max
+        // 额外验证：机器耗能与电池余量应合并成一行「耗能：X/天（剩余N，D天）」
         {
             string line = CheckMachineBattery(out bool ok);
             if (ok) pass++; else fail++;

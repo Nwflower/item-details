@@ -151,10 +151,15 @@ wine.fermenting,발효 중
 wine.finished,완성됨
 wine.score_part,", 점수 {0}"
 wine.state,와인: {0}
+wine.preview,발효 후 점수 {0}
 wine.tier,", {0} 단계"
 wine.unknown_state,알 수 없음 ({0})
 wine.yeast_power,효모 강도: {0}/회
-machine.battery_line,남은 에너지: {0} ({1}일)
+wine.yeast_effect,"과실주에 넣으면: 점수 +{0}(중복 안 됨), {1}회 만에 발효 완료"
+wine.yeast_illegal,위조품이 됨
+machine.energy_label,"소비 전력: "
+machine.energy_unit,/일
+machine.energy_battery," (남은 {0}, {1}일)"
 config.section.display,표시
 config.item_appraisal,아이템 감정
 config.item_appraisal.tip,아이템 종류에 맞춰 진위 판정과 가치 내역을 표시합니다.
@@ -227,13 +232,14 @@ module.output,{0}ml/일
 module.attract,{0}% 매력
 module.bargain,{0}% 흥정 성공률
 module.theft,{0}% 도난 방지율
-module.aging,{0}일 숙성/일
+module.aging_next,+{0}% 더하면 숙성 속도 +1
 module.print_quality,{0} 인쇄 품질
 module.success,{0}% 성공률
 module.harvest,{0}% 수확량
-module.next_tier,+{0}% 더하면 다음 단계
-module.top_tier,최고 단계
-module.residual,잔류 한도 ×{0}
+module.water_next,+{0}% 더하면 {1} 생산
+module.water_top,{0} 생산 중
+module.purifier_next,+{0}% 더하면 {1}까지 정화 가능
+module.purifier_top,{0}까지 정화 가능
 history.empty,아직 대화가 없습니다.
 history.earlier,…이전 {0}줄
 history.unknown,손님

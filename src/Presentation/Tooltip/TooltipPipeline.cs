@@ -173,6 +173,9 @@ internal static class TooltipPipeline
                 __2 = RenderHandler.ColorPalette.Gray;
             }
 
+            // 描述与背景故事按常规宽度预折行，不让进度条把它们拉宽
+            WrapDescription(ref __0, cur, __instance);
+
             // 价格术语本地化：预估价值→售价、基础价值→标价、购买价格→进价
             if (!RewritePriceTerms(ref __0, __instance, __2)) return false;
             if (!RewriteCalorieLine(ref __0, __instance)) return false;
@@ -186,6 +189,30 @@ internal static class TooltipPipeline
             return true;
         }
         catch { return true; }
+    }
+
+    /// <summary>
+    /// 原版 Build 的折行宽度：中日韩（字宽缩放 &gt; 1）是 maxCharWidth × 0.66，
+    /// 但只要有进度条等 noBreak 片段就整段放宽到 × 0.875，描述也跟着变成一长行把 tooltip 撑宽。
+    /// 这里只认原版的两行描述（shortDescription、" " + flavorText），按 0.66 提前断好；
+    /// 字宽缩放 ≤ 1 的语言原版不放宽，不处理。含富文本标签的不动，避免切断标签。
+    /// </summary>
+    private static void WrapDescription(ref string text, GameItem item, RichTextBuilder builder)
+    {
+        try
+        {
+            if (!ModSettings.InfoEnhance || text.Length == 0 || text.IndexOf('<') >= 0) return;
+            bool isDesc = string.Equals(text, item.shortDescription, StringComparison.Ordinal)
+                || (!string.IsNullOrEmpty(item.flavorText)
+                    && string.Equals(text, " " + item.flavorText, StringComparison.Ordinal));
+            if (!isDesc) return;
+
+            float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
+            if (scale <= 1f) return;
+            int limit = Math.Max(8, (int)(builder.maxCharWidth * 0.66f));
+            if (text.Length > limit) text = TextWrap.Wrap(text, limit);
+        }
+        catch { }
     }
 
     /// <summary>
