@@ -3,7 +3,7 @@
   <ID>item_details</ID>
   <Name>Item Details / 物品详情</Name>
   <Author>Nwflower（千川白浪）</Author>
-  <ModVersion>0.7.1</ModVersion>
+  <ModVersion>0.7.2</ModVersion>
   <Description>在物品 tooltip 中显示真伪、真实价值构成、瑕疵价值影响、违禁溢价、荧光莓品质，并在鉴定服务标题显示标价与最优报价；顾客到店时提示通缉犯/改造体。 / Rich item details in tooltips, plus wanted/augmented customer alerts.</Description>
   <GameVersions>
     <Version>0.46</Version>
