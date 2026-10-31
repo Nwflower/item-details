@@ -200,6 +200,8 @@ machine.eta_battery_short," (bateria insuficiente)"
 machine.eta_water," (água para {0})"
 machine.paused,Pausado: {0}
 hydro.water,"Água: {0} ml, dá para {1} dia(s) ({2} ml por dia)"
+purifier.estimate,"Remoção estimada esta noite: {0} ml"
+purifier.tier," ({0} -> {1})"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", {0} sem efeito"
 wine.rack,"{0} garrafa(s) envelhecendo, +{1} dia(s) de idade por dia"

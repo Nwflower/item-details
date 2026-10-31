@@ -200,6 +200,8 @@ machine.eta_battery_short," (батареи не хватит)"
 machine.eta_water," (воды хватит на {0} дн.)"
 machine.paused,Пауза: {0}
 hydro.water,"Вода: {0} мл, хватит на {1} дн. ({2} мл в день)"
+purifier.estimate,"Ожидаемое удаление этой ночью: {0} мл"
+purifier.tier," ({0} -> {1})"
 fridge.summary,{0}: {1}; {2}: {3}
 fridge.no_effect,", без эффекта: {0}"
 wine.rack,"Выдерживается бутылок: {0}, +{1} дн. выдержки в день"
