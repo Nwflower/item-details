@@ -212,6 +212,8 @@ machine.eta_battery_short,（电力不足）
 machine.eta_water,（水只够 {0} 天）
 machine.paused,暂停：{0}
 hydro.water,水量：{0}{3}，够用 {1} 天（每天 {2}毫升）
+purifier.estimate,预计今晚净化：{0}毫升
+purifier.tier,（{0} -> {1}）
 fridge.summary,{0}：{1} 件；{2}：{3} 件
 fridge.no_effect,，{0} 件无效果
 wine.rack,{0} 瓶陈化中，每天陈化 {1} 天

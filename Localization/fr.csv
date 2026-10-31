@@ -212,6 +212,8 @@ machine.eta_battery_short," (batterie insuffisante)"
 machine.eta_water," (eau pour {0} j)"
 machine.paused,En pause : {0}
 hydro.water,"Eau {0}{3}, pour {1} {1|jour|jours} ({2} ml/jour)"
+purifier.estimate,"Retrait estimé cette nuit : {0} ml"
+purifier.tier," ({0} -> {1})"
 fridge.summary,"{0} : {1}, {2} : {3}"
 fridge.no_effect,", {0} sans effet"
 wine.rack,"{0} {0|bouteille|bouteilles} en cave, +{1} {1|jour|jours}/jour"

@@ -30,6 +30,7 @@ internal static class MachineAdapters
     {
         ["hydroponic"] = Hydroponic,
         ["fridge"] = Fridge,
+        ["water_purifier"] = Purifier,
         ["wine_rack"] = WineRack,
         // 酿酒拓展（工坊 3829730904）的流年：由 MachineWineRack.AgeWell() 改 ID 而来，陈化规则同原版
         ["be_liunian_ager"] = WineRack,
@@ -124,6 +125,57 @@ internal static class MachineAdapters
             Loc.T("hydro.water", "Water {0}{3}, enough for {1} {1|day|days} ({2} ml/day)",
                 Volume.Number(ml, liters, Loc.Culture), days, perNight, WaterInfo.VolumeUnit(liters)),
             days == 0 ? Bad : days < 3 ? Warn : Info));
+    }
+
+    // ---------------- 净水器：今晚还能净化多少、净化到哪一档 ----------------
+
+    /// <summary>
+    /// 在深拷贝的机器与容器上跑一遍原版的 <c>MachinePurifier.PurifyContainer</c>，
+    /// 预告今晚按当前加成、水量与水质能清掉多少 ml 杂质，并显示净化前后档位；未升档也显示。
+    /// 预测基于当前液体的真实成分，可能间接揭露未经试纸检测的水质。
+    /// 属于默认开启的「信息增强」，不依赖独立的水质分析开关。
+    /// 不认领容器面板：<see cref="MachineInterior"/> 的通用液体行继续显示当前水量。
+    /// </summary>
+    private static void Purifier(MachineInterior.Context ctx, List<TooltipLine> lines)
+    {
+        var tank = ctx.FindPanel("container");
+        if (tank == null || tank.Items.Count == 0) return;
+        var water = tank.Items[0];
+        if (!GameRead.IsTag(water, "LIQUID_CONTAINER_TAG")) return;
+        if (WaterHelper.IsEmpty(water)) return;
+
+        // "今晚"预测以有电为前提；断电时保留原版的暂停提示，不显示无法兑现的净化量。
+        if (ctx.HasPowerPanel && !CanPower(ctx))
+        {
+            lines.Add(Paused(NoPower));
+            return;
+        }
+
+        // 不对真实容器调用 WaterHelper.GetWaterPurity：该方法会插入缺失标签。
+        int purityBefore = WaterAdvice.SafePurity(water);
+        if (purityBefore < 0) return;
+        var (parts, purityAfter) = WaterAdvice.SimulateMachineRemoval(ctx.Machine, water);
+        if (parts < 0 || purityAfter < 0) return;
+
+        string text = Loc.T("purifier.estimate", "Estimated removal tonight: {0} ml", WaterInfo.Ml(parts));
+        text += TierChange(purityBefore, purityAfter);
+        lines.Add(new TooltipLine(text, Info));
+    }
+
+    /// <summary>
+    /// 使用真实水质计算净化前后档位，包括同档位和零净化量的情况。
+    /// 档位名由游戏本身决定；不能解析时只显示可信的净化量。
+    /// </summary>
+    private static string TierChange(int purityBefore, int purityAfter)
+    {
+        try
+        {
+            string from = WaterFeatureHelper.GetWaterDisplayName(purityBefore) ?? "";
+            string to = WaterFeatureHelper.GetWaterDisplayName(purityAfter) ?? "";
+            if (from.Length == 0 || to.Length == 0) return "";
+            return Loc.T("purifier.tier", " ({0} -> {1})", from, to);
+        }
+        catch { return ""; }
     }
 
     // ---------------- 冰箱：几件真正有效果 ----------------

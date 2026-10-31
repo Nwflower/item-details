@@ -14,7 +14,7 @@ namespace ItemDetails;
 ///   - 滤芯/化学剂同样深拷贝，保留真实耐久与全部标签，绝不用「满耐久默认品」代替；
 ///   - 机器同样深拷贝：PurifyContainer 内部会用 GetTagReadonly 读加成标签，
 ///     缺键时 TagSystem.GetTag 会插入 0，把真实机器的品质加成钉死（净水器只能到 99.0%）；
-///   - 所有探针在 finally 中销毁，创建/调用失败一律不产出建议。
+///   - 探针仅在当前场景复用，场景切换或停用时销毁；创建/调用失败一律不产出建议。
 ///
 /// 效果口径全部复用原版函数，不自己写公式：
 ///   机器     MachinePurifier.PurifyContainer
@@ -460,6 +460,33 @@ internal static class WaterAdvice
         finally
         {
             if (clone != null) { try { clone.Destroy(); } catch { } }
+        }
+    }
+
+    /// <summary>
+    /// 预测某台机器今晚能从指定容器中净化的量与净化后的纯度。
+    /// 复用既有池化探针，每次重灌真实机器与容器的深拷贝标签，
+    /// 防止原版函数插入缺省标签或改写液体时修改玩家的物品。
+    /// 失败返回 (-1, 0)；池中的副本随场景切换/Mod 停用销毁。
+    /// </summary>
+    internal static (int RemovedParts, int PurityAfter) SimulateMachineRemoval(GameItem machine, GameItem container)
+    {
+        try
+        {
+            var waterProbe = GetShell(ProbeShells, container);
+            var machineShell = GetShell(SourceShells, machine);
+            if (waterProbe == null || machineShell == null
+                || !ResetProbe(waterProbe, container) || !ResetSource(machineShell, machine))
+                return (-1, 0);
+
+            int removed = MachinePurifier.PurifyContainer(machineShell, waterProbe);
+            int purityAfter = SafePurity(waterProbe);
+            return purityAfter >= 0 ? (removed, purityAfter) : (-1, 0);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.SimulateMachineRemoval", ex);
+            return (-1, 0);
         }
     }
 
