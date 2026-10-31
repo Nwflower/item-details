@@ -115,6 +115,7 @@ internal static partial class SelfTest
             container.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), st => st.Enable().SetInt(100000));
 
             var before = TagSnapshot(machine);
+            var beforeTank = TagSnapshot(container);
             int purityBefore = WaterAdvice.SafePurity(container);
 
             // 容器用探针，避免测量本身改动样本
@@ -132,6 +133,9 @@ internal static partial class SelfTest
             }
             finally { try { probe.Destroy(); } catch { } }
 
+            // 预测接口同样要求全程隔离：返回值要能拿到，且机器与容器都不能被改写。
+            var (predicted, purityAfter) = WaterAdvice.SimulateMachineRemoval(machine, container);
+
             var after = TagSnapshot(machine);
             int changed = 0;
             foreach (var kv in before)
@@ -139,8 +143,12 @@ internal static partial class SelfTest
             int added = 0;
             foreach (var kv in after) if (!before.ContainsKey(kv.Key)) added++;
 
-            ok = changed == 0 && added == 0;
-            return $"machine sim isolation: changed={changed} added={added} purityBefore={purityBefore} (期望 0/0)";
+            ok = changed == 0 && added == 0 && predicted > 0
+                && purityAfter > purityBefore
+                && TagSnapshotUnchanged(beforeTank, container);
+            bool tankUnchanged = TagSnapshotUnchanged(beforeTank, container);
+            return $"machine sim isolation: changed={changed} added={added} predicted={predicted} " +
+                   $"purity {purityBefore}->{purityAfter} tankUnchanged={tankUnchanged} (期望 0/0/>0/增/true)";
         }
         catch (Exception ex)
         {
@@ -368,6 +376,16 @@ internal static partial class SelfTest
         }
         catch { }
         return map;
+    }
+
+    /// <summary>前后两张标签快照逐项比对：值变化、删除、新增任一都算改动。</summary>
+    private static bool TagSnapshotUnchanged(Dictionary<string, string> before, GameItem item)
+    {
+        var after = TagSnapshot(item);
+        if (after.Count != before.Count) return false;
+        foreach (var kv in before)
+            if (!after.TryGetValue(kv.Key, out var v) || v != kv.Value) return false;
+        return true;
     }
     /// <summary>
     /// 验证酒的透视数据：正常酒应有分数、无赝品标记；赝品酒必须被标出。

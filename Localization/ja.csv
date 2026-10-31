@@ -207,6 +207,8 @@ machine.eta_battery_short,（電池が足りない）
 machine.eta_water,（水は {0} 日分）
 machine.paused,停止中：{0}
 hydro.water,水：{0}ml、{1} 日分（1日 {2}ml）
+purifier.estimate,今夜の浄化予定量：{0}ml
+purifier.tier,（{0} -> {1}）
 fridge.summary,{0}：{1} 個／{2}：{3} 個
 fridge.no_effect,、効果なし {0} 個
 wine.rack,{0} 本熟成中、1日ごとに {1} 日分熟成

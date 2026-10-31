@@ -19,7 +19,7 @@
 其他模组可以通过显式注册接口提供自己物品的价值构成；本模组不采样或反推第三方定价规则。
 
 **详细显示**
-物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物（默认以图标格显示在提示框旁，带件数）、违禁品黑市溢价、机器电池可用天数和彩票结果。机器与水壶会列出内部物品：滤芯耐久、容器水量、工具剩余次数、预计还需几天完成、水培机的水还够几天、冰箱里有几件不起作用、催陈器每天陈化几天。机器「模组效果」的每项加成后面补上实际影响，例如集水器 +136 毫升/天、投影仪 +20% 吸引力、催陈器质量再加多少能多陈化一天。带「自学习算法」的模组显示各项学习进度与上限，机器上汇总还差多少。果酿会显示分数、成分与赝品。第三方机器可以通过显式注册接口提供自己的加成注释。
+物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物（默认以图标格显示在提示框旁，带件数）、违禁品黑市溢价、机器电池可用天数和彩票结果。机器与水壶会列出内部物品：滤芯耐久、容器水量、工具剩余次数、预计还需几天完成、水培机的水还够几天、净水器预计今晚净化量与净化前后水质档位（有电时显示，可能揭示未经试纸检测的污染信息）、冰箱里有几件不起作用、催陈器每天陈化几天。机器「模组效果」的每项加成后面补上实际影响，例如集水器 +136 毫升/天、投影仪 +20% 吸引力、催陈器质量再加多少能多陈化一天。带「自学习算法」的模组显示各项学习进度与上限，机器上汇总还差多少。果酿会显示分数、成分与赝品。第三方机器可以通过显式注册接口提供自己的加成注释。
 
 **荧光莓品质**
 直接显示正常、较小、发霉、未熟、干枯。
@@ -98,7 +98,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 
 - **Authenticity check** — Immunivax Injectors, Hemingway cigarettes and Food Stamps are marked genuine or counterfeit, and a counterfeit lists exactly which check failed. Counterfeit Ribwiches list their reasons too.
 - **True value** — Cybernetic Hands, Ribwiches and Plasma Cartridges show the total value plus a line-by-line breakdown, e.g. `Base 100 + Carbon composite 50 + EMG+ interface 45 + Blade add-on 80 = 275`.
-- **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, machine battery days and lottery results. Machines and pitchers list what is inside: filter durability, water in containers, tool uses left, days until a job finishes, how long a hydroponic unit's water lasts, fridge items that get no effect, and how many days an AgeWell ages per day. Each module bonus on a machine shows its real effect, such as +136 ml/day on a Moisture Farm, +20% attractiveness on a projector, or how much more quality an AgeWell needs for an extra aging day. Learning Algorithm modules show each stat's progress toward its cap, and machines sum up what is left. Third-party machines can provide their own effect notes through the explicit registration API.
+- **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, machine battery days and lottery results. Machines and pitchers list what is inside: filter durability, water in containers, tool uses left, days until a job finishes, how long a hydroponic unit's water lasts, a purifier’s projected nightly removal and water-grade change (when powered; may reveal untested water quality), fridge items that get no effect, and how many days an AgeWell ages per day. Each module bonus on a machine shows its real effect, such as +136 ml/day on a Moisture Farm, +20% attractiveness on a projector, or how much more quality an AgeWell needs for an extra aging day. Learning Algorithm modules show each stat's progress toward its cap, and machines sum up what is left. Third-party machines can provide their own effect notes through the explicit registration API.
 - **BloomBerry quality** — Normal, Small, Moldy, Underripe or Dried.
 - **Appraisal Service title** — shows the item's list price and the best offer.
 - **Augmented / wanted alerts** — bounty, real name, and an augmented customer's kill reward plus the current aug threat when such a customer arrives.
