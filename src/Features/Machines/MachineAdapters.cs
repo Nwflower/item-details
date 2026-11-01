@@ -50,11 +50,11 @@ internal static class MachineAdapters
 
     /// <summary>
     /// 熔炉的预期产物独立于模组百分比行，质量 0% 或没有质量模组也应显示。
-    /// 由机器内容物摘要的签名缓存处理投料/助熔剂变化，不再依赖 ModuleStatEffects 探针。
+    /// 投料与模块直接取自机器摘要（按 role 归类），内容物变化由摘要的签名缓存负责失效。
     /// </summary>
     private static void Furnace(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        string? note = FurnaceQuality.Note(ctx.Machine);
+        string? note = FurnaceQuality.Note(ctx);
         if (!string.IsNullOrEmpty(note))
             lines.Add(new TooltipLine(note, RenderHandler.ColorPalette.Gray));
     }

@@ -447,6 +447,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：熔炉按 role 读投料，预测档位落在游戏纯度表上（6/10 → 8/10）
+        {
+            string line = CheckFurnaceQuality(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：自学习上限只读标签，不按基础值倍率猜测
         {
             string line = CheckModuleLearning(out bool ok);
