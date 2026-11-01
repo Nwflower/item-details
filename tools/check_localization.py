@@ -141,10 +141,16 @@ def parse_csv(path: Path) -> tuple[dict[str, str], int]:
 # TMP 找不到字形时替换成 □，并在每次文本重建时写一条警告，容易刷屏。
 UNSUPPORTED_GLYPH_RANGES = ((0x2700, 0x27BF), (0x1F300, 0x1FAFF))
 
+# 按语言放行的例外：游戏内嵌的 NotoSansSC/JP/KR 字体文件 cmap 里有 ✓(U+2713)（✔ U+2714 没有）。
+# 西文字体是没有内嵌源字体的 TMP 静态 SDF，未核实，不放行。
+LOCALE_GLYPH_ALLOW = {"zh": {"✓"}, "ja": {"✓"}, "ko": {"✓"}}
 
-def unsupported_glyphs(text: str) -> set[str]:
+
+def unsupported_glyphs(text: str, code: str = "") -> set[str]:
     """返回游戏字体大概率没有字形的字符。"""
-    return {ch for ch in text if any(lo <= ord(ch) <= hi for lo, hi in UNSUPPORTED_GLYPH_RANGES)}
+    allow = LOCALE_GLYPH_ALLOW.get(code, set())
+    return {ch for ch in text
+            if ch not in allow and any(lo <= ord(ch) <= hi for lo, hi in UNSUPPORTED_GLYPH_RANGES)}
 
 
 def placeholder_indexes(text: str) -> set[int]:
@@ -244,7 +250,7 @@ def main() -> int:
                 print(f"[{code}] 占位符不一致：{key} 期望 {sorted(want)} 实际 {sorted(got)}")
                 file_problems += 1
 
-            bad = unsupported_glyphs(rows[key])
+            bad = unsupported_glyphs(rows[key], code)
             if bad:
                 shown = " ".join(f"U+{ord(ch):04X}({ch})" for ch in sorted(bad))
                 print(f"[{code}] 字体不支持的符号：{key} → {shown}，会显示成 □ 并刷日志")

@@ -49,7 +49,7 @@ appraisal.seal_republic,共和国海軍徴発ボーナス
 appraisal.seal_zhonghua,Zhonghua造船ボーナス
 appraisal.worn,摩耗
 auth.counterfeit,× 偽造品（{0}）
-auth.genuine,√ 正規品
+auth.genuine,✓ 正規品
 berry.dried,乾燥
 berry.line,ブルームベリーの品質：{0}
 berry.wine,（ワイン評価 {0}）

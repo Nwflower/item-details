@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../src/Domain/ValueFormula.Pure.cs" Link="ValueFormula.Pure.cs" />
+    <Compile Include="../../src/Domain/Volume.Pure.cs" Link="Volume.Pure.cs" />
   </ItemGroup>
 </Project>

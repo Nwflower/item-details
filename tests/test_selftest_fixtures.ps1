@@ -30,8 +30,11 @@ namespace TEST_NAMESPACE {
   public ConfigEntry? Get(string key) => Entries.TryGetValue(key, out var entry) ? entry : null;
  }
  public static class ModSettings {
+  internal enum LiquidMode { Off, WithScanner, Always }
   internal const string LiquidOffChoice = "关闭 (Off)";
   internal const string LiquidAlwaysChoice = "总是开启 (Always)";
+  internal static string LiquidChoiceValue(LiquidMode mode) =>
+      mode == LiquidMode.Always ? LiquidAlwaysChoice : LiquidOffChoice;
  }
  public static class Smoke {
   public static string Parse(string[] args, string? trigger) => SelfTest.ParseTest(args, trigger);
@@ -45,7 +48,7 @@ namespace TEST_NAMESPACE {
   internal static bool SettingsTest(bool throwInside, bool missingEntry) {
    var entries = ModConfig.Current.Entries;
    entries.Clear(); ConfigEntry.Saves = 0;
-   foreach (string key in new[] { "show_item_appraisal", "show_info_enhance", "double_click_inspect", "context_menu_scan" })
+   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "double_click_inspect", "context_menu_scan" })
     entries.Add(key, new ConfigEntry());
    entries.Add("liquid_analysis", new ConfigEntry { Value = ModSettings.LiquidOffChoice, ValueType = typeof(string) });
    if (missingEntry) entries.Remove("double_click_inspect");

@@ -29,7 +29,6 @@ internal static class MachineInterior
     private const int MaxPanelLines = 3;
     private const int MaxKinds = 4;
     private const int MaxLiquidLines = 2;
-    private const int MaxBatteryLines = 2;
     /// <summary>每个面板最多读这么多件；第三方机器可能有很大的网格。</summary>
     private const int MaxItemsPerPanel = 200;
 
@@ -405,13 +404,14 @@ internal static class MachineInterior
         lines.Add(new TooltipLine(text, spent > 0 ? Bad : Level(fewest.Cur, fewest.Max)));
     }
 
-    /// <summary>不在电源面板里的电池（充电类机器的输入/输出槽）。</summary>
+    /// <summary>
+    /// 不在电源面板里的电池（充电类机器的输入/输出槽）。逐节写出电量，不设行数上限：
+    /// 面板自己的格数就是天然上限，把剩下的电量折进「能量电池×N」只会丢信息。
+    /// </summary>
     private static void SummarizeBatteries(Context ctx, List<TooltipLine> lines)
     {
-        int shown = 0;
         foreach (var it in new List<GameItem>(Open(ctx)))
         {
-            if (shown >= MaxBatteryLines) break;
             if (!IsPlainBattery(it)) continue;
             int cur = GameRead.TagInt(it, "power_source_item_energy") ?? 0;
             int max = GameRead.TagInt(it, "power_source_item_max_energy") ?? 0;
@@ -422,7 +422,6 @@ internal static class MachineInterior
                 Loc.T("inner.energy", "{0}: energy {1}/{2}",
                     ContainerItemSignature.DisplayName(it), cur, max),
                 Level(cur, max)));
-            shown++;
         }
     }
 

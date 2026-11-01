@@ -17,6 +17,15 @@ Check("minimum hand price is explained by its contributions", () =>
     };
     Reconciles(ValueBreakdown.ComputeHand(key => tags.GetValueOrDefault(key)), 50);
 });
+Check("small liquid amount in a large container stays in milliliters", () =>
+{
+    if (Volume.UseLiters(1)) throw new Exception("1 ml should remain in milliliters");
+    if (Volume.UseLiters(3000)) throw new Exception("exactly 3000 ml should remain in milliliters");
+});
+Check("liquid amounts above 3 liters use liters", () =>
+{
+    if (!Volume.UseLiters(3001)) throw new Exception("3001 ml should use liters");
+});
 return failures == 0 ? 0 : 1;
 
 void Check(string name, Action run)

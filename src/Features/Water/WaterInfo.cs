@@ -8,6 +8,9 @@ namespace ItemDetails;
 ///
 /// 范围与化学扫描仪（ChemScannerUIManager）一致：液体容器，以及药片、净水片、咖啡豆这类
 /// 带 CHEM_ITEM_TAG 的固体化学品。固体没有「水质」可言，水只作为一种成分按占比列出。
+/// 溶质只有试剂、既没有水也没有药物活性成分的容器（碱性/酸性溶液瓶是典型）同样列成分：
+/// 扫描仪本身就会把容器里的每一种液体列出来。带 CHEMICAL_PRODUCT_TAG 的化学品除外，
+/// 它们另有自己的纯度体系（见 HiddenInfo），避免两套「纯度」并排出现。
 /// 药效结论（致死/有毒、欣快等级、戒瘾、避孕）直接调用扫描仪用的 ChemicalFeedbackHelper，
 /// 阈值与原版一致。
 ///
@@ -106,9 +109,8 @@ internal static class WaterInfo
             }
 
             if (r.TotalParts <= 0) return r;
-            // 无水的纯药物混合物同样要展示（玩家把药溶进酒精/提取液的常见形态）；
-            // 只有溶剂、没有水也没有活性成分时仍不属于本模块。固体化学品有成分就显示。
-            if (!r.Solid && r.WaterParts <= 0 && r.Actives.Count == 0) return r;
+            // 纯试剂容器（酸碱溶液瓶这类）也属于本模块：没有水质行，成分行就是全部内容。
+            // 早期版本在这里要求「有水或有活性成分」，导致拆封出来的酸碱瓶一行成分都不显示。
 
             ReadEffects(item, r);
 

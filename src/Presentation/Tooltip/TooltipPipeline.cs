@@ -196,7 +196,7 @@ internal static class TooltipPipeline
     /// <summary>原版液体容器行：` " " + F0 + " ml / " + F0 + " ml"`，单位写死 ml、不走本地化。</summary>
     private static readonly Regex LiquidLine = new(@"^ (\d+) ml / (\d+) ml$", RegexOptions.CultureInvariant);
 
-    /// <summary>容量超过 3 L 的液体容器把那一行改写成 L；单位沿用原版不本地化的写法。</summary>
+    /// <summary>液量超过 3 L 时把原版液体容器行改写成 L；单位沿用原版不本地化的写法。</summary>
     private static void RewriteLiquidVolume(ref string text, GameItem item)
     {
         if (!ModSettings.InfoEnhance || !text.EndsWith(" ml", StringComparison.Ordinal)) return;
@@ -205,7 +205,7 @@ internal static class TooltipPipeline
         if (!m.Success
             || !int.TryParse(m.Groups[1].Value, out int cur)
             || !int.TryParse(m.Groups[2].Value, out int max)
-            || !Volume.UseLiters(max)) return;
+            || !Volume.UseLiters(cur)) return;
         text = " " + Volume.Number(cur, true, Loc.Culture) + " L / " + Volume.Number(max, true, Loc.Culture) + " L";
     }
 
