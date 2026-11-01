@@ -71,6 +71,7 @@ hidden.purity_faked,Purezza reale: {0} (mostra {1})
 hidden.purity_level,Purezza: {0}/10
 hidden.purity_level_faked,Purezza reale: {0}/10 (mostra {1}/10)
 hint.double_click,Doppio clic per ispezionare
+menu.scan,Scansiona
 list.sep,", "
 lottery.matched_none,Azzeccati {0}/6 -> nessun premio
 lottery.matched_prize,Azzeccati {0}/6 -> premio {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,Passando il mouse su un cliente del negozio mostra l
 config.section.interaction,Controlli
 config.double_click_inspect,Doppio clic per ispezionare
 config.double_click_inspect.tip,"Fai doppio clic su un oggetto da periziare o da autenticare (iniettori, sigarette, buoni alimentari, ecc.) per aprire il pannello di ispezione senza lente. Con il pannello aperto, un doppio clic su un altro oggetto passa direttamente a quello. L'indicazione della lente diventa «Doppio clic per ispezionare». Disattivalo per ripristinare il funzionamento originale."
-config.double_click_scan,Doppio clic per analizzare
-config.double_click_scan.tip,"Se possiedi il dispositivo corrispondente, un doppio clic su un oggetto apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi. Senza il dispositivo resta il doppio clic originale."
+config.context_menu_scan,Aggiungi scansione al menu contestuale
+config.context_menu_scan.tip,"Se possiedi il dispositivo corrispondente, il menu del clic destro di un oggetto mostra «Scansiona», che apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi."
 config.section.reveal,Rivelazione
 config.hidden_truth,Rivela travestimenti e valori reali
 config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."

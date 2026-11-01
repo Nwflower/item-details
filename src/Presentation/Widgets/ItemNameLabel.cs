@@ -281,7 +281,12 @@ internal static class ItemNameLabel
             // GraphUtils.FindChildrenType：原版已经搜过一次，再搜会让每个普通物品
             // （包括储物区里的每个酒瓶）都重复分配 Queue/HashSet/List。
             var window = item.contentWindow;
-            return window != null && window.child is GameInventory;
+            if (window == null) return false;
+            if (window.child is GameInventory) return true;
+
+            // 储藏区扩建后根换成 MachineryPanelRow（每个标签页一个网格），child 拿到的是那一行而不是库存。
+            // 只在这种结构下收集，且要求全是网格——槽位型的工具箱等仍不算容器。
+            return window.childElement is MachineryPanelRow && StorageInfo.GridStorage(item) != null;
         }
         catch (Exception ex)
         {

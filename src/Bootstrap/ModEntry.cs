@@ -145,6 +145,7 @@ public sealed partial class ModEntry : IMod
             DoubleClickInspect.Apply();
             DoubleClickInspect.Install();
         });
+        Try("ContextMenuScan", ContextMenuScan.Apply);
         Try("TooltipPipeline", TooltipPipeline.Apply);
         Try("MachineBattery", MachineBatteryInfo.Apply);
         Try("ProbeDestroyGuard", ProbeDestroyGuard.Apply);
@@ -190,6 +191,7 @@ public sealed partial class ModEntry : IMod
         Quiet(ScannerInventory.Stop);
         Quiet(LabelImpact.Remove);
         Quiet(DoubleClickInspect.Remove);
+        Quiet(ContextMenuScan.Remove);
         Quiet(TooltipPipeline.Remove);
         Quiet(MachineBatteryInfo.Remove);
         Quiet(ConfigSectionRefresh.Remove);

@@ -71,6 +71,7 @@ hidden.purity_faked,Pureza real: {0} (mostra {1})
 hidden.purity_level,Pureza: {0}/10
 hidden.purity_level_faked,Pureza real: {0}/10 (mostra {1}/10)
 hint.double_click,Clique duplo para inspecionar
+menu.scan,Escanear
 list.sep,", "
 lottery.matched_none,Acertos {0}/6 -> sem prêmio
 lottery.matched_prize,Acertos {0}/6 -> prêmio {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,Ao passar o mouse sobre um cliente da loja mostra a 
 config.section.interaction,Controles
 config.double_click_inspect,Clique duplo para inspecionar
 config.double_click_inspect.tip,"Clique duas vezes em um item de avaliação ou de verificação de autenticidade (injetores, cigarros, vales-alimentação etc.) para abrir o painel de inspeção sem a lupa. Com o painel aberto, um clique duplo em outro item troca direto para ele. A dica da lupa passa a ser ""Clique duplo para inspecionar"". Desative para voltar ao fluxo original."
-config.double_click_scan,Clique duplo para escanear
-config.double_click_scan.tip,"Se você tiver o dispositivo correspondente, clique duas vezes em um item para abrir o painel de escaneamento: scanner de água ou químico para líquidos e produtos químicos, scanner de raios X para caixas de suprimentos trancadas e analisador de plantas para sementes. Sem o dispositivo, o clique duplo original continua valendo."
+config.context_menu_scan,Adicionar escaneamento ao menu de contexto
+config.context_menu_scan.tip,"Se você tiver o dispositivo correspondente, o menu do clique direito do item ganha a opção ""Escanear"", que abre o painel de escaneamento: scanner de água ou químico para líquidos e produtos químicos, scanner de raios X para caixas de suprimentos trancadas e analisador de plantas para sementes."
 config.section.reveal,Revelação
 config.hidden_truth,Revelar disfarces e valores reais
 config.hidden_truth.tip,"Mostra o que as características disfarçadas escondem, a durabilidade real e a pureza real de lingotes e produtos químicos. Expõe falsificações na hora e facilita muito a avaliação."
