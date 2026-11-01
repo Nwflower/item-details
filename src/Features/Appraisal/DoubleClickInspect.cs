@@ -32,6 +32,7 @@ internal static class DoubleClickInspect
     private const string HarmonyId = "item_details.double_click";
     private static Harmony? _harmony;
     private static bool _patched;
+    private static bool _nativePatched;   // 原生双击回调已接管；为 false 时才装 ticker 兜底
     private static GameObject? _go;
 
     /// <summary>已写过双击提示的 tooltip 构建序号（<see cref="TooltipPipeline.BuildId"/>）。</summary>
@@ -67,6 +68,7 @@ internal static class DoubleClickInspect
             {
                 _harmony.Patch(nativeDouble,
                     prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
+                _nativePatched = true;
             }
             else
             {
@@ -95,6 +97,7 @@ internal static class DoubleClickInspect
         try { _harmony?.UnpatchAll(HarmonyId); } catch { }
         _harmony = null;
         _patched = false;
+        _nativePatched = false;
         StopTicker();
     }
 
@@ -141,9 +144,9 @@ internal static class DoubleClickInspect
         {
             if (!ModSettings.DoubleClickInspect || string.IsNullOrEmpty(text)) return true;
 
-            // 已购买的鉴定物不接管双击：提示保留原版的「可使用放大镜」，别写成双击。
+            // 不接管双击的鉴定物（已购买、带内容窗口）：提示保留原版的「可使用放大镜」。
             var cur = TooltipPipeline.Current;
-            if (cur != null && GameRead.IsTag(cur, "IS_OWNED_TAG")) return true;
+            if (cur != null && !IsInspectableItem(cur)) return true;
 
             EnsureHintSources();
             bool vanilla = string.Equals(text, _appraisalTip, StringComparison.Ordinal)
@@ -175,6 +178,8 @@ internal static class DoubleClickInspect
     /// 已购买（<c>IS_OWNED_TAG</c>）的鉴定物除外：这些物品的原版双击有正经用途——
     /// 食品券就是靠 <c>ActivateSlotItem</c> 兑换，收购后的鉴定物也可能带着自己的激活动作。
     /// 我们的前缀会吞掉整个双击，等于把兑换按掉了，所以这类物品一律交还原版。
+    ///
+    /// 带内容窗口的鉴定物也交还原版：双击是打开它的唯一手势，鉴定仍可用放大镜。
     /// </summary>
     private static bool IsInspectableItem(GameItem? item)
     {
@@ -182,11 +187,26 @@ internal static class DoubleClickInspect
         try
         {
             if (GameRead.IsTag(item, "IS_OWNED_TAG")) return false;
+            if (!EmporiumOption.SingleClickInteract && VanillaOpensContentWindow(item)) return false;
             if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return true;
             if (GameRead.IsTag(item, "INSPECTABLE_TAG")) return true;
             return Authenticity.DetectKind(item) != Authenticity.ItemKind.None;
         }
         catch { return false; }
+    }
+
+    /// <summary>
+    /// 原版双击会开/关这件物品的内容窗口。锁着的窗口不算：原版双击打开它也只是看一个
+    /// 动不了的界面。抛异常按“会打开”处理，宁可不接管。
+    /// </summary>
+    private static bool VanillaOpensContentWindow(GameItem item)
+    {
+        try
+        {
+            var window = item.contentWindow;
+            return window != null && !window.isLocked;
+        }
+        catch { return true; }
     }
 
     // ---------------- 双击检测 ----------------
@@ -200,10 +220,6 @@ internal static class DoubleClickInspect
         try
         {
             if (ItemPinHelper.BlocksClicks) return true;
-
-            // 双击扫描先试：它只在“拥有对应设备 + 物品可扫”时成立，不成立就落到下面的鉴视接管。
-            if (DoubleClickScan.TryScan(newItem, "native")) return false;
-
             if (!ModSettings.DoubleClickInspect) return true;
             if (!IsInspectableItem(newItem)) return true;
 
@@ -241,15 +257,25 @@ internal static class DoubleClickInspect
         }
     }
 
+    /// <summary>
+    /// 只在原生补丁没打上时（游戏更新后找不到 DoubleClickAction）装 ticker 兜底。
+    /// 两条入口同时在线会在同一帧各触发一次，而 ticker 自己射线取物、看不到原版的
+    /// 停用与吃掉按下等判定，正常情况下只会添乱。
+    /// </summary>
     internal static void Install()
     {
         if (_go != null) return;
+        if (_nativePatched)
+        {
+            Log.Msg("DoubleClickInspect: native callback patched, ticker not needed");
+            return;
+        }
         try
         {
             _go = new GameObject("ItemDetails_DoubleClickInspect");
             UnityEngine.Object.DontDestroyOnLoad(_go);
             _go.AddComponent<Ticker>();
-            Log.Msg("DoubleClickInspect ticker installed");
+            Log.Msg("DoubleClickInspect ticker installed (fallback)");
         }
         catch (Exception ex)
         {
@@ -269,7 +295,7 @@ internal static class DoubleClickInspect
         {
             try
             {
-                if (!ModSettings.DoubleClickInspect && !ModSettings.DoubleClickScan) return;
+                if (!ModSettings.DoubleClickInspect) return;
 
                 var ui = StoreUIManager.Instance;
                 if (ui == null) return;
@@ -278,12 +304,14 @@ internal static class DoubleClickInspect
                 if (ui.isMagnifyingMode) return;
 
                 if (!Input.GetMouseButtonDown(0)) return;
-                if (ItemPinHelper.BlocksClicks) return;
+                if (ItemPinHelper.BlocksClicks || VanillaSuppressesDoubleClick(ui))
+                {
+                    _lastItem = null;
+                    return;
+                }
 
                 var item = RenderHandler.RaycastElement<GameItem>(Input.mousePosition);
-                bool scanTarget = DoubleClickScan.CanHandle(item);
-                bool inspectTarget = ModSettings.DoubleClickInspect && IsInspectableItem(item);
-                if (item == null || (!scanTarget && !inspectTarget))
+                if (item == null || GeneralHelper.IsDisplayOnly(item) || !IsInspectableItem(item))
                 {
                     _lastItem = null;
                     return;
@@ -295,20 +323,29 @@ internal static class DoubleClickInspect
                 _lastClickTime = now;
                 if (!twice) return;
 
-                if (scanTarget)
-                {
-                    DoubleClickScan.TryScan(item, "ticker");
-                    _lastItem = null;
-                    _lastClickTime = -99f;
-                    return;
-                }
-
+                _lastItem = null;
+                _lastClickTime = -99f;
                 TryInspect(item, "ticker");
             }
             catch (Exception ex)
             {
                 Log.Warn("DoubleClick.Tick", ex);
             }
+        }
+
+        /// <summary>
+        /// 原版在这些时候不认双击，ticker 也跟着不认：双击处理器被游戏停用（鼠标在商店界面上、
+        /// 调试模式、场景切换）、正在打字、手上装备着道具（这时的点击是“对物品使用”，
+        /// 原版会 ConsumePress 吃掉它）。
+        /// </summary>
+        private static bool VanillaSuppressesDoubleClick(StoreUIManager ui)
+        {
+            if (ui.hoveringStoreUI) return true;
+            var handler = ItemMouseDoubleClickHandler.current;
+            if (handler != null && !handler.enabled) return true;
+            if (StoreUIManager.IsAnyTyping() || KeyBindHelper.SuppressHotkeys) return true;
+            var select = ItemSelectHandler.current;
+            return select != null && select.IsEquipped;
         }
     }
 }

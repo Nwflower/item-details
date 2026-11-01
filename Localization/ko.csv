@@ -71,6 +71,7 @@ hidden.purity_faked,실제 순도: {0} (표시 {1})
 hidden.purity_level,순도: {0}/10
 hidden.purity_level_faked,실제 순도: {0}/10 (표시 {1}/10)
 hint.double_click,더블클릭하여 감정
+menu.scan,스캔
 list.sep,", "
 lottery.matched_none,적중 {0}/6 -> 미당첨
 lottery.matched_prize,적중 {0}/6 -> 상금 {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,매장 손님 위에 마우스를 올리면 이번 �
 config.section.interaction,조작
 config.double_click_inspect,더블클릭으로 감정
 config.double_click_inspect.tip,"감정품이나 진위 확인이 필요한 물품(주사기, 담배, 식량 배급표 등)을 더블클릭하면 돋보기 없이 검사 패널이 열립니다. 패널이 열린 상태에서 다른 물품을 더블클릭하면 바로 전환됩니다. 돋보기 안내는 '더블클릭하여 감정'으로 바뀝니다. 끄면 원래 방식으로 돌아갑니다."
-config.double_click_scan,더블 클릭으로 스캔
-config.double_click_scan.tip,"해당 장치를 보유하고 있으면 아이템을 더블 클릭해 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다. 장치가 없으면 기존 더블 클릭 동작이 유지됩니다."
+config.context_menu_scan,우클릭 메뉴에 스캔 추가
+config.context_menu_scan.tip,"해당 장치를 보유하고 있으면 아이템 우클릭 메뉴에 '스캔'이 추가되어 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다."
 config.section.reveal,투시
 config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."

@@ -71,6 +71,7 @@ hidden.purity_faked,Echte Reinheit: {0} (Anzeige {1})
 hidden.purity_level,Reinheit: {0}/10
 hidden.purity_level_faked,Echte Reinheit: {0}/10 (Anzeige {1}/10)
 hint.double_click,Zum Untersuchen doppelklicken
+menu.scan,Scannen
 list.sep,", "
 lottery.matched_none,Treffer {0}/6 -> kein Gewinn
 lottery.matched_prize,Treffer {0}/6 -> Gewinn {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,Beim Hovern über einem Kunden im Laden wird der Ver
 config.section.interaction,Bedienung
 config.double_click_inspect,Doppelklick zum Untersuchen
 config.double_click_inspect.tip,"Ein Doppelklick auf Gutachten- oder Echtheitsprüfungsobjekte (Injektoren, Zigaretten, Lebensmittelmarken usw.) öffnet die Untersuchungsansicht ohne Lupe. Ist sie geöffnet, wechselt ein Doppelklick auf einen anderen Gegenstand direkt dorthin. Der Lupen-Hinweis wird zu „Zum Untersuchen doppelklicken“. Deaktivieren stellt den Originalablauf wieder her."
-config.double_click_scan,Doppelklick zum Scannen
-config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein Doppelklick auf einen Gegenstand die Scanansicht: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen. Ohne Gerät bleibt der ursprüngliche Doppelklick."
+config.context_menu_scan,Scannen zum Kontextmenü hinzufügen
+config.context_menu_scan.tip,"Wenn Sie das passende Gerät besitzen, enthält das Rechtsklickmenü eines Gegenstands den Eintrag „Scannen“, der die Scanansicht öffnet: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen."
 config.section.reveal,Einblick
 config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."

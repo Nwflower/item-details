@@ -71,6 +71,7 @@ hidden.purity_faked,実純度：{0}（表示 {1}）
 hidden.purity_level,純度：{0}/10
 hidden.purity_level_faked,実純度：{0}/10（表示 {1}/10）
 hint.double_click,ダブルクリックで鑑定
+menu.scan,スキャン
 list.sep,、
 lottery.matched_none,一致 {0}/6 -> はずれ
 lottery.matched_prize,一致 {0}/6 -> 賞金 {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,店内の顧客にマウスを合わせると、今�
 config.section.interaction,操作
 config.double_click_inspect,ダブルクリックで鑑定
 config.double_click_inspect.tip,鑑定品や真偽確認が必要な品（注射器・タバコ・フードスタンプなど）をダブルクリックすると、虫眼鏡なしで検査パネルを開きます。パネル表示中に別の品をダブルクリックすると切り替わります。虫眼鏡のヒントは「ダブルクリックで鑑定」に変わります。オフにすると元の操作に戻ります。
-config.double_click_scan,ダブルクリックでスキャン
-config.double_click_scan.tip,対応する装置を持っていると、アイテムをダブルクリックしてスキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。装置がない場合は元のダブルクリック動作になります。
+config.context_menu_scan,右クリックメニューにスキャンを追加
+config.context_menu_scan.tip,対応する装置を持っていると、アイテムの右クリックメニューに「スキャン」が追加され、スキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。
 config.section.reveal,透視
 config.hidden_truth,偽装と真の値を暴く
 config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。

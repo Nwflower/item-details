@@ -79,7 +79,7 @@ internal static class ModSettings
 
     // ---- 操作优化 ----
     private static readonly Toggle DoubleClickInspectToggle = new(true);
-    private static readonly Toggle DoubleClickScanToggle = new(true);    // 双击扫描
+    private static readonly Toggle ContextMenuScanToggle = new(false);   // 右键菜单添加扫描
 
     // ---- 透视 ----
     private static readonly Toggle AuthenticityToggle = new(true);       // 真伪结论 + 赝品原因 + 植物品质
@@ -166,12 +166,13 @@ internal static class ModSettings
                      "glass. While the panel is open, double-click another item to switch to it. The magnifying-glass " +
                      "hint becomes \"Double-Click To Inspect\". Turn off to restore the original flow."));
 
-            // 紧跟在「双击鉴定」下面：同样是双击接管，只是目标换成了扫描面板。
-            DoubleClickScanToggle.Define(_cfg, "double_click_scan", SecInteractionKey, SecInteractionEn,
-                Text("config.double_click_scan", "Double-Click to Scan"),
-                Text("config.double_click_scan.tip", "While you own the matching device, double-click an item to open " +
-                     "its scan panel: water or chem scanner for liquids and chemicals, X-ray scanner for locked supply " +
-                     "crates, plant analyser for seeds. Without the device the original double-click still applies."));
+            // 旧的「双击扫描」（double_click_scan）改成右键菜单入口：双击已被原版与各模组用满，
+            // 换了键名，旧存档里的值不沿用。
+            ContextMenuScanToggle.Define(_cfg, "context_menu_scan", SecInteractionKey, SecInteractionEn,
+                Text("config.context_menu_scan", "Add Scan to Context Menu"),
+                Text("config.context_menu_scan.tip", "While you own the matching device, the item's right-click menu " +
+                     "gains a Scan entry that opens its scan panel: water or chem scanner for liquids and chemicals, " +
+                     "X-ray scanner for locked supply crates, plant analyser for seeds."));
 
             // ================= 透视 =================
             AuthenticityToggle.Define(_cfg, "show_authenticity", SecRevealKey, SecRevealEn,
@@ -513,7 +514,7 @@ internal static class ModSettings
     }
 
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
-    internal static bool DoubleClickScan => DoubleClickScanToggle.Value;
+    internal static bool ContextMenuScan => ContextMenuScanToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
     internal static bool BlockProgressBar => InfoEnhanceToggle.Value;

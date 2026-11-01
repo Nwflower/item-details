@@ -71,6 +71,7 @@ hidden.purity_faked,Pureza real: {0} (muestra {1})
 hidden.purity_level,Pureza: {0}/10
 hidden.purity_level_faked,Pureza real: {0}/10 (muestra {1}/10)
 hint.double_click,Doble clic para inspeccionar
+menu.scan,Escanear
 list.sep,", "
 lottery.matched_none,Acertados {0}/6 -> sin premio
 lottery.matched_prize,Acertados {0}/6 -> premio {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,Al pasar el cursor sobre un cliente de la tienda se 
 config.section.interaction,Controles
 config.double_click_inspect,Doble clic para inspeccionar
 config.double_click_inspect.tip,"Haz doble clic en un objeto de tasación o de verificación de autenticidad (inyectores, cigarrillos, tarjetas de alimentos, etc.) para abrir el panel de inspección sin la lupa. Con el panel abierto, haz doble clic en otro objeto para cambiar a él. La indicación de la lupa pasa a ser «Haz doble clic para inspeccionar el objeto». Desactívalo para volver al funcionamiento original."
-config.double_click_scan,Doble clic para escanear
-config.double_click_scan.tip,"Si tienes el dispositivo correspondiente, haz doble clic en un objeto para abrir su panel de escaneo: escáner de agua o químico para líquidos y productos químicos, escáner de rayos X para cajas de suministros cerradas y analizador de plantas para semillas. Sin el dispositivo se mantiene el doble clic original."
+config.context_menu_scan,Añadir escaneo al menú contextual
+config.context_menu_scan.tip,"Si tienes el dispositivo correspondiente, el menú del clic derecho de un objeto incluye «Escanear», que abre su panel de escaneo: escáner de agua o químico para líquidos y productos químicos, escáner de rayos X para cajas de suministros cerradas y analizador de plantas para semillas."
 config.section.reveal,Revelación
 config.hidden_truth,Revelar disfraces y valores reales
 config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."

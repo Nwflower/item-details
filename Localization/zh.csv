@@ -71,6 +71,7 @@ hidden.purity_faked,真实纯度：{0}（显示 {1}）
 hidden.purity_level,纯度：{0}/10
 hidden.purity_level_faked,真实纯度：{0}/10（显示 {1}/10）
 hint.double_click,双击以鉴定
+menu.scan,扫描
 list.sep,、
 lottery.matched_none,命中 {0}/6 → 未中奖
 lottery.matched_prize,命中 {0}/6 → 奖金 {1}
@@ -186,8 +187,8 @@ config.customer_history.tip,鼠标停在店内顾客身上时，显示本次接�
 config.section.interaction,操作优化
 config.double_click_inspect,双击鉴定
 config.double_click_inspect.tip,双击待鉴定物品或需辨别真伪的物品（注射器、香烟、食品券等），无需放大镜即可打开检视面板；面板打开时，双击另一件物品可直接切换。物品上的放大镜提示改为“双击以鉴定”。关闭后恢复原版流程。
-config.double_click_scan,双击扫描
-config.double_click_scan.tip,拥有对应设备时，双击物品直接打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。没有设备时保持原版双击。
+config.context_menu_scan,右键菜单添加扫描
+config.context_menu_scan.tip,拥有对应设备时，物品右键菜单里多出「扫描」，点击即打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。
 config.section.reveal,透视
 config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。
