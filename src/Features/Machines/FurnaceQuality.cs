@@ -25,26 +25,20 @@ internal static class FurnaceQuality
         internal bool HasFlux => BasicFlux || AdvancedFlux;
         internal int Needed => FurnacePurity.InputCount(Blast);
         internal bool CanSmelt => Ore + Scrap >= Needed;
-
-        internal string Signature => string.Join(":", Ore, Scrap, Junk,
-            Blast, JunkModule, BasicFlux, AdvancedFlux);
     }
-
-    /// <summary>参与主缓存键；插拔模块、投料或切换助熔剂后立即更新注释。</summary>
-    internal static string CacheSignature(GameItem machine)
-        => TryRead(machine, out var contents) ? contents!.Signature : "unavailable";
 
     internal static string? Note(GameItem machine)
     {
-        int? quality = GameRead.TagInt(machine, QualityTag);
-        if (quality == null || !TryRead(machine, out var found)) return null;
+        // 质量标签缺失应视为没有质量加成，不应阻止纯度预览。
+        int quality = GameRead.TagInt(machine, QualityTag) ?? 0;
+        if (!TryRead(machine, out var found)) return null;
         var contents = found!;
 
         // 废物转换分支没有任何金属锭，也不运行 SetPurityFromInput。
         if (!contents.CanSmelt && contents.JunkModule && contents.Junk >= 6)
             return Loc.T("module.furnace_junk", "no quality effect on junk");
 
-        int q = quality.Value;
+        int q = quality;
         int Level(int bonus)
         {
             int offset = FurnacePurity.Offset(bonus, contents.Blast, contents.HasFlux);

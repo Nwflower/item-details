@@ -28,6 +28,7 @@ internal static class MachineAdapters
     /// <summary>原版机器 ID → 专门显示。第三方机器的专门显示也登记在这里。</summary>
     private static readonly Dictionary<string, Adapter> ById = new(StringComparer.Ordinal)
     {
+        ["furnace"] = Furnace,
         ["hydroponic"] = Hydroponic,
         ["fridge"] = Fridge,
         ["water_purifier"] = Purifier,
@@ -45,6 +46,17 @@ internal static class MachineAdapters
 
         Progress(ctx, lines);
         Learning(ctx, lines, id);
+    }
+
+    /// <summary>
+    /// 熔炉的预期产物独立于模组百分比行，质量 0% 或没有质量模组也应显示。
+    /// 由机器内容物摘要的签名缓存处理投料/助熔剂变化，不再依赖 ModuleStatEffects 探针。
+    /// </summary>
+    private static void Furnace(MachineInterior.Context ctx, List<TooltipLine> lines)
+    {
+        string? note = FurnaceQuality.Note(ctx.Machine);
+        if (!string.IsNullOrEmpty(note))
+            lines.Add(new TooltipLine(note, RenderHandler.ColorPalette.Gray));
     }
 
     // ---------------- 进度型机器：还需几天 ----------------

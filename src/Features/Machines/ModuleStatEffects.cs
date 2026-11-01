@@ -99,8 +99,7 @@ internal static class ModuleStatEffects
             GameRead.TagInt(machine, PerfTag), GameRead.TagInt(machine, PowerTag),
             GameRead.TagInt(machine, QualityTag), GameRead.TagInt(machine, DrawnTag),
             GameRead.TagInt(machine, SpeedTag), GameRead.TagInt(machine, "MACHINE_PROGRESS_CURRENT_TAG"),
-            GameRead.TagString(machine, "MACHINE_STATE_TAG"),
-            machine.identifier == "furnace" ? FurnaceQuality.CacheSignature(machine) : "");
+            GameRead.TagString(machine, "MACHINE_STATE_TAG"));
 
     // ---------------- 原版机器能力表 ----------------
 
@@ -123,7 +122,8 @@ internal static class ModuleStatEffects
     /// </summary>
     private static readonly Dictionary<string, MachineEffectProfile> Profiles = new(StringComparer.Ordinal)
     {
-        ["furnace"] = new() { CustomQuality = FurnaceQuality.Note },
+        // 冶炼预览是机器状态，不是仅在质量百分比行存在时才显示的质量模组注释。
+        ["furnace"] = new(),
         ["desequencer"] = new(),
         ["moisture_farm"] = new()
         {
