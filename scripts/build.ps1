@@ -30,7 +30,7 @@ if (-not $version -or $version.IndexOfAny([System.IO.Path]::GetInvalidFileNameCh
     throw 'ModVersion must be a nonempty filename-safe value.'
 }
 $files = [ordered]@{ 'ItemDetails.dll' = $dll }
-foreach ($name in @('manifest.xml', 'README.md', 'CONTRIBUTING.md', 'LICENSE')) {
+foreach ($name in @('manifest.xml', 'README.md', 'CONTRIBUTING.md', 'LICENSE', 'preview.png')) {
     $files[$name] = Join-Path $repo $name
 }
 foreach ($folder in @('Localization', 'Textures', 'Sounds', 'LootTables', 'Books')) {

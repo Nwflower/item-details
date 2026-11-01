@@ -267,7 +267,7 @@ internal static class ItemNameLabel
     }
 
     /// <summary>容器（有内嵌库存）或机器；判定失败一律不显示，不猜。</summary>
-    private static bool ShouldShowContainer(GameItemElement item)
+    internal static bool ShouldShowContainer(GameItemElement item)
     {
         try
         {

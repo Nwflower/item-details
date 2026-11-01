@@ -128,8 +128,11 @@ internal static class StorageInfo
     {
         var root = item.contentWindow?.childElement;
         if (root == null) return null;
+        // MachineryPanelRow 自己也是 GraphNodeStorage，Collect(row) 只会返回这一行；
+        // 要用 row.children 往下取（面板 → 标签页 → 每页的网格）。
+        var storages = root is MachineryPanelRow row ? row.children : MachineryContainerUtils.Collect(root);
         var grids = new List<GameGridInventory>();
-        foreach (var storage in MachineryContainerUtils.Collect(root))
+        foreach (var storage in storages)
         {
             if (storage is not GameGridInventory grid) return null;
             grids.Add(grid);

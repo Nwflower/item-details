@@ -479,6 +479,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：扩建储藏区（根是 MachineryPanelRow）仍按容器识别：名称标签、容器信息、全部标签页
+        {
+            string line = CheckExpandedStorageBay(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：当前语言的 Localization/*.csv 真的被读到（多语种改造的回归护栏）
         {
             string line = CheckLocalization(out bool ok);

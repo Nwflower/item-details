@@ -49,7 +49,7 @@ appraisal.seal_republic,共和国海军征用部加成
 appraisal.seal_zhonghua,中华船舶加成
 appraisal.worn,磨损
 auth.counterfeit,× 赝品（{0}）
-auth.genuine,√ 正品
+auth.genuine,✓ 正品
 berry.dried,干枯
 berry.line,荧光莓品质：{0}
 berry.wine,（酿酒值 {0}）

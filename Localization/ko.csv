@@ -49,7 +49,7 @@ appraisal.seal_republic,공화국 해군 징발부 보너스
 appraisal.seal_zhonghua,중화 조선 보너스
 appraisal.worn,마모
 auth.counterfeit,× 위조품 ({0})
-auth.genuine,√ 정품
+auth.genuine,✓ 정품
 berry.dried,마름
 berry.line,블룸베리 품질: {0}
 berry.wine, (와인 점수 {0})

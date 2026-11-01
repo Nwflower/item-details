@@ -94,6 +94,13 @@ class LocalizationValidationTests(unittest.TestCase):
         self.csv.write_text("probe,\u2718 Bad {0}\n", encoding="utf-8")
         self.assertEqual(1, self.validate())
 
+    def test_check_mark_allowed_only_for_cjk_fonts(self) -> None:
+        # ✓(U+2713) 在内嵌的 NotoSansSC/JP/KR 里有字形；西文 SDF 字体未核实，仍要拦。
+        self.csv.write_text("probe,✓ Good {0}\n", encoding="utf-8")
+        self.assertEqual(0, self.validate())
+        self.csv.rename(self.loc / "de.csv")
+        self.assertEqual(1, self.validate())
+
     def test_font_supported_symbols_pass(self) -> None:
         self.csv.write_text("probe,\u00d7 Bad {0} \u221a Good\n", encoding="utf-8")
         self.assertEqual(0, self.validate())

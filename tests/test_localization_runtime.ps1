@@ -2,19 +2,26 @@ $ErrorActionPreference = 'Stop'
 $testRepo = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $testNamespace = 'LocalizationTests' + [Guid]::NewGuid().ToString('N')
 
-# Compile production Loc.cs and Plural.Pure.cs. Only external locale, clock and file
-# access are adapted; formatting, plural selection, parsing and fallback remain real.
-$pluralSource = Get-Content -LiteralPath (Join-Path $testRepo 'src/Domain/Plural.Pure.cs') -Raw
-# Plural.Pure.cs uses a file-scoped namespace; insert its class into Loc's test namespace.
-$pluralBody = $pluralSource -replace '(?s)\A.*?namespace ItemDetails;\s*', ''
-
+# Compile production Loc.cs and the plural helper it calls. Only external locale,
+# clock and file access are adapted; formatting, table parsing and fallback
+# execute the production code.
+$sources = @('src/Infrastructure/Loc.cs', 'src/Domain/Plural.Pure.cs') | ForEach-Object {
+    (Get-Content -LiteralPath (Join-Path $testRepo $_) -Raw).Replace(
+        'namespace ItemDetails;', '').Replace(
+        'using UnityEngine;', "using $testNamespace.UnityEngine;")
+}
+$usings = [System.Collections.Generic.List[string]]::new()
+$bodies = foreach ($source in $sources) {
+    $lines = $source -split '\r?\n'
+    foreach ($line in $lines) {
+        if ($line -match '^using ' -and -not $usings.Contains($line)) { $usings.Add($line) }
+    }
+    ($lines | Where-Object { $_ -notmatch '^using ' }) -join "`n"
+}
 $testSource = '#nullable enable' + [Environment]::NewLine +
-    'using System.Text.RegularExpressions;' + [Environment]::NewLine +
-    (Get-Content -LiteralPath (Join-Path $testRepo 'src/Infrastructure/Loc.cs') -Raw).Replace(
-        'namespace ItemDetails;', "namespace $testNamespace {").Replace(
-        'using UnityEngine;', "using $testNamespace.UnityEngine;") +
-    [Environment]::NewLine + $pluralBody +
-    [Environment]::NewLine + '}' + @'
+    ($usings -join [Environment]::NewLine) + [Environment]::NewLine +
+    "namespace $testNamespace {" + [Environment]::NewLine +
+    ($bodies -join [Environment]::NewLine) + [Environment]::NewLine + '}' + @'
 namespace TEST_NAMESPACE.UnityEngine { public static class Time { public static float realtimeSinceStartup => 0f; } }
 namespace TEST_NAMESPACE {
 public static class LocHelper { public static string GetCurrentLocaleCode() => "zh"; }

@@ -311,9 +311,10 @@ public sealed partial class ModEntry
         {
             var sb = new StringBuilder();
             // 无水混合物里酒精/提取液不是“杂质”，仍按占比但换个更准确的说法；
-            // 固体化学品没有活性成分时，这一行就是它的全部成分。
+            // 固体化学品、以及只有试剂的液体容器（酸碱溶液瓶）没有活性成分时，
+            // 这一行就是它的全部成分。
             if (r.WaterParts > 0) sb.Append(Loc.T("water.impurities", "Impurities: "));
-            else if (r.Solid && r.Actives.Count == 0) sb.Append(Loc.T("water.composition", "Composition: "));
+            else if (r.Actives.Count == 0) sb.Append(Loc.T("water.composition", "Composition: "));
             else sb.Append(Loc.T("water.other", "Other: "));
             bool any = false;
             for (int i = 0; i < r.Impurities.Count; i++)
