@@ -17,6 +17,45 @@ Check("minimum hand price is explained by its contributions", () =>
     };
     Reconciles(ValueBreakdown.ComputeHand(key => tags.GetValueOrDefault(key)), 50);
 });
+Check("furnace favors ore and changes its input/output count with blast module", () =>
+{
+    Require(FurnacePurity.MaterialOffset(0, false) == 0, "scrap-only base offset");
+    Require(FurnacePurity.MaterialOffset(1, false) == 1, "mixed scrap/ore base offset");
+    Require(FurnacePurity.MaterialOffset(2, false) == 2, "ore-only base offset");
+    Require(FurnacePurity.MaterialOffset(2, true) == 1, "blast must use 3 inputs");
+    Require(FurnacePurity.MaterialOffset(3, true) == 2, "blast favors the available ore");
+    Require(FurnacePurity.InputCount(true) == 3 && FurnacePurity.OutputCount(true) == 2,
+        "blast input/output yield");
+});
+Check("furnace bonus is tiered; blast penalty comes before flux floor", () =>
+{
+    Require(FurnacePurity.Offset(99, false, false) == 0, "+99% not a whole tier");
+    Require(FurnacePurity.Offset(100, false, false) == 1, "+100% adds a tier");
+    Require(FurnacePurity.Offset(200, false, false) == 2, "+200% adds two tiers");
+    Require(FurnacePurity.Offset(0, true, false) == -1, "blast penalty");
+    Require(FurnacePurity.Offset(0, true, true) == 1, "flux floor after blast penalty");
+    Require(FurnacePurity.Offset(100, true, true) == 1, "flux doesn't stack on top");
+});
+Check("furnace consumes basic flux only when its floor actually applies", () =>
+{
+    Require(FurnacePurity.ConsumesBasicFlux(0, false, true, false), "no quality bonus");
+    Require(!FurnacePurity.ConsumesBasicFlux(100, false, true, false), "native quality already sufficient");
+    Require(FurnacePurity.ConsumesBasicFlux(100, true, true, false), "blast needs extra flux");
+    Require(!FurnacePurity.ConsumesBasicFlux(200, true, true, false), "blast recovered by quality");
+    Require(!FurnacePurity.ConsumesBasicFlux(0, false, true, true), "advanced flux takes priority");
+});
+Check("furnace next quality threshold accounts for flux and capped output", () =>
+{
+    Require(FurnacePurity.NextImprovement(125, q => FurnacePurity.Offset(q, false, false)) == 75,
+        "next +200% threshold");
+    Require(FurnacePurity.NextImprovement(0, q => FurnacePurity.Offset(q, false, true)) == 200,
+        "flux already supplies first tier");
+    Require(FurnacePurity.NextImprovement(0, q => FurnacePurity.Offset(q, true, true)) == 300,
+        "blast and flux require three tiers of quality");
+    Require(FurnacePurity.NextImprovement(200, q => Math.Min(10,
+        8 + FurnacePurity.Offset(q, false, false))) == -1,
+        "already at maximum ingot purity");
+});
 Check("small liquid amount in a large container stays in milliliters", () =>
 {
     if (Volume.UseLiters(1)) throw new Exception("1 ml should remain in milliliters");
@@ -32,6 +71,11 @@ void Check(string name, Action run)
 {
     try { run(); Console.WriteLine("PASS " + name); }
     catch (Exception ex) { failures++; Console.Error.WriteLine("FAIL " + name + ": " + ex.Message); }
+}
+
+static void Require(bool condition, string message)
+{
+    if (!condition) throw new Exception(message);
 }
 
 static void Reconciles(ValueBreakdown.Result result, int nativeValue)

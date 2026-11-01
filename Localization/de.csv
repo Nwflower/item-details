@@ -252,6 +252,12 @@ module.water_next,+{0} % für {1}
 module.water_top,erzeugt {0}
 module.purifier_next,+{0} % zum Reinigen bis {1}
 module.purifier_top,reinigt bis {0}
+module.furnace_gain,Reinheit {0} Stufe(n)
+module.furnace_result,Barren ×{0}: {1}/10
+module.furnace_next,+{0}% bis zur nächsten Stufe
+module.furnace_cap,Maximale Reinheit
+module.furnace_basic,Einfaches Flussmittel verbraucht
+module.furnace_junk,Kein Qualitätseffekt bei Abfall
 history.empty,Noch keine Unterhaltung.
 history.earlier,…{0} frühere {0|Zeile|Zeilen}
 history.unknown,Kunde

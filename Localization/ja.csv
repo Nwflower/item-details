@@ -252,6 +252,12 @@ module.water_next,あと+{0}%で{1}を生産
 module.water_top,{0}を生産中
 module.purifier_next,あと+{0}%で{1}まで浄化可能
 module.purifier_top,{0}まで浄化可能
+module.furnace_gain,純度{0}段階
+module.furnace_result,インゴット×{0}：{1}/10
+module.furnace_next,あと+{0}%で昇格
+module.furnace_cap,最高純度
+module.furnace_basic,通常融剤を消費
+module.furnace_junk,廃物変換に品質効果なし
 history.empty,まだ会話がありません。
 history.earlier,…さらに前の {0} 件
 history.unknown,顧客

@@ -252,6 +252,12 @@ module.water_next,ещё +{0}% — будет {1}
 module.water_top,производит: {0}
 module.purifier_next,ещё +{0}% — очистка до: {1}
 module.purifier_top,очистка до: {0}
+module.furnace_gain,чистота {0} ур.
+module.furnace_result,слиток ×{0}: {1}/10
+module.furnace_next,ещё +{0}% до уровня
+module.furnace_cap,предел чистоты
+module.furnace_basic,обычный флюс расходуется
+module.furnace_junk,переработка без бонуса качества
 history.empty,Разговора ещё не было.
 history.earlier,…ещё {0} {0|реплика|реплики|реплик}
 history.unknown,Клиент

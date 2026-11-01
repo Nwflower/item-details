@@ -252,6 +252,12 @@ module.water_next,+{0} % pour produire : {1}
 module.water_top,produit : {0}
 module.purifier_next,+{0} % pour purifier jusqu'à : {1}
 module.purifier_top,purifie jusqu'à : {0}
+module.furnace_gain,pureté {0} niveau(x)
+module.furnace_result,lingot ×{0} : {1}/10
+module.furnace_next,+{0} % au prochain niveau
+module.furnace_cap,pureté maximale
+module.furnace_basic,flux ordinaire consommé
+module.furnace_junk,sans effet sur le recyclage
 history.empty,Aucune réplique pour l'instant.
 history.earlier,…{0} {0|réplique précédente|répliques précédentes}
 history.unknown,Client

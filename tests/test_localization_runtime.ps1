@@ -44,7 +44,9 @@ foreach ($testCase in @(
     @{ Name = 'missing translation'; Table = 'other,Other'; English = 'English {0}'; Expected = 'English 7' },
     @{ Name = 'out of range translated argument'; Table = 'probe,Broken {1}'; English = 'English {0}'; Expected = 'English 7' },
     @{ Name = 'unclosed translated item'; Table = 'probe,Broken {0'; English = 'English {0}'; Expected = 'English 7' },
-    @{ Name = 'invalid English fallback remains readable'; Table = 'probe,Broken {1}'; English = 'English {2}'; Expected = 'English {2}' }
+    @{ Name = 'invalid English fallback remains readable'; Table = 'probe,Broken {1}'; English = 'English {2}'; Expected = 'English {2}' },
+    @{ Name = 'plural form in English fallback'; Table = 'other,Other'; English = '{0} {0|day|days}'; Expected = '7 days' },
+    @{ Name = 'plural form in translation'; Table = 'probe,已处理 {0} {0|件|件数}'; English = '{0} {0|item|items}'; Expected = '已处理 7 件' }
 )) {
     $testResult = $testCasesType.GetMethod('Run').Invoke($null, @($testCase.Table, $testCase.English))
     if ($testResult -ne $testCase.Expected) {

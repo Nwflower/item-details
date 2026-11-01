@@ -252,6 +252,12 @@ module.water_next,+{0}% do: {1}
 module.water_top,produkuje: {0}
 module.purifier_next,+{0}% do oczyszczania do: {1}
 module.purifier_top,oczyszcza do: {0}
+module.furnace_gain,czystość {0} poziom(y)
+module.furnace_result,sztabka ×{0}: {1}/10
+module.furnace_next,+{0}% do następnego poziomu
+module.furnace_cap,maksymalna czystość
+module.furnace_basic,zwykły topnik zostanie zużyty
+module.furnace_junk,bez wpływu na przetwarzanie odpadów
 history.empty,Nie było jeszcze rozmowy.
 history.earlier,…{0} {0|wcześniejsza kwestia|wcześniejsze kwestie|wcześniejszych kwestii}
 history.unknown,Klient

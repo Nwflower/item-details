@@ -252,6 +252,12 @@ module.water_next,+{0}% 더하면 {1} 생산
 module.water_top,{0} 생산 중
 module.purifier_next,+{0}% 더하면 {1}까지 정화 가능
 module.purifier_top,{0}까지 정화 가능
+module.furnace_gain,순도 {0}단계
+module.furnace_result,금속괴×{0}: {1}/10
+module.furnace_next,+{0}%면 다음 단계
+module.furnace_cap,최고 순도
+module.furnace_basic,일반 융제 소모
+module.furnace_junk,폐기물 변환에 품질 효과 없음
 history.empty,아직 대화가 없습니다.
 history.earlier,…이전 {0}줄
 history.unknown,손님
