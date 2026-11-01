@@ -30,8 +30,13 @@ namespace TEST_NAMESPACE {
   public ConfigEntry? Get(string key) => Entries.TryGetValue(key, out var entry) ? entry : null;
  }
  public static class ModSettings {
+  // Mirror the production choice API used by SelfTest.Settings.cs.
+  internal enum LiquidMode { Off, WithScanner, Always }
   internal const string LiquidOffChoice = "关闭 (Off)";
   internal const string LiquidAlwaysChoice = "总是开启 (Always)";
+  internal static string LiquidChoiceValue(LiquidMode mode) => new[] {
+   LiquidOffChoice, "有扫描器时开启 (With scanner)", LiquidAlwaysChoice
+  }[(int)mode];
  }
  public static class Smoke {
   public static string Parse(string[] args, string? trigger) => SelfTest.ParseTest(args, trigger);
@@ -45,7 +50,7 @@ namespace TEST_NAMESPACE {
   internal static bool SettingsTest(bool throwInside, bool missingEntry) {
    var entries = ModConfig.Current.Entries;
    entries.Clear(); ConfigEntry.Saves = 0;
-   foreach (string key in new[] { "show_item_appraisal", "show_info_enhance", "double_click_inspect", "double_click_scan" })
+   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "double_click_inspect", "double_click_scan" })
     entries.Add(key, new ConfigEntry());
    entries.Add("liquid_analysis", new ConfigEntry { Value = ModSettings.LiquidOffChoice, ValueType = typeof(string) });
    if (missingEntry) entries.Remove("double_click_inspect");
