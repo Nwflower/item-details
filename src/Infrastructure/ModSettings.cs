@@ -260,7 +260,8 @@ internal static class ModSettings
 
     /// <summary>
     /// 把旧版布尔「水质检测」迁移到新版三档 <c>liquid_analysis</c>：
-    ///   · 旧值开 → 有扫描器时开启（With scanner）
+    ///   · 旧值开 → 总是开启（Always）：旧版没有扫描器前置，迁成「有扫描器时」会让升级上来的玩家
+    ///     突然看不到水质，已被当成 bug 报过
     ///   · 旧值关 → 关闭（Off）
     ///
     /// 只在文件里还没有 <c>liquid_analysis</c> 时迁移。最后一个公开版本 0.7.1 只写
@@ -293,7 +294,7 @@ internal static class ModSettings
                     return;
                 }
 
-                LiquidChoice.Select((int)(on ? LiquidMode.WithScanner : LiquidMode.Off));
+                LiquidChoice.Select((int)(on ? LiquidMode.Always : LiquidMode.Off));
                 Log.Msg($"ModSettings: 旧设置 {key}={stored} → liquid_analysis={LiquidAnalysis}");
                 return;
             }
