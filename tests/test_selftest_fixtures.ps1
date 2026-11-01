@@ -50,7 +50,7 @@ namespace TEST_NAMESPACE {
   internal static bool SettingsTest(bool throwInside, bool missingEntry) {
    var entries = ModConfig.Current.Entries;
    entries.Clear(); ConfigEntry.Saves = 0;
-   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "double_click_inspect", "double_click_scan" })
+   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "double_click_inspect", "context_menu_scan" })
     entries.Add(key, new ConfigEntry());
    entries.Add("liquid_analysis", new ConfigEntry { Value = ModSettings.LiquidOffChoice, ValueType = typeof(string) });
    if (missingEntry) entries.Remove("double_click_inspect");
