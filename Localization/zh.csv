@@ -251,6 +251,12 @@ module.water_next,+{0}%后产出{1}
 module.water_top,已产出{0}
 module.purifier_next,+{0}%后可产出{1}
 module.purifier_top,已可产出{0}
+module.furnace_gain,纯度{0}档
+module.furnace_result,金属锭×{0}：{1}/10
+module.furnace_next,再+{0}%升档
+module.furnace_cap,已达最高纯度
+module.furnace_basic,消耗普通助熔剂
+module.furnace_junk,废物转换不受质量影响
 history.empty,还没有对话。
 history.earlier,…更早 {0} 条
 history.unknown,顾客

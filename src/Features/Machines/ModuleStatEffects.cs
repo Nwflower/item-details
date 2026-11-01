@@ -18,7 +18,7 @@ namespace ItemDetails;
 ///
 /// 原版机器在 Profiles 表中登记「调哪个游戏函数、写成什么单位」，未登记机器不做推算。
 /// 第三方机器通过 ItemDetailsApi 显式注入自己的注释。
-/// 蒸发器、熔炉的公式写死在每晚回调里，没有可调用的函数，不做质量注释。
+/// 蒸发器的质量公式在夜间回调里，暂不做质量注释；熔炉使用已验证的只读规则显示纯度。
 /// </summary>
 internal static class ModuleStatEffects
 {
@@ -99,7 +99,8 @@ internal static class ModuleStatEffects
             GameRead.TagInt(machine, PerfTag), GameRead.TagInt(machine, PowerTag),
             GameRead.TagInt(machine, QualityTag), GameRead.TagInt(machine, DrawnTag),
             GameRead.TagInt(machine, SpeedTag), GameRead.TagInt(machine, "MACHINE_PROGRESS_CURRENT_TAG"),
-            GameRead.TagString(machine, "MACHINE_STATE_TAG"));
+            GameRead.TagString(machine, "MACHINE_STATE_TAG"),
+            machine.identifier == "furnace" ? FurnaceQuality.CacheSignature(machine) : "");
 
     // ---------------- 原版机器能力表 ----------------
 
@@ -122,7 +123,7 @@ internal static class ModuleStatEffects
     /// </summary>
     private static readonly Dictionary<string, MachineEffectProfile> Profiles = new(StringComparer.Ordinal)
     {
-        ["furnace"] = new(),
+        ["furnace"] = new() { CustomQuality = FurnaceQuality.Note },
         ["desequencer"] = new(),
         ["moisture_farm"] = new()
         {

@@ -251,6 +251,12 @@ module.water_next,+{0}% para produzir {1}
 module.water_top,produz {0}
 module.purifier_next,+{0}% para purificar até {1}
 module.purifier_top,purifica até {0}
+module.furnace_gain,pureza {0} níveis
+module.furnace_result,lingote ×{0}: {1}/10
+module.furnace_next,+{0}% para o próximo nível
+module.furnace_cap,pureza máxima
+module.furnace_basic,fundente comum será consumido
+module.furnace_junk,sem efeito na reciclagem
 history.empty,Ainda não há diálogo.
 history.earlier,…{0} {0|fala anterior|falas anteriores}
 history.unknown,Cliente
