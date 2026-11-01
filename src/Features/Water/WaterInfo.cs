@@ -184,14 +184,17 @@ internal static class WaterInfo
     /// <summary>
     /// 精确用量：直接复用游戏扫描仪的格式（≥1 ml 用 mL、&lt;1 ml 用 µl）。
     /// 1 part = 1 µl，所以精度足够区分 600 µl 这类贴近阈值的剂量。
+    /// 游戏是按百分位截断的（2999 µl 写 2.99 mL），保证显示的液量不超过容器容量；
+    /// 下面的兜底分支也要跟着截断，不能四舍五入，否则退回旧版游戏时会多报。
     /// </summary>
     internal static string Amount(int parts)
     {
         try { return WaterScannerUIManager.FormatAmount(parts); }
         catch { }
 
-        if (parts >= 1000000) return (parts / 1000000.0).ToString("0.00", Loc.Culture) + " L";
-        if (parts >= 1000) return (parts / 1000.0).ToString("0.00", Loc.Culture) + " mL";
+        // 用整数除法取百分位，避免 parts / 1000.0 * 100 这类浮点误差把 2.90 压成 2.89。
+        if (parts >= 1000000) return (parts / 10000 / 100.0).ToString("0.00", Loc.Culture) + " L";
+        if (parts >= 1000) return (parts / 10 / 100.0).ToString("0.00", Loc.Culture) + " mL";
         return parts + " uL";
     }
 

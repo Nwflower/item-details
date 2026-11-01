@@ -40,10 +40,12 @@ function Assert-True([bool]$Condition, [string]$Name) {
 $previousCulture = [System.Globalization.CultureInfo]::CurrentCulture
 try {
     [System.Globalization.CultureInfo]::CurrentCulture = [System.Globalization.CultureInfo]::InvariantCulture
+    # 游戏的 FormatAmount 向下舍入（截断），不是四舍五入：2999 µl 报 2.99 mL，不是 3.00 mL。
+    # 这样显示的液量永远不超过容器实际容量，期望值必须照它写。
     foreach ($case in @(
         @(49, '49 uL'), @(50, '50 uL'), @(600, '600 uL'), @(602, '602 uL'),
-        @(999, '999 uL'), @(1000, '1.00 mL'), @(1001, '1.00 mL'),
-        @(2999, '3.00 mL'), @(3000, '3.00 mL'),
+        @(999, '999 uL'), @(1000, '1.00 mL'), @(1001, '1.00 mL'), @(1999, '1.99 mL'),
+        @(2999, '2.99 mL'), @(3000, '3.00 mL'),
         @(1000000, '1.00 L'), @(1000001, '1.00 L'), @([int]::MaxValue, '2147.48 L')
     )) {
         $actual = $amount.Invoke($null, @([int]$case[0]))
