@@ -266,3 +266,9 @@ history.empty,Todavía no hay diálogo.
 history.earlier,…{0} {0|línea anterior|líneas anteriores}
 history.unknown,Cliente
 appraisal.minimum_adjustment,Ajuste al valor mínimo
+meat.source,Origen de la carne: {0}
+meat.unknown,Desconocido
+meat.fish,Pescado
+meat.prion,Priones: {0}
+meat.prion.present,Presentes
+meat.prion.unmarked,Sin marcar

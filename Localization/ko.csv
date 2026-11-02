@@ -266,3 +266,9 @@ history.empty,아직 대화가 없습니다.
 history.earlier,…이전 {0}줄
 history.unknown,손님
 appraisal.minimum_adjustment,최소 가치 보정
+meat.source,고기 출처: {0}
+meat.unknown,알 수 없음
+meat.fish,생선
+meat.prion,프리온: {0}
+meat.prion.present,있음
+meat.prion.unmarked,표시 없음

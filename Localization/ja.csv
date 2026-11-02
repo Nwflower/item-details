@@ -266,3 +266,9 @@ history.empty,まだ会話がありません。
 history.earlier,…さらに前の {0} 件
 history.unknown,顧客
 appraisal.minimum_adjustment,最低価値の補正
+meat.source,肉の由来：{0}
+meat.unknown,不明
+meat.fish,魚
+meat.prion,プリオン：{0}
+meat.prion.present,あり
+meat.prion.unmarked,未記録

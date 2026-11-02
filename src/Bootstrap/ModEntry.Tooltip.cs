@@ -426,6 +426,13 @@ public sealed partial class ModEntry
         return true;
     }
 
+    // ---------------- 肉类来源 / 朊病毒（信息增强） ----------------
+    private bool TryAppendMeat(RichTextBuilder builder, GameItem item)
+    {
+        if (!ModSettings.InfoEnhance) return false;
+        return AppendLines(builder, MeatInfo.Collect(item));
+    }
+
     // ---------------- 市场修正（店铺事件对价格的百分比影响） ----------------
     private bool TryAppendMarket(RichTextBuilder builder, GameItem item)
     {
