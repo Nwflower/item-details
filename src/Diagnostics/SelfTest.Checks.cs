@@ -1060,6 +1060,65 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>
+    /// 熔炉纯度预测：投料与模块由机器摘要按 role 归类，纯运算结果要落在游戏的纯度表上。
+    /// 两废铁 = 金属锭 1 个、6/10；再加两矿 = 8/10（矿优先消耗）；全程不跑夜间回调。
+    /// </summary>
+    private static string CheckFurnaceQuality(out bool ok)
+    {
+        ok = false;
+        GameItem? furnace = null;
+        var sample = new List<GameItem>();
+        try
+        {
+            furnace = TryCreate("furnace");
+            if (furnace == null) return "furnace quality: 无法创建熔炉样本";
+            var input = MachineHelper.GetBodyStorage(furnace, 2);
+            var modules = MachineHelper.GetBodyStorage(furnace, 1);
+            if (input == null || modules == null) return "furnace quality: 样本缺少投料或模块槽";
+
+            // 与悬停同一条路径：只读摘要 + 适配器；每次都清缓存，避免 0.25s 的重扫窗口。
+            List<TooltipLine> Collect()
+            {
+                MachineInterior.Stop();
+                return MachineInterior.Collect(furnace, false, true, true, false);
+            }
+            bool Put(string id, GraphNodeStorage storage)
+            {
+                var item = TryCreate(id);
+                if (item == null) return false;
+                sample.Add(item);
+                OwnAll(furnace!, item);
+                return GraphUtils.TryAcceptAll(storage, item) > 0;
+            }
+            string Join(List<TooltipLine> ls) => string.Join(" | ", ls.ConvertAll(l => l.Text));
+
+            if (!Put("scrap_metal", input) || !Put("scrap_metal", input))
+                return "furnace quality: 无法放入废铁";
+            var scrapOnly = Collect();
+
+            if (!Put("common_ore", input) || !Put("common_ore", input))
+                return "furnace quality: 无法放入矿石";
+            var withOre = Collect();
+
+            bool scrapOk = HasLine(scrapOnly, "6/10") && HasLine(scrapOnly, "×1");
+            bool oreOk = HasLine(withOre, "8/10") && HasLine(withOre, "×1");
+            ok = scrapOk && oreOk;
+            return $"furnace quality: scrap='{Join(scrapOnly)}' ore='{Join(withOre)}' " +
+                   $"(期望两废铁 6/10 且 ×1、两矿 8/10 且 ×1)";
+        }
+        catch (Exception ex)
+        {
+            return "furnace quality: 异常 " + ex.GetType().Name + " - " + ex.Message;
+        }
+        finally
+        {
+            MachineInterior.Stop();
+            foreach (var it in sample) { try { it.Destroy(); } catch { } }
+            if (furnace != null) { try { furnace.Destroy(); } catch { } }
+        }
+    }
+
     /// <summary>自学习进度只读 LEARNING_ALGO_MAX_* 标签：上限任意，被禁用的那一项不显示。</summary>
     private static string CheckModuleLearning(out bool ok)
     {
