@@ -220,6 +220,10 @@ fridge.no_effect,", {0} ohne Wirkung"
 wine.rack,"{0} {0|Flasche reift|Flaschen reifen}, +{1} {1|Tag|Tage}/Tag"
 wine.rack_idle,", {0} reifen nicht"
 inner.line,{0}: {1}
+inner.input_slot,Eingabefach
+inner.output_slot,Ausgabefach
+inner.printer_material_slot,Materialfach
+inner.printer_product_slot,Produktfach
 inner.durability,{0}: Haltbarkeit {1}/{2}
 inner.faked," (angezeigt: {0})"
 inner.filter_spent," (verbraucht, filtert nicht mehr)"

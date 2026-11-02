@@ -220,6 +220,10 @@ fridge.no_effect,、効果なし {0} 個
 wine.rack,{0} 本熟成中、1日ごとに {1} 日分熟成
 wine.rack_idle,、{0} 本は熟成しない
 inner.line,{0}：{1}
+inner.input_slot,入力スロット内
+inner.output_slot,出力スロット内
+inner.printer_material_slot,材料スロット内
+inner.printer_product_slot,製品スロット内
 inner.durability,{0}：耐久性 {1}/{2}
 inner.faked,（表示は {0}）
 inner.filter_spent,（使い切り、ろ過しない）

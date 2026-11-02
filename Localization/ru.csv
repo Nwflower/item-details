@@ -220,6 +220,10 @@ fridge.no_effect,", без эффекта: {0}"
 wine.rack,"Выдерживается бутылок: {0}, +{1} дн./день"
 wine.rack_idle,", не выдерживается: {0}"
 inner.line,{0}: {1}
+inner.input_slot,Входной слот
+inner.output_slot,Выходной слот
+inner.printer_material_slot,Отсек материалов
+inner.printer_product_slot,Отсек изделий
 inner.durability,{0}: прочность {1}/{2}
 inner.faked," (указано {0})"
 inner.filter_spent," (израсходован, больше не фильтрует)"

@@ -220,6 +220,10 @@ fridge.no_effect,", bez efektu: {0}"
 wine.rack,"Butelki dojrzewające: {0}, +{1} {1|dzień|dni|dni}/dzień"
 wine.rack_idle,", niedojrzewające: {0}"
 inner.line,{0}: {1}
+inner.input_slot,Slot wejściowy
+inner.output_slot,Slot wyjściowy
+inner.printer_material_slot,Komora materiałów
+inner.printer_product_slot,Komora produktów
 inner.durability,{0}: trwałość {1}/{2}
 inner.faked," (oznaczono {0})"
 inner.filter_spent," (zużyty, już nie filtruje)"

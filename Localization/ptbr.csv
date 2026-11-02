@@ -220,6 +220,10 @@ fridge.no_effect,", {0} sem efeito"
 wine.rack,"{0} {0|garrafa|garrafas} envelhecendo, +{1} {1|dia|dias}/dia"
 wine.rack_idle,", {0} não envelhecem"
 inner.line,{0}: {1}
+inner.input_slot,Compartimento de entrada
+inner.output_slot,Compartimento de saída
+inner.printer_material_slot,Compartimento de materiais
+inner.printer_product_slot,Compartimento de produtos
 inner.durability,{0}: durabilidade {1}/{2}
 inner.faked," (indica {0})"
 inner.filter_spent," (esgotado, não filtra mais)"

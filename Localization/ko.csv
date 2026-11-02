@@ -220,6 +220,10 @@ fridge.no_effect,", 효과 없음 {0}개"
 wine.rack,"{0}병 숙성 중, 하루에 {1}일씩 숙성"
 wine.rack_idle,", {0}병은 숙성 안 됨"
 inner.line,{0}: {1}
+inner.input_slot,입력 슬롯
+inner.output_slot,출력 슬롯
+inner.printer_material_slot,재료 슬롯
+inner.printer_product_slot,완제품 슬롯
 inner.durability,{0}: 내구도 {1}/{2}
 inner.faked," (표시 {0})"
 inner.filter_spent," (소진됨, 더 이상 거르지 않음)"
