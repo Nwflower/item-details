@@ -262,3 +262,9 @@ history.empty,还没有对话。
 history.earlier,…更早 {0} 条
 history.unknown,顾客
 appraisal.minimum_adjustment,最低价值补差
+meat.source,肉类来源：{0}
+meat.unknown,未知
+meat.fish,鱼类
+meat.prion,朊病毒：{0}
+meat.prion.present,携带
+meat.prion.unmarked,未标记

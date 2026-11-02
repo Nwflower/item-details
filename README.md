@@ -19,6 +19,9 @@
 **详细显示**
 物品分类以提示框上方的独立小标签呈现；标签和瑕疵显示对价格的影响；显示性价比、容器压缩率、容器内容物、违禁品黑市溢价、电池可用天数和彩票结果。果酿会显示分数与成分。
 
+**肉品来源与朊病毒**
+肉类物品会显示来源物种；没有来源记录或来源无法识别时显示「未知」。同时显示朊病毒「携带」或「未标记」状态；未标记不代表食用同类肉没有感染风险。
+
 **机器内部**
 机器与水壶列出里面的东西：滤芯耐久、水量、工具剩余次数、还需几天完成、净水器今晚能净化多少（会间接透露水质）。熔炉给出下次冶炼的金属锭档位，以及质量加成还能再升几档。
 
@@ -102,6 +105,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 - **Authenticity check** — Immunivax Injectors, Hemingway cigarettes and Food Stamps are marked genuine or counterfeit, and a counterfeit lists exactly which check failed. Counterfeit Ribwiches list their reasons too.
 - **True value** — Cybernetic Hands, Ribwiches and Plasma Cartridges show the total value plus a line-by-line breakdown, e.g. `Base 100 + Carbon composite 50 + EMG+ interface 45 + Blade add-on 80 = 275`.
 - **Rich item details** — type badges above the tooltip, price impact of labels and defects, value per cell, container compression and contents, contraband markups, battery days and lottery results. Fruit wine shows its score and composition.
+- **Meat origin & prions** — meat shows its species of origin (or Unknown) and whether the prion tag is Present or Unmarked. Unmarked does not mean cannibalism is safe.
 - **Inside machines** — filter durability, water level, tool uses left, days until a job finishes, and how much a purifier will clean tonight (this hints at water quality). A furnace predicts the next ingot's purity and how many tiers the quality bonus still adds.
 - **Module effects** — each module bonus shows its real effect, such as +136 ml/day on a Moisture Farm; Learning Algorithm modules show progress toward their caps.
 - **BloomBerry quality** — Normal, Small, Moldy, Underripe or Dried.

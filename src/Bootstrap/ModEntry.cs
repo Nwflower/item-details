@@ -88,6 +88,7 @@ public sealed partial class ModEntry : IMod
         new("seed", (m, b, i) => m.TryAppendSeed(b, i)),
         new("water-advice", (m, b, i) => m.TryAppendWaterAdvice(b, i)),
         new("wine", (m, b, i) => m.TryAppendWine(b, i)),
+        new("meat", (m, b, i) => m.TryAppendMeat(b, i)),
         new("market", (m, b, i) => m.TryAppendMarket(b, i)),
     };
 

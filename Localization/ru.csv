@@ -262,3 +262,9 @@ history.empty,Разговора ещё не было.
 history.earlier,…ещё {0} {0|реплика|реплики|реплик}
 history.unknown,Клиент
 appraisal.minimum_adjustment,Поправка до минимальной стоимости
+meat.source,Происхождение мяса: {0}
+meat.unknown,Неизвестно
+meat.fish,Рыба
+meat.prion,Прионы: {0}
+meat.prion.present,Есть
+meat.prion.unmarked,Нет отметки

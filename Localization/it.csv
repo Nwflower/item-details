@@ -262,3 +262,9 @@ history.empty,Ancora nessuna battuta.
 history.earlier,…{0} {0|battuta precedente|battute precedenti}
 history.unknown,Cliente
 appraisal.minimum_adjustment,Adeguamento al valore minimo
+meat.source,Origine della carne: {0}
+meat.unknown,Sconosciuta
+meat.fish,Pesce
+meat.prion,Prioni: {0}
+meat.prion.present,Presenti
+meat.prion.unmarked,Non segnalati

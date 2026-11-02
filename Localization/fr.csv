@@ -262,3 +262,9 @@ history.empty,Aucune réplique pour l'instant.
 history.earlier,…{0} {0|réplique précédente|répliques précédentes}
 history.unknown,Client
 appraisal.minimum_adjustment,Ajustement à la valeur minimale
+meat.source,Origine de la viande : {0}
+meat.unknown,Inconnue
+meat.fish,Poisson
+meat.prion,Prions : {0}
+meat.prion.present,Présents
+meat.prion.unmarked,Non signalés

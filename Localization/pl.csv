@@ -262,3 +262,9 @@ history.empty,Nie było jeszcze rozmowy.
 history.earlier,…{0} {0|wcześniejsza kwestia|wcześniejsze kwestie|wcześniejszych kwestii}
 history.unknown,Klient
 appraisal.minimum_adjustment,Korekta do wartości minimalnej
+meat.source,Pochodzenie mięsa: {0}
+meat.unknown,Nieznane
+meat.fish,Ryba
+meat.prion,Priony: {0}
+meat.prion.present,Obecne
+meat.prion.unmarked,Nieoznaczone
