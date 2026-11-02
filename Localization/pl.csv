@@ -51,7 +51,7 @@ appraisal.worn,Zużycie
 auth.counterfeit,× Podróbka ({0})
 auth.genuine,√ Oryginał
 berry.dried,Wysuszona
-berry.line,Jakość KwiatoGody: {0}
+berry.line,{0} — jakość: {1}
 berry.wine, (wartość wina {0})
 berry.moldy,Spleśniała
 berry.normal,Normalna

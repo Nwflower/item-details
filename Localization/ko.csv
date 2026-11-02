@@ -51,7 +51,7 @@ appraisal.worn,마모
 auth.counterfeit,× 위조품 ({0})
 auth.genuine,✓ 정품
 berry.dried,마름
-berry.line,블룸베리 품질: {0}
+berry.line,{0} 품질: {1}
 berry.wine, (와인 점수 {0})
 berry.moldy,곰팡이 핌
 berry.normal,정상

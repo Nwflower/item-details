@@ -130,7 +130,7 @@ public sealed partial class ModEntry
         return true;
     }
 
-    // ---------------- 荧光莓 ----------------
+    // ---------------- 果实品质（BERRY_*） ----------------
     private bool TryAppendBerry(RichTextBuilder builder, GameItem item)
     {
         if (!ModSettings.Plant) return false;
@@ -140,6 +140,12 @@ public sealed partial class ModEntry
 
         string? name = BerryQualityClassifier.DisplayName(q);
         if (name == null) return false;
+
+        // 主体取物品自己的名字：BERRY_TAG 不是荧光莓专属，第三方果实只要沿用原版的
+        // WineHelper.InitBerry 就会带上它（实测酿酒拓展的 18 种果实），写死"荧光莓"
+        // 会把别人的水果一起叫成荧光莓。名字读不到就不写这行，不拿默认值凑结论。
+        string itemName = GameRead.ItemName(item);
+        if (itemName.Length == 0 || itemName == "?") return false;
 
         // 较小用紫色：这是「发育不良但还能用」的一档，和发霉/干枯这类坏档区分开。
         var color = q switch
@@ -151,7 +157,7 @@ public sealed partial class ModEntry
 
         try
         {
-            builder.Add(Loc.T("berry.line", "BloomBerry quality: {0}", name), color);
+            builder.Add(Loc.T("berry.line", "{0} quality: {1}", itemName, name), color);
             // 酿酒值：这颗莓在 WineHelper.StartFermentation 里给果酿评分加的点数，灰字补在同一行末尾。
             builder.Add(Loc.T("berry.wine", " (wine value {0})",
                     GameRead.BerryWineScore(item).ToString("+0;-0;0")),

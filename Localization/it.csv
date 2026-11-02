@@ -51,7 +51,7 @@ appraisal.worn,Usura
 auth.counterfeit,× Falso ({0})
 auth.genuine,√ Autentico
 berry.dried,Secca
-berry.line,Qualità della bacca: {0}
+berry.line,Qualità di {0}: {1}
 berry.wine, (valore del vino {0})
 berry.moldy,Ammuffita
 berry.normal,Normale

@@ -51,7 +51,7 @@ appraisal.worn,Marcas de uso
 auth.counterfeit,× Falsificación ({0})
 auth.genuine,√ Auténtico
 berry.dried,Seca
-berry.line,Calidad de la bayaúva: {0}
+berry.line,Calidad de {0}: {1}
 berry.wine, (valor del vino {0})
 berry.moldy,Picada
 berry.normal,Normal

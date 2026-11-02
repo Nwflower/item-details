@@ -182,8 +182,14 @@ internal static class GameRead
         }
     }
 
-    // ---------- 荧光莓 ----------
+    // ---------- 果实品质（BERRY_*） ----------
 
+    /// <summary>
+    /// 带 <c>BERRY_TAG</c> 的物品按 <c>BERRY_CONDITION_INT</c> 分档。
+    /// 这个标签由 <c>WineHelper.InitBerry</c> 授予，原版只有 wine_berry 走这条路，
+    /// 但它并不是荧光莓专属：第三方果实只要调用同一个函数也会带上（实测酿酒拓展的
+    /// 18 种果实）。所以这里只回答"这件物品的品质档位"，是不是荧光莓由调用方按名字显示。
+    /// </summary>
     internal static BerryQuality ClassifyBerry(GameItem? it)
     {
         if (!IsTag(it, "BERRY_TAG")) return BerryQuality.NotBerry;
@@ -193,8 +199,9 @@ internal static class GameRead
     }
 
     /// <summary>
-    /// 这颗荧光莓对果酿评分的贡献：<c>WineHelper.StartFermentation</c> 把每颗的
-    /// <c>BERRY_CONDITION_INT</c> 直接累加，负值先 +1（发霉 −2 记 −1，未熟 −1 记 0）。
+    /// 这件果实对果酿评分的贡献：<c>WineHelper.StartFermentation</c> 把每个
+    /// <c>WINE_INGREDIENT_TAG</c> 原料的 <c>BERRY_CONDITION_INT</c> 直接累加，
+    /// 负值先 +1（发霉 −2 记 −1，未熟 −1 记 0）。第三方果实也走同一条公式。
     /// </summary>
     internal static int BerryWineScore(GameItem? it)
     {

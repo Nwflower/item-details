@@ -51,7 +51,7 @@ appraisal.worn,Desgaste
 auth.counterfeit,× Falsificação ({0})
 auth.genuine,√ Autêntico
 berry.dried,Seca
-berry.line,Qualidade da baga: {0}
+berry.line,Qualidade de {0}: {1}
 berry.wine, (valor do vinho {0})
 berry.moldy,Mofada
 berry.normal,Normal

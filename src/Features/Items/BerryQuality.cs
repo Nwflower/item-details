@@ -2,7 +2,7 @@ namespace ItemDetails;
 
 internal enum BerryQuality
 {
-    NotBerry = -100,   // 不是荧光莓
+    NotBerry = -100,   // 没有 BERRY_TAG，不是果实
     Unknown = 0,
     Normal,
     Small,
@@ -11,7 +11,10 @@ internal enum BerryQuality
     Dried,
 }
 
-/// <summary>荧光莓品质分类。condition/visualVariant 语义来自 0.46D 反编译结果。</summary>
+/// <summary>
+/// 果实品质分档。condition/visualVariant 语义来自 0.46D 反编译结果；
+/// 带 BERRY_TAG 的物品都适用，不限于荧光莓（第三方果实沿用同一个 InitBerry）。
+/// </summary>
 internal static class BerryQualityClassifier
 {
     internal static BerryQuality Classify(int condition, int visualVariant)

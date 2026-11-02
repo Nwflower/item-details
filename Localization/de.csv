@@ -51,7 +51,7 @@ appraisal.worn,Abnutzung
 auth.counterfeit,× Fälschung ({0})
 auth.genuine,√ Echt
 berry.dried,Getrocknet
-berry.line,Blühbeerenqualität: {0}
+berry.line,{0}-Qualität: {1}
 berry.wine, (Weinwert {0})
 berry.moldy,Schimmlig
 berry.normal,Normal

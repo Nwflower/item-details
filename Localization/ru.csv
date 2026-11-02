@@ -51,7 +51,7 @@ appraisal.worn,Износ
 auth.counterfeit,× Подделка ({0})
 auth.genuine,√ Оригинал
 berry.dried,Высушенная
-berry.line,Качество цветоягоды: {0}
+berry.line,{0} — качество: {1}
 berry.wine, (ценность вина {0})
 berry.moldy,Заплесневелая
 berry.normal,Нормальная

@@ -51,7 +51,7 @@ appraisal.worn,摩耗
 auth.counterfeit,× 偽造品（{0}）
 auth.genuine,✓ 正規品
 berry.dried,乾燥
-berry.line,ブルームベリーの品質：{0}
+berry.line,{0}の品質：{1}
 berry.wine,（ワイン評価 {0}）
 berry.moldy,カビあり
 berry.normal,通常
