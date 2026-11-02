@@ -220,6 +220,8 @@ internal static class DoubleClickInspect
         try
         {
             if (ItemPinHelper.BlocksClicks) return true;
+            // 同时可鉴定、可扫描时，扫描优先；无法扫描则回到鉴定或原版。
+            if (DoubleClickScan.TryScan(newItem, "native")) return false;
             if (!ModSettings.DoubleClickInspect) return true;
             if (!IsInspectableItem(newItem)) return true;
 
@@ -295,7 +297,7 @@ internal static class DoubleClickInspect
         {
             try
             {
-                if (!ModSettings.DoubleClickInspect) return;
+                if (!ModSettings.DoubleClickInspect && !ModSettings.DoubleClickScan) return;
 
                 var ui = StoreUIManager.Instance;
                 if (ui == null) return;
@@ -311,7 +313,14 @@ internal static class DoubleClickInspect
                 }
 
                 var item = RenderHandler.RaycastElement<GameItem>(Input.mousePosition);
-                if (item == null || GeneralHelper.IsDisplayOnly(item) || !IsInspectableItem(item))
+                if (item == null || GeneralHelper.IsDisplayOnly(item))
+                {
+                    _lastItem = null;
+                    return;
+                }
+                bool scanTarget = DoubleClickScan.CanHandle(item);
+                bool inspectTarget = ModSettings.DoubleClickInspect && IsInspectableItem(item);
+                if (!scanTarget && !inspectTarget)
                 {
                     _lastItem = null;
                     return;
@@ -325,7 +334,8 @@ internal static class DoubleClickInspect
 
                 _lastItem = null;
                 _lastClickTime = -99f;
-                TryInspect(item, "ticker");
+                if (scanTarget && DoubleClickScan.TryScan(item, "ticker")) return;
+                if (inspectTarget) TryInspect(item, "ticker");
             }
             catch (Exception ex)
             {

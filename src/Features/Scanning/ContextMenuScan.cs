@@ -14,9 +14,9 @@ namespace ItemDetails;
 ///   · 普通液体容器（LIQUID_CONTAINER_TAG）        → 水质扫描仪优先，没有则化学扫描仪
 ///   · 种子（SEED_ITEM_TAG）                       → 植物分析仪（plant_analyser）
 ///
-/// 为什么不用双击：原版和各模组已经把双击用满了——开容器、激活、拿起（瓶子、移液枪靠双击装备）、
-/// 倒水。抢双击必然顶掉其中某一个，让开又会让液体扫描几乎用不上。右键菜单是原版给“对物品做
-/// 某个动作”留的入口，加一行不碰任何既有手势。
+/// 右键菜单扫描和可选的双击扫描共用设备查找和原生扫描面板入口。
+/// 右键扫描不改变任何原版双击；启用双击扫描时则由 DoubleClickScan
+/// 先检查该物品是否已有原版容器/激活动作，再决定是否接管。
 ///
 /// 菜单做法与 SmartInventoryArrange 扩展排序菜单相同：把原版 1×7 按钮网格换成 1×8，原版七个按钮
 /// 原样搬进去，「扫描」插在「固定」之前。不适用时把这一行 SetActive(false)——
@@ -302,6 +302,9 @@ internal static class ContextMenuScan
 
     // ---------------- 扫描 ----------------
 
+    /// <summary>设备匹配供双击扫描复用，不受右键菜单选项的开关影响。</summary>
+    internal static bool CanScan(GameItem? item) => Classify(item) != Kind.None;
+
     /// <summary>执行扫描面板；处理了返回 true。</summary>
     internal static bool TryScan(GameItem? item, string source)
     {
@@ -395,7 +398,7 @@ internal static class ContextMenuScan
     }
 
     /// <summary>与原版 X 射线扫描仪的目标判定一致：锁定中的补给箱。</summary>
-    private static bool IsLockedSupplyCrate(GameItem item)
+    internal static bool IsLockedSupplyCrate(GameItem item)
     {
         try
         {

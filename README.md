@@ -43,8 +43,11 @@
 **双击鉴定**
 双击待鉴定物品直接打开鉴定面板，不必先拿放大镜再拖动；面板打开时双击另一件可直接切换。
 
+**双击扫描**
+默认开启，保留旧版的 `double_click_scan` 设置。拥有对应设备时，双击可扫描的液体、化学品、种子或上锁补给箱会打开扫描结果。已有的容器打开和激活动作优先；禁用后保持原版双击。与右键扫描互不影响。
+
 **右键菜单添加扫描**
-默认关闭。拥有对应设备时，液体、化学品、种子或上锁补给箱的右键菜单里多出「扫描」，点击直接打开扫描结果。不占用双击。
+默认关闭。拥有对应设备时，液体、化学品、种子或上锁补给箱的右键菜单里多出「扫描」，点击直接打开扫描结果。不占用双击。可以和双击扫描同时开启。
 
 **透视（可选）**
 这一组会明显降低难度，按喜好开启：
@@ -113,7 +116,8 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 - **Augmented / wanted alerts** — bounty, real name, and an augmented customer's kill reward and threat when they arrive.
 - **Conversation recall** — hover over a customer to reread what was said during this visit.
 - **Double-click to inspect** — open the inspection panel without the Magnifying Glass; double-click another item to switch.
-- **Add Scan to context menu** (off by default) — while you own the matching device, liquids, chemicals, seeds and locked supply crates get a Scan entry in their right-click menu. Double-click is left alone.
+- **Double-click to scan** (on by default; preserves the old setting) — scan liquids, chemicals, seeds and locked supply crates when you own the matching scanner. Native container-opening and activation actions take priority.
+- **Add Scan to context menu** (off by default) — independently adds a Scan entry to the right-click menu for the same item types; both controls may be enabled together.
 - **Reveal (optional)** — Authenticity Check, Appraisal Calculator, Customer Arrival Alert and Reveal Disguises & True Stats are on by default. Liquid Composition Analysis turns on when you own a scanner. Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off, because they make the game noticeably easier.
 
 Every feature can be toggled in this mod's settings in the game's Mods menu.

@@ -50,22 +50,24 @@ namespace TEST_NAMESPACE {
   internal static bool SettingsTest(bool throwInside, bool missingEntry) {
    var entries = ModConfig.Current.Entries;
    entries.Clear(); ConfigEntry.Saves = 0;
-   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "double_click_inspect", "context_menu_scan" })
-    entries.Add(key, new ConfigEntry());
+   // Start scan enabled; the self-test should temporarily disable and then restore it.
+   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "double_click_inspect", "double_click_scan", "context_menu_scan" })
+    entries.Add(key, new ConfigEntry { Value = key == "double_click_scan" });
    entries.Add("liquid_analysis", new ConfigEntry { Value = ModSettings.LiquidOffChoice, ValueType = typeof(string) });
-   if (missingEntry) entries.Remove("double_click_inspect");
+   // Fail after double_click_scan has been modified, so rollback of that toggle is covered too.
+   if (missingEntry) entries.Remove("context_menu_scan");
    bool applied = false, threw = false;
    try {
     using (new TestSettings()) {
      applied = System.Linq.Enumerable.All(entries, pair => pair.Key == "liquid_analysis"
        ? object.Equals(pair.Value.Value, ModSettings.LiquidAlwaysChoice)
-       : object.Equals(pair.Value.Value, true));
+       : object.Equals(pair.Value.Value, pair.Key != "double_click_scan"));
      if (throwInside) throw new System.InvalidOperationException("test failure");
     }
    } catch (System.InvalidOperationException) { threw = true; }
    bool restored = System.Linq.Enumerable.All(entries, pair => pair.Key == "liquid_analysis"
      ? object.Equals(pair.Value.Value, ModSettings.LiquidOffChoice)
-     : object.Equals(pair.Value.Value, false));
+     : object.Equals(pair.Value.Value, pair.Key == "double_click_scan"));
    return restored && ConfigEntry.Saves == 0 && (missingEntry ? threw : applied && threw == throwInside);
   }
  }

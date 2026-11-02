@@ -79,7 +79,8 @@ internal static class ModSettings
 
     // ---- 操作优化 ----
     private static readonly Toggle DoubleClickInspectToggle = new(true);
-    private static readonly Toggle ContextMenuScanToggle = new(false);   // 右键菜单添加扫描
+    private static readonly Toggle DoubleClickScanToggle = new(true);    // 保留旧版双击扫描及旧设置
+    private static readonly Toggle ContextMenuScanToggle = new(false);   // 右键菜单添加扫描（独立开关）
 
     // ---- 透视 ----
     private static readonly Toggle AuthenticityToggle = new(true);       // 真伪结论 + 赝品原因 + 植物品质
@@ -166,8 +167,13 @@ internal static class ModSettings
                      "glass. While the panel is open, double-click another item to switch to it. The magnifying-glass " +
                      "hint becomes \"Double-Click To Inspect\". Turn off to restore the original flow."));
 
-            // 旧的「双击扫描」（double_click_scan）改成右键菜单入口：双击已被原版与各模组用满，
-            // 换了键名，旧存档里的值不沿用。
+            // 恢复原键名：以前关闭过双击扫描的玩家仍保持关闭；右键扫描是独立选项。
+            DoubleClickScanToggle.Define(_cfg, "double_click_scan", SecInteractionKey, SecInteractionEn,
+                Text("config.double_click_scan", "Double-Click to Scan"),
+                Text("config.double_click_scan.tip", "With the matching scanner owned, double-click liquids, " +
+                     "chemicals, seeds or locked supply crates to scan. Existing container and activation " +
+                     "actions take priority; disable this option to preserve all vanilla double-clicks."));
+
             ContextMenuScanToggle.Define(_cfg, "context_menu_scan", SecInteractionKey, SecInteractionEn,
                 Text("config.context_menu_scan", "Add Scan to Context Menu"),
                 Text("config.context_menu_scan.tip", "While you own the matching device, the item's right-click menu " +
@@ -515,6 +521,7 @@ internal static class ModSettings
     }
 
     internal static bool DoubleClickInspect => DoubleClickInspectToggle.Value;
+    internal static bool DoubleClickScan => DoubleClickScanToggle.Value;
     internal static bool ContextMenuScan => ContextMenuScanToggle.Value;
     internal static bool TypeBadge => TypeBadgeToggle.Value;
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;

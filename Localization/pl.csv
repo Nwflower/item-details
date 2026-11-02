@@ -187,6 +187,8 @@ config.customer_history.tip,Najechanie na klienta w sklepie pokazuje rozmowę z 
 config.section.interaction,Sterowanie
 config.double_click_inspect,Sprawdzanie dwuklikiem
 config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny lub weryfikacji autentyczności (iniektory, papierosy, kartki żywnościowe itp.) otwiera panel oględzin bez szkła powiększającego. Gdy panel jest otwarty, dwuklik na innym przedmiocie od razu się na niego przełącza. Podpowiedź o szkle powiększającym zmienia się na „Kliknij dwukrotnie, by sprawdzić”. Wyłącz, aby przywrócić oryginalny przebieg."
+config.double_click_scan,"Podwójne kliknięcie, aby zeskanować"
+config.double_click_scan.tip,"Jeśli masz odpowiednie urządzenie, dwuklik na przedmiocie otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion. Bez urządzenia działa oryginalny dwuklik."
 config.context_menu_scan,Dodaj skanowanie do menu kontekstowego
 config.context_menu_scan.tip,"Jeśli masz odpowiednie urządzenie, w menu prawego przycisku myszy przedmiotu pojawia się pozycja „Zeskanuj”, która otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion."
 config.section.reveal,Ujawnianie
