@@ -442,8 +442,9 @@ internal static class MachineInterior
             foreach (var it in p.Items)
                 if (!ctx.Summarized.Contains(it)) items.Add(it);
             if (items.Count == 0) continue;
-            if (p.Label.Length == 0) allLabelled = false;
-            groups.Add((p.Label, items));
+            string label = PanelContentsLabel(ctx.Machine, p);
+            if (label.Length == 0) allLabelled = false;
+            groups.Add((label, items));
         }
         if (groups.Count == 0) return;
 
@@ -457,6 +458,25 @@ internal static class MachineInterior
         var merged = new List<GameItem>();
         foreach (var g in groups) merged.AddRange(g.Items);
         lines.Add(new TooltipLine(Loc.T("storage.contains", "Contains: ") + Names(merged), Info));
+    }
+
+    /// <summary>
+    /// 仅为 Mod 的内容摘要命名当前输入/输出槽，不改变游戏原版面板名称。
+    /// 显示的是槽内现有物品，不代表配方需求或本次生产的结果。
+    /// </summary>
+    private static string PanelContentsLabel(GameItem machine, Panel panel)
+    {
+        if (panel.Role != "input" && panel.Role != "output") return panel.Label;
+
+        bool printer = string.Equals(machine.identifier, "printer", StringComparison.Ordinal);
+        if (panel.Role == "input")
+            return printer
+                ? Loc.T("inner.printer_material_slot", "Material slot")
+                : Loc.T("inner.input_slot", "Input slot");
+
+        return printer
+            ? Loc.T("inner.printer_product_slot", "Product slot")
+            : Loc.T("inner.output_slot", "Output slot");
     }
 
     /// <summary>名称×数量，按首次出现顺序，超出种类上限折叠。</summary>

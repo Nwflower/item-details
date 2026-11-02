@@ -220,6 +220,10 @@ fridge.no_effect,，{0} 件无效果
 wine.rack,{0} 瓶陈化中，每天陈化 {1} 天
 wine.rack_idle,，{0} 瓶不陈化
 inner.line,{0}：{1}
+inner.input_slot,输入槽内
+inner.output_slot,输出槽内
+inner.printer_material_slot,投料槽内
+inner.printer_product_slot,产物槽内
 inner.durability,{0}：耐久度 {1}/{2}
 inner.faked,（标示为 {0}）
 inner.filter_spent,（已耗尽，不再过滤）
