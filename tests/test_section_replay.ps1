@@ -91,6 +91,19 @@ try {
     Check ($probe::UsesStableIds($first)) "emitted ids match the SDK constants (actual: $($probe::Ids($first)))"
     Check ($probe::Runs($first).Contains('basePerDay=6') -and $probe::Runs($first).Contains('currentPerDay=8')) 'machine speed fields survive into the snapshot'
     Check ($probe::Runs($first).Contains('total=500')) 'appraisal total survives into the snapshot'
+
+    # C# 5 客户端：槽位按委托的运行时类型匹配，只编译通过不够，必须真的读到同一份快照。
+    $c5Path = Join-Path $repo 'tests/CSharp5Client/bin/Release/netstandard2.1/ItemDetailsClient5.dll'
+    Check (Test-Path $c5Path) 'C# 5 client assembly was built before the contract tests'
+    $c5 = [Reflection.Assembly]::LoadFrom($c5Path).GetType('ItemDetails.Integration.ItemDetailsClient')
+    $c5Read = $c5.GetMethod('TryGetTooltipSections')
+    $c5Args = [object[]]@($first, $null)
+    Check ([bool]$c5Read.Invoke($null, $c5Args)) 'C# 5 client reads the live section snapshot'
+    $c5Sections = @($c5Args[1])
+    $c5Ids = ($c5Sections | ForEach-Object { $_.Id }) -join ','
+    Check ($c5Ids -eq ($probe::Ids($first))) "C# 5 client sees the same section ids (actual: $c5Ids)"
+    $c5Speed = $c5Sections | Where-Object { $_.Id -eq 'machine-speed' } | Select-Object -First 1
+    Check ($c5Speed.Group -eq 'machine' -and $c5Speed.Runs.Count -gt 0 -and $c5Speed.Runs[0].Kind.Length -gt 0) 'C# 5 client exposes group and converted runs'
 }
 finally { $claim.Dispose(); $watch.Dispose(); $sectionApi.GetMethod('Disable',$flags).Invoke($null,@()) }
 Check (!$probe::SectionAvailable()) 'section availability withdrawn on disable'
@@ -112,6 +125,20 @@ foreach ($scale in @([single]1, [single]1.5, [single]2)) {
     }
 }
 Check $true 'complete line width fits native Latin/CJK budgets for lengths 0..512'
+
+# 本作的条带不折行标记；构建时把 maxCharWidth 收窄，使 0.875 预算恰好等于原来的 0.66 预算。
+$narrow = $barStyle.GetMethod('NarrowForNoBreak', $flags)
+foreach ($w in 1..2000) {
+    $n = [int]$narrow.Invoke($null, @([int]$w))
+    $want = [Math]::Max(1, [int][Math]::Truncate([single]([single]$w * [single]0.66)))
+    $got = [Math]::Max(1, [int][Math]::Truncate([single]([single]$n * [single]0.875)))
+    if ($got -ne $want -or $n -gt $w) { throw "FAIL narrow width=$w narrowed=$n budget=$got want=$want" }
+}
+Check $true 'narrowed width restores the 0.66 budget exactly for widths 1..2000'
+$writerSource = Get-Content (Join-Path $repo 'src/Bootstrap/ModEntry.Tooltip.cs') -Raw
+$marks = [regex]::Matches($writerSource, 'builder\.AddProgressBar\([^;]*\);\s*ProgressBarStyle\.MarkOwnBar\(builder\);').Count
+$calls = [regex]::Matches($writerSource, 'builder\.AddProgressBar\(').Count
+Check ($calls -gt 0 -and $marks -eq $calls) "every own AddProgressBar call is counted as ours ($marks/$calls)"
 
 # Native Add depends on a live Unity renderer; pin the inline-bar newline contract without starting the game.
 foreach ($file in @('MachineBatteryInfo.cs', 'MachineHydroponicLine.cs')) {

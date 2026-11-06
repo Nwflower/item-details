@@ -23,7 +23,7 @@ internal static partial class ValueBreakdown
         return Kind.None;
     }
 
-    // 同一次 tooltip 构建里，估价隐藏、正文拆解和实测分解会对同一件物品各算一次；
+    // 同一次 tooltip 构建里，估价隐藏与正文拆解会对同一件物品各算一次；
     // 构建期间物品不会变，按构建序号复用。构建之外（标题、结果预填、自检）照常现算。
     private static GameItem? _memoItem;
     private static int _memoBuild = -1;

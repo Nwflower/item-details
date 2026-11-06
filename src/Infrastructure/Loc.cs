@@ -87,10 +87,6 @@ internal static class Loc
     }
 
     /// <summary>
-    /// 当前语言是否为中文。只用于排版差异（宽度估算、分隔符习惯），
-    /// 不用于选文案——选文案一律走 <see cref="T"/>。
-    /// </summary>
-    /// <summary>
     /// 游戏自带完整译文的语言（设置里能选的那 8 种）。意、韩、巴葡游戏有词表但基本是空的，
     /// 想借用原版文案时这三种要回落到本模组词条。
     /// </summary>
@@ -134,6 +130,10 @@ internal static class Loc
         }
     }
 
+    /// <summary>
+    /// 当前语言是否为中文。只用于排版差异（宽度估算、分隔符习惯），
+    /// 不用于选文案——选文案一律走 <see cref="T(string, string)"/>。
+    /// </summary>
     internal static bool IsChinese
     {
         get
@@ -144,11 +144,6 @@ internal static class Loc
     }
 
     /// <summary>
-    /// 取一条文案。<paramref name="key"/> 存在于当前语言 CSV 时用译文，
-    /// 否则用 <paramref name="english"/>；<paramref name="args"/> 按 <see cref="string.Format(string, object[])"/>
-    /// 填充 <c>{0}</c> 占位符。
-    /// </summary>
-    /// <summary>
     /// 不带占位符的重载：tooltip 一帧里几十条文案都是这种，省掉每次调用分配一个空 object[]。
     /// 编译器在两种重载都可用时优先选非 params 的那个。
     /// </summary>
@@ -156,6 +151,11 @@ internal static class Loc
 
     private static readonly object[] EmptyArgs = Array.Empty<object>();
 
+    /// <summary>
+    /// 取一条文案。<paramref name="key"/> 存在于当前语言 CSV 时用译文，
+    /// 否则用 <paramref name="english"/>；<paramref name="args"/> 按 <see cref="string.Format(string, object[])"/>
+    /// 填充 <c>{0}</c> 占位符。
+    /// </summary>
     internal static string T(string key, string english, params object[] args)
     {
         string text = english;

@@ -682,13 +682,14 @@ internal static class TypeBadge
     }
 
     /// <summary>
-    /// 当前的分类徽章容器；没显示时返回 null，而容器存在但已隐藏时返回隐藏的 RectTransform。
+    /// 当前可见的分类徽章容器；没创建或已隐藏时都返回 null，与 SDK 的槽位约定一致。
     /// 排版方原来按节点名 <c>ItemDetailsTypeBadge</c> 在父节点上找它并量高度，
     /// 改走槽位后我们改节点名或层级都不影响它。
     /// </summary>
     private static RectTransform? BadgeRect()
     {
-        try { return _badge != null ? _badge.GetComponent<RectTransform>() : null; }
+        // 排版方按返回值决定要不要在上方留出徽章的高度，返回看不见的容器会让它凭空空出一截。
+        try { return _badge != null && _badge.activeInHierarchy ? _badge.GetComponent<RectTransform>() : null; }
         catch { return null; }
     }
 

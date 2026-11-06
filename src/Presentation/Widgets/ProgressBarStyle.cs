@@ -83,7 +83,20 @@ internal static class ProgressBarStyle
                 _harmony.Patch(addBuilder, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterAddBuilder)));
             if (clear != null)
                 _harmony.Patch(clear, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterClear)));
-            _harmony.Patch(build, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterBuild)));
+            // 预算收窄只靠计数：并入与清空都要能跟上，否则宁可保持原版放宽。
+            bool canNarrow = addBuilder != null && clear != null;
+            if (!canNarrow) Log.Warn("ProgressBar.Budget", "未找到 Add(builder)/Clear，含进度条的 tooltip 按原版 0.875 折行");
+            // 另外两个也会写不折行片段的原版入口：只计数，不记录比例。
+            foreach (string other in new[] { "AddProgressBarOld", "AddProgressTest" })
+            {
+                var method = AccessTools.Method(typeof(RichTextBuilder), other);
+                if (method != null)
+                    _harmony.Patch(method, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(CountBar)));
+            }
+            _harmony.Patch(build,
+                prefix: canNarrow ? new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeBuild)) : null,
+                postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterBuild)),
+                finalizer: canNarrow ? new HarmonyMethod(typeof(ProgressBarStyle), nameof(RestoreWidth)) : null);
             _harmony.Patch(setRich, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeSetRichText)));
 
             _patched = true;
@@ -111,8 +124,82 @@ internal static class ProgressBarStyle
         }
     }
 
+    // ---------------- 折行预算：本作的条不改变整段 tooltip 的折行宽度 ----------------
+    //
+    // 原版 AddProgressBar 会把条标成不折行片段；Build 里只要出现任何不折行片段，中日韩的折行预算
+    // 就从 maxCharWidth×0.66 放宽到 ×0.875，整段文字（描述、价值构成……）都会被拉长。
+    // 本作的条在逻辑层也走 AddProgressBar（第三方因此能从同一入口读比例），这个副作用留在渲染层抵消：
+    // 构建前若不折行片段全是本作写的条，临时把 maxCharWidth 收窄到 ×0.875 正好等于原来的 ×0.66，构建后还原。
+    // 原版或别的模组写的条照旧放宽，不改它们的行为；条本身仍是不折行片段，不会被拆开。
+    //
+    // 判断"全是本作的条"不读私有片段（那需要对嵌套类型做反射，会让模组扫描器要求额外能力），
+    // 而是按 builder 计数：游戏只有三个公开入口会写不折行片段，都在这里计入 All；
+    // 本作写的条另记 Own。Add(builder) 并入对方的计数，Clear 清零；All == Own 才收窄。
+
+    private sealed class BarCount
+    {
+        internal int All;
+        internal int Own;
+    }
+
+    private static readonly ConditionalWeakTable<RichTextBuilder, BarCount> Counts = new();
+
+    /// <summary>刚由 <c>AddProgressBar</c> 写出的那条是本作的。紧跟在调用之后调用。</summary>
+    internal static void MarkOwnBar(RichTextBuilder builder)
+    {
+        if (builder == null) return;
+        Counts.GetOrCreateValue(builder).Own++;
+    }
+
+    private static void CountBar(RichTextBuilder __instance)
+    {
+        if (__instance != null) Counts.GetOrCreateValue(__instance).All++;
+    }
+
+    /// <summary>
+    /// 与原版 Build 同一套 float 运算：返回最小的宽度 w，使 (int)(w×0.875) 不小于 (int)(maxCharWidth×0.66)。
+    /// 0.875 的步长小于 1，向下取整会落到每一个整数上，所以结果的预算恰好等于原来的 0.66 预算。
+    /// </summary>
+    internal static int NarrowForNoBreak(int maxCharWidth)
+    {
+        int target = Math.Max(1, (int)((float)maxCharWidth * 0.66f));
+        int width = Math.Max(1, (int)Math.Floor(target / 0.875f));
+        while (Math.Max(1, (int)((float)width * 0.875f)) < target) width++;
+        while (width > 1 && Math.Max(1, (int)((float)(width - 1) * 0.875f)) >= target) width--;
+        return width;
+    }
+
+    private static void BeforeBuild(RichTextBuilder __instance, out int __state)
+    {
+        __state = 0;
+        try
+        {
+            // 没写过本作的条只查一次表；有原版或别人的条、或被第三方清空重排过，都保持原版行为。
+            if (!Counts.TryGetValue(__instance, out var count) || count.Own <= 0 || count.All != count.Own) return;
+            float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
+            if (scale <= 1f) return;                                   // 西文不分两档预算
+            int original = __instance.maxCharWidth;
+            int narrowed = NarrowForNoBreak(original);
+            if (narrowed >= original) return;
+            __state = original;
+            __instance.maxCharWidth = narrowed;
+        }
+        catch { __state = 0; }
+    }
+
+    private static Exception? RestoreWidth(RichTextBuilder __instance, int __state, Exception? __exception)
+    {
+        if (__state > 0)
+        {
+            try { __instance.maxCharWidth = __state; } catch { }
+        }
+        return __exception;
+    }
+
     private static void BeforeBar(RichTextBuilder __instance, float __0, int __1, RenderHandler.ColorPalette __3, bool __6)
     {
+        // 每一条都计数（与高清条开关无关）：折行预算判断要知道是不是全是本作的条。
+        CountBar(__instance);
         if (ModSettings.BlockProgressBar && __1 > 0)
         {
             RecordBar(__instance, __0, __1, __3, __6);
@@ -122,6 +209,12 @@ internal static class ProgressBarStyle
     private static void AfterAddBuilder(RichTextBuilder __instance, RichTextBuilder __0)
     {
         if (__0 == null) return;
+        if (Counts.TryGetValue(__0, out var other) && (other.All > 0 || other.Own > 0))
+        {
+            var mine = Counts.GetOrCreateValue(__instance);
+            mine.All += other.All;
+            mine.Own += other.Own;
+        }
         lock (BuilderBars)
         {
             if (BuilderBars.TryGetValue(__0, out var otherBars) && otherBars.Count > 0)
@@ -133,6 +226,7 @@ internal static class ProgressBarStyle
 
     private static void AfterClear(RichTextBuilder __instance)
     {
+        Counts.Remove(__instance);
         lock (BuilderBars)
         {
             if (BuilderBars.TryGetValue(__instance, out var bars)) bars.Clear();
@@ -271,8 +365,8 @@ internal static class ProgressBarStyle
 
     /// <summary>
     /// 完整行所需的 maxCharWidth；反算原版 CJK 的 0.66 折行预算，避免框宽足够却提前断行。
-    /// 条一律由 <c>AddProgressBar</c> 写出并带不折行片段，折行预算实际是更宽的 0.875，
-    /// 按 0.66 预留对这一行仍然成立（更保守）。
+    /// 本作的条虽然是不折行片段，构建时 <see cref="BeforeBuild"/> 会把预算收回 0.66，所以按 0.66 预留是准确值；
+    /// 同一段里还有原版的条时预算是 0.875，按 0.66 预留只会更宽松。
     /// </summary>
     internal static int WidthForLine(int visibleLength)
     {

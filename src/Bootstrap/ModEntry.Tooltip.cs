@@ -507,6 +507,7 @@ public sealed partial class ModEntry
         {
             if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
             builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, end: " ");
+            ProgressBarStyle.MarkOwnBar(builder);
             AddLine(builder, ln.Tail ?? "", ln.Color);
         }
         catch (Exception ex)
@@ -525,6 +526,7 @@ public sealed partial class ModEntry
         {
             if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
             builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, end: " ");
+            ProgressBarStyle.MarkOwnBar(builder);
             if (!string.IsNullOrEmpty(ln.Tail)) builder.Add(ln.Tail, ln.Color);
             builder.NextLine();
         }

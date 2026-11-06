@@ -14,6 +14,13 @@ using UnityEngine;
 
 namespace ItemDetails.Integration
 {
+    // 线上的真实类型：物品详情发布的委托签名里，Runs 是这个 ValueTuple 列表。
+    // 槽位按委托的运行时类型匹配，换成自定义结构体就永远对不上，所以签名必须逐字一致；
+    // TooltipRun 只是给调用方的易读视图，在本文件内转换。
+    using WireRun = ValueTuple<string, string, RenderHandler.ColorPalette, float, int, RenderHandler.ColorPalette, string>;
+    using WireRuns = IReadOnlyList<ValueTuple<string, string, RenderHandler.ColorPalette, float, int, RenderHandler.ColorPalette, string>>;
+    using Fields = IReadOnlyDictionary<string, object>;
+
     /// <summary>区块里的一段文字或一条进度条。</summary>
     public struct TooltipRun
     {
@@ -31,14 +38,56 @@ namespace ItemDetails.Integration
     {
         private readonly IReadOnlyDictionary<string, object> fields;
 
-        public string Id { get; private set; }
-        public IReadOnlyList<TooltipRun> Runs { get; private set; }
+        private readonly WireRuns wire;
+        private IReadOnlyList<TooltipRun> runs;
 
-        public TooltipSection(string id, IReadOnlyList<TooltipRun> runs, IReadOnlyDictionary<string, object> values)
+        public string Id { get; private set; }
+
+        /// <summary>这一块的文字与进度条，按输出顺序。第一次读取时才从线上格式转换。</summary>
+        public IReadOnlyList<TooltipRun> Runs
+        {
+            get
+            {
+                if (runs == null) runs = Convert(wire);
+                return runs;
+            }
+        }
+
+        internal TooltipSection(string id, WireRuns wireRuns, Fields values)
         {
             Id = id;
-            Runs = runs;
+            wire = wireRuns;
             fields = values;
+        }
+
+        /// <summary>false 表示这一块是原生行的展示，只能读，不能接管后删掉原行。</summary>
+        public bool CanReplace
+        {
+            get
+            {
+                bool replace;
+                return !TryGet<bool>("canReplace", out replace) || replace;
+            }
+        }
+
+        private static IReadOnlyList<TooltipRun> Convert(WireRuns source)
+        {
+            var list = new List<TooltipRun>(source == null ? 0 : source.Count);
+            if (source == null) return list.AsReadOnly();
+            for (int i = 0; i < source.Count; i++)
+            {
+                WireRun r = source[i];
+                TooltipRun run;
+                run.Kind = r.Item1;
+                run.Text = r.Item2;
+                run.Color = r.Item3;
+                run.Ratio = r.Item4;
+                run.Length = r.Item5;
+                run.Background = r.Item6;
+                run.Tail = r.Item7;
+                list.Add(run);
+            }
+            return list.AsReadOnly();
         }
 
         /// <summary>这一块在玩家眼里属于哪一类信息；读不到返回空串。</summary>
@@ -91,9 +140,8 @@ namespace ItemDetails.Integration
         public static IDisposable RegisterTooltipSections(Func<GameItem, RichTextBuilder, TooltipSection, bool> prepare)
         {
             if (prepare == null) throw new ArgumentNullException("prepare");
-            Func<GameItem, RichTextBuilder, string, IReadOnlyList<TooltipRun>, IReadOnlyDictionary<string, object>, bool> callback =
-                delegate(GameItem item, RichTextBuilder builder, string id, IReadOnlyList<TooltipRun> runs,
-                         IReadOnlyDictionary<string, object> fields)
+            Func<GameItem, RichTextBuilder, string, WireRuns, Fields, bool> callback =
+                delegate(GameItem item, RichTextBuilder builder, string id, WireRuns runs, Fields fields)
                 {
                     return prepare(item, builder, new TooltipSection(id, runs, fields));
                 };
@@ -106,14 +154,13 @@ namespace ItemDetails.Integration
             sections = new TooltipSection[0];
             if (builder == null) return false;
             object raw = AppDomain.CurrentDomain.GetData(SectionQuery);
-            if (!(raw is Func<RichTextBuilder, Action<string, IReadOnlyList<TooltipRun>, IReadOnlyDictionary<string, object>>, bool>))
-                return false;
-            var read = (Func<RichTextBuilder, Action<string, IReadOnlyList<TooltipRun>, IReadOnlyDictionary<string, object>>, bool>)raw;
+            var read = raw as Func<RichTextBuilder, Action<string, WireRuns, Fields>, bool>;
+            if (read == null) return false;
             var result = new List<TooltipSection>();
             try
             {
-                Action<string, IReadOnlyList<TooltipRun>, IReadOnlyDictionary<string, object>> emit =
-                    delegate(string id, IReadOnlyList<TooltipRun> runs, IReadOnlyDictionary<string, object> fields)
+                Action<string, WireRuns, Fields> emit =
+                    delegate(string id, WireRuns runs, Fields fields)
                     {
                         result.Add(new TooltipSection(id, runs, fields));
                     };
