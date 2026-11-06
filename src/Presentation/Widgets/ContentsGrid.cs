@@ -25,9 +25,9 @@ namespace ItemDetails;
 ///   - 底板复制可见框和覆盖它大半的 Image（外框与底色），和原版窗口一个样子；找不到时用纯色兜底。
 ///   - 放在 tooltip 右侧顶对齐，右边放不下就换到左侧；纵向不出屏幕。
 ///     第三方注册了提示框锚点时改贴着锚点，底板照旧复制原版窗口
-///   - 与「当铺估价单」(amres.sectioned_tooltips) 共存：它也在右侧画未上锁容器的内容物网格，
-///     载入它时未上锁容器让给它，只画它不画的带锁容器（透视）。
-///     它逐件注册了 RegisterTooltipDisplay 就按注册来，按程序集名让路只留给没注册的旧版
+///   - 与「当铺估价单」(amres.sectioned_tooltips) 共存：两者都可能画未上锁容器的内容物网格。
+///     谁画由协议决定——对方声明了 DrawsContents（布局槽位或逐件 RegisterTooltipDisplay），
+///     这件物品就按注册让路；没注册就是没接管，不按加载与否猜
 ///   - 超过 StaleSeconds 没有重新构建（缓存 tooltip）时不显示，避免画成上一件物品。
 /// </summary>
 internal static class ContentsGrid
@@ -162,9 +162,6 @@ internal static class ContentsGrid
             if (!_patched || _broken) return false;
             if (!TooltipPipeline.IsBuilding) return false;
             if (_template == null) return false;              // tooltip 还没显示过，画不出来
-            // 未上锁容器让给估价单的内容物面板；它逐件注册了接管就按注册走，这里只管没注册的旧版
-            if (!sealedBox && !ThirdPartyProviders.HasItemTooltipDisplays && SectionedLayout.LegacyContentsPanel(item)) return false;
-
             _pendingItem = item;
             _pendingItems = items;
             _pendingSealed = sealedBox;

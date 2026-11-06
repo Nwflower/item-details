@@ -81,29 +81,14 @@ try {
     $item.modifiedState = [TagSystem]::new()
     $layout = $provider.GetType('ItemDetails.SectionedLayout')
     $flow = $layout.GetMethod('UsesFlowingText',$flags)
-    $grid = $layout.GetMethod('LegacyContentsPanel',$flags)
     $mod = [LoadedMod]::new()
     $mod.Manifest = [ModManifest]::new()
     $mod.Manifest.ID = 'amres.sectioned_tooltips'
     [ModLoader]::Mods.Add($mod)
-    Check (!$flow.Invoke($null,@($item)) -and !$grid.Invoke($null,@($item))) 'disabled legacy mod leaves both native layouts available'
+    # 只有加载、没有排版声明：不按程序集名嗅探，也不读它的配置项。
+    Check (!$flow.Invoke($null,@($item))) 'a loaded layout mod without a declaration changes nothing'
     $mod.IsEnabled = $true
-    Check ($flow.Invoke($null,@($item)) -and $grid.Invoke($null,@($item))) 'enabled legacy mod receives compatible layout'
-
-    # Use in-memory config entries to exercise the legacy layout and panel switches without writing config.
-    $config = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([ModConfig])
-    $privateInstance = [Reflection.BindingFlags]'NonPublic,Instance'
-    $entries = [Collections.Generic.List[ConfigEntry]]::new()
-    [ModConfig].GetField('entries',$privateInstance).SetValue($config,$entries)
-    $configs = [ModConfig].GetField('configs',$flags).GetValue($null)
-    $configs.Add($mod.Manifest.ID,$config)
-    foreach ($key in @('ContentsPanel','Enabled')) {
-        $offSwitch = [Activator]::CreateInstance([ConfigEntry[bool]],$privateInstance,$null,@($false),$null)
-        [ConfigEntry].GetProperty('Key').SetValue($offSwitch,$key)
-        $entries.Add($offSwitch)
-        Check (!$grid.Invoke($null,@($item)) -and $flow.Invoke($null,@($item)) -eq ($key -eq 'ContentsPanel')) "legacy $key switch respected"
-    }
-    $null = $configs.Remove($mod.Manifest.ID)
+    Check (!$flow.Invoke($null,@($item))) 'enabling that mod still changes nothing without a declaration'
     $null = [ModLoader]::Mods.Remove($mod)
 
     $custom = $client::Layout($item)

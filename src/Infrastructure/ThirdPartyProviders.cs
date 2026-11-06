@@ -90,8 +90,6 @@ internal static class ThirdPartyProviders
         return new Subscription(() => ItemTooltipDisplays.Remove(entry));
     }
 
-    internal static bool HasItemTooltipDisplays => ItemTooltipDisplays.Count > 0;
-
     /// <summary>逐件注册的接管合在一起；回调抛错的那一个这次算不接管。</summary>
     private static ItemDetailsTooltipSection ItemSuppressions(GameItem item)
     {

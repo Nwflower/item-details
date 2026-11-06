@@ -66,8 +66,10 @@ internal static partial class ValueBreakdown
             // 与游戏真实值核对，不一致就不显示（宁可不说，也不说错）
             if (r.Total != native)
             {
+                // 对不上就不给分解：这套常量按反编译逐项核对过，改的是游戏或别的模组的定价。
+                // 宁可少一个信息块，也不显示一个自称等于总价、实际对不上的构成。
                 Log.Warn("ValueBreakdown.Mismatch",
-                    $"kind={r.Kind} 计算={r.Total} 游戏={native}（公式可能随版本或其它模组变化，改由实测分解显示）");
+                    $"kind={r.Kind} 计算={r.Total} 游戏={native}（公式随版本或其它模组变化，本件不显示价值分解）");
                 return null;
             }
             return r;
