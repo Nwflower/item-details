@@ -491,5 +491,130 @@ internal static partial class SelfTest
         }
     }
 
+    /// <summary>
+    /// 带锁物资箱的“当前幸运预览”：预览内容必须随幸运变化，并且不得改动任何会进存档的状态。
+    ///
+    /// 本作只在过夜时写盘，所以不能靠“跑完看文件变没变”证明悬停干净。这里直接对比游戏自己的
+    /// 序列化结果：<see cref="SaveManager.Save"/> 产出的 saveJson（物品树）、PlayerStore 的
+    /// currentUniqueId / 现金 / 声望 / modData / 许可数量 / 幸运，以及 UnityEngine.Random.state
+    /// 和“已拥有物品”集合。探针物品还必须是本地负数 uniqueId，且不在任何库存里。
+    /// </summary>
+    private static string CheckLockedCrateLuckPreview(out bool ok)
+    {
+        ok = false;
+        GameItem? crate = null;
+        HealthData? health = null;
+        int oldLuck = 0;
+        try
+        {
+            try { health = PlayerStore.Instance?.healthData; } catch { }
+            if (health == null) return "locked crate luck preview: 找不到 HealthData";
+            oldLuck = health.luck;
+
+            // 用低幸运生成样本，保证“提高幸运”一定落在重填条件内，且掉落池有明显变化。
+            health.luck = 0;
+            crate = PreBuiltItemHelper.LootCrateSecurity();
+            if (crate == null) { health.luck = oldLuck; return "locked crate luck preview: 无法创建物资箱"; }
+            int spawnLuck = LotteryHelper.GetSpawnLuck(crate);
+            health.luck = oldLuck;
+            var grid = crate.contentWindow?.child as GameGridInventory;
+            if (grid == null) return "locked crate luck preview: 物资箱没有网格库存";
+            var real = grid.childItems;
+            if (real.Count == 0) return "locked crate luck preview: 物资箱为空";
+
+            // 先热身一次，把可能存在的惰性 uniqueId 分配做掉，再取基线。
+            SaveManager.Save();
+            string before = StoreFingerprint();
+            int idBefore = PlayerStore.Instance!.currentUniqueId;
+            var rngBefore = UnityEngine.Random.state;
+            int ownedBefore = EmporiumEntry.Instance.GetAllOwnedItems().Count;
+
+            health.luck = spawnLuck + 100;
+            bool used = SealedBoxInfo.TryGetLuckPreview(crate, real, out var preview, out string estimate);
+            health.luck = oldLuck;
+
+            bool differs = used && !SameItemSequence(real, preview);
+            bool idsNegative = preview.Count > 0 && estimate.Length > 0;
+            foreach (var p in preview)
+            {
+                if (p == null || p.uniqueId >= 0) { idsNegative = false; break; }
+            }
+
+            var owned = EmporiumEntry.Instance.GetAllOwnedItems();
+            bool noLeak = true;
+            foreach (var p in preview)
+            {
+                if (p == null) continue;
+                foreach (var o in owned)
+                {
+                    if (ReferenceEquals(o, p)) { noLeak = false; break; }
+                }
+                if (!noLeak) break;
+            }
+
+            int idAfter = PlayerStore.Instance!.currentUniqueId;
+            var rngAfter = UnityEngine.Random.state;
+            bool idsRestored = idAfter == idBefore;
+            bool rngRestored = rngBefore.Equals(rngAfter);
+
+            SaveManager.Save();
+            string after = StoreFingerprint();
+            bool saveUnchanged = string.Equals(before, after, StringComparison.Ordinal);
+
+            SealedBoxInfo.Stop();
+            bool ownedUnchanged = EmporiumEntry.Instance.GetAllOwnedItems().Count == ownedBefore;
+
+            ok = differs && idsNegative && noLeak && idsRestored && rngRestored && saveUnchanged && ownedUnchanged;
+            return $"locked crate luck preview: used={used} differs={differs} probeIdsNegative={idsNegative} " +
+                   $"noLeak={noLeak} idsRestored={idsRestored} rngRestored={rngRestored} " +
+                   $"saveUnchanged={saveUnchanged} ownedUnchanged={ownedUnchanged} " +
+                   $"real={real.Count} preview={preview.Count} est={estimate} (期望全部 True)";
+        }
+        catch (Exception ex) { return "locked crate luck preview: " + ex; }
+        finally
+        {
+            try { if (health != null) health.luck = oldLuck; } catch { }
+            SealedBoxInfo.Stop();
+            if (crate != null)
+            {
+                // GameItem.Destroy 不会销毁子物品；测试箱也要像生产路径那样先清子物，避免残留。
+                try
+                {
+                    var g = crate.contentWindow?.child as GameGridInventory;
+                    if (g != null)
+                    {
+                        foreach (var c in g.childItems) { try { c.Destroy(); } catch { } }
+                    }
+                }
+                catch { }
+                try { crate.Destroy(); } catch { }
+            }
+        }
+    }
+
+    /// <summary>会进存档的 PlayerStore 标量 + 游戏自己的物品树序列化结果，用于前后逐字对比。</summary>
+    private static string StoreFingerprint()
+    {
+        var store = PlayerStore.Instance;
+        return string.Join("|",
+            store.currentUniqueId,
+            store.playerCash,
+            store.wildFavor,
+            store.runNumber,
+            store.modData?.Count ?? -1,
+            store.ActivePermits?.Count ?? -1,
+            store.healthData?.luck ?? int.MinValue,
+            SaveManager.saveJson ?? "");
+    }
+
+    private static bool SameItemSequence(List<GameItem> a, List<GameItem> b)
+    {
+        if (a.Count != b.Count) return false;
+        for (int i = 0; i < a.Count && i < b.Count; i++)
+        {
+            if (!ReferenceEquals(a[i], b[i])) return false;
+        }
+        return true;
+    }
 }
 #endif

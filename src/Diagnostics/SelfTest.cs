@@ -433,6 +433,14 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
 
+        // 额外验证：物资箱按当前幸运预览开锁后内容，且预览/探针不改动任何会进存档的状态
+        {
+            string line = CheckLockedCrateLuckPreview(out bool ok);
+            if (ok) pass++; else fail++;
+            Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
+            report.AppendLine((ok ? "PASS " : "FAIL ") + line);
+        }
+
         // 额外验证：游戏原生双击回调应直接打开鉴定面板
         {
             string line = CheckDoubleClickInspect(out bool ok);
