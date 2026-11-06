@@ -265,18 +265,34 @@ internal static class RenderSlices
         if (note.Fixed != null)
             return note.Alt ??= MakeSlices(note.Fixed, note.Style);
 
-        // 描述：只在中日韩且这段 tooltip 的折行预算被别人的条放宽到 0.875 时，按原版 0.66 预折行。
-        // 没有条、或条全是本作的（ProgressBarStyle 构建时已把预算收回 0.66）时原版自己就会这样折。
+        // 描述：字号缩小一点，和上面的数据行拉开层次；中日韩且这段 tooltip 的折行预算被别人的条放宽到 0.875 时，
+        // 还要按原版 0.66 预折行。缩小只动渲染写法，规范文本仍是原文。
         float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
-        if (scale <= 1f || !ProgressBarStyle.WidensBudget(builder)) return null;
-        int limit = Math.Max(8, (int)(builder.maxCharWidth * 0.66f));
-        if (note.Text.Length <= limit) return null;
-        if (note.AltLimit != limit)
+        int limit = scale > 1f && ProgressBarStyle.WidensBudget(builder)
+            ? Math.Max(8, (int)(builder.maxCharWidth * 0.66f)) : 0;
+        bool wrap = limit > 0 && note.Text.Length > limit;
+        if (!wrap && !ShrinkDescription) return null;
+        int key = wrap ? limit : -2;
+        if (note.AltLimit != key)
         {
-            note.Alt = MakeSlices(TextWrap.Wrap(note.Text, limit), note.Style);
-            note.AltLimit = limit;
+            string body = wrap ? TextWrap.Wrap(note.Text, limit) : note.Text;
+            note.Alt = MakeSlices(ShrinkDescription ? Shrink(body) : body, note.Style);
+            note.AltLimit = key;
         }
         return note.Alt;
+    }
+
+    /// <summary>描述缩小到正文的这个比例（约小 1–2 号）。</summary>
+    private const string DescriptionSize = "88%";
+    private static bool ShrinkDescription => ModSettings.TooltipFormatting;
+
+    /// <summary>逐行包上字号标签：折行后的每一行各自闭合，避免标签跨过换行被切成不成对的片段。</summary>
+    private static string Shrink(string text)
+    {
+        var lines = text.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+            if (lines[i].Length > 0) lines[i] = "<size=" + DescriptionSize + ">" + lines[i] + "</size>";
+        return string.Join("\n", lines);
     }
 
     private static object[]? DefaultMake(string text, Style style)
