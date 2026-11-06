@@ -20,6 +20,8 @@ internal static class MachineSpeedLine
     private static GameItem? _machine;
     private static string? _label;   // 吞掉的原版标签原文；非空表示正在等这一行的 AddLine
     private static bool _written;
+    /// <summary>这次构建里，速度行已经把水培机的进度条与预计工期并进去了。</summary>
+    private static GameItem? _absorbed;
     private static string _labelLocale = "";
     private static string _speedLabel = "";
 
@@ -66,9 +68,13 @@ internal static class MachineSpeedLine
         Reset();
     }
 
+    /// <summary>该机器的状态已并入作业速度行：水培机的单独状态行据此跳过。</summary>
+    internal static bool AbsorbsStatus(GameItem? item) => item != null && ReferenceEquals(_absorbed, item);
+
     private static void BeforeMachineTooltip(GameItem item)
     {
         Reset();
+        _absorbed = null;
         if (!ModSettings.TooltipFormatting || item == null) return;
         // 与原版同一条件：只有进度型机器写速度行
         if (!GameRead.IsTag(item, "PROGRESS_TYPE_MACHINE_TAG")) return;
@@ -134,6 +140,7 @@ internal static class MachineSpeedLine
         output.Field("basePerDay", baseSpeed);
         output.Field("currentPerDay", speed);
         output.Add(head, RenderHandler.ColorPalette.LightCyan);
+        string speedText;
         if (baseSpeed != speed)
         {
             output.Add(baseSpeed + " → ", RenderHandler.ColorPalette.Gray);
@@ -141,12 +148,29 @@ internal static class MachineSpeedLine
                 ? RenderHandler.ColorPalette.LightGreen   // 比基础快
                 : RenderHandler.ColorPalette.LightRed;    // 比基础慢
             output.Add(speed + unit, color);
+            speedText = baseSpeed + " → " + speed + unit;
         }
         else
         {
             output.Add(speed + unit, RenderHandler.ColorPalette.LightCyan);
+            speedText = speed + unit;
         }
-        output.NextLine();
+
+        // 水培机工作中：进度条与预计工期并在速度后面（和耗能行同一种写法），不再另起「状态」行
+        if (MachineHydroponicLine.TryStatus(machine, out float ratio, out string tail, out var statusColor))
+        {
+            int headWidth = ProgressBarStyle.VisibleLength(head + speedText);
+            int barLength = MachineHydroponicLine.BarLength(headWidth, tail, 34, 5, 8);
+            output.RequireWidth(ProgressBarStyle.WidthForLine(headWidth + 1 + barLength + 3
+                + ProgressBarStyle.VisibleLength(tail)));
+            output.Add(" ", RenderHandler.ColorPalette.LightCyan);
+            output.Direct(new TooltipLine("", ratio, barLength, tail, statusColor, RenderHandler.ColorPalette.VeryDarkGreen));
+            _absorbed = machine;
+        }
+        else
+        {
+            output.NextLine();
+        }
         output.Emit();
     }
 

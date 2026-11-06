@@ -8,6 +8,8 @@ namespace ItemDetails;
 /// <summary>
 /// 水培机状态与进度行改写：
 /// 将原版分散在多行的「状态: 生长中……」与「[进度条] 16/43」以及预计工期整合成紧凑单行：
+/// 作业速度行可用时，进度条与预计工期直接并进那一行（见 <see cref="MachineSpeedLine"/>），这里不再写；
+/// 速度行用不了（开关、写出失败）时仍按下面的单行写：
 ///   正常时：`状态: [进度条] 16/28 预计2天`
 ///   缺水时：`状态: [进度条] 16/43 预计4天，水量不足`
 ///   断电时：`状态: [进度条] 16/43 预计4天，电力不足`
@@ -50,6 +52,9 @@ internal static class MachineHydroponicLine
                 return true;
             }
 
+            // 作业速度行已经带上了进度条与预计工期：这里不再另起「状态」行
+            if (MachineSpeedLine.AbsorbsStatus(item)) return false;
+
             WriteHydroponicLine(builder, item);
             return false;
         }
@@ -60,8 +65,23 @@ internal static class MachineHydroponicLine
         }
     }
 
-    private static void WriteHydroponicLine(RichTextBuilder builder, GameItem item)
+    private const int BarFullLength = 10;
+    private const int BarMinLength = 6;
+
+    /// <summary>
+    /// 水培机工作中的状态：进度比例、尾部文字（「16/43 预计4天，水量不足」）与状态色。
+    /// 不是水培机、不在工作、或对应开关关闭时返回 false。作业速度行与单独的状态行共用这一份。
+    /// </summary>
+    internal static bool TryStatus(GameItem item, out float ratio, out string tail, out RenderHandler.ColorPalette color)
     {
+        ratio = 0f;
+        tail = "";
+        color = RenderHandler.ColorPalette.LightGreen;
+        if (!ModSettings.TooltipFormatting || !ModSettings.Machines || item == null) return false;
+        if (!item.IsTag("HYDROPONIC_MACHINE_TAG")) return false;
+        if (!string.Equals(MachineProgressHelper.GetMachineState(item), "STATE_WORKING", StringComparison.Ordinal))
+            return false;
+
         var (cur, target) = MachineProgressHelper.GetProgress(item);
         int speed = item.GetTagReadonly("CURRENT_PROCESSING_SPEED_TAG")?.GetInt() ?? 0;
 
@@ -73,10 +93,7 @@ internal static class MachineHydroponicLine
             ? (target - cur + speed - 1) / speed
             : 0;
 
-        string label = Loc.T("hydro.status_label", "Status: ");
-        string etaText = "";
-        RenderHandler.ColorPalette statusColor;
-
+        string etaText;
         if (!canPower || !canWater)
         {
             string reason = !canPower && !canWater
@@ -88,7 +105,7 @@ internal static class MachineHydroponicLine
             etaText = daysNeeded > 0
                 ? Loc.T("hydro.eta_paused", "est. {0} {0|day|days}, {1}", daysNeeded, reason)
                 : reason;
-            statusColor = RenderHandler.ColorPalette.LightRed;
+            color = RenderHandler.ColorPalette.LightRed;
         }
         else
         {
@@ -96,17 +113,29 @@ internal static class MachineHydroponicLine
             etaText = daysNeeded > 0
                 ? Loc.T("hydro.eta_growing", "est. {0} {0|day|days}, {1}", daysNeeded, growing)
                 : growing;
-            statusColor = RenderHandler.ColorPalette.LightGreen;
+            color = RenderHandler.ColorPalette.LightGreen;
         }
 
-        float ratio = (float)cur / Mathf.Max(1, target);
-        string tail = cur + "/" + target + " " + etaText;
+        ratio = (float)cur / Mathf.Max(1, target);
+        tail = cur + "/" + target + " " + etaText;
+        return true;
+    }
 
+    /// <summary>条长随整行文字长度变化：前面的文字加尾部越长，条越短，整行不会长出一大截。</summary>
+    internal static int BarLength(int headWidth, string tail, int baseWidth, int min, int max)
+        => Math.Clamp(max - (headWidth + ProgressBarStyle.VisibleLength(tail) - baseWidth) / 3, min, max);
+
+    private static void WriteHydroponicLine(RichTextBuilder builder, GameItem item)
+    {
+        if (!TryStatus(item, out float ratio, out string tail, out var statusColor)) return;
+        string label = Loc.T("hydro.status_label", "Status: ");
+
+        int barLength = BarLength(ProgressBarStyle.VisibleLength(label), tail, 22, BarMinLength, BarFullLength);
         var output = new TooltipSections.Writer(builder, item, "hydroponic-status", TooltipGroupIds.Machine);
-        output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(label) + 13
-            + ProgressBarStyle.VisibleLength(tail))); // 10 格 + 两个括号 + 尾部分隔空格
+        output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(label) + barLength + 3
+            + ProgressBarStyle.VisibleLength(tail))); // 条 + 两个括号 + 尾部分隔空格
         output.Direct(label, RenderHandler.ColorPalette.LightCyan);
-        output.Direct(new TooltipLine("", ratio, 10, tail, statusColor, RenderHandler.ColorPalette.VeryDarkGreen));
+        output.Direct(new TooltipLine("", ratio, barLength, tail, statusColor, RenderHandler.ColorPalette.VeryDarkGreen));
         output.Emit();
     }
 
