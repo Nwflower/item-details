@@ -163,7 +163,9 @@ config.section.info,Réglages des infos supplémentaires
 config.info_enhance,Infos supplémentaires
 config.info_enhance.tip,Active les infos supplémentaires et affiche leurs réglages sous Révélation. Les choix individuels sont conservés à la désactivation.
 config.tooltip_formatting,Mise en forme du texte des infobulles
-config.tooltip_formatting.tip,"Libellés de prix plus clairs, descriptions à la ligne, annotations caloriques, espacement du bloc de prix et blocs colorés sur machines et modules. Désactivez pour conserver la mise en page d'origine."
+config.tooltip_formatting.tip,"Libellés de prix plus clairs, descriptions à la ligne, annotations caloriques et espacement du bloc de prix. Désactivez pour conserver la mise en page d'origine."
+config.label_chips,Blocs colorés des libellés
+config.label_chips.tip,"Place des blocs colorés derrière les libellés comme Performance, Efficacité et Qualité sur machines et modules, et aligne leurs valeurs en colonnes. Désactivez pour du texte simple."
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées

@@ -163,7 +163,9 @@ config.section.info,Impostazioni informazioni aggiuntive
 config.info_enhance,Informazioni extra
 config.info_enhance.tip,Attiva le informazioni aggiuntive e mostra le impostazioni sotto Rivelazione. Disattivando si conservano le scelte individuali.
 config.tooltip_formatting,Formattazione del testo dei tooltip
-config.tooltip_formatting.tip,"Etichette di prezzo più chiare, descrizioni a capo, note caloriche, spaziatura del blocco prezzo e blocchi colorati su macchine e moduli. Disattiva per mantenere il layout originale."
+config.tooltip_formatting.tip,"Etichette di prezzo più chiare, descrizioni a capo, note caloriche e spaziatura del blocco prezzo. Disattiva per mantenere il layout originale."
+config.label_chips,Blocchi colorati delle etichette
+config.label_chips.tip,"Mette blocchi colorati dietro etichette come Prestazioni, Efficienza e Qualità su macchine e moduli e allinea i valori in colonne. Disattiva per il testo semplice."
 config.type_badge,Badge di categoria
 config.type_badge.tip,Mostra le categorie dell'oggetto sopra il riquadro informativo.
 config.type_badge_muted,Colori dei badge attenuati

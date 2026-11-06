@@ -163,7 +163,9 @@ config.section.info,信息增强配置
 config.info_enhance,信息增强
 config.info_enhance.tip,开启信息增强，并在透视下方显示配置分组；关闭时保留各子项的选择。
 config.tooltip_formatting,提示框文字优化
-config.tooltip_formatting.tip,优化价格用词、描述折行、卡路里注释、价格块间距，以及机器与模组上的标签色块。关闭后保持原版文字布局。
+config.tooltip_formatting.tip,优化价格用词、描述折行、卡路里注释和价格块间距。关闭后保持原版文字布局。
+config.label_chips,标签色块
+config.label_chips.tip,给机器与模组上的「性能、效率、质量」等标签垫上彩色底块，并把数值排成列。关闭后改为纯文字。
 config.type_badge,物品分类标签
 config.type_badge.tip,在物品提示框上方显示物品分类。
 config.type_badge_muted,淡化标签颜色

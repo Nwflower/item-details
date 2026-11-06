@@ -163,7 +163,9 @@ config.section.info,Ustawienia dodatkowych informacji
 config.info_enhance,Dodatkowe informacje
 config.info_enhance.tip,Włącza dodatkowe informacje i pokazuje ich ustawienia pod sekcją odkrywania. Wyłączenie zachowuje indywidualne wybory.
 config.tooltip_formatting,Formatowanie tekstu podpowiedzi
-config.tooltip_formatting.tip,"Czytelniejsze ceny, zawijanie opisów, adnotacje kalorii, odstępy bloku ceny i kolorowe bloki etykiet w maszynach i modułach. Wyłącz, aby zachować oryginalny układ tekstu."
+config.tooltip_formatting.tip,"Czytelniejsze ceny, zawijanie opisów, adnotacje kalorii i odstępy bloku ceny. Wyłącz, aby zachować oryginalny układ tekstu."
+config.label_chips,Kolorowe bloki etykiet
+config.label_chips.tip,"Podkłada kolorowe bloki pod etykiety, takie jak Wydajność, Efektywność i Jakość, w maszynach i modułach oraz układa wartości w kolumnach. Wyłącz, aby uzyskać zwykły tekst."
 config.type_badge,Plakietki kategorii
 config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
 config.type_badge_muted,Stonowane kolory plakietek

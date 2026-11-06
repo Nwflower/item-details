@@ -163,7 +163,9 @@ config.section.info,情報強化の設定
 config.info_enhance,追加アイテム情報
 config.info_enhance.tip,追加情報を有効にし、透視の下に設定を表示します。オフにしても個別の選択は保持されます。
 config.tooltip_formatting,ツールチップ文章の整形
-config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔、機械・モジュールのラベル色ブロックを最適化します。オフで原版のレイアウトを維持します。
+config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで原版のレイアウトを維持します。
+config.label_chips,ラベルの色ブロック
+config.label_chips.tip,機械とモジュールの「性能・効率・品質」などのラベルに色ブロックを敷き、値を列にそろえます。オフで通常のテキスト表示になります。
 config.type_badge,アイテム分類バッジ
 config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
 config.type_badge_muted,バッジの色を控えめに

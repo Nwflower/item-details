@@ -76,6 +76,7 @@ internal static class ModSettings
     private static readonly Toggle ContainerContentsToggle = new(true);  // 容器内容
     private static readonly Toggle InfoEnhanceToggle = new(true);        // 信息增强组总开关
     private static readonly Toggle TooltipFormattingToggle = new(true);  // 价格/描述等文字与间距优化
+    private static readonly Toggle LabelChipsToggle = new(true);          // 机器与模块的标签色块
     private static readonly Toggle TypeBadgeToggle = new(true);          // tooltip 上方分类标签
     private static readonly Toggle TypeBadgeMutedToggle = new(false);    // 非违禁标签淡化配色
     private static readonly Toggle ContainerNameToggle = new(false);     // 容器和机器外显文本
@@ -238,6 +239,11 @@ internal static class ModSettings
                 Text("config.tooltip_formatting.tip", "Clearer price labels, wrapped descriptions, " +
                      "calorie annotations, price-block spacing and colored label blocks on machines and modules. " +
                      "Disable to preserve the vanilla text layout."));
+
+            LabelChipsToggle.Define(_cfg, "label_chips", SecDisplayKey, SecDisplayEn,
+                Text("config.label_chips", "Label Color Blocks"),
+                Text("config.label_chips.tip", "Puts colored blocks behind labels such as Performance, Efficiency and " +
+                     "Quality on machines and modules, and lines their values up in columns. Disable for plain text."));
 
             TypeBadgeToggle.Define(_cfg, "show_type_badge", SecDisplayKey, SecDisplayEn,
                 Text("config.type_badge", "Item Type Badges"),
@@ -537,6 +543,7 @@ internal static class ModSettings
     internal static bool ValueEnhance => InfoEnhance && CostPerformanceToggle.Value;
     internal static bool Container => InfoEnhance && ContainerContentsToggle.Value;
     internal static bool ContentsGrid => Container || SealedBox;
+    internal static bool LabelChipsEnabled => LabelChipsToggle.Value;
     internal static bool TooltipFormatting => InfoEnhance && TooltipFormattingToggle.Value;
     internal static bool ContainerUnits => InfoEnhance && ContainerUnitsToggle.Value;
 

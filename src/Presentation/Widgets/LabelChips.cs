@@ -29,29 +29,30 @@ internal static class LabelChips
     private const string ContainerName = "ItemDetailsLabelChips";
     internal const string LinkPrefix = "idchip:";
 
-    // 配色取自 AdvancedUI 的加成行：深色底 + 同色系亮色左条与字。正向绿、负向红。
-    internal static readonly string PositiveText = "#D4F2B0";
-    internal static readonly string NegativeText = "#FFD3D0";
-    /// <summary>色块右侧数值的正负色（取自 AdvancedUI 的加成数值）。</summary>
-    internal static readonly string ValuePositive = "#90C65B";
-    internal static readonly string ValueNegative = "#E78885";
-    /// <summary>紫色色块（自学习）：取自 AdvancedUI 的性能紫。</summary>
-    internal static readonly string PurpleText = "#E3CCF5";
-    private static readonly Color32 PurpleBg = new(0x65, 0x37, 0x8B, 0xFF);
-    private static readonly Color32 PurpleBar = new(0xB6, 0x8A, 0xDB, 0xFF);
+    // 配色：深色底 + 同色系亮色左条与字。正向绿、负向红、自学习紫、提示琥珀、信息青蓝。
+    // 「标签行带色块」这个呈现思路参考了 Tinyblack 的 AdvancedUI（见 README 致谢），色值是本模组自己配的。
+    internal static readonly string PositiveText = "#CFF3D6";
+    internal static readonly string NegativeText = "#FFD6D9";
+    /// <summary>色块右侧数值的正负色。</summary>
+    internal static readonly string ValuePositive = "#7FD58C";
+    internal static readonly string ValueNegative = "#EE8A92";
+    /// <summary>紫色色块（自学习）。</summary>
+    internal static readonly string PurpleText = "#E4DAFA";
+    private static readonly Color32 PurpleBg = new(0x4F, 0x3A, 0x7A, 0xFF);
+    private static readonly Color32 PurpleBar = new(0xA7, 0x8B, 0xE0, 0xFF);
     /// <summary>琥珀色块：提示类（水不多了、将要不够）。</summary>
-    internal static readonly string AmberText = "#FFEBB5";
-    private static readonly Color32 AmberBg = new(0x7A, 0x5A, 0x1F, 0xFF);
-    private static readonly Color32 AmberBar = new(0xE0, 0xB8, 0x4A, 0xFF);
+    internal static readonly string AmberText = "#FFF0C2";
+    private static readonly Color32 AmberBg = new(0x6E, 0x55, 0x18, 0xFF);
+    private static readonly Color32 AmberBar = new(0xE3, 0xB9, 0x3F, 0xFF);
 
-    /// <summary>青蓝色块（自学习）：与原来那一行 LightCyan 文字同色系。</summary>
-    internal static readonly string CyanText = "#D2F4F7";
-    private static readonly Color32 CyanBg = new(0x27, 0x6C, 0x73, 0xFF);
-    private static readonly Color32 CyanBar = new(0x5C, 0xC1, 0xCB, 0xFF);
-    private static readonly Color32 PositiveBg = new(0x3E, 0x6B, 0x2E, 0xFF);
-    private static readonly Color32 PositiveBar = new(0x90, 0xC6, 0x5B, 0xFF);
-    private static readonly Color32 NegativeBg = new(0x7A, 0x33, 0x31, 0xFF);
-    private static readonly Color32 NegativeBar = new(0xE7, 0x88, 0x85, 0xFF);
+    /// <summary>青蓝色块（信息）：与原来那一行 LightCyan 文字同色系。</summary>
+    internal static readonly string CyanText = "#D0F3F8";
+    private static readonly Color32 CyanBg = new(0x1F, 0x5E, 0x6B, 0xFF);
+    private static readonly Color32 CyanBar = new(0x4F, 0xBA, 0xCB, 0xFF);
+    private static readonly Color32 PositiveBg = new(0x2F, 0x5D, 0x3A, 0xFF);
+    private static readonly Color32 PositiveBar = new(0x6F, 0xCF, 0x7F, 0xFF);
+    private static readonly Color32 NegativeBg = new(0x6B, 0x2B, 0x30, 0xFF);
+    private static readonly Color32 NegativeBar = new(0xE5, 0x70, 0x7A, 0xFF);
     /// <summary>左侧亮条宽度占行高的比例。</summary>
     private const float BarRatio = 0.14f;
     /// <summary>色块上下各收进的比例（取整后 1–2 像素）。</summary>
@@ -67,9 +68,11 @@ internal static class LabelChips
     private static Vector2 _builtSize;
     private static readonly List<GameObject> Chips = new();
 
-    /// <summary>补丁打上且没出过错：调用方据此决定写不写 idchip 链接。</summary>
-    /// <summary>「提示框文字优化」关闭时同样不可用：调用方走不带色块、亮条与缩进的纯文字写法。</summary>
-    internal static bool Available => _installed && !_broken && ModSettings.TooltipFormatting;
+    /// <summary>
+    /// 补丁打上、没出过错、且玩家没在设置里关掉「标签色块」：调用方据此决定写不写 idchip 链接。
+    /// 不可用时调用方走不带色块、亮条与缩进的纯文字写法。
+    /// </summary>
+    internal static bool Available => _installed && !_broken && ModSettings.LabelChipsEnabled;
 
     /// <summary>色块种类：'+' 绿底、'-' 红底、'p' 紫底、'c' 青蓝底、'y' 琥珀底。</summary>
     internal static string Wrap(string inner, char kind)

@@ -163,7 +163,9 @@ config.section.info,Einstellungen für Zusatzinfos
 config.info_enhance,Zusätzliche Gegenstandsinfos
 config.info_enhance.tip,Aktiviert Zusatzinfos und zeigt ihre Einstellungen unter Enthüllung. Die Einzelauswahl bleibt beim Ausschalten erhalten.
 config.tooltip_formatting,Tooltip-Textformatierung
-config.tooltip_formatting.tip,"Klarere Preisangaben, Beschreibungsumbrüche, Kalorienhinweise, Preisblockabstände und farbige Labelblöcke bei Maschinen und Modulen. Deaktivieren erhält das originale Textlayout."
+config.tooltip_formatting.tip,"Klarere Preisangaben, Beschreibungsumbrüche, Kalorienhinweise und Preisblockabstände. Deaktivieren erhält das originale Textlayout."
+config.label_chips,Farbige Labelblöcke
+config.label_chips.tip,"Hinterlegt Labels wie Leistung, Effizienz und Qualität bei Maschinen und Modulen mit farbigen Blöcken und richtet die Werte in Spalten aus. Deaktivieren für reinen Text."
 config.type_badge,Kategorie-Plaketten
 config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
 config.type_badge_muted,Plakettenfarben dämpfen
