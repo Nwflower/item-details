@@ -313,15 +313,18 @@ public sealed partial class ModEntry
         }
         else
         {
-            // 固体化学品（药片、作物、粪便等）：没有容器与体积，所以不画条；
-            // 成分与液体容器共用同一份行数据与同一种写法。
-            var table = WaterColumns.BuildSolid(r, visible);
-            PublishWaterRows(builder, visible);
-            // 低于阈值那一行不是成分行，单发一个字段，读取方才能把它归到液体里。
-            string? trace = WaterColumns.TraceLine(r);
-            if (trace != null) builder.Field("trace", trace);
-            AppendLines(builder, table);
-            wrote = true;
+            // 固体化学品：没有容器与体积，所以不画条；成分与液体容器共用同一份行数据。
+            // 只有带化学纯度体系的固体才画表，判断见 ShowSolidTable。
+            if (ShowSolidTable(item))
+            {
+                var table = WaterColumns.BuildSolid(r, visible);
+                PublishWaterRows(builder, visible);
+                // 低于阈值那一行不是成分行，单发一个字段，读取方才能把它归到液体里。
+                string? trace = WaterColumns.TraceLine(r);
+                if (trace != null) builder.Field("trace", trace);
+                AppendLines(builder, table);
+                wrote = true;
+            }
         }
 
         string effects = r.Effects.Text;
@@ -334,6 +337,15 @@ public sealed partial class ModEntry
 
         return wrote;
     }
+
+    /// <summary>
+    /// 固体物品是否画成分表：只给带化学纯度体系的化学品，即游戏用
+    /// <c>ChemicalProductHelper.GradeProduct</c> 写入 CHEMICAL_PRODUCT_PURITY_TAG 的物品
+    /// （药片、粉末、诺莫注射器）。营养果、咖啡豆、菌菇、粪便、净水片这些没有纯度可言，
+    /// 成分表读到的只是内部随机数，画出来既不解释价格也帮不上玩家，只留药效结论。
+    /// </summary>
+    private static bool ShowSolidTable(GameItem item)
+        => GameRead.IsTag(item, "CHEMICAL_PRODUCT_PURITY_TAG");
 
     /// <summary>
     /// 成分表需要多宽的折行预算：取表里最长一行的可见字符数（跳过富文本标签），
