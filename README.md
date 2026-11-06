@@ -113,6 +113,10 @@
 
 游戏更新改了定价或界面后，相关信息可能暂时消失，等模组跟进即可。
 
+## 致谢
+
+机器与模块上「标签带色块」的呈现思路参考了 Tinyblack 的 [AdvancedUI 界面增强](https://steamcommunity.com/sharedfiles/filedetails/?id=3833989753)；本模组不依赖它，色值与实现均为自己编写。
+
 ## 许可
 
 以 [GNU AGPL-3.0](LICENSE) 发布。游戏本体、Unity 与官方 SDK 不在授权范围内。
@@ -181,5 +185,9 @@ Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedet
 ### Languages
 
 Follows the game language; all 11 bundled languages are supported. Languages other than Chinese and English are reviewed machine translations — [improvements welcome](CONTRIBUTING.md).
+
+### Acknowledgements
+
+The colored label blocks on machines and modules were inspired by Tinyblack's [AdvancedUI](https://steamcommunity.com/sharedfiles/filedetails/?id=3833989753). This mod does not depend on it; the colors and code are its own.
 
 Licensed under [GNU AGPL-3.0](LICENSE).
