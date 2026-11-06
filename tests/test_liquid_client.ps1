@@ -88,8 +88,9 @@ try {
     $mod = [LoadedMod]::new()
     $mod.Manifest = [ModManifest]::new()
     $mod.Manifest.ID = 'amres.sectioned_tooltips'
+    $mod.Manifest.ModVersion = '1.6.4'
     [ModLoader]::Mods.Add($mod)
-    # 只有加载、没有排版声明：不按程序集名嗅探，也不读它的配置项。
+    # 新版按显式声明；已承诺的旧版兼容由 test_legacy_compat.ps1 单独验证。
     Check (!$flow.Invoke($null,@($item))) 'a loaded layout mod without a declaration changes nothing'
     $mod.IsEnabled = $true
     Check (!$flow.Invoke($null,@($item))) 'enabling that mod still changes nothing without a declaration'

@@ -100,7 +100,8 @@ private static void ReadWaterRows(IReadOnlyDictionary<string, object> fields)
 - **可用性**：`SectionProtocolAvailable` / `LiquidProtocolAvailable` 反映物品详情是否在线；区块是否**适用**仍以快照/查询返回为准（设置关闭、缺扫描仪时返回空）。
 - **接管要成套**：`RegisterTooltipSections` 的回调只在本次构建区块准备完成后返回 true；返回 false 或抛错都算不接管。接管 `contents`/`sealed-contents` 时同步用 `RegisterTooltipLayout` 声明 `DrawsContents`，让分类徽章和图标浮窗贴你的窗口。
 - **字段只增不改**：区块 ID 用 `TooltipSectionIds` 常量；读取用 `TryGet` 并给默认值。`CanReplace=false` 的区块（`label`、`manufacturer`、`inspect-hint` 等）是原生行的展示，物品详情没有独立输出它们。
-- **布局声明**：`NativeProgressBars` 让附加进度条走游戏 `AddProgressBar`（比例可直接读）；`FlowingText` 让成分表（液体与固体）用可自然换行的文字。回调返回 null 表示本次不接管排版。
+- **布局声明**：附加进度条统一走游戏 `AddProgressBar`，成分表统一提供自然文本，旧 `NativeProgressBars` / `FlowingText` 声明继续有效且无需迁移。回调返回 null 表示本次不接管排版。
+- **旧版支持**：新字段和槽位可选，已有消费者无需更新 SDK。SectionedTooltips 1.6.2 / 1.6.3 的配置兼容由物品详情维护；范围和显式协议优先规则见 [CONTRIBUTING.md](../CONTRIBUTING.md)。徽章未显示时槽位返回 null，旧节点名仍保留。
 - **锚点**：`RegisterTooltipAnchor` 每次返回当前可见提示框的 `RectTransform`；窗口重建后无需重新注册。
 - **液体**：`TryGetLiquidAnalysis` / `TryGetWaterAdvice` 与通用区块独立。净化收益单位是**百分点**；空列表是有效结果（当前无可列手段）。
 - **线程与清理**：全部在游戏主线程；每帧悬停可能重建。逐件暂存随本次构建清理，句柄在 `OnDisable` 释放。

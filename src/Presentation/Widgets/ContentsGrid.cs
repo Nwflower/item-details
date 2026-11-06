@@ -28,7 +28,7 @@ namespace ItemDetails;
 ///     第三方注册了提示框锚点时改贴着锚点，底板照旧复制原版窗口
 ///   - 与「当铺估价单」(amres.sectioned_tooltips) 共存：两者都可能画未上锁容器的内容物网格。
 ///     谁画由协议决定——对方声明了 DrawsContents（布局槽位或逐件 RegisterTooltipDisplay），
-///     这件物品就按注册让路；没注册就是没接管，不按加载与否猜
+///     这件物品就按注册让路；未接入协议的已知旧版由 LegacySectionedTooltips 保留普通容器面板兼容
 ///   - 超过 StaleSeconds 没有重新构建（缓存 tooltip）时不显示，避免画成上一件物品。
 /// </summary>
 internal static class ContentsGrid
@@ -159,6 +159,7 @@ internal static class ContentsGrid
                     if (output.Finish()) return true;
                 }
             }
+            if (LegacySectionedTooltips.YieldsContentsGrid(sealedBox)) return false;
             if (!_patched || _broken) return false;
             if (!TooltipPipeline.IsBuilding) return false;
             if (_template == null) return false;              // tooltip 还没显示过，画不出来

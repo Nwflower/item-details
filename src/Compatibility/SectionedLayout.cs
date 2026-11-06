@@ -4,9 +4,8 @@ using ItemDetails.Integration;
 namespace ItemDetails;
 
 /// <summary>
-/// 逐件读取第三方排版声明。只认排版方通过
-/// <see cref="ItemDetailsClient.RegisterTooltipLayout"/> 的注册：不按程序集名嗅探，也不读对方的配置项。
-/// 那两条都只对某一个旧版本成立，对方一改版就静默失效，而且会把"谁在画"的判断变成猜。
+/// 逐件读取第三方排版声明。旧版普通容器面板的兼容由
+/// <see cref="LegacySectionedTooltips"/> 单独处理，不扩大成整个 Contents 区块的接管。
 /// </summary>
 internal static class SectionedLayout
 {
