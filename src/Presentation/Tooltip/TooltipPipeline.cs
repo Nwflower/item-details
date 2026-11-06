@@ -12,13 +12,14 @@ namespace ItemDetails;
 ///
 /// 原版整段 tooltip 在 GameItemElement.GetTooltipBasic() 内按顺序拼装：
 ///   - Prefix/Finalizer 记录当前物品并做深度计数；
-///   - RichTextBuilder.AddLine 的前缀只记"这一行显示成什么"，后缀把原版刚写出的片段挂成渲染注解
-///     （标签短名、液量单位、价格术语、卡路里、模组批注、估价行隐藏）；builder 里始终是原版原文，
-///     第三方在 GetTooltipBasic 返回时读到的是规范输出，不是本作的写法；
+///   - RichTextBuilder.AddLine 的前缀按改写是否携带信息分工：
+///       带信息的（标签短名与价格影响、卡路里、模组批注、带水质档位的液量、合并价格行）直接写进 builder，
+///       区块 runs 与正文是同一份文本，重排方拿到的就是这些信息；
+///       只换写法的（购买价格→进价、ml→L、描述折行）正文留原版，后缀挂渲染注解，原版窗口 Build 前换入；
+///       估价行、空「模组效果：」表头、已并入价格行的购买价格行直接丢弃；
 ///   - RichTextBuilder.AddEmptyLine 跳过价格块前的占位行，避免价格行被缩进。
 ///
-/// 例外：价格行的合并（售价 + 进价 + 标价拼成一行）与放大镜提示的替换仍在逻辑层直接写，
-/// 因为前者要重排整行、后者描述的是本作改过的操作，原版文案本身已经不成立。
+/// 描述淡化只改颜色、放大镜提示描述的是本作改过的操作，两者留在逻辑层直接改。
 ///
 /// 所有状态集中在这里，Finalizer 在正常和异常路径都会清理。这样避免
 /// TooltipContext / EstimateLineHider / DescriptionDim / PriceTerms
@@ -128,9 +129,7 @@ internal static class TooltipPipeline
         _perCellAfterBuy = false;
         _lineBuilder = null;
         _lineBefore = -1;
-        _lineParts = null;
-        _lineAppend = false;
-        _lineHide = false;
+        _lineSwap = null;
         _lineWrap = false;
         _lineDepth = 0;
         _afterValueEnhance = false;
@@ -151,17 +150,16 @@ internal static class TooltipPipeline
 
     // ---------------- 行改写 ----------------
 
-    // ---------------- 原版行：显示写法 ----------------
+    // 这一行的构建状态：前缀记下、后缀用掉即清空。
     //
-    // 原版写出的文本是"规范输出"：第三方在 GetTooltipBasic 返回时读到的就是它，本作不替换成自己的写法。
-    // 玩家看到的版本由渲染层在 Build 前换入，所以这里只记"这一行显示成什么"，一句都不改 __0。
+    // 规则：带信息的改写一律写进 builder 本身（正文与区块 runs 是同一份文本，重排方拿到的就是这些信息）；
+    // 渲染层只处理"换写法不换信息"的三种——价格术语换词、ml→L、描述折行。
+    // 估价行与空表头不属于信息，直接丢弃，重排方不会看到重复内容。
 
     private static RichTextBuilder? _lineBuilder;
     private static int _lineBefore = -1;
-    private static int _lineDepth;   // 本作自己写行时可能重入；只有最外层那一行登记显示写法
-    private static RenderSlices.Part[]? _lineParts;
-    private static bool _lineAppend;
-    private static bool _lineHide;
+    private static int _lineDepth;   // 本作自己写行时可能重入；只有最外层那一行登记
+    private static string? _lineSwap;
     private static bool _lineWrap;
     private static bool _afterValueEnhance;
 
@@ -169,27 +167,15 @@ internal static class TooltipPipeline
     {
         _lineBuilder = builder;
         _lineBefore = RenderSlices.Count(builder);
-        _lineParts = null;
-        _lineAppend = false;
-        _lineHide = false;
+        _lineSwap = null;
         _lineWrap = false;
         _afterValueEnhance = false;
     }
 
-    /// <summary>整行改成这几段（原文不进显示）。</summary>
-    private static void Show(params RenderSlices.Part[] parts) => _lineParts = parts;
+    /// <summary>原版窗口里把这一行换成 <paramref name="text"/>；正文与区块 runs 仍是原版原文。</summary>
+    private static void Swap(string text) => _lineSwap = text;
 
-    /// <summary>原文照显示，这几段接在行尾。</summary>
-    private static void Append(RenderSlices.Part[] parts)
-    {
-        _lineParts = parts;
-        _lineAppend = true;
-    }
-
-    private static RenderSlices.Part Part(string text, RenderHandler.ColorPalette color)
-        => new(text, new RenderSlices.Style(color));
-
-    /// <summary>返回 false 表示丢弃这一行（整行由我方另行写出）。</summary>
+    /// <summary>返回 false 表示丢弃这一行（整行由我方写出）。</summary>
     private static bool AddLinePrefix(ref string __0, ref RenderHandler.ColorPalette __2, ref bool __4,
         RichTextBuilder __instance)
     {
@@ -202,29 +188,22 @@ internal static class TooltipPipeline
 
             BeginLine(__instance);
 
-            // 放大镜提示换成双击提示：这条提示描述的是本 Mod 改过的操作，原版文案对任何读取方都不成立，
-            // 属于行为提示而非信息改写，留在逻辑层直接换。
+            // 放大镜提示换成双击提示：这条提示描述的是本 Mod 改过的操作，原版文案对任何读取方都不成立。
             if (!DoubleClickInspect.TryRewriteHint(ref __0, ref __2, ref __4, __instance)) return false;
-
-            // 第三方行说明：规则表目前为空；将来加规则时改为 Append，不要在这里改 __0。
             LineAnnotations.TryAppend(ref __0, cur);
 
-            // 标签行：原版原文留在 builder 里，原版窗口构建时换短名并补价格影响
-            string? label = LabelImpact.Display(__0, __instance, cur);
-            if (label != null) Show(Part(label, __2));
+            // 标签行：短名与价格影响一起写进正文，重排方看到的就是这两项
+            LabelImpact.TryRewrite(ref __0, __instance, cur);
 
-            // 估价行：第三方仍能读到原版那行，原版窗口里由我方「价值」区块取代
+            // 估价行：正文里不留；原版窗口里由我方「价值」区块取代
             if (_suppressEstimate)
             {
                 string prefix = EstimatePrefix();
-                if (prefix.Length > 0 && __0.StartsWith(prefix, StringComparison.Ordinal))
-                {
-                    _lineHide = true;
-                    return true;
-                }
+                if (prefix.Length > 0 && __0.StartsWith(prefix, StringComparison.Ordinal)) return false;
             }
 
             var originalColor = __2;
+            string originalDescription = __0;
             if (ModSettings.DimDescription
                 && !string.IsNullOrEmpty(cur.shortDescription)
                 && string.Equals(__0, cur.shortDescription, StringComparison.Ordinal))
@@ -234,20 +213,21 @@ internal static class TooltipPipeline
 
             // 描述与背景故事写原文；原版窗口构建时若折行预算被别人的条放宽，渲染层再按常规宽度折行
             if (NoteDescription(__0, cur)) _lineWrap = true;
-            if (__2 != originalColor)
+            if (__2 != originalColor || __0 != originalDescription)
                 TooltipSections.ObserveText(__instance, cur, "description", __0, __2, TooltipGroupIds.Description);
 
-            // 价格术语本地化：预估价值→售价、基础价值→标价、购买价格→进价
-            if (!PriceTerms(__0, __instance, __2)) return false;
-            CalorieLine(__0, __instance, cur);
-            LiquidVolume(__0, __instance, __2, cur);
+            // 价格：合并价格行写进正文（可认领），只有「购买价格→进价」这种换词挂注解
+            if (!RewritePriceTerms(ref __0, __instance, __2)) return false;
+            if (!RewriteCalorieLine(ref __0, __instance)) return false;
 
-            // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)，原文保留、批注接在行尾
-            string? effect = ModuleEffectAnnotation.Annotation(__0, __instance, __2, cur);
-            if (effect != null) Append(new[] { Part(effect, RenderHandler.ColorPalette.Gray) });
+            // 液量：带水质档位的写进正文；只有 ml→L 的换显示
+            RewriteLiquidVolume(ref __0, __instance, __2, cur);
 
-            // 模块物品的空「模组效果：」表头（三项加成全 0）：原文留给第三方，原版窗口不显示
-            if (ModuleEffectAnnotation.ShouldDrop(__0, cur)) _lineHide = true;
+            // 模组加成行：正文与灰色批注都写进 builder
+            if (ModuleEffectAnnotation.TryApply(ref __0, __instance, __2, cur)) return false;
+
+            // 模块物品的空「模组效果：」表头（三项加成全 0）整行丢掉
+            if (ModuleEffectAnnotation.ShouldDrop(__0, cur)) return false;
 
             return true;
         }
@@ -262,10 +242,30 @@ internal static class TooltipPipeline
     ///   - 液体组分分析开启时 → ` 2000 / 2000 mL 优质水`（数字与水质档位），与前面的「容器」标签和体积条连成一行；
     ///   - 否则沿用「容器单位优化」：超过 3 L 时把 ml 换成 L。
     /// 两种写法都不本地化单位符号（mL / L 各语言一致），与原版一致。
+    ///
+    /// 带档位的写进正文（runs 与正文一致）；只有单位换算的挂注解，正文留给第三方。
     /// </summary>
-    /// <summary>显示写法；null 表示这一行按原版显示。</summary>
-    private static string? LiquidVolumeText(string text, GameItem item)
+    private static void RewriteLiquidVolume(ref string text, RichTextBuilder builder,
+        RenderHandler.ColorPalette color, GameItem item)
     {
+        string? display = LiquidVolumeText(text, item, out bool carriesTier);
+        if (display == null) return;
+
+        if (carriesTier)
+        {
+            text = display;
+            TooltipSections.ObserveText(builder, item, "liquid-volume", text, color, TooltipGroupIds.Liquid);
+            return;
+        }
+
+        Swap(display);
+        TooltipSections.ObserveText(builder, item, "liquid-volume", text, color, TooltipGroupIds.Liquid);
+    }
+
+    /// <summary>显示写法；null 表示这一行按原版显示。<paramref name="carriesTier"/> 为真表示带水质档位信息。</summary>
+    private static string? LiquidVolumeText(string text, GameItem item, out bool carriesTier)
+    {
+        carriesTier = false;
         if (!text.EndsWith(" ml", StringComparison.Ordinal)) return null;
         if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return null;
         var m = LiquidLine.Match(text);
@@ -279,6 +279,7 @@ internal static class TooltipPipeline
             if (r != null)
             {
                 bool liters = Volume.UseLiters(max);
+                carriesTier = true;
                 return " " + WaterLayout.Capacity(cur, max, liters, Loc.Culture)
                      + (r.Tier.Length > 0 ? " " + r.Tier : "");
             }
@@ -286,15 +287,6 @@ internal static class TooltipPipeline
 
         if (!ModSettings.ContainerUnits || !Volume.UseLiters(cur)) return null;
         return " " + Volume.Number(cur, true, Loc.Culture) + " L / " + Volume.Number(max, true, Loc.Culture) + " L";
-    }
-
-    private static void LiquidVolume(string text, RichTextBuilder builder,
-        RenderHandler.ColorPalette color, GameItem item)
-    {
-        string? display = LiquidVolumeText(text, item);
-        if (display == null) return;
-        Show(Part(display, color));
-        TooltipSections.ObserveText(builder, item, "liquid-volume", display, color, TooltipGroupIds.Liquid);
     }
 
     /// <summary>
@@ -316,7 +308,7 @@ internal static class TooltipPipeline
         catch { return false; }
     }
 
-    /// <summary>原版行写完：把前缀记下的显示写法挂成渲染注解。builder 本身始终是规范输出。</summary>
+    /// <summary>原版行写完：把前缀记下的换写法/折行挂成渲染注解。带信息的行不经过这里，它们已写进正文。</summary>
     private static void AddLinePostfix(RichTextBuilder __instance, string __0, RenderHandler.ColorPalette __2,
         bool __3, bool __4, bool __5, bool __6, RenderHandler.ColorPalette __7, RenderHandler.ColorPalette __8,
         RenderHandler.ColorPalette __9)
@@ -329,30 +321,22 @@ internal static class TooltipPipeline
         if (builder == null) return;
 
         var cur = _current;
-        var parts = _lineParts;
+        string? swap = _lineSwap;
         int before = _lineBefore;
-        bool hide = _lineHide, append = _lineAppend, wrap = _lineWrap, value = _afterValueEnhance;
-        _lineParts = null;
-        _lineAppend = false;
-        _lineHide = false;
+        bool wrap = _lineWrap, value = _afterValueEnhance;
+        _lineSwap = null;
         _lineWrap = false;
         _afterValueEnhance = false;
 
         try
         {
-            if (ReferenceEquals(builder, __instance) && __0 != null && before >= 0)
+            // 前缀返回 false 时原方法不执行、一个片段也没写；这时不能按"末尾几片"去找这一行，
+            // 否则会改到上一行。写入数量没变就什么都不做。
+            if (ReferenceEquals(builder, __instance) && __0 != null && before >= 0
+                && (swap != null || wrap) && RenderSlices.Count(builder) > before)
             {
-                if (hide) RenderSlices.Hide(builder, before);
-                else if (parts != null && parts.Length > 0)
-                {
-                    if (append) RenderSlices.Append(builder, before, __0, parts);
-                    else RenderSlices.Replace(builder, before, __0, parts);
-                }
-                else if (wrap)
-                {
-                    RenderSlices.Annotate(builder, before, __0,
-                        new RenderSlices.Style(__2, __3, __4, __5, __6, __7, __8, __9), fixedText: null);
-                }
+                RenderSlices.Annotate(builder, before, __0,
+                    new RenderSlices.Style(__2, __3, __4, __5, __6, __7, __8, __9), swap);
             }
 
             if (value && cur != null) ValueEnhance.TryWrite(__instance, cur);
@@ -423,7 +407,7 @@ internal static class TooltipPipeline
     /// 原版文案不硬编码：用哨兵数字格式化一次本地化模板，反查出前缀与中间段，
     /// 换语言后会自动重建。
     /// </summary>
-    private static bool PriceTerms(string text, RichTextBuilder builder, RenderHandler.ColorPalette color)
+    private static bool RewritePriceTerms(ref string text, RichTextBuilder builder, RenderHandler.ColorPalette color)
     {
         try
         {
@@ -437,8 +421,11 @@ internal static class TooltipPipeline
             {
                 var cur = _current;
 
-                // 构造成功就由渲染层把这一行换成售价/进价/标价；原版行留在 builder 里给第三方
-                if (cur != null && TryBuildPriceLine(cur, builder, color)) return true;
+                // 合并价格行写进正文：第三方（含按「售价…（进价…） 标价…」解析的估价单）读到的是同一份
+                if (cur != null && TryBuildPriceLine(cur, builder, color))
+                {
+                    return false;   // 已自行输出，丢弃原行
+                }
 
                 // 构造失败就保留原版文案，不再"只换词"糊一个自己没验证的版本
                 Log.Warn("TooltipPipeline.PriceTerms", "价格行构造失败，保留原版文案");
@@ -455,23 +442,20 @@ internal static class TooltipPipeline
                 return true;
             }
 
-            // 「购买价格: N」——若价格行已把进价写进括号，原版窗口里就不重复显示
+            // 「购买价格: N」——换词不换信息，正文留原版，只有原版窗口里显示「进价」；
+            // 若合并价格行已把进价写进括号，这一行整行丢掉。
             if (!string.IsNullOrEmpty(_buyHead) && text.StartsWith(_buyHead!, StringComparison.Ordinal))
             {
-                if (_priceEmbeddedBuy)
-                {
-                    _lineHide = true;
-                    return true;
-                }
+                if (_priceEmbeddedBuy) return false;
                 string shown = Loc.T("price.buy", "Buy: ") + text.Substring(_buyHead!.Length);
                 if (_current != null)
-                    TooltipSections.ObserveText(builder, _current, "purchase", shown, color, TooltipGroupIds.Price);
+                    TooltipSections.ObserveText(builder, _current, "purchase", text, color, TooltipGroupIds.Price);
                 if (_perCellAfterBuy)
                 {
                     _perCellAfterBuy = false;
                     _afterValueEnhance = true;
                 }
-                Show(Part(shown, color));
+                Swap(shown);
             }
             return true;
         }
@@ -486,27 +470,28 @@ internal static class TooltipPipeline
     /// 只认与原版原文完全一致的行：官方钩子在 GetTooltipBasic 内触发，其它模组写的
     /// 短行（如「保质期 120」）也会经过这里，按数字模糊匹配会把它们误改成卡路里行。
     /// </summary>
-    private static void CalorieLine(string text, RichTextBuilder builder, GameItem item)
+    private static bool RewriteCalorieLine(ref string text, RichTextBuilder builder)
     {
         try
         {
-            if (!ModSettings.TooltipFormatting || string.IsNullOrEmpty(text)) return;
-            if (!GameRead.IsTag(item, "CALORIE_VALUE_TAG")) return;
+            var item = _current;
+            if (!ModSettings.TooltipFormatting || item == null || string.IsNullOrEmpty(text)) return true;
+            if (!GameRead.IsTag(item, "CALORIE_VALUE_TAG")) return true;
 
             int cal = 0;
-            try { cal = item.GetTagReadonly("CALORIE_VALUE_TAG").GetInt(); } catch { return; }
-            if (cal <= 0) return;
+            try { cal = item.GetTagReadonly("CALORIE_VALUE_TAG").GetInt(); } catch { return true; }
+            if (cal <= 0) return true;
 
-            if (text.IndexOf(cal.ToString(), StringComparison.Ordinal) < 0) return;
+            if (text.IndexOf(cal.ToString(), StringComparison.Ordinal) < 0) return true;
             string key = GameRead.IsTag(item, "MEAT_FOOD_TAG") ? "mech_food_calories_meat" : "mech_food_calories";
             string vanilla;
-            try { vanilla = " " + LocHelper.GetLocalizedMechanic(key, cal); } catch { return; }
-            if (!string.Equals(text, vanilla, StringComparison.Ordinal)) return;
+            try { vanilla = " " + LocHelper.GetLocalizedMechanic(key, cal); } catch { return true; }
+            if (!string.Equals(text, vanilla, StringComparison.Ordinal)) return true;
             int idx = text.IndexOf(cal.ToString(), StringComparison.Ordinal);
 
             // 单位后缀 = 数字之后、行尾之前的部分（去掉首尾空白）
             string tail = text.Substring(idx + cal.ToString().Length).Trim();
-            if (tail.Length > 6) return;            // 不是纯卡路里行
+            if (tail.Length > 6) return true;            // 不是纯卡路里行
             if (tail.Length == 0) tail = Loc.T("calorie.unit", "kcal");
 
             // 去掉后缀里的括号补充（如「（肉类）」），比率只用核心单位
@@ -519,7 +504,6 @@ internal static class TooltipPipeline
             output.Field("calories", cal);
             output.Add(head, RenderHandler.ColorPalette.LightCyan);
 
-            string? extra = null;
             if (ModSettings.ValueEnhance)
             {
                 // 单独兜底：价值读不到只丢这段灰色注释，不动已写好的能量行
@@ -530,22 +514,19 @@ internal static class TooltipPipeline
                     {
                         double per = (double)cal / value;
                         output.Field("caloriesPerCredit", per);
-                        extra = Loc.T("calorie.per_credit", " ({0} {1}/{2})",
-                                      per.ToString("0.#", Loc.Culture), core, GeneralHelper.CreditIcon());
-                        output.Add(extra, RenderHandler.ColorPalette.Gray);
+                        output.Add(Loc.T("calorie.per_credit", " ({0} {1}/{2})",
+                                          per.ToString("0.#", Loc.Culture), core, GeneralHelper.CreditIcon()),
+                                    RenderHandler.ColorPalette.Gray);
                     }
                 }
                 catch { }
             }
 
-            // 行本身是原版写的：只对外提供数据，不再替它写出，显示走渲染注解。
-            output.Observe();
-
-            var cyan = Part(head, RenderHandler.ColorPalette.LightCyan);
-            if (extra != null) Show(cyan, Part(extra, RenderHandler.ColorPalette.Gray));
-            else Show(cyan);
+            output.NextLine();
+            output.Emit();
+            return false;   // 已自行输出，丢弃原行
         }
-        catch { }
+        catch { return true; }
     }
     /// <summary>当前是否正在构建物品 tooltip（供其它模块判断"这次 Add 属于 tooltip"）。</summary>
     internal static bool IsBuilding => _current != null;
@@ -564,8 +545,8 @@ internal static class TooltipPipeline
     /// 标价只在它与售价不同（<c>list != sell</c>）时写：没有价格修正的物品两个数本就相等，
     /// 再写一遍只是把同一个数字重复两次。差异来源由价格影响行（标签/状态）与市场行解释。
     ///
-    /// 返回 true 表示已登记显示写法：原版那行留在 builder 里（第三方读到的是原版价格文案），
-    /// 原版窗口构建时换成这里拼的行。
+    /// 返回 true 表示合并行已写进 builder（经 <c>Emit</c>，可被认领），调用方丢弃原版那行；
+    /// SectionedTooltips 的估价单按这一行的格式解析，改格式前先与对方核对。
     /// </summary>
     private static bool TryBuildPriceLine(GameItem item, RichTextBuilder builder, RenderHandler.ColorPalette color)
     {
@@ -609,15 +590,9 @@ internal static class TooltipPipeline
             output.Field("list", list);
             if (buy != 0) output.Field("buy", buy);
 
-            // 显示写法：售价（进价 差价）+ 标价；超宽时标价另起一行。原版那行留在 builder 里不动。
-            var parts = new List<RenderSlices.Part>(5) { Part(sellPart, color) };
             output.Add(sellPart, color);
             if (buy != 0)
             {
-                parts.Add(Part(buyHead, RenderHandler.ColorPalette.Gray));
-                parts.Add(Part(buy.ToString(), RenderHandler.ColorPalette.Gray));
-                if (diff != 0) parts.Add(Part(diffTxt, diffColor));
-                parts.Add(Part(buyTail, RenderHandler.ColorPalette.Gray));
                 output.Add(buyHead, RenderHandler.ColorPalette.Gray);
                 output.Add(buy.ToString(), RenderHandler.ColorPalette.Gray);
                 if (diff != 0) output.Add(diffTxt, diffColor);
@@ -628,25 +603,22 @@ internal static class TooltipPipeline
             {
                 if (splitLines)
                 {
-                    parts.Add(Part("\n" + listPart.TrimStart(), color));
                     output.NextLine();
                     output.Add(listPart.TrimStart(), color);
                 }
                 else
                 {
-                    parts.Add(Part(listPart, color));
                     output.Add(listPart, color);
                 }
             }
 
-            // 行本身是原版的：只对外提供数据，显示走渲染注解
-            output.Observe();
-            Show(parts.ToArray());
+            output.NextLine();
+            output.Emit();
             _priceEmbeddedBuy = buy != 0;
 
             // 性价比紧跟价格行，与它的来源放在一起
-            _afterValueEnhance = true;
-            return true;
+            ValueEnhance.TryWrite(builder, item);
+            return true;   // 已自行输出，调用方丢弃原行
         }
         catch (Exception ex)
         {

@@ -74,14 +74,13 @@ internal static class LabelImpact
     }
 
     /// <summary>
-    /// 由 TooltipPipeline 的 AddLine 前缀调用，返回这一行在原版窗口里的显示写法；null 表示照原版显示。
-    /// builder 里始终是原版原文，第三方读到的标签行不被本作改写。
-    /// 只有原版原文才换成短名；其它模组已改过的文本保留原样，只在后面补价格影响。
+    /// 由 TooltipPipeline 的 AddLine 前缀调用。只有原版原文才换成短名；
+    /// 其它模组已改过的文本保留原样，只在后面补价格影响。
     /// </summary>
-    internal static string? Display(string text, RichTextBuilder builder, GameItem item)
+    internal static void TryRewrite(ref string text, RichTextBuilder builder, GameItem item)
     {
         var feature = _feature;
-        if (feature == null || text == null) return null;
+        if (feature == null || text == null) return;
         _feature = null;
 
         try
@@ -91,7 +90,7 @@ internal static class LabelImpact
                 name = ShortName(feature, text);
 
             string impact = Impact(feature, out int modifier, out string suffix);
-            string shown = impact.Length > 0 ? $"{name} ({impact})" : name;
+            text = impact.Length > 0 ? $"{name} ({impact})" : name;
             var output = new TooltipSections.Writer(builder, item, "label", TooltipGroupIds.Label);
             if (output.Capturing)
             {
@@ -101,15 +100,13 @@ internal static class LabelImpact
                     output.Field("modifier", modifier);
                     output.Field("unit", suffix);
                 }
-                output.Field("text", shown);
+                output.Field("text", text);
                 output.Observe();
             }
-            return string.Equals(shown, text, StringComparison.Ordinal) ? null : shown;
         }
         catch (Exception ex)
         {
             Log.Warn("LabelImpact.Rewrite", ex);
-            return null;
         }
     }
 

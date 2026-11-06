@@ -240,49 +240,21 @@ $annotate.Invoke($null,@($sb2, 0, ('长' * 60), $style, $null))
 $state = [object[]]@($sb2, $null); $before.Invoke($null,$state)
 Check ($state[1] -eq $null -and [object]::ReferenceEquals($l2[0],$d)) 'description stays canonical when the budget is not widened'
 
-# 原版行：builder 里保留原版原文，显示写法由注解换入。
-$partType = $provider.GetType('ItemDetails.RenderSlices+Part')
-$replace = $slicesType.GetMethod('Replace',$flags)
-$append = $slicesType.GetMethod('Append',$flags)
-$hide = $slicesType.GetMethod('Hide',$flags)
-function New-Parts([string]$text) {
-    $parts = [Array]::CreateInstance($partType, 1)
-    $parts.SetValue([Activator]::CreateInstance($partType, $rw, $null, @($text, $style), $null), 0)
-    return ,$parts
-}
+# 只换写法的行：正文留原版，原版窗口构建时换成显示写法，Build 后还原。
 $sb3 = [RichTextBuilder]::new(40); $l3 = $sliceField.GetValue($sb3)
 $v0 = New-Slice; $v1 = New-Slice; $l3.Add($v0); $l3.Add($v1)
-$replace.Invoke($null, @($sb3, 1, '预估价值: 1, 基础价值: 2', (New-Parts '售价: 1')))
+$annotate.Invoke($null, @($sb3, 1, '预估价值: 1, 基础价值: 2', $style, '售价: 1'))
 $state = [object[]]@($sb3, $null); $before.Invoke($null,$state)
 Check ($state[1] -ne $null -and $l3.Count -eq 2 -and [object]::ReferenceEquals($l3[0],$v0) -and [object]::ReferenceEquals($l3[1],$alt)) 'native line is swapped for its display text'
 [void]$after.Invoke($null,@($sb3, $state[1], $null))
 Check ([object]::ReferenceEquals($l3[1],$v1)) 'native line slice comes back after Build'
-# 追加：原文留在原位，显示段接在它后面。
-$sb4 = [RichTextBuilder]::new(40); $l4 = $sliceField.GetValue($sb4)
-$w0 = New-Slice; $w1 = New-Slice; $l4.Add($w0); $l4.Add($w1)
-$append.Invoke($null, @($sb4, 1, '-性能: +16%', (New-Parts ' (+136毫升/天)')))
-$state = [object[]]@($sb4, $null); $before.Invoke($null,$state)
-Check ($l4.Count -eq 3 -and [object]::ReferenceEquals($l4[1],$w1) -and [object]::ReferenceEquals($l4[2],$alt)) 'appended note follows the untouched native slice'
-[void]$after.Invoke($null,@($sb4, $state[1], $null))
-Check ($l4.Count -eq 2) 'append rolls back to canonical slices'
-# 多段显示：价格行由售价、进价、标价几段不同颜色拼成，替换后片段数跟着变。
-$sb6 = [RichTextBuilder]::new(40); $l6 = $sliceField.GetValue($sb6)
-$x0 = New-Slice; $x1 = New-Slice; $l6.Add($x0); $l6.Add($x1)
-$twoParts = [Array]::CreateInstance($partType, 2)
-$twoParts.SetValue([Activator]::CreateInstance($partType, $rw, $null, @('售价: 69', $style), $null), 0)
-$twoParts.SetValue([Activator]::CreateInstance($partType, $rw, $null, @("`n标价: 60", $style), $null), 1)
-$replace.Invoke($null, @($sb6, 1, '预估价值: 69, 基础价值: 60', $twoParts))
-$state = [object[]]@($sb6, $null); $before.Invoke($null,$state)
-Check ($l6.Count -eq 3 -and [object]::ReferenceEquals($l6[0],$x0) -and [object]::ReferenceEquals($l6[1],$alt) -and [object]::ReferenceEquals($l6[2],$alt)) 'multi-part display keeps every styled piece'
-[void]$after.Invoke($null,@($sb6, $state[1], $null))
-Check ($l6.Count -eq 2 -and [object]::ReferenceEquals($l6[1],$x1)) 'multi-part display rolls back'
-# 隐藏：整行连换行一起去掉，不留空行。
-$sb5 = [RichTextBuilder]::new(40); $l5 = $sliceField.GetValue($sb5)
-$h0 = New-Slice; $h1 = New-Slice; $l5.Add($h0); $l5.Add($h1)
-$hide.Invoke($null, @($sb5, 0))
-$state = [object[]]@($sb5, $null); $before.Invoke($null,$state)
-Check ($state[1] -ne $null -and $l5.Count -eq 0) 'hidden line takes its leading break with it'
-[void]$after.Invoke($null,@($sb5, $state[1], $null))
-Check ($l5.Count -eq 2) 'hide rolls back after Build'
-Check ($hide.Invoke($null, @($sb5, 2)) -eq $null -and $l5.Count -eq 2) 'hiding an empty range is a no-op'
+# 带信息的行必须写进正文并回放：区块 runs 与 builder 文本是同一份，重排方不会丢数据。
+$tpSource = Get-Content (Join-Path $repo 'src/Presentation/Tooltip/TooltipPipeline.cs') -Raw
+foreach ($id in @('price', 'calories')) {
+    $m = [regex]::Match($tpSource, "new TooltipSections\.Writer\([^)]*""$id""[^)]*\)")
+    Check ($m.Success) "section $id is produced by the tooltip pipeline"
+    $tail = $tpSource.Substring($m.Index, [Math]::Min(1600, $tpSource.Length - $m.Index))
+    Check ($tail.Contains('.Emit()')) "section $id is replayed into the builder, not only annotated"
+}
+Check ((Get-Content (Join-Path $repo 'src/Features/Machines/ModuleEffectAnnotation.cs') -Raw).Contains('output.Emit();')) 'machine-effect is replayed into the builder'
 $slicesType.GetField('_slices',$flags).SetValue($null,$null)
