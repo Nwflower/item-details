@@ -1,0 +1,9 @@
+* text=auto eol=lf
+# Windows 批处理必须保持 CRLF：cmd.exe 解析 LF 换行的 .bat 会把行拆错
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.dll binary
+*.png binary
+*.jpg binary
+*.wav binary
+*.ogg binary
