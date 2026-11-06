@@ -16,9 +16,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class MachineSpeedLine
 {
-    private const string HarmonyId = "item_details.machine_speed";
-    private static Harmony? _harmony;
-    private static bool _patched;
 
     private static GameItem? _machine;
     private static string? _label;   // 吞掉的原版标签原文；非空表示正在等这一行的 AddLine
@@ -26,9 +23,8 @@ internal static class MachineSpeedLine
     private static string _labelLocale = "";
     private static string _speedLabel = "";
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var machineTooltip = AccessTools.Method(typeof(MachineryHelper), "CreateMachineryTooltip",
@@ -51,26 +47,22 @@ internal static class MachineSpeedLine
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(machineTooltip,
+            scope.Patch(machineTooltip,
                 prefix: new HarmonyMethod(typeof(MachineSpeedLine), nameof(BeforeMachineTooltip)),
                 finalizer: new HarmonyMethod(typeof(MachineSpeedLine), nameof(AfterMachineTooltip)));
-            _harmony.Patch(add, prefix: new HarmonyMethod(typeof(MachineSpeedLine), nameof(AddPrefix)));
-            _harmony.Patch(addLine, prefix: new HarmonyMethod(typeof(MachineSpeedLine), nameof(AddLinePrefix)));
-            _patched = true;
+            scope.Patch(add, prefix: new HarmonyMethod(typeof(MachineSpeedLine), nameof(AddPrefix)));
+            scope.Patch(addLine, prefix: new HarmonyMethod(typeof(MachineSpeedLine), nameof(AddLinePrefix)));
             Log.Msg("MachineSpeedLine: patched CreateMachineryTooltip/Add/AddLine");
         }
         catch (Exception ex)
         {
             Log.Error("MachineSpeed.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         Reset();
     }
 

@@ -880,13 +880,9 @@ internal static class WaterAdvice
 /// </summary>
 internal static class WaterWarmupPatch
 {
-    private const string HarmonyId = "item_details.water_warmup";
-    private static Harmony? _harmony;
-    private static bool _patched;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var start = AccessTools.Method(typeof(EmporiumEntry), "Start", Type.EmptyTypes);
@@ -895,23 +891,14 @@ internal static class WaterWarmupPatch
                 Log.Warn("WaterWarmup.Apply", "未找到 EmporiumEntry.Start，跳过预热");
                 return;
             }
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(start,
+            scope.Patch(start,
                 postfix: new HarmonyMethod(typeof(WaterWarmupPatch), nameof(AfterStart)));
-            _patched = true;
             Log.Msg("WaterWarmup: patched EmporiumEntry.Start");
         }
         catch (Exception ex)
         {
             Log.Error("WaterWarmup.Apply", ex);
         }
-    }
-
-    internal static void Remove()
-    {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     private static void AfterStart()

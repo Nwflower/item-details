@@ -16,14 +16,9 @@ namespace ItemDetails;
 /// </summary>
 internal static class WaterContainerLine
 {
-    private const string HarmonyId = "item_details.water_container";
 
-    private static Harmony? _harmony;
-    private static bool _patched;
-
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var target = AccessTools.Method(typeof(WaterHelper), "CreateWaterContainerTooltip",
@@ -33,22 +28,13 @@ internal static class WaterContainerLine
                 Log.Warn("WaterContainerLine", "未找到 WaterHelper.CreateWaterContainerTooltip，标签跳过");
                 return;
             }
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(target, prefix: new HarmonyMethod(typeof(WaterContainerLine), nameof(Skip)));
-            _patched = true;
+            scope.Patch(target, prefix: new HarmonyMethod(typeof(WaterContainerLine), nameof(Skip)));
             Log.Msg("WaterContainerLine: patched WaterHelper.CreateWaterContainerTooltip");
         }
         catch (Exception ex)
         {
             Log.Error("WaterContainerLine.Apply", ex);
         }
-    }
-
-    internal static void Remove()
-    {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     /// <summary>

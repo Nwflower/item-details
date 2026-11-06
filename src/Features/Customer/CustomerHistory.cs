@@ -29,47 +29,32 @@ namespace ItemDetails;
 /// </summary>
 internal static class CustomerHistory
 {
-    private const string HarmonyId = "item_details.customer_history";
-
     /// <summary>本次接待最多留多少行：台词是模板句，留太多只是重复。</summary>
     private const int KeepLines = 40;
 
     /// <summary>卡片里最多显示几行（再长会盖住半个屏幕）。</summary>
     private const int ShowLines = 8;
 
-    private static Harmony? _harmony;
-    private static bool _patched;
     private static GameObject? _go;
 
     private static readonly List<string> Lines = new();
 
-    internal static void Install()
+    internal static void Install(PatchScope scope)
     {
-        if (!_patched)
+        var target = AccessTools.Method(typeof(DialogUIManager), "UpdateDialogHistory",
+            new[] { typeof(string) });
+        if (target == null)
         {
-            try
-            {
-                var target = AccessTools.Method(typeof(DialogUIManager), "UpdateDialogHistory",
-                    new[] { typeof(string) });
-                if (target == null)
-                {
-                    Log.Warn("CustomerHistory.Apply", "未找到 UpdateDialogHistory，顾客对话历史跳过");
-                    return;
-                }
-
-                _harmony = new Harmony(HarmonyId);
-                _harmony.Patch(target, postfix: new HarmonyMethod(typeof(CustomerHistory), nameof(AfterDialogLine)));
-                _patched = true;
-                Log.Msg("CustomerHistory: patched UpdateDialogHistory");
-            }
-            catch (Exception ex)
-            {
-                Log.Error("CustomerHistory.Apply", ex);
-            }
+            Log.Warn("CustomerHistory.Apply", "未找到 UpdateDialogHistory，顾客对话历史跳过");
+            return;
         }
 
+        scope.Patch(target, postfix: new HarmonyMethod(typeof(CustomerHistory), nameof(AfterDialogLine)));
+        scope.OnDispose(Stop);
+        Log.Msg("CustomerHistory: patched UpdateDialogHistory");
+
         // 没打上补丁就不装轮询器：否则只会弹一张永远空白的卡片。
-        if (!_patched || _go != null) return;
+        if (_go != null) return;
 
         try
         {
@@ -86,9 +71,6 @@ internal static class CustomerHistory
 
     internal static void Stop()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         Clear();
 
         try { CustomUIManager.Instance?.HideTooltip(null); } catch { }

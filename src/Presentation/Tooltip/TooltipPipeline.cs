@@ -21,12 +21,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class TooltipPipeline
 {
-    private const string HarmonyId = "item_details.tooltip_pipeline";
-
-
-    private static Harmony? _harmony;
-    private static bool _patched;
-
     private static int _depth;
     private static int _buildId;
     private static GameItem? _current;
@@ -47,46 +41,36 @@ internal static class TooltipPipeline
     private static bool _priceEmbeddedBuy;   // 本次价格块是否已把进价写进括号
     private static bool _perCellAfterBuy;    // 堆叠物品：性价比等进价行写完再补
 
-    internal static void Apply()
+    /// <summary>
+    /// 用作用域登记 tooltip 主链路的三个补丁；停用时由作用域撤销，并清空本次构建的状态。
+    /// </summary>
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
-        try
+        var basic = AccessTools.Method(typeof(GameItemElement), "GetTooltipBasic", Type.EmptyTypes);
+        var addLine = AccessTools.Method(typeof(RichTextBuilder), "AddLine");
+        if (basic == null || addLine == null)
         {
-            var basic = AccessTools.Method(typeof(GameItemElement), "GetTooltipBasic", Type.EmptyTypes);
-            var addLine = AccessTools.Method(typeof(RichTextBuilder), "AddLine");
-            if (basic == null || addLine == null)
-            {
-                Log.Warn("TooltipPipeline.Apply", "未找到 GetTooltipBasic/AddLine，tooltip 改写跳过");
-                return;
-            }
-
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(basic,
-                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasicPrefix)),
-                finalizer: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasicFinalizer)));
-            _harmony.Patch(addLine,
-                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePrefix)),
-                postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePostfix)));
-            // 记录 AddEmptyLine：它内部是 `NextLine(); Add("<size=Npx> </size>")`，
-            // 并不结束占位行，于是紧随其后的价格行会与之同行 → 表现为固定缩进。
-            var emptyLine = AccessTools.Method(typeof(RichTextBuilder), "AddEmptyLine");
-            if (emptyLine != null)
-                _harmony.Patch(emptyLine, prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddEmptyLinePrefix)));
-
-            _patched = true;
-            Log.Msg("TooltipPipeline: patched GetTooltipBasic + AddLine + AddEmptyLine");
+            Log.Warn("TooltipPipeline.Apply", "未找到 GetTooltipBasic/AddLine，tooltip 改写跳过");
+            return;
         }
-        catch (Exception ex)
-        {
-            Log.Error("TooltipPipeline.Apply", ex);
-        }
+
+        scope.Patch(basic,
+            prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasicPrefix)),
+            finalizer: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasicFinalizer)));
+        scope.Patch(addLine,
+            prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePrefix)),
+            postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePostfix)));
+        // 记录 AddEmptyLine：它内部是 `NextLine(); Add("<size=Npx> </size>")`，
+        // 并不结束占位行，于是紧随其后的价格行会与之同行 → 表现为固定缩进。
+        scope.Patch(AccessTools.Method(typeof(RichTextBuilder), "AddEmptyLine"),
+            prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddEmptyLinePrefix)));
+
+        scope.OnDispose(ResetHost);
+        Log.Msg("TooltipPipeline: patched GetTooltipBasic + AddLine + AddEmptyLine");
     }
 
-    internal static void Remove()
+    private static void ResetHost()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         Reset();
         _depth = 0;
         _estimatePrefix = null;

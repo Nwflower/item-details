@@ -23,11 +23,8 @@ namespace ItemDetails;
 /// </summary>
 internal static class ItemNameLabel
 {
-    private const string HarmonyId = "item_details.item_name_label";
     private const float LabelBottomInset = 3f;   // 屏幕像素
 
-    private static Harmony? _harmony;
-    private static bool _patched;
 #if ITEMDETAILS_DIAG
     private static bool _geometryLogged;
     private static int _placementLogged;
@@ -64,9 +61,8 @@ internal static class ItemNameLabel
         internal float MeasuredWidth;
     }
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var target = AccessTools.Method(typeof(GameItemElement), "ValidateSelect", new[] { typeof(bool) });
@@ -76,27 +72,23 @@ internal static class ItemNameLabel
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(target, postfix: new HarmonyMethod(typeof(ItemNameLabel), nameof(AfterValidateSelect)));
+            scope.Patch(target, postfix: new HarmonyMethod(typeof(ItemNameLabel), nameof(AfterValidateSelect)));
 
             _tickerGo = new GameObject("ItemDetails_NameLabelTicker");
             UnityEngine.Object.DontDestroyOnLoad(_tickerGo);
             _tickerGo.AddComponent<ItemNameTicker>();
 
-            _patched = true;
             Log.Msg("ItemNameLabel: patched GameItemElement.ValidateSelect");
         }
         catch (Exception ex)
         {
             Log.Error("NameLabel.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
 
         // 节点挂在物品元素下，不会随 ticker 自动销毁；热停用时必须逐个清理。
         for (int i = Tracked.Count - 1; i >= 0; i--)

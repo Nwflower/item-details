@@ -18,15 +18,11 @@ namespace ItemDetails;
 /// </summary>
 internal static class ConfigSectionRefresh
 {
-    private const string HarmonyId = "item_details.config_sections";
 
-    private static Harmony? _harmony;
-    private static bool _patched;
     private static bool _canLocalizeChoices;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var open = AccessTools.Method(typeof(ModConfigWindow), "Open", new[] { typeof(LoadedMod) });
@@ -36,8 +32,7 @@ internal static class ConfigSectionRefresh
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(open,
+            scope.Patch(open,
                 prefix: new HarmonyMethod(typeof(ConfigSectionRefresh), nameof(OpenPrefix)),
                 postfix: new HarmonyMethod(typeof(ConfigSectionRefresh), nameof(OpenPostfix)));
 
@@ -45,30 +40,27 @@ internal static class ConfigSectionRefresh
             var reset = AccessTools.Method(typeof(ModConfigWindow), "ResetWidgets",
                 new[] { typeof(CustomUIWindow), typeof(ModConfig) });
             if (reset != null)
-                _harmony.Patch(reset, postfix: new HarmonyMethod(typeof(ConfigSectionRefresh), nameof(ResetPostfix)));
+                scope.Patch(reset, postfix: new HarmonyMethod(typeof(ConfigSectionRefresh), nameof(ResetPostfix)));
 
             // 下拉框选项在面板里显示当前语言，写盘前要换回固定文字（见 ModSettings.Choice）
             var save = AccessTools.Method(typeof(ModConfig), "Save", Type.EmptyTypes);
             if (save != null)
-                _harmony.Patch(save, prefix: new HarmonyMethod(typeof(ConfigSectionRefresh), nameof(SavePrefix)));
+                scope.Patch(save, prefix: new HarmonyMethod(typeof(ConfigSectionRefresh), nameof(SavePrefix)));
             else
                 Log.Warn("ConfigSections.Apply", "未找到 ModConfig.Save，下拉框保持固定文字");
             _canLocalizeChoices = save != null;
 
-            _patched = true;
             Log.Msg("ConfigSectionRefresh: patched ModConfigWindow.Open/ModConfig.Save");
         }
         catch (Exception ex)
         {
             Log.Error("ConfigSections.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         _canLocalizeChoices = false;
     }
 

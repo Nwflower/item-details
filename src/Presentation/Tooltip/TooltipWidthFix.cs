@@ -19,17 +19,12 @@ namespace ItemDetails;
 /// </summary>
 internal static class TooltipWidthFix
 {
-    private const string HarmonyId = "item_details.tooltip_width";
-
-    private static Harmony? _harmony;
-    private static bool _patched;
 
     /// <summary>RichText.recommendedWidth 的 backing field；postfix 里直接改写。</summary>
     private static System.Reflection.FieldInfo? _widthField;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var build = AccessTools.Method(typeof(RichTextBuilder), nameof(RichTextBuilder.Build));
@@ -44,22 +39,13 @@ internal static class TooltipWidthFix
                 Log.Warn("TooltipWidthFix", "未找到 recommendedWidth 的 backing field，框宽修正跳过");
                 return;
             }
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(build, postfix: new HarmonyMethod(typeof(TooltipWidthFix), nameof(FixWidth)));
-            _patched = true;
+            scope.Patch(build, postfix: new HarmonyMethod(typeof(TooltipWidthFix), nameof(FixWidth)));
             Log.Msg("TooltipWidthFix: patched RichTextBuilder.Build");
         }
         catch (Exception ex)
         {
             Log.Error("TooltipWidthFix.Apply", ex);
         }
-    }
-
-    internal static void Remove()
-    {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     /// <summary>把 RichText 的框宽换成「最长一行去掉富文本标签后的可见字符数」。</summary>

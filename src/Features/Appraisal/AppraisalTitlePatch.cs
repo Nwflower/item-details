@@ -17,10 +17,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class AppraisalTitlePatch
 {
-    private const string HarmonyId = "item_details.appraisal_title";
-
-    private static Harmony? _harmony;
-    private static bool _patched;
     private static TextMeshProUGUI? _titleTmp;
     private static string _original = "";   // 注入前的原文
     private static string _applied = "";    // 我们写进去的文本（空 = 当前没有注入）
@@ -28,44 +24,30 @@ internal static class AppraisalTitlePatch
     private static bool _reapplyScheduled;  // 已在后续几帧跟踪标题
     private static int _lastValue;          // 本次鉴定的真实价值，供后续几帧重建标题
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
-        try
+        var inspect = AccessTools.Method(typeof(InspectionUIManager), "OnInspectItem",
+            new[] { typeof(GameItem) });
+        var reset = AccessTools.Method(typeof(InspectionUIManager), "ResetUI", Type.EmptyTypes);
+        var close = AccessTools.Method(typeof(InspectionUIManager), "CloseUI", Type.EmptyTypes);
+        if (inspect == null)
         {
-            var inspect = AccessTools.Method(typeof(InspectionUIManager), "OnInspectItem",
-                new[] { typeof(GameItem) });
-            var reset = AccessTools.Method(typeof(InspectionUIManager), "ResetUI", Type.EmptyTypes);
-            var close = AccessTools.Method(typeof(InspectionUIManager), "CloseUI", Type.EmptyTypes);
-            if (inspect == null)
-            {
-                Log.Warn("Title.Apply", "未找到 OnInspectItem，标题真实价格跳过");
-                return;
-            }
-
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(inspect,
-                postfix: new HarmonyMethod(typeof(AppraisalTitlePatch), nameof(InspectPostfix)));
-            if (reset != null)
-                _harmony.Patch(reset, prefix: new HarmonyMethod(typeof(AppraisalTitlePatch), nameof(RestorePrefix)));
-            if (close != null)
-                _harmony.Patch(close, prefix: new HarmonyMethod(typeof(AppraisalTitlePatch), nameof(RestorePrefix)));
-
-            _patched = true;
-            Log.Msg("AppraisalTitlePatch: patched OnInspectItem/ResetUI/CloseUI");
+            Log.Warn("Title.Apply", "未找到 OnInspectItem，标题真实价格跳过");
+            return;
         }
-        catch (Exception ex)
-        {
-            Log.Error("Title.Apply", ex);
-        }
+
+        scope.Patch(inspect,
+            postfix: new HarmonyMethod(typeof(AppraisalTitlePatch), nameof(InspectPostfix)));
+        scope.Patch(reset, prefix: new HarmonyMethod(typeof(AppraisalTitlePatch), nameof(RestorePrefix)));
+        scope.Patch(close, prefix: new HarmonyMethod(typeof(AppraisalTitlePatch), nameof(RestorePrefix)));
+
+        scope.OnDispose(Remove);
+        Log.Msg("AppraisalTitlePatch: patched OnInspectItem/ResetUI/CloseUI");
     }
 
-    internal static void Remove()
+    private static void Remove()
     {
         RestoreTitle();
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     private static void InspectPostfix(GameItem gameItem)

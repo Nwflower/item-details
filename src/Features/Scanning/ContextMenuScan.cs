@@ -33,13 +33,10 @@ namespace ItemDetails;
 /// </summary>
 internal static class ContextMenuScan
 {
-    private const string HarmonyId = "item_details.context_scan";
     private const string MenuNodeTag = "ContextMenuNode";
 
     /// <summary>「扫描」插在原版最后一项「固定」之前。</summary>
     private const int ScanRowFromEnd = 1;
-
-    private static Harmony? _harmony;
 
     // 原版私有字段：直接写 typeof(...)，官方扫描器才认得出反射目标。
     private static readonly FieldInfo? WindowField = AccessTools.Field(typeof(ItemContextHandler), "contextWindow");
@@ -80,37 +77,34 @@ internal static class ContextMenuScan
     private static RichTextElement? _button;
     private static GameItem? _target;   // 本次菜单要扫描的物品；为 null 表示「扫描」行隐藏
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_harmony != null) return;
         try
         {
-            _harmony = new Harmony(HarmonyId);
-            Patch(AccessTools.Method(typeof(ItemContextHandler), "UpdateConditions"), postfix: nameof(AfterUpdateConditions));
-            Patch(AccessTools.Method(typeof(ItemContextHandler), "UpdateSelectButtonColor"), postfix: nameof(AfterUpdateSelectButtonColor));
-            Patch(AccessTools.Method(typeof(ItemContextHandler), "EqualizeButtonWidths"), postfix: nameof(AfterEqualizeButtonWidths));
-            Patch(AccessTools.Method(typeof(ItemContextHandler), "TriggerButton"), prefix: nameof(BeforeTriggerButton));
+            Patch(scope, AccessTools.Method(typeof(ItemContextHandler), "UpdateConditions"), postfix: nameof(AfterUpdateConditions));
+            Patch(scope, AccessTools.Method(typeof(ItemContextHandler), "UpdateSelectButtonColor"), postfix: nameof(AfterUpdateSelectButtonColor));
+            Patch(scope, AccessTools.Method(typeof(ItemContextHandler), "EqualizeButtonWidths"), postfix: nameof(AfterEqualizeButtonWidths));
+            Patch(scope, AccessTools.Method(typeof(ItemContextHandler), "TriggerButton"), prefix: nameof(BeforeTriggerButton));
+            scope.OnDispose(Remove);
             Log.Msg("ContextMenuScan: patched ItemContextHandler");
         }
         catch (Exception ex)
         {
             Log.Error("ContextScan.Apply", ex);
-            Remove();
+            throw;   // 交给宿主回滚本功能已登记的补丁，其它功能不受影响
         }
     }
 
-    private static void Patch(MethodInfo? target, string? prefix = null, string? postfix = null)
+    private static void Patch(PatchScope scope, MethodInfo? target, string? prefix = null, string? postfix = null)
     {
         if (target == null) throw new MissingMethodException("ItemContextHandler", prefix ?? postfix ?? "?");
-        _harmony!.Patch(target,
+        scope.Patch(target,
             prefix: prefix == null ? null : new HarmonyMethod(typeof(ContextMenuScan), prefix),
             postfix: postfix == null ? null : new HarmonyMethod(typeof(ContextMenuScan), postfix));
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
         try { RestoreNativeMenu(); } catch (Exception ex) { Log.Warn("ContextScan.Restore", ex); }
         _window = null;
         _nativeGrid = null;

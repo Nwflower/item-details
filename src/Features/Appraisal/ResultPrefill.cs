@@ -17,13 +17,8 @@ namespace ItemDetails;
 /// </summary>
 internal static class ResultPrefill
 {
-    private const string HarmonyId = "item_details.result_prefill";
-    private static Harmony? _harmony;
-    private static bool _patched;
-
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var inspect = AccessTools.Method(typeof(InspectionUIManager), "OnInspectItem",
@@ -34,24 +29,15 @@ internal static class ResultPrefill
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(inspect,
+            scope.Patch(inspect,
                 postfix: new HarmonyMethod(typeof(ResultPrefill), nameof(AfterInspect)));
 
-            _patched = true;
             Log.Msg("ResultPrefill: patched OnInspectItem");
         }
         catch (Exception ex)
         {
             Log.Error("ResultPrefill.Apply", ex);
         }
-    }
-
-    internal static void Remove()
-    {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     private static void AfterInspect(GameItem gameItem)

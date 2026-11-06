@@ -22,7 +22,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class RenderSlices
 {
-    private const string HarmonyId = "item_details.render_slices";
 
     /// <summary>写这一行时用的样式参数；替换片段按同一组参数生成，颜色粗细与原片段一致。</summary>
     internal readonly struct Style
@@ -77,14 +76,12 @@ internal static class RenderSlices
     private static readonly ConditionalWeakTable<RichTextBuilder, Flag> Marked = new();
 
     private static FieldInfo? _slices;
-    private static Harmony? _harmony;
 
     /// <summary>生成替换片段：默认用临时 builder 按同样参数 Add。测试可换成不依赖渲染器的实现。</summary>
     internal static Func<string, Style, object[]?> MakeSlices = DefaultMake;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_harmony != null) return;
         try
         {
             _slices = AccessTools.Field(typeof(RichTextBuilder), "slices");
@@ -99,24 +96,22 @@ internal static class RenderSlices
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(build,
+            scope.Patch(build,
                 prefix: new HarmonyMethod(typeof(RenderSlices), nameof(BeforeBuild)),
                 finalizer: new HarmonyMethod(typeof(RenderSlices), nameof(AfterBuild)));
-            _harmony.Patch(addBuilder, postfix: new HarmonyMethod(typeof(RenderSlices), nameof(AfterAddBuilder)));
-            _harmony.Patch(clear, postfix: new HarmonyMethod(typeof(RenderSlices), nameof(AfterClear)));
+            scope.Patch(addBuilder, postfix: new HarmonyMethod(typeof(RenderSlices), nameof(AfterAddBuilder)));
+            scope.Patch(clear, postfix: new HarmonyMethod(typeof(RenderSlices), nameof(AfterClear)));
         }
         catch (Exception ex)
         {
             _slices = null;
             Log.Error("RenderSlices.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
         _slices = null;
     }
 

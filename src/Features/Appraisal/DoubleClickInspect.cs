@@ -29,9 +29,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class DoubleClickInspect
 {
-    private const string HarmonyId = "item_details.double_click";
-    private static Harmony? _harmony;
-    private static bool _patched;
     private static bool _nativePatched;   // 原生双击回调已接管；为 false 时才装 ticker 兜底
     private static GameObject? _go;
 
@@ -43,60 +40,47 @@ internal static class DoubleClickInspect
     private static string? _appraisalTip;
     private static string? _inspectableTip;
 
-    internal static void Apply()
+    internal static void InstallPatches(PatchScope scope)
     {
-        if (_patched) return;
-        try
+        // 两个提示来源都只挂后缀：原版没写放大镜提示的可检视物品（如没有 INSPECTABLE_TAG
+        // 的真伪鉴定物品），在这里补一行双击提示。
+        // 两处 AccessTools.Method 必须直接写 typeof(...)：类型来自变量时，官方扫描器
+        // 认不出目标，会判为 reflection-external，而 manifest 没声明就拒绝启用整个模组。
+        PatchHintSource(scope, AccessTools.Method(typeof(AppraisalHelper), "CreateAppraisalTooltip",
+            new[] { typeof(RichTextBuilder), typeof(GameItem) }), "AppraisalHelper.CreateAppraisalTooltip");
+        PatchHintSource(scope, AccessTools.Method(typeof(InspectableHelper), "CreateInspectableTooltip",
+            new[] { typeof(RichTextBuilder), typeof(GameItem) }), "InspectableHelper.CreateInspectableTooltip");
+
+        // 复用游戏自己的双击判定：它已经校验了“同一物品 + 时间阈值 + 鼠标未拖动”。
+        // 旧 ticker 在第二次按下时重新 Raycast，第一次点击若引起选中/拖动/格子重建，
+        // 第二次就可能取不到同一件物品，表现为双击偶发失效。
+        var nativeDouble = AccessTools.Method(typeof(ItemMouseDoubleClickHandler), "DoubleClickAction",
+            new[] { typeof(GameItem), typeof(Vector2) });
+        if (nativeDouble != null)
         {
-            _harmony = new Harmony(HarmonyId);
-
-            // 两个提示来源都只挂后缀：原版没写放大镜提示的可检视物品（如没有 INSPECTABLE_TAG
-            // 的真伪鉴定物品），在这里补一行双击提示。
-            // 两处 AccessTools.Method 必须直接写 typeof(...)：类型来自变量时，官方扫描器
-            // 认不出目标，会判为 reflection-external，而 manifest 没声明就拒绝启用整个模组。
-            PatchHintSource(AccessTools.Method(typeof(AppraisalHelper), "CreateAppraisalTooltip",
-                new[] { typeof(RichTextBuilder), typeof(GameItem) }), "AppraisalHelper.CreateAppraisalTooltip");
-            PatchHintSource(AccessTools.Method(typeof(InspectableHelper), "CreateInspectableTooltip",
-                new[] { typeof(RichTextBuilder), typeof(GameItem) }), "InspectableHelper.CreateInspectableTooltip");
-
-            // 复用游戏自己的双击判定：它已经校验了“同一物品 + 时间阈值 + 鼠标未拖动”。
-            // 旧 ticker 在第二次按下时重新 Raycast，第一次点击若引起选中/拖动/格子重建，
-            // 第二次就可能取不到同一件物品，表现为双击偶发失效。
-            var nativeDouble = AccessTools.Method(typeof(ItemMouseDoubleClickHandler), "DoubleClickAction",
-                new[] { typeof(GameItem), typeof(Vector2) });
-            if (nativeDouble != null)
-            {
-                _harmony.Patch(nativeDouble,
-                    prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
-                _nativePatched = true;
-            }
-            else
-            {
-                Log.Warn("DoubleClick.Apply", "未找到 ItemMouseDoubleClickHandler.DoubleClickAction，保留 ticker 兜底");
-            }
-
-            _patched = true;
-            Log.Msg("DoubleClickInspect: patched tooltip hint sources + DoubleClickAction");
+            scope.Patch(nativeDouble,
+                prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
+            _nativePatched = true;
         }
-        catch (Exception ex)
+        else
         {
-            Log.Error("DoubleClick.Apply", ex);
+            Log.Warn("DoubleClick.Apply", "未找到 ItemMouseDoubleClickHandler.DoubleClickAction，保留 ticker 兜底");
         }
+
+        scope.OnDispose(Remove);
+        Log.Msg("DoubleClickInspect: patched tooltip hint sources + DoubleClickAction");
     }
 
-    private static void PatchHintSource(System.Reflection.MethodInfo? source, string label)
+    private static void PatchHintSource(PatchScope scope, System.Reflection.MethodInfo? source, string label)
     {
         if (source != null)
-            _harmony!.Patch(source, postfix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(AfterHintSource)));
+            scope.Patch(source, postfix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(AfterHintSource)));
         else
             Log.Warn("DoubleClick.Apply", $"未找到 {label}，该来源的提示保持原版");
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         _nativePatched = false;
         StopTicker();
     }

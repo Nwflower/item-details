@@ -15,13 +15,9 @@ namespace ItemDetails;
 /// </summary>
 internal static class MachineHydroponicLine
 {
-    private const string HarmonyId = "item_details.machine_hydroponic";
-    private static Harmony? _harmony;
-    private static bool _patched;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var target = AccessTools.Method(typeof(MachineHydroponic), "CreateMachineTooltip",
@@ -32,22 +28,13 @@ internal static class MachineHydroponicLine
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(target, prefix: new HarmonyMethod(typeof(MachineHydroponicLine), nameof(Prefix)));
-            _patched = true;
+            scope.Patch(target, prefix: new HarmonyMethod(typeof(MachineHydroponicLine), nameof(Prefix)));
             Log.Msg("MachineHydroponicLine: patched MachineHydroponic.CreateMachineTooltip");
         }
         catch (Exception ex)
         {
             Log.Error("MachineHydroponicLine.Apply", ex);
         }
-    }
-
-    internal static void Remove()
-    {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     private static bool Prefix(RichTextBuilder builder, GameItem item)

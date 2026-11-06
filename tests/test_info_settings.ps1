@@ -2,7 +2,8 @@ $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $ns = 'InfoSettingsTests' + [Guid]::NewGuid().ToString('N')
 $source = "#nullable enable`n"
-foreach ($file in @('src/Infrastructure/ModSettings.cs', 'src/Infrastructure/Patches/ConfigSectionRefresh.cs', 'src/Features/Water/LiquidGate.cs')) {
+foreach ($file in @('src/Infrastructure/ModSettings.cs', 'src/Infrastructure/Patches/ConfigSectionRefresh.cs',
+                    'src/Infrastructure/Hosting/PatchScope.cs', 'src/Features/Water/LiquidGate.cs')) {
     $body = (Get-Content -LiteralPath (Join-Path $repo $file) -Raw).Replace('namespace ItemDetails;', '')
     $body = $body.Replace('using HarmonyLib;', "using $ns.HarmonyLib;")
     $source += "namespace $ns {`n$body`n}`n"
@@ -17,10 +18,17 @@ namespace TEST_NS.HarmonyLib {
   public static System.Reflection.MethodInfo? PropertySetter(System.Type t, string n) => t.GetProperty(n, Flags)?.GetSetMethod(true);
   public static System.Reflection.MethodInfo? Method(System.Type t, string n, System.Type[]? args = null) => args == null ? t.GetMethod(n, Flags) : t.GetMethod(n, Flags, null, args, null);
  }
- public class HarmonyMethod { public HarmonyMethod(System.Type t, string n) {} }
+ public class HarmonyMethod {
+  public System.Reflection.MethodInfo? method;
+  public int priority;
+  public HarmonyMethod(System.Type t, string n) {}
+  public HarmonyMethod(System.Reflection.MethodInfo m) { method = m; }
+ }
  public class Harmony {
   public Harmony(string id) {}
-  public void Patch(System.Reflection.MethodInfo target, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null) {}
+  public void Patch(System.Reflection.MethodBase target, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null,
+                    HarmonyMethod? transpiler = null, HarmonyMethod? finalizer = null) {}
+  public void Unpatch(System.Reflection.MethodBase original, System.Reflection.MethodInfo patch) {}
   public void UnpatchAll(string id) {}
  }
 }

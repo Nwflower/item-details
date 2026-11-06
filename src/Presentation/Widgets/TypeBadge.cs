@@ -62,7 +62,6 @@ internal static class TypeBadge
         }
     }
 
-    private const string HarmonyId = "item_details.type_badge";
     private const string BadgeName = "ItemDetailsTypeBadge";
     private const float ChipGap = 4f;
     private const float PadX = 6f;    // 带底板时左右留白，避免文字贴边
@@ -76,8 +75,6 @@ internal static class TypeBadge
         internal string Display = "";
     }
 
-    private static bool _patched;
-    private static Harmony? _harmony;
     private static GameObject? _badge;          // 容器（无渲染组件）
     private static IDisposable? _badgeHook;     // 徽章槽位注册句柄（排版方按它量高度）
     private static TMP_Text? _textTemplate;     // 文本模板
@@ -101,12 +98,10 @@ internal static class TypeBadge
     private static double _perfMaxShowMs;
 #endif
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
-            _harmony = new Harmony(HarmonyId);
 
             foreach (var m in new[]
             {
@@ -117,7 +112,7 @@ internal static class TypeBadge
             })
             {
                 if (m != null)
-                    _harmony.Patch(m, postfix: new HarmonyMethod(typeof(TypeBadge), nameof(AfterShow)));
+                    scope.Patch(m, postfix: new HarmonyMethod(typeof(TypeBadge), nameof(AfterShow)));
             }
 
             // 正文里不再重复显示分类：拦截原版 " [类型]" 片段
@@ -128,13 +123,12 @@ internal static class TypeBadge
                 typeof(RenderHandler.ColorPalette)
             });
             if (add != null)
-                _harmony.Patch(add, prefix: new HarmonyMethod(typeof(TypeBadge), nameof(SuppressAdd)));
+                scope.Patch(add, prefix: new HarmonyMethod(typeof(TypeBadge), nameof(SuppressAdd)));
 
             var hide = AccessTools.Method(typeof(OverlayHandler), "HideTooltip");
             if (hide != null)
-                _harmony.Patch(hide, postfix: new HarmonyMethod(typeof(TypeBadge), nameof(AfterHide)));
+                scope.Patch(hide, postfix: new HarmonyMethod(typeof(TypeBadge), nameof(AfterHide)));
 
-            _patched = true;
             // 徽章位置由排版方决定摆放时，它按这个槽位量高度，不再按节点名找 GameObject。
             try { PublishBadge(); } catch (Exception ex) { Log.Warn("TypeBadge.Badge", ex); }
             Log.Msg("TypeBadge: patched OverlayHandler tooltip");
@@ -143,13 +137,11 @@ internal static class TypeBadge
         {
             Log.Warn("TypeBadge.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         try { WithdrawBadge(); } catch { }
         DestroyBadge();
     }

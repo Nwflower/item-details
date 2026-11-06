@@ -23,11 +23,8 @@ namespace ItemDetails;
 /// </summary>
 internal static class ManufacturerInline
 {
-    private const string HarmonyId = "item_details.manufacturer_inline";
     private const int Gap = 2;
 
-    private static Harmony? _harmony;
-    private static bool _patched;
     private static RichTextBuilder? _pendingBuilder;
     private static string _pendingCompany = "";
 
@@ -41,9 +38,8 @@ internal static class ManufacturerInline
     private static FieldInfo? _rightPadField;
     private static PropertyInfo? _textProp;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var display = AccessTools.Method(typeof(GameItem), "DisplayManufacturer",
@@ -62,27 +58,23 @@ internal static class ManufacturerInline
             _rightPadField = AccessTools.Field(typeof(RichTextElement), "rightPadding");
             _textProp = AccessTools.Property(typeof(TreeNodeRender), "text");
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(display, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterDisplay)));
-            _harmony.Patch(build, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterBuild)));
+            scope.Patch(display, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterDisplay)));
+            scope.Patch(build, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterBuild)));
             bool ok = setRich != null && _textNodeField != null && _leftPadField != null
                       && _rightPadField != null && _textProp != null;
-            if (ok) _harmony.Patch(setRich, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterSetRichText)));
+            if (ok) scope.Patch(setRich, postfix: new HarmonyMethod(typeof(ManufacturerInline), nameof(AfterSetRichText)));
             else Log.Warn("ManufacturerInline.Margin", "未找到 SetRichText/边距字段，公司名右对齐可能贴边");
-            _patched = true;
             Log.Msg("ManufacturerInline patched GameItem.DisplayManufacturer/RichTextBuilder.Build");
         }
         catch (Exception ex)
         {
             Log.Error("ManufacturerInline.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         _pendingBuilder = null;
         _pendingCompany = "";
         // 停用后不会再有 SetRichText 回调来还原，已经加过右边距的文本框在这里清回 0

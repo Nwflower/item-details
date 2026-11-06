@@ -15,43 +15,31 @@ namespace ItemDetails;
 /// </summary>
 internal static class ProbeDestroyGuard
 {
-    private const string HarmonyId = "item_details.probe_destroy_guard";
-    private static Harmony? _harmony;
 
     /// <summary>当前受保护的壳；只在 <see cref="Run"/> 期间非空，且只在主线程使用。</summary>
     private static GameItem? _protected;
 
     internal static bool Active { get; private set; }
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (Active) return;
-        try
+        var target = AccessTools.Method(typeof(GameItemElement), "Destroy", Type.EmptyTypes);
+        if (target == null)
         {
-            var target = AccessTools.Method(typeof(GameItemElement), "Destroy", Type.EmptyTypes);
-            if (target == null)
-            {
-                Log.Warn("ProbeDestroyGuard.Apply", "未找到 GameItemElement.Destroy，化学剂探针退回逐次克隆");
-                return;
-            }
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(target, prefix: new HarmonyMethod(typeof(ProbeDestroyGuard), nameof(Prefix))
-            {
-                priority = Priority.First,
-            });
-            Active = true;
-            Log.Msg("ProbeDestroyGuard patched GameItemElement.Destroy");
+            Log.Warn("ProbeDestroyGuard.Apply", "未找到 GameItemElement.Destroy，化学剂探针退回逐次克隆");
+            return;
         }
-        catch (Exception ex)
+        scope.Patch(target, prefix: new HarmonyMethod(typeof(ProbeDestroyGuard), nameof(Prefix))
         {
-            Log.Error("ProbeDestroyGuard.Apply", ex);
-        }
+            priority = Priority.First,
+        });
+        Active = true;
+        scope.OnDispose(Remove);
+        Log.Msg("ProbeDestroyGuard patched GameItemElement.Destroy");
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
         _protected = null;
         Active = false;
     }

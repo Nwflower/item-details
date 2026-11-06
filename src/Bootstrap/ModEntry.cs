@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using ItemDetails.Integration;
 
@@ -107,6 +108,9 @@ public sealed partial class ModEntry : IMod
 
     private readonly int[] _rendererFailures = new int[Renderers.Length];
 
+    /// <summary>已装配的作用域：每个功能一个，停用时逆序 Dispose，补丁与清理动作成对撤销。</summary>
+    private readonly List<PatchScope> _scopes = new();
+
     public void Init(ModManifest manifest)
     {
         _log = new ModLog(manifest);
@@ -154,32 +158,30 @@ public sealed partial class ModEntry : IMod
     /// <summary>语言就绪后一次性装配全部补丁与后台组件。</summary>
     private void ApplyPatches()
     {
-        Try("AppraisalTitlePatch", AppraisalTitlePatch.Apply);
-        Try("ResultPrefill", ResultPrefill.Apply);
+        Patch("AppraisalTitlePatch", AppraisalTitlePatch.Install);
+        Patch("ResultPrefill", ResultPrefill.Install);
         Try("CustomerAlertTicker", CustomerAlertTicker.Install);
-        Try("CustomerHistory", CustomerHistory.Install);
-        Try("LabelImpact", LabelImpact.Apply);
-        Try("DoubleClickInspect", () =>
-        {
-            DoubleClickInspect.Apply();
-            DoubleClickInspect.Install();
-        });
-        Try("ContextMenuScan", ContextMenuScan.Apply);
-        Try("TooltipPipeline", TooltipPipeline.Apply);
-        Try("MachineBattery", MachineBatteryInfo.Apply);
-        Try("MachineSpeed", MachineSpeedLine.Apply);
-        Try("MachineHydroponic", MachineHydroponicLine.Apply);
-        Try("ProbeDestroyGuard", ProbeDestroyGuard.Apply);
-        Try("WaterWarmup", WaterWarmupPatch.Apply);
-        Try("WaterContainerLine", WaterContainerLine.Apply);
-        Try("ConfigSectionRefresh", ConfigSectionRefresh.Apply);
-        Try("TypeBadge", TypeBadge.Apply);
-        Try("ContentsGrid", ContentsGrid.Apply);
-        Try("ProgressBarStyle", ProgressBarStyle.Apply);
-        Try("RenderSlices", RenderSlices.Apply);
-        Try("TooltipWidthFix", TooltipWidthFix.Apply);
-        Try("ManufacturerInline", ManufacturerInline.Apply);
-        Try("ItemNameLabel", ItemNameLabel.Apply);
+        Patch("CustomerHistory", CustomerHistory.Install);
+        Patch("LabelImpact", LabelImpact.Install);
+        Patch("DoubleClickInspect", DoubleClickInspect.InstallPatches);
+        // 双击判定的 ticker 兜底不是补丁，装配失败也不影响补丁类的那一半。
+        Try("DoubleClickInspect.Ticker", DoubleClickInspect.Install);
+        Patch("ContextMenuScan", ContextMenuScan.Install);
+        Patch("TooltipPipeline", TooltipPipeline.Install);
+        Patch("MachineBattery", MachineBatteryInfo.Install);
+        Patch("MachineSpeed", MachineSpeedLine.Install);
+        Patch("MachineHydroponic", MachineHydroponicLine.Install);
+        Patch("ProbeDestroyGuard", ProbeDestroyGuard.Install);
+        Patch("WaterWarmup", WaterWarmupPatch.Install);
+        Patch("WaterContainerLine", WaterContainerLine.Install);
+        Patch("ConfigSectionRefresh", ConfigSectionRefresh.Install);
+        Patch("TypeBadge", TypeBadge.Install);
+        Patch("ContentsGrid", ContentsGrid.Install);
+        Patch("ProgressBarStyle", ProgressBarStyle.Install);
+        Patch("RenderSlices", RenderSlices.Install);
+        Patch("TooltipWidthFix", TooltipWidthFix.Install);
+        Patch("ManufacturerInline", ManufacturerInline.Install);
+        Patch("ItemNameLabel", ItemNameLabel.Install);
         // 兜底：别的模组（实测 Pen_mod_QoL_Tweaks / BrewingExpansion）可能在 Awake 阶段
         // Patch 了会 JIT 到 WaterFeatureHelper / ItemConditionList 的方法，把水质档位名
         // 冻成英文。装配完毕后统一按当前语言重写这两张静态表，确保品相与出售判定正确。
@@ -204,14 +206,13 @@ public sealed partial class ModEntry : IMod
         if (ReferenceEquals(Active, this)) Active = null;
 #endif
 
-        Quiet(AppraisalTitlePatch.Remove);
-        Quiet(ResultPrefill.Remove);
+        // 先撤销全部补丁与各功能的清理动作（逆序，与装配对称），再清业务缓存：
+        // 都在同一主线程且中间不跑游戏代码，顺序本身无关，但先撤补丁可保证清理期间没有回调进来。
+        for (int i = _scopes.Count - 1; i >= 0; i--) Quiet(_scopes[i].Dispose);
+        _scopes.Clear();
+
         Quiet(CustomerAlertTicker.Stop);
-        Quiet(CustomerHistory.Stop);
-        Quiet(WaterWarmupPatch.Remove);
-        Quiet(WaterContainerLine.Remove);
         Quiet(WaterAdvice.Stop);
-        Quiet(ProbeDestroyGuard.Remove);
         Quiet(ItemValueCache.Reset);
         Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
@@ -219,27 +220,29 @@ public sealed partial class ModEntry : IMod
         Quiet(MachineInterior.Stop);
         Quiet(ModuleStatEffects.Stop);
         Quiet(ScannerInventory.Stop);
-        Quiet(LabelImpact.Remove);
-        Quiet(DoubleClickInspect.Remove);
-        Quiet(ContextMenuScan.Remove);
-        Quiet(TooltipPipeline.Remove);
-        Quiet(MachineBatteryInfo.Remove);
-        Quiet(MachineSpeedLine.Remove);
-        Quiet(MachineHydroponicLine.Remove);
-        Quiet(ConfigSectionRefresh.Remove);
-        Quiet(TypeBadge.Remove);
-        Quiet(ContentsGrid.Remove);
-        Quiet(ProgressBarStyle.Remove);
-        Quiet(RenderSlices.Remove);
-        Quiet(TooltipWidthFix.Remove);
-        Quiet(ManufacturerInline.Remove);
-        Quiet(ItemNameLabel.Remove);
         Quiet(ChineseFontFallback.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);
         Quiet(Loc.ResetCache);   // 下次启用重新读盘：玩家可能换了语言，或更新了 Localization/*.csv
         _log?.Log("unsubscribed");
         Log.Reset();
+    }
+
+    /// <summary>装配一个功能：它自己的补丁与清理登记在独立作用域里，失败只回滚这一个。</summary>
+    private void Patch(string name, Action<PatchScope> install)
+    {
+        var scope = new PatchScope(name);
+        try
+        {
+            install(scope);
+            _scopes.Add(scope);
+            _log?.Log(name + " ok");
+        }
+        catch (Exception ex)
+        {
+            scope.Dispose();   // 已经打上的补丁回滚，不留半条
+            Log.Error(name, ex);
+        }
     }
 
     /// <summary>装配步骤互不影响：一步失败只记一条日志，其它功能照常启用。</summary>

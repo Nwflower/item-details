@@ -33,7 +33,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class ContentsGrid
 {
-    private const string HarmonyId = "item_details.contents_grid";
     private const string PanelName = "ItemDetailsContentsGrid";
     private const float StaleSeconds = 0.5f;
     private const int MaxColumns = 5;
@@ -54,7 +53,6 @@ internal static class ContentsGrid
     }
 
     private static bool _patched;
-    private static Harmony? _harmony;
     private static GameObject? _panel;
     private static TMP_Text? _template;
     private static bool _broken;
@@ -83,12 +81,10 @@ internal static class ContentsGrid
         get { try { return _template != null ? _template.font : null; } catch { return null; } }
     }
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
-            _harmony = new Harmony(HarmonyId);
             foreach (var m in new[]
             {
                 AccessTools.Method(typeof(OverlayHandler), "ShowTooltip",
@@ -97,14 +93,13 @@ internal static class ContentsGrid
                     new[] { typeof(Vector2), typeof(Vector2), typeof(RichText), typeof(int) }),
             })
             {
-                if (m != null)
-                    _harmony.Patch(m, postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterShow)));
+                scope.Patch(m, postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterShow)));
             }
-            var hide = AccessTools.Method(typeof(OverlayHandler), "HideTooltip");
-            if (hide != null)
-                _harmony.Patch(hide, postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterHide)));
+            scope.Patch(AccessTools.Method(typeof(OverlayHandler), "HideTooltip"),
+                postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterHide)));
 
             _patched = true;
+            scope.OnDispose(Remove);
             Log.Msg("ContentsGrid: patched OverlayHandler tooltip");
         }
         catch (Exception ex)
@@ -115,8 +110,6 @@ internal static class ContentsGrid
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
         _patched = false;
         try { if (_panel != null) UnityEngine.Object.Destroy(_panel); } catch { }
         _panel = null;

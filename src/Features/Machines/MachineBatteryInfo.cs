@@ -20,9 +20,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class MachineBatteryInfo
 {
-    private const string HarmonyId = "item_details.machine_battery";
-    private static Harmony? _harmony;
-    private static bool _patched;
 
     private static GameItem? _machine;
     private static bool _labelSeen;
@@ -31,9 +28,8 @@ internal static class MachineBatteryInfo
     private static string _labelLocale = "";
     private static string _requiredLabel = "";
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var machineTooltip = AccessTools.Method(typeof(MachineryHelper), "CreateMachineryTooltip",
@@ -56,28 +52,24 @@ internal static class MachineBatteryInfo
                 return;
             }
 
-            _harmony = new Harmony(HarmonyId);
             // 用 finalizer 而不是 postfix：原版 CreateMachineryTooltip 抛异常时 postfix 不会执行，
             // _machine 会残留到下一件物品的 tooltip 上，AddLinePrefix 就可能把能量行写进别人的提示框。
-            _harmony.Patch(machineTooltip,
+            scope.Patch(machineTooltip,
                 prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(BeforeMachineTooltip)),
                 finalizer: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AfterMachineTooltip)));
-            _harmony.Patch(add, prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddPrefix)));
-            _harmony.Patch(addLine, prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddLinePrefix)));
-            _patched = true;
+            scope.Patch(add, prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddPrefix)));
+            scope.Patch(addLine, prefix: new HarmonyMethod(typeof(MachineBatteryInfo), nameof(AddLinePrefix)));
             Log.Msg("MachineBatteryInfo: patched CreateMachineryTooltip/Add/AddLine");
         }
         catch (Exception ex)
         {
             Log.Error("MachineBattery.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         Reset();
     }
 

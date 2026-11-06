@@ -25,7 +25,6 @@ namespace ItemDetails;
 /// </summary>
 internal static class LabelImpact
 {
-    private const string HarmonyId = "item_details.label_impact";
 
     /// <summary>短名仍然过长时截断，保证一行放得下百分比。</summary>
     private const int MaxNameChars = 24;
@@ -33,15 +32,11 @@ internal static class LabelImpact
     /// <summary>水质档位的特性分类。</summary>
     private const string WaterPurityCategory = "CATEGORY_WATER_PURITY";
 
-    private static Harmony? _harmony;
-    private static bool _patched;
-
     /// <summary>HandleLine 正在写的特性；它的唯一一条 AddLine 被改写后立即清空。</summary>
     private static ItemFeature? _feature;
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var target = AccessTools.Method(typeof(LabelerHelper), "HandleLine",
@@ -51,24 +46,20 @@ internal static class LabelImpact
                 Log.Warn("LabelImpact", "未找到 LabelerHelper.HandleLine，功能跳过");
                 return;
             }
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(target,
+            scope.Patch(target,
                 prefix: new HarmonyMethod(typeof(LabelImpact), nameof(Enter)),
                 finalizer: new HarmonyMethod(typeof(LabelImpact), nameof(Exit)));
-            _patched = true;
             Log.Msg("LabelImpact patched LabelerHelper.HandleLine");
         }
         catch (Exception ex)
         {
             Log.Error("LabelImpact.Apply", ex);
         }
+        scope.OnDispose(Remove);
     }
 
     internal static void Remove()
     {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
         _feature = null;
     }
 

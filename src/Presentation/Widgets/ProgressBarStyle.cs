@@ -21,14 +21,10 @@ namespace ItemDetails;
 /// </summary>
 internal static class ProgressBarStyle
 {
-    private const string HarmonyId = "item_details.progress_bar";
     private const char Block = '█';
     private const int MaxLength = 40;
     private const string DimAlpha = "<alpha=#40>";
     private static readonly Regex BarRegex = new Regex(@"\[([= ]{2,40})\]", RegexOptions.Compiled);
-
-    private static Harmony? _harmony;
-    private static bool _patched;
 
     private static FieldInfo? _textNodeField;
     private static PropertyInfo? _textProp;
@@ -52,9 +48,8 @@ internal static class ProgressBarStyle
     private static readonly ConditionalWeakTable<RichTextBuilder, List<BarRecord>> BuilderBars = new();
     private static readonly ConditionalWeakTable<RichText, List<BarRecord>> RichTextBars = new();
 
-    internal static void Apply()
+    internal static void Install(PatchScope scope)
     {
-        if (_patched) return;
         try
         {
             var bar = AccessTools.Method(typeof(RichTextBuilder), "AddProgressBar", new[]
@@ -77,12 +72,11 @@ internal static class ProgressBarStyle
             _textNodeField = AccessTools.Field(typeof(RichTextElement), "textNode");
             _textProp = AccessTools.Property(typeof(TreeNodeRender), "text");
 
-            _harmony = new Harmony(HarmonyId);
-            _harmony.Patch(bar, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeBar)));
+            scope.Patch(bar, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeBar)));
             if (addBuilder != null)
-                _harmony.Patch(addBuilder, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterAddBuilder)));
+                scope.Patch(addBuilder, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterAddBuilder)));
             if (clear != null)
-                _harmony.Patch(clear, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterClear)));
+                scope.Patch(clear, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterClear)));
             // 预算收窄只靠计数：并入与清空都要能跟上，否则宁可保持原版放宽。
             bool canNarrow = addBuilder != null && clear != null;
             _canNarrow = canNarrow;
@@ -92,28 +86,20 @@ internal static class ProgressBarStyle
             {
                 var method = AccessTools.Method(typeof(RichTextBuilder), other);
                 if (method != null)
-                    _harmony.Patch(method, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(CountBar)));
+                    scope.Patch(method, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(CountBar)));
             }
-            _harmony.Patch(build,
+            scope.Patch(build,
                 prefix: canNarrow ? new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeBuild)) : null,
                 postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterBuild)),
                 finalizer: canNarrow ? new HarmonyMethod(typeof(ProgressBarStyle), nameof(RestoreWidth)) : null);
-            _harmony.Patch(setRich, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeSetRichText)));
+            scope.Patch(setRich, prefix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(BeforeSetRichText)));
 
-            _patched = true;
             Log.Msg("ProgressBarStyle: hooked AddProgressBar/Build/SetRichText for decoupled bar rendering");
         }
         catch (Exception ex)
         {
             Log.Error("ProgressBar.Apply", ex);
         }
-    }
-
-    internal static void Remove()
-    {
-        try { _harmony?.UnpatchAll(HarmonyId); } catch { }
-        _harmony = null;
-        _patched = false;
     }
 
     internal static void RecordBar(RichTextBuilder builder, float ratio, int length, RenderHandler.ColorPalette dark, bool fullLength = true)
