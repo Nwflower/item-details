@@ -118,6 +118,8 @@ internal static class ModuleStatEffects
         internal string PerformanceKey = "";
         internal string PerformanceEn = "";
         internal int PerformanceDivisor = 1;
+        /// <summary>性能值本身就是绝对量（如概率），不写「+」号。</summary>
+        internal bool PerformancePlain;
         internal Func<GameItem, int>? Quality;
         internal string QualityKey = "";
         internal string QualityEn = "";
@@ -158,6 +160,9 @@ internal static class ModuleStatEffects
             Performance = p => MachineAlarm.GetAlarmeStopRate(p),
             PerformanceKey = "module.theft", PerformanceEn = "{0}% theft prevention",
         },
+        // Pen 的自学习强化机（工坊 3828925546）：性能 = 每晚让模组获得「自学习」词条的概率
+        [SelfLearningMachine.MachineId] = LearningMachineProfile(),
+        [SelfLearningMachine.LegacyMachineId] = LearningMachineProfile(),
         ["wine_rack"] = new() { CustomQuality = WineNextAging },
         // 酿酒拓展（工坊 3829730904）的流年：AgeWell() 改 ID，耗电与陈化都走原版函数
         ["be_liunian_ager"] = new() { CustomQuality = WineNextAging },
@@ -177,6 +182,15 @@ internal static class ModuleStatEffects
             Quality = ModuleHelper.GetAjustedQuality,
             QualityKey = "module.harvest", QualityEn = "{0}% harvest",
         },
+    };
+
+    private static MachineEffectProfile LearningMachineProfile() => new()
+    {
+        Performance = SelfLearningMachine.GrantChance,
+        PerformanceKey = "module.learn_chance",
+        PerformanceEn = "{0}% chance each night to give a module the learning algorithm",
+        PerformancePlain = true,
+        CustomQuality = LearningExtraSteps,
     };
 
     // ---------------- 组装 ----------------
@@ -235,7 +249,7 @@ internal static class ModuleStatEffects
             && Diff(now.Performance, noPerf.Performance) is int delta && delta != 0)
         {
             var amount = delta / profile.PerformanceDivisor;
-            perf.Add(Loc.T(profile.PerformanceKey, profile.PerformanceEn, Plus(amount)));
+            perf.Add(Loc.T(profile.PerformanceKey, profile.PerformanceEn, profile.PerformancePlain ? amount.ToString() : Plus(amount)));
             deltas.Add((profile.PerformanceKey, amount));
         }
 
@@ -389,6 +403,14 @@ internal static class ModuleStatEffects
     }
 
     /// <summary>催陈器：再加多少质量每天多陈化一天。陈化天数随质量无上限递增。</summary>
+    /// <summary>自学习强化机：质量的第三列直接用 Pen 自己的「当晚训练：X 次」。</summary>
+    private static string? LearningExtraSteps(GameItem machine, out int? nextBonus)
+    {
+        nextBonus = null;
+        string? text = SelfLearningMachine.TrainingText(machine);
+        return string.IsNullOrEmpty(text) ? null : text!.Trim();
+    }
+
     private static string? WineNextAging(GameItem machine, out int? nextBonus)
     {
         nextBonus = null;
@@ -452,6 +474,7 @@ internal static class ModuleStatEffects
             _probe ??= ItemDirectory.CreateEmptyItem("itemdetails_stat_probe");
             _probe.modifiedState = tags;
             _probe.state = tags;
+            _probe.flavorText = machine.flavorText;   // 自学习强化机按说明有几句判断是否授予词条
             return _probe;
         }
         catch (Exception ex)

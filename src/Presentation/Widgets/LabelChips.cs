@@ -68,7 +68,8 @@ internal static class LabelChips
     private static readonly List<GameObject> Chips = new();
 
     /// <summary>补丁打上且没出过错：调用方据此决定写不写 idchip 链接。</summary>
-    internal static bool Available => _installed && !_broken;
+    /// <summary>「提示框文字优化」关闭时同样不可用：调用方走不带色块、亮条与缩进的纯文字写法。</summary>
+    internal static bool Available => _installed && !_broken && ModSettings.TooltipFormatting;
 
     /// <summary>色块种类：'+' 绿底、'-' 红底、'p' 紫底、'c' 青蓝底、'y' 琥珀底。</summary>
     internal static string Wrap(string inner, char kind)

@@ -123,7 +123,6 @@ value.perfect_range," | parfait {0}-{1}"
 value.total_line,Total : {0}
 water.mismatch," (étiquette incohérente)"
 water.trace_count,(+{0} de plus sous le seuil d'affichage)
-water.fold_expand,Ctrl pour afficher les impuretés
 chem.effects,Effets : {0}
 chem.lethal,mortel ({0}x la dose létale)
 chem.toxic,toxique
@@ -164,7 +163,7 @@ config.section.info,Réglages des infos supplémentaires
 config.info_enhance,Infos supplémentaires
 config.info_enhance.tip,Active les infos supplémentaires et affiche leurs réglages sous Révélation. Les choix individuels sont conservés à la désactivation.
 config.tooltip_formatting,Mise en forme du texte des infobulles
-config.tooltip_formatting.tip,Libellés de prix plus clairs, descriptions à la ligne, annotations caloriques et espacement du bloc de prix. Désactivez pour conserver la mise en page d'origine.
+config.tooltip_formatting.tip,"Libellés de prix plus clairs, descriptions à la ligne, annotations caloriques, espacement du bloc de prix et blocs colorés sur machines et modules. Désactivez pour conserver la mise en page d'origine."
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées
@@ -184,8 +183,6 @@ config.double_click_scan,Double-clic pour analyser
 config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Sans l'appareil, le double-clic d'origine s'applique."
 config.context_menu_scan,Ajouter le scan au menu contextuel
 config.context_menu_scan.tip,"Si vous possédez l'appareil correspondant, le menu du clic droit d'un objet propose « Scanner », qui ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines."
-config.fold_water_components,Replier les composants de l'eau
-config.fold_water_components.tip,Seuls les composants au-dessus de 1 % sont listés. Maintenez l'une des touches Ctrl pour afficher les composants repliés. Désactivez cette option pour toujours tout lister.
 config.section.reveal,Révélation
 config.hidden_truth,Révéler déguisements et vraies stats
 config.hidden_truth.tip,"Montre ce que cachent les caractéristiques déguisées, la vraie durabilité et la pureté réelle des lingots et produits chimiques. Démasque les faux et facilite beaucoup l'estimation."
@@ -253,7 +250,6 @@ learning.progress,Apprentissage : {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} au maximum
 learning.machine,Apprentissage : {0}/{1} {1|module|modules}
-learning.bar_full,au maximum
 module.days_faster,", environ {0} {0|jour|jours} plus tôt"
 module.output,{0} ml/jour
 module.attract,{0} % d'attractivité
@@ -305,3 +301,4 @@ config.info_container_units,Unités de volume des récipients
 config.info_container_units.tip,Affiche en litres les volumes de liquide supérieurs à 3 L. Jusqu’à 3 L, conserve ml. Indépendant du formatage du texte.
 list.zone_sep, ; 
 module.special_label,Spécial
+module.learn_chance,{0} % de chance par nuit d'obtenir « Algorithme d'apprentissage »

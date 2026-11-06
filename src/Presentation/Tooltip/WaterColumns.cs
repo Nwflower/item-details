@@ -189,21 +189,6 @@ internal static class WaterColumns
         return comps;
     }
 
-    /// <summary>折叠提示行的文案。固定只提杂质：净水建议也在展开时才画，但写进文案只会让它变长，
-    /// 而这一行本身要短才好对齐。没有折叠的杂质时也会显示（建议被折叠），只是不带合计百分比。</summary>
-    private static string FoldHint => Loc.T("water.fold_expand", "Ctrl to expand impurities");
-
-    /// <summary>
-    /// 是否列出全部成分：关掉「折叠水质成分」时始终为 true；
-    /// 否则按住左右 Ctrl 才展开，读不到输入设备时按未按住处理。
-    /// </summary>
-    internal static bool Expanded()
-    {
-        if (!ModSettings.FoldWaterComponents) return true;
-        try { return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl); }
-        catch { return false; }
-    }
-
     /// <summary>
     /// 固体化学品的成分行：名称 / 用量 / 百分比三列，与液体容器同一份行数据。
     /// 没有容器与体积，所以这里不写表头，直接从第一行成分开始；末尾补一行低于显示阈值的数量。
@@ -212,8 +197,8 @@ internal static class WaterColumns
     internal static List<TooltipLine> BuildSolid(LiquidAnalysis analysis, List<WaterRow>? visible = null)
     {
         var comps = Components(analysis, waterMismatch: false);
-        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, Expanded(),
-            FoldHint, WaterInfo.Amount, Loc.Culture);
+        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: true,
+            "", WaterInfo.Amount, Loc.Culture);
         visible?.AddRange(plan.Rows);
 
         var lines = RowLines(plan.Rows, comps);
@@ -236,9 +221,7 @@ internal static class WaterColumns
 
     /// <summary>
     /// 液体容器的成分表：体积条表头 + 每种成分一行。
-    /// 低于 1% 的成分折起，按住 Ctrl 全部展开——默认只留水和大项，行数少、
-    /// tooltip 也就不被那条长建议撑宽。净化建议不受折叠影响，始终单独一行
-    /// （见 ModEntry.TryAppendWaterAdvice），所以提示行只在真的折了成分时出现。
+    /// 成分一律全部列出，不折叠；净化建议另起一行（见 ModEntry.TryAppendWaterAdvice）。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
     internal static List<TooltipLine> Build(LiquidAnalysis analysis, List<WaterRow>? visible = null)
@@ -248,11 +231,10 @@ internal static class WaterColumns
         bool liters = Volume.UseLiters(totalMl);
         float ratio = analysis.CapacityMicroliters > 0
             ? Math.Min(1f, (float)analysis.TotalMicroliters / analysis.CapacityMicroliters) : 0f;
-        bool expand = Expanded();
 
         var comps = Components(analysis, waterMismatch: true);
-        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expand,
-            FoldHint, parts => VolumeOf(parts, liters), Loc.Culture);
+        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: true,
+            "", parts => VolumeOf(parts, liters), Loc.Culture);
         visible?.AddRange(plan.Rows);
 
         string tail = " " + WaterLayout.Capacity(totalMl, capacityMl, liters, Loc.Culture)

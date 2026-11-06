@@ -381,8 +381,10 @@ internal static class MachineAdapters
             var stats = ModuleLearning.Read(module);
             if (stats.Count == 0) continue;
 
-            // 进度比例只算有上限的正面项；负面项向 0 学，起点没有记录，不参与比例，只参与「还差几点」
+            // 进度比例只算有上限的正面项；负面项向 0 学，起点没有记录，不参与比例，只参与「还差几点」。
+            // 负面项没学到 0 就不算学满：比例封顶在 99%，条上不会出现「满格但还在学」
             int cur = 0, max = 0, remaining = 0;
+            bool negativePending = false;
             foreach (var s in stats)
             {
                 if (!s.Negative)
@@ -390,19 +392,23 @@ internal static class MachineAdapters
                     cur += Math.Clamp(s.Current, 0, s.Max);
                     max += s.Max;
                 }
+                else if (s.Remaining > 0) negativePending = true;
                 remaining = Math.Max(remaining, s.Remaining);
             }
+            // 条后面写模组名，具体进度留给模块自己的提示框
+            string moduleName = GameRead.ItemDisplayName(module);
             if (remaining == 0)
             {
                 if (!IsPenLearningMachine(machineId)) continue;
-                bars.Add(MakeLearningBar(1f, Loc.T("learning.bar_full", "Maxed"), Maxed,
-                    RenderHandler.ColorPalette.DarkPurple).WithData("learning", (module.identifier, cur, max, remaining)));
+                bars.Add(MakeLearningBar(1f, moduleName, Maxed, RenderHandler.ColorPalette.DarkPurple)
+                    .WithData("learning", (module.identifier, cur, max, remaining)));
                 continue;
             }
 
             learning++;
             float ratio = max > 0 ? (float)cur / max : 0f;
-            bars.Add(MakeLearningBar(ratio, LearningStats(stats), Info, RenderHandler.ColorPalette.VeryDarkCyan)
+            if (negativePending) ratio = Math.Min(ratio, 0.99f);
+            bars.Add(MakeLearningBar(ratio, moduleName, Info, RenderHandler.ColorPalette.VeryDarkCyan)
                 .WithData("learning", (module.identifier, cur, max, remaining)));
         }
         if (bars.Count == 0) return;
@@ -413,15 +419,6 @@ internal static class MachineAdapters
         string? render = LearningHeaderRender(header);
         lines.Add(render != null ? headerLine.WithRender(render) : headerLine);
         lines.AddRange(bars);
-    }
-
-    /// <summary>「性能+3/32、效率-8/0」：加成名 + 当前值/学习上限；负面加成的上限是 0。</summary>
-    private static string LearningStats(List<ModuleLearning.Stat> stats)
-    {
-        var parts = new List<string>(stats.Count);
-        foreach (var s in stats)
-            parts.Add(ModuleLearning.NameOf(s.Index) + (s.Current >= 0 ? "+" : "") + s.Current + "/" + s.Max);
-        return string.Join(Loc.T("list.sep", ", "), parts);
     }
 
     /// <summary>

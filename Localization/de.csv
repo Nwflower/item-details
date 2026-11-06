@@ -123,7 +123,6 @@ value.perfect_range," | perfekt {0}-{1}"
 value.total_line,Gesamt: {0}
 water.mismatch," (Etikett passt nicht)"
 water.trace_count,(+{0} weitere unter der Anzeigeschwelle)
-water.fold_expand,Strg zum Ausklappen der Verunreinigungen
 chem.effects,Wirkung: {0}
 chem.lethal,tödlich ({0}-fache tödliche Dosis)
 chem.toxic,giftig
@@ -164,7 +163,7 @@ config.section.info,Einstellungen für Zusatzinfos
 config.info_enhance,Zusätzliche Gegenstandsinfos
 config.info_enhance.tip,Aktiviert Zusatzinfos und zeigt ihre Einstellungen unter Enthüllung. Die Einzelauswahl bleibt beim Ausschalten erhalten.
 config.tooltip_formatting,Tooltip-Textformatierung
-config.tooltip_formatting.tip,Klarere Preisangaben, Beschreibungsumbrüche, Kalorienhinweise und Preisblockabstände. Deaktivieren erhält das originale Textlayout.
+config.tooltip_formatting.tip,"Klarere Preisangaben, Beschreibungsumbrüche, Kalorienhinweise, Preisblockabstände und farbige Labelblöcke bei Maschinen und Modulen. Deaktivieren erhält das originale Textlayout."
 config.type_badge,Kategorie-Plaketten
 config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
 config.type_badge_muted,Plakettenfarben dämpfen
@@ -184,8 +183,6 @@ config.double_click_scan,Doppelklick zum Scannen
 config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein Doppelklick auf einen Gegenstand die Scanansicht: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen. Ohne Gerät bleibt der ursprüngliche Doppelklick."
 config.context_menu_scan,Scannen zum Kontextmenü hinzufügen
 config.context_menu_scan.tip,"Wenn Sie das passende Gerät besitzen, enthält das Rechtsklickmenü eines Gegenstands den Eintrag „Scannen“, der die Scanansicht öffnet: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen."
-config.fold_water_components,Wasserbestandteile einklappen
-config.fold_water_components.tip,"Nur Bestandteile über 1 % werden gelistet. Zum Aufklappen der eingeklappten Bestandteile eine der Strg-Tasten gedrückt halten. Ausschalten, um immer alle Bestandteile zu zeigen."
 config.section.reveal,Einblick
 config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."
@@ -253,7 +250,6 @@ learning.progress,Lernfortschritt: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} ausgelernt
 learning.machine,Lernen: {0}/{1} {1|Modul|Module}
-learning.bar_full,ausgelernt
 module.days_faster,", etwa {0} {0|Tag|Tage} schneller"
 module.output,{0} ml/Tag
 module.attract,{0} % Attraktivität
@@ -305,3 +301,4 @@ config.info_container_units,Volumeneinheiten für Behälter
 config.info_container_units.tip,Zeigt Flüssigkeitsmengen über 3 L in Litern an. Bis 3 L bleibt ml erhalten. Unabhängig von der Tooltip-Textformatierung.
 list.zone_sep,; 
 module.special_label,Spezial
+module.learn_chance,{0} % Chance pro Nacht auf „Lernender Algorithmus“

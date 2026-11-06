@@ -24,6 +24,14 @@ internal static class ModuleEffectAnnotation
     private static string _qual = "";
     private static string _header = "";
 
+    /// <summary>说明被别处删去某一句后（如自学习强化机去掉概率句），剩下的仍是说明的前缀。</summary>
+    private static bool IsFlavorPart(string text, string? flavor)
+    {
+        if (string.IsNullOrEmpty(flavor)) return false;
+        string core = text.TrimEnd('。', '.', ' ');
+        return core.Length >= 8 && flavor!.Trim().StartsWith(core, StringComparison.Ordinal);
+    }
+
     /// <summary>命中「加成行」时自己写完整行并返回 true（调用方丢弃原行）。</summary>
     internal static bool TryApply(ref string text, RichTextBuilder builder,
         RenderHandler.ColorPalette color, GameItem? item)
@@ -36,13 +44,24 @@ internal static class ModuleEffectAnnotation
             // 拿机器口径去算会得出莫名其妙的值（质量行甚至会去问水分收集器的档位）。
             if (!GameRead.IsTag(item, "machinery")) return false;
             if (text.IndexOf('%') < 0) return false;   // 只认「+16%」这种加成行
+            // 机器自己的说明（自学习强化机以「效率…」开头且带百分号）不是加成行
+            string trimmed = text.Trim();
+            if (trimmed.Length > 0 && (string.Equals(trimmed, item.flavorText?.Trim(), StringComparison.Ordinal)
+                || string.Equals(trimmed, item.shortDescription?.Trim(), StringComparison.Ordinal)
+                || IsFlavorPart(trimmed, item.flavorText))) return false;
 
             EnsureLabels();
 
+            // 只认以标签开头的加成行（前面可有项目符号）：描述、背景故事里碰巧提到「性能」和百分号的句子不算，
+            // 否则整句话会被拆成色块（自学习强化机的说明就中过招）
+            string head = text;
+            int lead = 0;
+            while (lead < head.Length && !char.IsLetterOrDigit(head[lead])) lead++;
+            head = head.Substring(lead);
             char kind;
-            if (_perf.Length > 0 && text.Contains(_perf, StringComparison.Ordinal)) kind = 'p';
-            else if (_eff.Length > 0 && text.Contains(_eff, StringComparison.Ordinal)) kind = 'e';
-            else if (_qual.Length > 0 && text.Contains(_qual, StringComparison.Ordinal)) kind = 'q';
+            if (_perf.Length > 0 && head.StartsWith(_perf, StringComparison.Ordinal)) kind = 'p';
+            else if (_eff.Length > 0 && head.StartsWith(_eff, StringComparison.Ordinal)) kind = 'e';
+            else if (_qual.Length > 0 && head.StartsWith(_qual, StringComparison.Ordinal)) kind = 'q';
             else return false;
 
             string note = ModuleStatEffects.Note(kind, item, out var changes);

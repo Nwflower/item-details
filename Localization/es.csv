@@ -123,7 +123,6 @@ value.perfect_range," | perfecto {0}-{1}"
 value.total_line,Total: {0}
 water.mismatch," (etiqueta no coincide)"
 water.trace_count,(+{0} más bajo el umbral de visualización)
-water.fold_expand,Ctrl para mostrar impurezas
 chem.effects,Efectos: {0}
 chem.lethal,letal ({0}x dosis letal)
 chem.toxic,tóxico
@@ -164,7 +163,7 @@ config.section.info,Ajustes de información adicional
 config.info_enhance,Información adicional
 config.info_enhance.tip,Activa la información adicional y muestra sus ajustes bajo Revelación. Al desactivar se conservan las opciones individuales.
 config.tooltip_formatting,Formato del texto emergente
-config.tooltip_formatting.tip,Etiquetas de precio más claras, descripciones ajustadas, notas de calorías y espaciado del bloque de precio. Desactívalo para conservar el diseño original.
+config.tooltip_formatting.tip,"Etiquetas de precio más claras, descripciones ajustadas, notas de calorías, espaciado del bloque de precio y bloques de color en máquinas y módulos. Desactívalo para conservar el diseño original."
 config.type_badge,Etiquetas de categoría
 config.type_badge.tip,Muestra las categorías del objeto sobre la descripción emergente.
 config.type_badge_muted,Atenuar colores de etiquetas
@@ -184,8 +183,6 @@ config.double_click_scan,Doble clic para escanear
 config.double_click_scan.tip,"Si tienes el dispositivo correspondiente, haz doble clic en un objeto para abrir su panel de escaneo: escáner de agua o químico para líquidos y productos químicos, escáner de rayos X para cajas de suministros cerradas y analizador de plantas para semillas. Sin el dispositivo se mantiene el doble clic original."
 config.context_menu_scan,Añadir escaneo al menú contextual
 config.context_menu_scan.tip,"Si tienes el dispositivo correspondiente, el menú del clic derecho de un objeto incluye «Escanear», que abre su panel de escaneo: escáner de agua o químico para líquidos y productos químicos, escáner de rayos X para cajas de suministros cerradas y analizador de plantas para semillas."
-config.fold_water_components,Plegar componentes del agua
-config.fold_water_components.tip,Solo se listan los componentes por encima del 1 %. Mantén pulsada cualquiera de las teclas Ctrl para mostrar los componentes plegados. Desactívalo para listar siempre todos los componentes.
 config.section.reveal,Revelación
 config.hidden_truth,Revelar disfraces y valores reales
 config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."
@@ -253,7 +250,6 @@ learning.progress,Aprendizaje: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
 learning.machine,Aprendizaje: {0}/{1} {1|módulo|módulos}
-learning.bar_full,al máximo
 module.days_faster,", unos {0} {0|día|días} antes"
 module.output,{0} ml al día
 module.attract,{0}% de atractivo
@@ -305,3 +301,4 @@ config.info_container_units,Unidades de volumen de recipientes
 config.info_container_units.tip,Muestra en litros los volúmenes de líquido superiores a 3 L. Hasta 3 L conserva ml. Independiente del formato de texto.
 list.zone_sep,; 
 module.special_label,Especial
+module.learn_chance,{0} % de probabilidad por noche de «Algoritmo de aprendizaje»

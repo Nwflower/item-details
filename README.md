@@ -65,9 +65,6 @@
 **右键扫描**
 拥有对应设备时，液体、化学品、种子和上锁补给箱的右键菜单多出「扫描」。也可以改回旧版的双击扫描，两者能同时开启。
 
-**折叠水质成分**
-成分表只列 1% 以上的成分，按住 Ctrl 展开其余。
-
 ## 透视
 
 这一组会明显降低难度，按喜好开启。
@@ -163,8 +160,6 @@ No extra window, no change to the vanilla layout.
 **Double-click to inspect** — open the inspection panel without the Magnifying Glass.
 
 **Scan from the context menu** — with the matching scanner, liquids, chemicals, seeds and locked crates gain a Scan entry. The old double-click scan is still available.
-
-**Fold water components** — only components above 1% are listed; hold Ctrl for the rest.
 
 ### Reveal
 
