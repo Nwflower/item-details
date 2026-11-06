@@ -252,7 +252,7 @@ learning.progress,Обучение: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} — максимум
 learning.machine,Обучение: {0}/{1} {1|модуль|модуля|модулей}
-learning.nights,ещё {0} {0|ночь|ночи|ночей}
+learning.nights,({0} {0|день|дня|дней})
 recharger.label,Зарядка
 module.days_faster,", примерно на {0} дн. быстрее"
 module.output,{0} мл в день
@@ -268,6 +268,7 @@ module.water_top,производит: {0}
 module.purifier_next,ещё +{0}% — очистка до: {1}
 module.purifier_top,очистка до: {0}
 module.furnace_gain,Чистота {0}
+module.furnace_next,(ещё +{0}% до следующего уровня)
 module.furnace_result,слиток ×{0}: {1}/10
 module.furnace_cap,предел чистоты
 module.furnace_basic,обычный флюс расходуется

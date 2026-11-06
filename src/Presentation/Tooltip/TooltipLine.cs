@@ -97,7 +97,7 @@ internal readonly struct TooltipLine
     {
         string tail = Tail ?? "";
         var plain = new TooltipLine(Text + tail, Color);
-        plain = plain.WithRender((Render ?? Text) + tail);
+        plain = plain.WithRender((Render ?? Text) + (MachineAdapters.RechargeTailRender(this) ?? tail));
         return DataKind != null && Data != null ? plain.WithData(DataKind, Data) : plain;
     }
 

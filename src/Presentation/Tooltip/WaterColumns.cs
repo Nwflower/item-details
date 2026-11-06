@@ -240,7 +240,7 @@ internal static class WaterColumns
     {
         int totalMl = analysis.TotalMicroliters / 1000;
         int capacityMl = analysis.CapacityMicroliters / 1000;
-        bool liters = Volume.UseLiters(totalMl);
+        bool liters = ModSettings.ContainerUnits && Volume.UseLiters(totalMl);
         float ratio = analysis.CapacityMicroliters > 0
             ? Math.Min(1f, (float)analysis.TotalMicroliters / analysis.CapacityMicroliters) : 0f;
 

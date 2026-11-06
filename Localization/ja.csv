@@ -252,7 +252,7 @@ learning.progress,学習進度：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}は上限
 learning.machine,自己学習：{0}/{1} 個のモジュールが学習中
-learning.nights,あと{0}晩
+learning.nights,（{0}日）
 recharger.label,充電
 module.days_faster,、約 {0} 日短縮
 module.output,{0}ml/日
@@ -268,6 +268,7 @@ module.water_top,{0}を生産中
 module.purifier_next,あと+{0}%で{1}まで浄化可能
 module.purifier_top,{0}まで浄化可能
 module.furnace_gain,純度{0}
+module.furnace_next,(あと+{0}%で次の段階)
 module.furnace_result,インゴット×{0}：{1}/10
 module.furnace_cap,最高純度
 module.furnace_basic,通常融剤を消費

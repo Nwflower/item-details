@@ -252,7 +252,7 @@ learning.progress,학습 진행: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} 최대
 learning.machine,자가 학습: {0}/{1}개 모듈 학습 중
-learning.nights,{0}일 밤 더 필요
+learning.nights,({0}일)
 recharger.label,충전
 module.days_faster,", 약 {0}일 단축"
 module.output,{0}ml/일
@@ -268,6 +268,7 @@ module.water_top,{0} 생산 중
 module.purifier_next,+{0}% 더하면 {1}까지 정화 가능
 module.purifier_top,{0}까지 정화 가능
 module.furnace_gain,순도{0}
+module.furnace_next,(다음 단계까지 +{0}%)
 module.furnace_result,금속괴×{0}: {1}/10
 module.furnace_cap,최고 순도
 module.furnace_basic,일반 융제 소모

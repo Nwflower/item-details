@@ -12,10 +12,12 @@ namespace ItemDetails;
 ///   - 原有换行保留，逐段处理；
 ///   - 不拆英文单词、数字和以空格分词的文字（韩文）：断点落在词中就退到词首；
 ///   - 避头尾：收尾标点不放行首，开头标点不放行尾；
-///   - 退让不超过半行，退不动就在 limit 处硬断，保证每行都不超过 limit。
+///   - 退让不超过半行，退不动就在 limit 处硬断，保证每行都不超过 limit；
+///   - 末行只剩一两个字时，把各行收窄重排（行数不变），避免孤字。
 /// </summary>
 internal static class TextWrap
 {
+    private const string SentenceEnders = "。！？；!?;";
     private const string Closing = "，。、；：！？）」』】》〉”’…·%,.;:!?)]}";
     private const string Opening = "（「『【《〈“‘([{";
 
@@ -26,18 +28,38 @@ internal static class TextWrap
         var lines = new List<string>();
         foreach (string segment in text.Split('\n'))
         {
-            string s = segment;
-            bool first = true;
-            while (s.Length > limit)
+            List<string> one = WrapSegment(segment, limit);
+            // 末行只剩一两个字（孤字）：把各行收窄一点重排，行数不变、末行变长
+            // 上一行已经断在句末（。！？；）就是干净的断法，不再为了末行长短去拆句子
+            if (one.Count > 1 && one[one.Count - 1].Length < Math.Max(4, limit / 4)
+                && SentenceEnders.IndexOf(one[one.Count - 2][one[one.Count - 2].Length - 1]) < 0)
             {
-                int cut = BreakAt(s, limit);
-                lines.Add(first ? s.Substring(0, cut).TrimEnd(' ') : s.Substring(0, cut).Trim(' '));
-                s = s.Substring(cut).TrimStart(' ');
-                first = false;
+                int balanced = (segment.Length + one.Count - 1) / one.Count + 2;
+                if (balanced < limit)
+                {
+                    List<string> alt = WrapSegment(segment, balanced);
+                    if (alt.Count == one.Count && alt[alt.Count - 1].Length > one[one.Count - 1].Length) one = alt;
+                }
             }
-            lines.Add(s);
+            lines.AddRange(one);
         }
         return string.Join("\n", lines);
+    }
+
+    private static List<string> WrapSegment(string segment, int limit)
+    {
+        var lines = new List<string>();
+        string s = segment;
+        bool first = true;
+        while (s.Length > limit)
+        {
+            int cut = BreakAt(s, limit);
+            lines.Add(first ? s.Substring(0, cut).TrimEnd(' ') : s.Substring(0, cut).Trim(' '));
+            s = s.Substring(cut).TrimStart(' ');
+            first = false;
+        }
+        lines.Add(s);
+        return lines;
     }
 
     /// <summary>s 比 limit 长时的断点：返回本行长度（1..limit）。</summary>
@@ -53,6 +75,10 @@ internal static class TextWrap
             while (start > 0 && IsWordChar(s[start - 1])) start--;
             if (start >= floor) cut = start;
         }
+
+        // 优先断在句末：靠近行尾（后 40% 内）有句号等就断在它后面，不把一句话拆开
+        for (int k = cut; k >= Math.Max(floor, limit * 3 / 5); k--)
+            if (k < s.Length + 1 && SentenceEnders.IndexOf(s[k - 1]) >= 0 && (k == cut || s[k] != ' ')) return k;
 
         // 避头尾：下一行不能以收尾标点开头，本行不能以开头标点结尾
         while (cut > floor && cut < s.Length && Closing.IndexOf(s[cut]) >= 0) cut--;

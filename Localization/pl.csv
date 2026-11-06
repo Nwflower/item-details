@@ -252,7 +252,7 @@ learning.progress,Postęp nauki: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} maks.
 learning.machine,Nauka: {0}/{1} {1|moduł|moduły|modułów}
-learning.nights,jeszcze {0} {0|noc|noce|nocy}
+learning.nights,({0} {0|dzień|dni|dni})
 recharger.label,Ładowanie
 module.days_faster,", ok. {0} {0|dzień|dni|dni} szybciej"
 module.output,{0} ml/dzień
@@ -268,6 +268,7 @@ module.water_top,produkuje: {0}
 module.purifier_next,+{0}% do oczyszczania do: {1}
 module.purifier_top,oczyszcza do: {0}
 module.furnace_gain,Czystość {0}
+module.furnace_next,(jeszcze +{0}% do następnego poziomu)
 module.furnace_result,sztabka ×{0}: {1}/10
 module.furnace_cap,maksymalna czystość
 module.furnace_basic,zwykły topnik zostanie zużyty

@@ -183,6 +183,8 @@ public sealed partial class ModEntry : IMod
         Patch("TypeBadge", TypeBadge.Install);
         Patch("ContentsGrid", ContentsGrid.Install);
         Patch("ModuleItemRows", ModuleItemRows.Install);
+        Patch("SeedGenes", SeedGenes.Install);
+        Patch("SeedBaseDelta", SeedBaseDelta.Install);
         Patch("ProgressBarStyle", ProgressBarStyle.Install);
         Patch("RenderSlices", RenderSlices.Install);
         Patch("TooltipWidthFix", TooltipWidthFix.Install);

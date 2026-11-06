@@ -252,7 +252,7 @@ learning.progress,Aprendizaje: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
 learning.machine,Aprendizaje: {0}/{1} {1|módulo|módulos}
-learning.nights,{0} {0|noche|noches} más
+learning.nights,({0} {0|día|días})
 recharger.label,Carga
 module.days_faster,", unos {0} {0|día|días} antes"
 module.output,{0} ml al día
@@ -268,6 +268,7 @@ module.water_top,produce {0}
 module.purifier_next,+{0}% para purificar hasta {1}
 module.purifier_top,purifica hasta {0}
 module.furnace_gain,Pureza {0}
+module.furnace_next,(+{0}% más para el siguiente nivel)
 module.furnace_result,lingote ×{0}: {1}/10
 module.furnace_cap,pureza máxima
 module.furnace_basic,se consume fundente normal

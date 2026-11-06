@@ -126,7 +126,7 @@ internal static class ModuleItemRows
     }
 
     private static string SpecialRender(string label, string text, float col2)
-        => ModuleEffectAnnotation.ChipMarkup(label, 'p', ColumnLayout.PurpleText)
+        => ModuleEffectAnnotation.ChipMarkup(label, 'b', ColumnLayout.BlueText)
            + ModuleEffectAnnotation.Pos(col2) + text;
 
     private static void AddStat(List<Row> rows, string key, GameItem item, string stat, string baseLabel, float col2)

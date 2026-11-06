@@ -74,6 +74,27 @@ internal static class MachineAdapters
     private const int RechargerBar = 6;
 
     /// <summary>
+    /// 充能行尾注的呈现写法：今晚充入的「+N」画成灰色，规范文本不变；不是充能行或没有「+N」时返回 null。
+    /// </summary>
+    internal static string? RechargeTailRender(TooltipLine ln)
+        => ln.DataKind == "recharge" && ln.Data is ValueTuple<string, int, int, int> d
+            ? RechargeTailRender(ln.Tail ?? "", d.Item3) : null;
+
+    /// <summary>行首呈现里「\u0006充入量」标记的字符：条行经 Writer 重建后拿不到 Data，用它把充入量带到 AddBarLine。</summary>
+    internal const char GainMark = '\u0006';
+
+    internal static string? RechargeTailRender(string tail, int gainPoints)
+    {
+        if (gainPoints <= 0) return null;
+        string gain = "+" + gainPoints + "/";
+        int at = tail.LastIndexOf(gain, StringComparison.Ordinal);
+        if (at < 0) return null;
+        return tail.Substring(0, at)
+             + RenderHandler.ApplyRichTextColorTag("+" + gainPoints, RenderHandler.ColorPalette.Gray)
+             + tail.Substring(at + 1 + gainPoints.ToString().Length);
+    }
+
+    /// <summary>
     /// 充能器（<c>recharger</c>）：每晚给槽里每块可充电电池充 3（开通商业用电后 6）点，充到满为止
     /// （原版 <c>MachineRecharger</c> 夜间回调 → <c>PowerHelper.ChargeBattery</c>，一次性电池、电流转换器、
     /// 超科技电池不充）。仿照自学习的写法：「充能」标签 + 进度条 + 电池名 + 「现有+今晚/上限kJ」，
@@ -81,6 +102,8 @@ internal static class MachineAdapters
     /// </summary>
     private static void Recharger(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
+        // 美化等第三方有自己的电池/电量识别，会读原版的「电池：能量 x/y」行；这里不认领，原行照出
+        if (TooltipSections.HasListeners) return;
         var panel = ctx.FindPanel("batteries");
         if (panel == null || panel.Items.Count == 0) return;
 
@@ -121,7 +144,7 @@ internal static class MachineAdapters
                 string head = bars.Count == 0
                     ? ModuleEffectAnnotation.ChipMarkup(label, 'c', ColumnLayout.CyanText) + ModuleEffectAnnotation.Pos(c)
                     : ModuleEffectAnnotation.Pos(c);
-                line = line.WithRender(head);
+                line = line.WithRender(gain > 0 ? head + GainMark + gain : head);
             }
             bars.Add(line);
         }
@@ -460,9 +483,13 @@ internal static class MachineAdapters
             // 进度比例只算有上限的正面项；负面项向 0 学，起点没有记录，不参与比例，只参与「还差几点」。
             // 负面项没学到 0 就不算学满：比例封顶在 99%，条上不会出现「满格但还在学」
             int cur = 0, max = 0, remaining = 0;
+            // 文字进度：各项当前值直接相加 / 各项上限相加（负项上限为 0），如 性能 32/40 + 质量 -18/0 → 14/40
+            int sumCur = 0, sumMax = 0;
             bool negativePending = false;
             foreach (var s in stats)
             {
+                sumCur += s.Current;
+                sumMax += s.Max;
                 if (!s.Negative)
                 {
                     cur += Math.Clamp(s.Current, 0, s.Max);
@@ -485,7 +512,7 @@ internal static class MachineAdapters
             float ratio = max > 0 ? (float)cur / max : 0f;
             if (negativePending) ratio = Math.Min(ratio, 0.99f);
             bars.Add(MakeLearningBar(ratio, moduleName, Info, RenderHandler.ColorPalette.VeryDarkCyan,
-                    IsPenLearningMachine(machineId) ? remaining : 0)
+                    remaining, sumCur, sumMax, IsPenLearningMachine(machineId))
                 .WithData("learning", (module.identifier, cur, max, remaining)));
         }
         if (bars.Count == 0) return;
@@ -502,14 +529,16 @@ internal static class MachineAdapters
     /// 一根学习进度条。行首的一个空格在原版窗口里换成缩进（对齐表头「1/2 个模组学习中」那一列），
     /// 规范文本仍是原来的空格；色块不可用时不缩进。
     /// </summary>
-    /// <param name="remainingPoints">还差多少点学满（各项取最大）；大于 0 时在名字后面补「还需 N 晚」（构建时按 Pen 的当晚训练次数换算）。</param>
+    /// <param name="remainingPoints">还差多少点学满（各项取最大）；大于 0 时在名字后面补「当前/上限」，Pen 的机器再补「（N天）」（构建时按当晚训练次数换算）。</param>
     private static TooltipLine MakeLearningBar(float ratio, string tail, RenderHandler.ColorPalette color,
-        RenderHandler.ColorPalette dark, int remainingPoints = 0)
+        RenderHandler.ColorPalette dark, int remainingPoints = 0, int progress = 0, int progressMax = 0, bool estimateDays = false)
     {
         var line = new TooltipLine(" ", ratio, LearningBar, tail, color, dark);
         if (LearningColumn() is not float col) return line;
         string render = ModuleEffectAnnotation.Pos(col);
-        if (remainingPoints > 0) render += SelfLearningMachine.RemainingMark + remainingPoints.ToString();
+        // 标记后面依次是：还差点数;当前合计;上限合计;是否估算天数（1/0）
+        if (remainingPoints > 0)
+            render += SelfLearningMachine.RemainingMark.ToString() + remainingPoints + ";" + progress + ";" + progressMax + ";" + (estimateDays ? "1" : "0");
         return line.WithRender(render);
     }
 

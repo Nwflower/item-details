@@ -490,6 +490,12 @@ public sealed partial class ModEntry
     /// 这样条一样长；只要有一行连 3 格也放不下，整组都不画条、只留文字。
     /// 没有充能条时返回 null。
     /// </summary>
+    /// <summary>
+    /// 带条的行最多占多少个字符宽：窗口当前预算不够时，在这个范围内允许把窗口撑宽一点
+    /// （下面输出时会按整行预留宽度），超过就宁可不画条。
+    /// </summary>
+    private const int MaxBarLineChars = 34;
+
     private static Func<TooltipLine, TooltipLine>? GroupBarFit(List<TooltipLine> lines, int budget)
     {
         int group = int.MaxValue;
@@ -499,7 +505,7 @@ public sealed partial class ModEntry
             int rest = ProgressBarStyle.VisibleLength(ln.Text) + 3 + ProgressBarStyle.VisibleLength(ln.Tail ?? "");
             int fit = 0;
             for (int length = ln.BarLength; length >= 3; length--)
-                if (ProgressBarStyle.WidthForLine(rest + length) + 4 <= budget) { fit = length; break; }
+                if (rest + length <= MaxBarLineChars || ProgressBarStyle.WidthForLine(rest + length) <= budget) { fit = length; break; }
             group = Math.Min(group, fit);
         }
         if (group == int.MaxValue) return null;
@@ -553,13 +559,31 @@ public sealed partial class ModEntry
         {
             // 行首呈现里可带「\u0007剩余点数」：只给学习条用，名字后面补「还需 N 晚」
             string? headRender = ln.Render;
-            int remaining = 0;
+            int gainPoints = 0;
+            if (headRender != null)
+            {
+                int gm = headRender.IndexOf(MachineAdapters.GainMark);
+                if (gm >= 0)
+                {
+                    int.TryParse(headRender.Substring(gm + 1), out gainPoints);
+                    headRender = gm > 0 ? headRender.Substring(0, gm) : null;
+                }
+            }
+            int remaining = 0, progress = 0, progressMax = 0;
+            bool estimateDays = false;
             if (headRender != null)
             {
                 int mark = headRender.IndexOf(SelfLearningMachine.RemainingMark);
                 if (mark >= 0)
                 {
-                    int.TryParse(headRender.Substring(mark + 1), out remaining);
+                    string[] fields = headRender.Substring(mark + 1).Split(';');
+                    int.TryParse(fields[0], out remaining);
+                    if (fields.Length >= 4)
+                    {
+                        int.TryParse(fields[1], out progress);
+                        int.TryParse(fields[2], out progressMax);
+                        estimateDays = fields[3] == "1";
+                    }
                     headRender = mark > 0 ? headRender.Substring(0, mark) : null;
                 }
             }
@@ -576,7 +600,10 @@ public sealed partial class ModEntry
             string tail = ln.Tail ?? "";
             if (remaining > 0 && tail.Length > 0)
                 RenderSlices.AddLine(builder, tail, ln.Color,
-                    tail + "  " + SelfLearningMachine.NightsStart + remaining + SelfLearningMachine.NightsEnd);
+                    tail + "  " + progress + "/" + progressMax
+                    + (estimateDays ? " " + SelfLearningMachine.NightsStart + remaining + SelfLearningMachine.NightsEnd : ""));
+            else if (MachineAdapters.RechargeTailRender(tail, gainPoints) is string tailRender && tailRender != tail)
+                RenderSlices.AddLine(builder, tail, ln.Color, tailRender);
             else
                 AddLine(builder, tail, ln.Color);
         }

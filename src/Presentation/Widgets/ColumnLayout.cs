@@ -17,6 +17,7 @@ internal static class ColumnLayout
     internal static readonly string NegativeText = Hex(RenderHandler.ColorPalette.LightRed);
     internal static readonly string PurpleText = Hex(RenderHandler.ColorPalette.LightPurple);
     internal static readonly string AmberText = Hex(RenderHandler.ColorPalette.LightOrange);
+    internal static readonly string BlueText = Hex(RenderHandler.ColorPalette.LightBlue);
     internal static readonly string CyanText = Hex(RenderHandler.ColorPalette.LightCyan);
 
     /// <summary>数值的正负色：与同一行的标签同色，读起来是一个整体。</summary>

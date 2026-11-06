@@ -63,11 +63,20 @@ internal static class FurnaceQuality
 
             int difference = current - baseline;
             var parts = new List<string>();
-            // 只报现在加了多少纯度（+0 也写出来），不预测下一档
+            // 现在加了多少纯度（+0 也写出来），后面补「再 +X% 到下一档」
+            int? nextBonus = null;
+            for (int extra = 1; extra <= 400; extra++)
+            {
+                int next = Level(q + extra);
+                if (next != int.MinValue && next > current) { nextBonus = extra; break; }
+            }
             if (part != Part.Rest)
             {
                 string change = difference >= 0 ? "+" + difference : difference.ToString();
-                parts.Add(Loc.T("module.furnace_gain", "purity {0}", change));
+                string gain = Loc.T("module.furnace_gain", "purity {0}", change);
+                if (nextBonus is int more)
+                    gain += " " + Loc.T("module.furnace_next", "(+{0}% more for next tier)", more);
+                parts.Add(gain);
             }
 
             if (part != Part.Gain && contents.CanSmelt)
@@ -95,7 +104,7 @@ internal static class FurnaceQuality
                 parts.Add(Loc.T("module.furnace_basic", "basic flux consumed"));
             // Advanced flux is already visible in the input list; don't restate that it is reusable.
             data = (contents.CanSmelt ? FurnacePurity.OutputCount(contents.Blast) : null,
-                contents.CanSmelt ? current : null, difference, null);
+                contents.CanSmelt ? current : null, difference, nextBonus);
             return parts.Count > 0 ? string.Join(Loc.T("list.sep", ", "), parts) : null;
         }
         catch (Exception ex)

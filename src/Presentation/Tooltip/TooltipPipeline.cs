@@ -290,7 +290,7 @@ internal static class TooltipPipeline
             var r = LiquidQueries.Analyze(item);
             if (r != null)
             {
-                bool liters = Volume.UseLiters(max);
+                bool liters = ModSettings.ContainerUnits && Volume.UseLiters(max);
                 carriesTier = true;
                 return " " + WaterLayout.Capacity(cur, max, liters, Loc.Culture)
                      + (r.Tier.Length > 0 ? " " + r.Tier : "");
