@@ -148,6 +148,14 @@ internal static class Loc
     /// 否则用 <paramref name="english"/>；<paramref name="args"/> 按 <see cref="string.Format(string, object[])"/>
     /// 填充 <c>{0}</c> 占位符。
     /// </summary>
+    /// <summary>
+    /// 不带占位符的重载：tooltip 一帧里几十条文案都是这种，省掉每次调用分配一个空 object[]。
+    /// 编译器在两种重载都可用时优先选非 params 的那个。
+    /// </summary>
+    internal static string T(string key, string english) => T(key, english, EmptyArgs);
+
+    private static readonly object[] EmptyArgs = Array.Empty<object>();
+
     internal static string T(string key, string english, params object[] args)
     {
         string text = english;
