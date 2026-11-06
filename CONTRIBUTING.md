@@ -27,6 +27,12 @@ python tools/check_localization.py --strict-placeholders
 
 ```powershell
 pwsh -NoProfile -File scripts/build.ps1 -GameDir "<游戏目录>"
+
+# 构建并部署到游戏 Mods 目录（旧版先备份；游戏在运行时拒绝部署）
+pwsh -NoProfile -File scripts/deploy.ps1 -GameDir "<游戏目录>"
+
+# 游戏启动并加载过一次后：对照 Player.log 里的 audit 行，检查检测到的能力是否都已在清单声明
+pwsh -NoProfile -File scripts/deploy.ps1 -GameDir "<游戏目录>" -Audit
 ```
 
 默认编译 Release，并生成 `dist/item_details-<ModVersion>.zip`。
