@@ -212,6 +212,10 @@ internal static class TooltipPipeline
             }
 
             // 描述与背景故事写原文；原版窗口构建时若折行预算被别人的条放宽，渲染层再按常规宽度折行
+            // 自学习强化机：Pen 的「当晚训练：X 次」并入质量第三列（质量行构建时取这一行的文字），这里不再单独显示
+            if (SelfLearningMachine.CaptureTraining(__instance, __0, cur) && ModSettings.ModuleEffects
+                && LabelChips.Available && !TooltipSections.HasListeners)
+                return false;   // 有第三方读区块时保留这一行：它们只读规范文本，质量列里只有兜底的额外次数
             // 自学习强化机：说明讲的效率、质量、概率都已写进色块第三列，整段不再显示
             if (SelfLearningMachine.ShouldHideFlavor(__0, cur)) return false;
             bool isDescription = NoteDescription(__0, cur);

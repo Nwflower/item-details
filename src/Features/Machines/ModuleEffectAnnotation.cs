@@ -71,7 +71,7 @@ internal static class ModuleEffectAnnotation
                 && string.Equals(item.identifier, "furnace", StringComparison.Ordinal))
             {
                 var ctx = MachineInterior.ReadContext(item);
-                string? preview = ctx == null ? null : FurnaceQuality.Note(ctx, out furnace);
+                string? preview = ctx == null ? null : FurnaceQuality.Note(ctx, out furnace, FurnaceQuality.Part.Gain);
                 if (!string.IsNullOrEmpty(preview)) note = preview!;
             }
 
@@ -107,7 +107,10 @@ internal static class ModuleEffectAnnotation
                 output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
                     + ProgressBarStyle.VisibleLength(annotation)) + 4);
                 output.AddRendered(text, color, cols.Value.Main);
-                if (annotation.Length > 0) output.AddRendered(annotation, RenderHandler.ColorPalette.Gray, cols.Value.Note);
+                string noteRender = cols.Value.Note;
+                if (kind == 'q' && SelfLearningMachine.IsMachine(item))
+                    noteRender = SelfLearningMachine.WithTrainingToken(noteRender, shown);
+                if (annotation.Length > 0) output.AddRendered(annotation, RenderHandler.ColorPalette.Gray, noteRender);
             }
             else
             {

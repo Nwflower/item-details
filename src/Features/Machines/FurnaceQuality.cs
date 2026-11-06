@@ -27,8 +27,11 @@ internal static class FurnaceQuality
         internal bool CanSmelt => Ore + Scrap >= Needed;
     }
 
+    /// <summary>文字取哪一部分：纯度变化挂在质量行第三列，出锭预测独立成行。</summary>
+    internal enum Part { All, Gain, Rest }
+
     internal static string? Note(MachineInterior.Context ctx,
-        out (int? Ingots, int? Purity, int Gain, int? NextBonus)? data)
+        out (int? Ingots, int? Purity, int Gain, int? NextBonus)? data, Part part = Part.All)
     {
         data = null;
         try
@@ -41,7 +44,7 @@ internal static class FurnaceQuality
 
             // 废物转换分支没有任何金属锭，也不运行 SetPurityFromInput。
             if (!contents.CanSmelt && contents.JunkModule && contents.Junk >= 6)
-                return Loc.T("module.furnace_junk", "no quality effect on junk");
+                return part == Part.Gain ? null : Loc.T("module.furnace_junk", "no quality effect on junk");
 
             int q = quality;
             int Level(int bonus)
@@ -61,10 +64,13 @@ internal static class FurnaceQuality
             int difference = current - baseline;
             var parts = new List<string>();
             // 只报现在加了多少纯度（+0 也写出来），不预测下一档
-            string change = difference >= 0 ? "+" + difference : difference.ToString();
-            parts.Add(Loc.T("module.furnace_gain", "purity {0}", change));
+            if (part != Part.Rest)
+            {
+                string change = difference >= 0 ? "+" + difference : difference.ToString();
+                parts.Add(Loc.T("module.furnace_gain", "purity {0}", change));
+            }
 
-            if (contents.CanSmelt)
+            if (part != Part.Gain && contents.CanSmelt)
             {
                 int count = FurnacePurity.OutputCount(contents.Blast);
                 string purityKey = IngotPurityHelper.GetPurityConst(LowPurity,
@@ -75,7 +81,7 @@ internal static class FurnaceQuality
                     count, purity.PurityLevel));
             }
 
-            if (contents.CanSmelt)
+            if (part != Part.Gain && contents.CanSmelt)
             {
                 // 只在确实触及游戏纯度表上限时显示“封顶”，不把搜索范围不足误报为封顶。
                 string maxKey = IngotPurityHelper.GetPurityConst(LowPurity, 1000);
@@ -84,7 +90,7 @@ internal static class FurnaceQuality
                     parts.Add(Loc.T("module.furnace_cap", "maximum purity"));
             }
 
-            if (contents.CanSmelt && FurnacePurity.ConsumesBasicFlux(q, contents.Blast,
+            if (part != Part.Gain && contents.CanSmelt && FurnacePurity.ConsumesBasicFlux(q, contents.Blast,
                     contents.BasicFlux, contents.AdvancedFlux))
                 parts.Add(Loc.T("module.furnace_basic", "basic flux consumed"));
             // Advanced flux is already visible in the input list; don't restate that it is reusable.

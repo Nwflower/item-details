@@ -59,6 +59,12 @@ internal static class TooltipSections
     private static int listenersBuild = -1;
     private static (Display? Displays, bool Watch) listeners;
 
+    /// <summary>有第三方在读区块（如美化）：它们读的是规范文本，渲染层替换对它们不可见。</summary>
+    internal static bool HasListeners
+    {
+        get { var l = Listeners(); return l.Displays != null || l.Watch; }
+    }
+
     private static (Display? Displays, bool Watch) Listeners()
     {
         bool building = TooltipPipeline.IsBuilding;

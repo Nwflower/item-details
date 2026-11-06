@@ -56,12 +56,13 @@ internal static class MachineAdapters
     /// </summary>
     private static void Furnace(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        // 质量行没有出现时（没有模组加成，或质量加成为 0）这一行也不显示
-        if (!GameRead.TagBool(ctx.Machine, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")
-            || (GameRead.TagInt(ctx.Machine, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) == 0) return;
-        // 色块模式下预览已经写进质量行的第三列（ModuleEffectAnnotation），这里不再另起一行
-        if (LabelChips.Available && ModSettings.ModuleEffects) return;
-        string? note = FurnaceQuality.Note(ctx, out var data);
+        // 出锭预测始终独立成一行；质量行（色块模式）的第三列只放「纯度+N」（ModuleEffectAnnotation）。
+        // 没有色块模式时质量行没有第三列，纯度变化并回这一行
+        bool qualityRow = GameRead.TagBool(ctx.Machine, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")
+            && (GameRead.TagInt(ctx.Machine, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) != 0;
+        bool gainInQualityRow = qualityRow && LabelChips.Available && ModSettings.ModuleEffects;
+        var part = qualityRow && !gainInQualityRow ? FurnaceQuality.Part.All : FurnaceQuality.Part.Rest;
+        string? note = FurnaceQuality.Note(ctx, out var data, part);
         if (string.IsNullOrEmpty(note)) return;
         var line = new TooltipLine(note, RenderHandler.ColorPalette.Gray);
         lines.Add(data.HasValue ? line.WithData("furnace", data.Value) : line);
@@ -229,16 +230,28 @@ internal static class MachineAdapters
 
         string text = Loc.T("purifier.estimate", "Estimated removal tonight: {0} ml", WaterInfo.Ml(parts));
         text += TierChange(purityBefore, purityAfter);
-        // 色块行：[净化] 58.8mL/今晚  96.37% → 99.65%（规范文本仍是上面那句）
+        // 色块行：[净化] 58.8mL/今晚  幽灵水 → 纯水（规范文本仍是上面那句）；档位名取不到时退回纯度百分比
         lines.Add(ChipLine(text, Loc.T("purifier.label", "Purify"),
                 Loc.T("purifier.rate", "{0}mL/tonight", WaterInfo.Ml(parts)),
-                Pct(purityBefore) + " → " + Pct(purityAfter), Info)
+                TierPair(purityBefore, purityAfter) ?? Pct(purityBefore) + " → " + Pct(purityAfter), Info)
             .WithData("purification", (parts, purityBefore, purityAfter)));
     }
 
     /// <summary>纯度（万分比）写成「96.37%」。</summary>
     private static string Pct(int purity)
         => (purity / (WaterInfo.PurityFull / 100.0)).ToString("0.00", Loc.Culture) + "%";
+
+    /// <summary>「幽灵水 → 纯水」：净化前后的档位名（游戏自己的名字）；取不到返回 null。</summary>
+    private static string? TierPair(int purityBefore, int purityAfter)
+    {
+        try
+        {
+            string from = WaterFeatureHelper.GetWaterDisplayName(purityBefore) ?? "";
+            string to = WaterFeatureHelper.GetWaterDisplayName(purityAfter) ?? "";
+            return from.Length == 0 || to.Length == 0 ? null : from + " → " + to;
+        }
+        catch { return null; }
+    }
 
     /// <summary>
     /// 使用真实水质计算净化前后档位，包括同档位和零净化量的情况。

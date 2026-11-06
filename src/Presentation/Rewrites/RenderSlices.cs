@@ -263,14 +263,22 @@ internal static class RenderSlices
     private static object[]? Replacement(RichTextBuilder builder, Note note)
     {
         if (note.Fixed != null)
+        {
+            // 带占位的呈现文字每次构建都要重新解析（取决于这一帧 Pen 写了什么），不缓存
+            if (note.Fixed.IndexOf(SelfLearningMachine.TokenStart) >= 0)
+                return MakeSlices(SelfLearningMachine.ResolveTokens(note.Fixed, builder), note.Style);
             return note.Alt ??= MakeSlices(note.Fixed, note.Style);
+        }
 
-        // 描述：字号缩小一点，和上面的数据行拉开层次；中日韩且这段 tooltip 的折行预算被别人的条放宽到 0.875 时，
-        // 还要按原版 0.66 预折行。缩小只动渲染写法，规范文本仍是原文。
+        // 描述：字号缩小一点，和上面的数据行拉开层次。
+        // 缩小要包 <size> 标签，而原版折行在字符断点处按「可见字符数」算下标却切原始字符串，
+        // 标签那 10 个字符被算进下标，第一行就提前断掉、短一截。所以带标签时一律自己预折行，
+        // 让每行都不超过原版的折行预算，原版就不会再动这一段；
+        // 中日韩且这段 tooltip 的预算被别人的条放宽到 0.875 时，同样按 0.66 预折行（缩小只动渲染写法，规范文本仍是原文）。
         float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
-        int limit = scale > 1f && ProgressBarStyle.WidensBudget(builder)
-            ? Math.Max(8, (int)(builder.maxCharWidth * 0.66f)) : 0;
-        bool wrap = limit > 0 && note.Text.Length > limit;
+        bool widens = scale > 1f && ProgressBarStyle.WidensBudget(builder);
+        int limit = scale > 1f ? Math.Max(8, (int)(builder.maxCharWidth * 0.66f)) : Math.Max(8, builder.maxCharWidth);
+        bool wrap = (ShrinkDescription || widens) && note.Text.Length > limit;
         if (!wrap && !ShrinkDescription) return null;
         int key = wrap ? limit : -2;
         if (note.AltLimit != key)
