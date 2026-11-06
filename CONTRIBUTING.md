@@ -94,7 +94,7 @@ _liquidDisplay = ItemDetailsClient.RegisterLiquidAnalysisDisplay((item, analysis
 - 用 `RegisterWaterAdviceDisplay` 可单独接管净化建议。每项包括当前语言名称和纯度提升的**百分点**。成功的空列表表示该物品当前没有可列出的手段。只查成分不会触发净化模拟。
 - 两项查询都遵守「液体组分分析」的设置与扫描仪条件。未安装、未启用、旧版或数据不可用时查询返回 false。注册可以早于物品详情加载。已用旧接口接管同一信息块的 Mod，迁移时应移除对应的旧接管标志，再注册新回调。
 - 客户端通过带版本号的 AppDomain 键传递游戏和 .NET 自带类型。对现有签名作不兼容更改时应新增版本键。SDK 类型仅在各自程序集内部使用。
-- v1 兼容包含行为：槽位、委托类型、区块 ID、既有字段类型与含义、空值和接管规则保持稳定。新字段与新槽位是可选能力；旧消费者不更新 SDK 仍应获得已有功能。破坏性演进另开版本并保留旧版适配，不能以修改合作方代码代替我方兼容验收。冻结的旧 SDK 回归见 `tests/test_legacy_compat.ps1`。
+- v1 冻结哪些东西、新能力为什么可选、旧版由谁维护，统一见 [兼容契约](COMPATIBILITY.md)。
 
 ### 通用提示框区块（v1）
 
@@ -115,8 +115,9 @@ _claim = ItemDetailsClient.RegisterTooltipSections((item, builder, section) =>
 - `section.Runs` 是这次构建实际要输出的有序片段：`text`（行内文字）、`line`（整行）、`break`（换行）、`bar`（进度条，带 0–1 比例、格数与后缀）。每段带游戏调色板枚举。直接复用这些片段即可换行、缩进、改列宽，不必再猜字符串。
 - `section.Fields` 是结构化字段，键为字符串，值为 BCL 元组、基础类型或游戏类型。列表型区块（滤芯、工具、电池、性状、特性等）把逐行数据放在 `rowData`：每项是 `(行号, 数据键, 值)`，行号对应 `Runs` 下标。常用区块有便捷读取：`TryGetAppraisal`（总价、完美区间、逐项金额）、`TryGetMachineEffect`（性能/效率/质量注释与数值差）、`Liquid`（同液体分析快照）、`WaterRows`（`water` 区块这一帧实际画出的成分行）、`PurificationMethods`（净化建议）。`WaterRows` 每项是 `(Kind, 名称, 用量, 百分比)`，Kind 取 `WaterRowKinds.Component` 或 `WaterRowKinds.FoldHint`；折叠提示行的用量为空，百分比是被折起来那几项的合计。行序即输出顺序，表头不在其中。
 - `water` 区块还有一个 `trace` 字段：“（另 N 项低于显示阈值）”那一行的整行文本，只有存在隐藏成分时才有。它不是成分行，不在 `WaterRows` 里；读取用 SDK 的 `TryGetTrace`。
-- `section.CanReplace` 为 false 的区块（`label`、`manufacturer`、`inspect-hint` 等）只是原生行的展示，物品详情没有独立输出它们，接管方应改写对应原生行而不是删除。
-- 每个区块另带 `Fields["group"]`：这一块在玩家眼里属于哪类信息，取值见 `TooltipGroupIds`（`liquid`、`plant`、`machine`、`condition`、`appraisal`、`food`、`lottery`、`brew`、`module`、`label`、`description`、`price`、`contents`）。只增不改；读取方遇到不认识的组按原样保留该行。用组归类可以不必为每个新 id 补映射。- 区块 ID 即功能名：`auth`、`value`、`injected-value`、`ribwich`、`berry`、`hidden`、`value-enhance`、`feature-reveal`、`storage`、`machine-interior`、`module-learning`、`conditions`、`contraband`、`lottery`、`water`、`sealed-box`、`scratcher`、`seed`、`water-advice`、`wine`、`meat`、`market`，以及内嵌改写 `price`、`calories`、`machine-speed`、`machine-power`、`machine-effect`、`categories`、`contents`、`sealed-contents`、`label`、`manufacturer`、`inspect-hint`。字段随功能演进可能新增，读取方用 `TryGet` 并给默认值。
+- `section.CanReplace` 为 false 的区块（`label`、`manufacturer`、`inspect-hint`、`liquid-volume`、`purchase`、`description` 等）只发布原生行的数据，那一行仍由游戏写出，接管方应改写对应原生行而不是删除。
+- 每个区块另带 `Fields["group"]`：这一块在玩家眼里属于哪类信息，取值见 `TooltipGroupIds`（`liquid`、`plant`、`machine`、`condition`、`appraisal`、`food`、`lottery`、`brew`、`module`、`label`、`description`、`price`、`contents`）。只增不改；读取方遇到不认识的组按原样保留该行。用组归类可以不必为每个新 id 补映射。
+- 区块 ID 即功能名：`auth`、`value`、`injected-value`、`ribwich`、`berry`、`hidden`、`value-enhance`、`feature-reveal`、`storage`、`machine-interior`、`module-learning`、`conditions`、`contraband`、`lottery`、`water`、`sealed-box`、`scratcher`、`seed`、`water-advice`、`wine`、`meat`、`market`，以及内嵌改写 `price`、`calories`、`machine-speed`、`machine-power`、`machine-effect`、`categories`、`contents`、`sealed-contents`、`label`、`manufacturer`、`inspect-hint`。字段随功能演进可能新增，读取方用 `TryGet` 并给默认值。
 - 已用旧 `ItemDetailsTooltipSection` 标志接管的区块仍按旧行为跳过，不产生快照。两种接管不要对同一区块混用。
 - 快照按 `RichTextBuilder` 实例和构建序号归档；每次重新构建会替换上次内容。只在游戏主线程查询。
 
@@ -137,11 +138,11 @@ _anchor = ItemDetailsClient.RegisterTooltipAnchor(() => currentVisibleTooltipRec
 
 进度条一律由游戏的 `AddProgressBar` 写出，成分表一律提供自然文本；sprite 与 `<pos>` 呈现留在原版窗口的渲染层。`NativeProgressBars` / `FlowingText` 的位及原有输出保证保留，旧消费者无需改声明。`DrawsContents` 只对本次物品让出内容物区块，声明前应确认本次能展示该区块（包括上锁容器的显示资格）。布局回调返回 null 时依次尝试其他显示方，首个非 null 声明用于本次构建；返回 `None` 表示本次由你绘制并使用默认样式。回调只读取本次排版状态。
 
-未接入协议的 SectionedTooltips 1.6.2 / 1.6.3 仍由我方旧兼容层支持：尊重启用状态和 `Enabled` / `ContentsPanel` 开关，只让出普通容器图标格，不接管密封箱透视、压缩率或机器内部信息。存在显式布局回调或逐件显示注册时优先遵守协议，即便返回 null、None 或抛错也不重新套用旧配置。未知版本不猜配置。该兼容由我方维护，不要求旧版作者补注册；移除前须另行约定支持范围和迁移期。
+未接入协议的 SectionedTooltips 1.6.2 / 1.6.3 仍由我方旧兼容层支持：尊重启用状态和 `Enabled` / `ContentsPanel` 开关，只让出普通容器图标格，不接管密封箱透视、压缩率或机器内部信息。协议优先与维护承诺见[兼容契约](COMPATIBILITY.md)第 9–10 条。
 
 分类徽章容器也可以经 `RegisterTooltipBadge(() => rect)` 发布（消费者用 `TryGetTooltipBadge` 读），排版方据此量高度，不必按节点名 `ItemDetailsTypeBadge` 找 GameObject。锚点用于分类徽章与旁边的内容物浮窗。回调每次返回当前可见的提示框，无可用窗口时返回 null。已有直接引用接口的锚点优先；使用可选客户端时优先采用首个有效锚点。
 
-徽章槽位只返回可见容器，隐藏或未创建时返回 null；由生产方保证这个条件。旧消费者按名字查找的 `ItemDetailsTypeBadge` 节点和锚点同级定位路径继续保留。读取 `group` 或徽章槽位均为可选升级，不能作为维持已有显示的前提。
+徽章槽位只返回可见容器，隐藏或未创建时返回 null；由生产方保证这个条件。旧消费者按名字查找的 `ItemDetailsTypeBadge` 节点和锚点同级定位路径继续保留。
 
 ### 直接引用 ItemDetails.dll 的扩展接口
 
@@ -259,3 +260,4 @@ GitHub 托管 runner 没有游戏程序集，因此完整模组编译、原生�
 - 所有玩家可见的文字都经过 `Loc.T("key", "English text", args)`，英文写在调用处，再到各语言 CSV 补译文。
 - 定价公式和赝品规则放在 `src/Domain/`，不依赖 Unity，便于离线测试；常量改动后需要与游戏原值比对。
 - 读不到或算不准时宁可不显示，不要用默认值拼出一个确定结论。
+- 改 tooltip 输出、区块协议、布局声明、公开 API 或旧兼容层之前，先逐条对一遍[兼容契约](COMPATIBILITY.md)。

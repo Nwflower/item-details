@@ -102,7 +102,7 @@ private static void ReadWaterRows(IReadOnlyDictionary<string, object> fields)
 - **字段只增不改**：区块 ID 用 `TooltipSectionIds` 常量；读取用 `TryGet` 并给默认值。`CanReplace=false` 的区块（`label`、`manufacturer`、`inspect-hint`、`liquid-volume`、`purchase`、`description` 等）只发布原生行的数据，那一行仍由游戏写出，接管压不掉它。`price`、`calories`、`machine-effect` 由物品详情整行写出，可以接管。每个区块的 runs 与 builder 里那一行文本一致；原版窗口里个别行的换词（如购买价格→进价、ml→L）只在渲染时换入，不进 runs。
 - **离线契约样例**：`tests/fixtures/sections/contract.txt` 是固定物品的区块快照（id、`group`、字段名与标量、每段 run 的形状），不启动游戏就能拿来测归类。
 - **布局声明**：附加进度条统一走游戏 `AddProgressBar`，成分表统一提供自然文本，旧 `NativeProgressBars` / `FlowingText` 声明继续有效且无需迁移。回调返回 null 表示本次不接管排版。
-- **旧版支持**：新字段和槽位可选，已有消费者无需更新 SDK。SectionedTooltips 1.6.2 / 1.6.3 的配置兼容由物品详情维护；范围和显式协议优先规则见 [CONTRIBUTING.md](../CONTRIBUTING.md)。徽章未显示时槽位返回 null，旧节点名仍保留。
+- **旧版支持**：新字段和槽位可选，已有消费者无需更新 SDK。SectionedTooltips 1.6.2 / 1.6.3 的配置兼容由物品详情维护；范围、显式协议优先与 v1 冻结范围见[兼容契约](../COMPATIBILITY.md)。徽章未显示时槽位返回 null，旧节点名仍保留。
 - **锚点**：`RegisterTooltipAnchor` 每次返回当前可见提示框的 `RectTransform`；窗口重建后无需重新注册。
 - **液体**：`TryGetLiquidAnalysis` / `TryGetWaterAdvice` 与通用区块独立。净化收益单位是**百分点**；空列表是有效结果（当前无可列手段）。
 - **线程与清理**：全部在游戏主线程；每帧悬停可能重建。逐件暂存随本次构建清理，句柄在 `OnDisable` 释放。
