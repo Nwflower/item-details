@@ -188,6 +188,8 @@ config.hidden_truth,Revelar disfraces y valores reales
 config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."
 config.liquid_analysis,Análisis de componentes líquidos
 config.liquid_analysis.tip,"Muestra la pureza y las impurezas del agua, y la composición y los efectos de medicamentos y productos químicos. «Con escáner» solo lo muestra mientras tengas un escáner de agua o químico."
+config.color_liquid_components,Colorear componentes líquidos por tipo
+config.color_liquid_components.tip,"Da a cada tipo de impureza de la tabla de composición su propio color: contaminantes químicos, desechos orgánicos, microbios, minerales, metales pesados y contaminantes físicos. Desactivado, todas son blancas."
 config.liquid_analysis.off,Desactivado
 config.liquid_analysis.scanner,Con escáner
 config.liquid_analysis.always,Siempre

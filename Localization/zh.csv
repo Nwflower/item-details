@@ -188,6 +188,8 @@ config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。
 config.liquid_analysis,液体组分分析
 config.liquid_analysis.tip,显示液体的水质纯度与杂质，以及药品和化学品的成分与药效。「有扫描器时开启」只在拥有水质扫描仪或化学扫描仪时显示。
+config.color_liquid_components,不同液体组分以不同颜色显示
+config.color_liquid_components.tip,成分表里的杂质按种类各用一种颜色：化学污染物、有机废物、微生物、矿物质、重金属、物理污染物。关闭时杂质统一为白色。
 config.liquid_analysis.off,关闭
 config.liquid_analysis.scanner,有扫描器时开启
 config.liquid_analysis.always,总是开启

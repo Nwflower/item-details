@@ -43,6 +43,17 @@ internal static class WaterColumns
     /// </summary>
     private const RenderHandler.ColorPalette ImpurityColor = RenderHandler.ColorPalette.White;
 
+    /// <summary>开启「不同液体组分以不同颜色显示」时杂质的固定配色（按液体 identifier）；其余按顺序取 <see cref="ActiveColors"/>。</summary>
+    private static readonly Dictionary<string, RenderHandler.ColorPalette> TypeColors = new(StringComparer.Ordinal)
+    {
+        ["chemical_contaminant"] = RenderHandler.ColorPalette.LightPurple,
+        ["organic_waste"] = RenderHandler.ColorPalette.LightGreen,
+        ["microbe"] = RenderHandler.ColorPalette.LightYellow,
+        ["mineral"] = RenderHandler.ColorPalette.White,
+        ["heavy_metal"] = RenderHandler.ColorPalette.Gray,
+        ["physical_contaminant"] = RenderHandler.ColorPalette.LightRed,
+    };
+
     /// <summary>药物活性成分是玩家真正要读的量，按出现顺序取色以示区分。</summary>
     private static readonly RenderHandler.ColorPalette[] ActiveColors =
     {
@@ -177,14 +188,15 @@ internal static class WaterColumns
         LiquidAnalysis analysis, bool waterMismatch)
     {
         var comps = new List<(string Name, int Parts, RenderHandler.ColorPalette Color)>();
-        int activeIndex = 0;
+        int activeIndex = 0, otherIndex = 0;
+        bool byType = ModSettings.ColorLiquidComponents;
         foreach (var component in analysis.Components)
         {
             string name = component.Name;
             if (waterMismatch && component.Role == "water" && analysis.LabelMismatch)
                 name += Loc.T("water.mismatch", " (doesn't match label)");
-            int index = component.Role == "active" ? activeIndex++ : 0;
-            comps.Add((name, component.Microliters, ColorOf(component.Role, index)));
+            int index = component.Role == "active" ? activeIndex++ : byType && component.Role == "other" ? otherIndex++ : 0;
+            comps.Add((name, component.Microliters, ColorOf(component.Role, component.Id, index, byType)));
         }
         return comps;
     }
@@ -317,10 +329,11 @@ internal static class WaterColumns
             ? comps[row.Index].Color
             : RenderHandler.ColorPalette.Gray;
 
-    /// <summary>行的颜色：水蓝、药物活性成分按顺序取色、其余（杂质/试剂/溶剂）白色。</summary>
-    private static RenderHandler.ColorPalette ColorOf(string role, int fallbackIndex)
+    /// <summary>行的颜色：水蓝、药物活性成分按顺序取色、其余（杂质/试剂/溶剂）白色；开启「按种类上色」时杂质各有固定颜色。</summary>
+    private static RenderHandler.ColorPalette ColorOf(string role, string? id, int fallbackIndex, bool byType)
         => role == "water" ? WaterColor
          : role == "active" ? ActiveColors[fallbackIndex % ActiveColors.Length]
+         : byType ? (id != null && TypeColors.TryGetValue(id, out var color) ? color : ActiveColors[fallbackIndex % ActiveColors.Length])
          : ImpurityColor;
 
     private static string VolumeOf(int parts, bool liters)

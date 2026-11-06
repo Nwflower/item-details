@@ -188,6 +188,8 @@ config.hidden_truth,偽装と真の値を暴く
 config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。
 config.liquid_analysis,液体成分分析
 config.liquid_analysis.tip,水の純度と不純物、薬品・化学品の成分と効果を表示します。「スキャナー所持時」では、水質スキャナーかケミカルスキャナーを持っている間だけ表示します。
+config.color_liquid_components,液体成分を種類ごとに色分け
+config.color_liquid_components.tip,成分表の不純物を種類ごとに色分けします（化学汚染物質・有機廃棄物・微生物・ミネラル・重金属・物理汚染物質）。オフでは全て白です。
 config.liquid_analysis.off,オフ
 config.liquid_analysis.scanner,スキャナー所持時
 config.liquid_analysis.always,常に表示

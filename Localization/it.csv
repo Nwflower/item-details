@@ -188,6 +188,8 @@ config.hidden_truth,Rivela travestimenti e valori reali
 config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."
 config.liquid_analysis,Analisi dei componenti liquidi
 config.liquid_analysis.tip,"Mostra la purezza e le impurità dell'acqua, nonché la composizione e gli effetti di medicinali e prodotti chimici. «Con scanner» lo mostra solo se possiedi uno scanner dell'acqua o chimico."
+config.color_liquid_components,Colora i componenti liquidi per tipo
+config.color_liquid_components.tip,"Assegna a ogni tipo di impurità della tabella di composizione un colore proprio: contaminanti chimici, rifiuti organici, microbi, minerali, metalli pesanti e contaminanti fisici. Disattivato, sono tutte bianche."
 config.liquid_analysis.off,Disattivato
 config.liquid_analysis.scanner,Con scanner
 config.liquid_analysis.always,Sempre

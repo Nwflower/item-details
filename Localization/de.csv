@@ -188,6 +188,8 @@ config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."
 config.liquid_analysis,Flüssigkeitsanalyse
 config.liquid_analysis.tip,"Zeigt Wasserreinheit und Verunreinigungen sowie Zusammensetzung und Wirkung von Medikamenten und Chemikalien. „Mit Scanner“ zeigt dies nur, solange Sie einen Wasser- oder Chemiescanner besitzen."
+config.color_liquid_components,Flüssigkeitskomponenten nach Art einfärben
+config.color_liquid_components.tip,"Färbt jede Verunreinigungsart in der Zusammensetzungstabelle anders ein: chemische Schadstoffe, organischer Abfall, Mikroben, Mineralien, Schwermetalle und physische Verunreinigungen. Aus: alle weiß."
 config.liquid_analysis.off,Aus
 config.liquid_analysis.scanner,Mit Scanner
 config.liquid_analysis.always,Immer

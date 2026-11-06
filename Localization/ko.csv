@@ -188,6 +188,8 @@ config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."
 config.liquid_analysis,액체 성분 분석
 config.liquid_analysis.tip,"물의 순도와 불순물, 약품 및 화학 물질의 성분과 효과를 표시합니다. '스캐너 보유 시'는 수질 스캐너나 화학 스캐너를 보유한 동안에만 표시합니다."
+config.color_liquid_components,액체 성분을 종류별로 색상 구분
+config.color_liquid_components.tip,"성분표의 불순물을 종류별로 다른 색으로 표시합니다(화학 오염물, 유기 폐기물, 미생물, 미네랄, 중금속, 물리 오염물). 끄면 모두 흰색입니다."
 config.liquid_analysis.off,끄기
 config.liquid_analysis.scanner,스캐너 보유 시
 config.liquid_analysis.always,항상

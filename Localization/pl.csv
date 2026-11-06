@@ -188,6 +188,8 @@ config.hidden_truth,Ujawniaj maskowanie i prawdziwe wartości
 config.hidden_truth.tip,"Pokazuje, co kryją zamaskowane cechy, rzeczywistą trwałość oraz rzeczywistą czystość sztabek i chemikaliów. Od razu zdradza podróbki i znacznie ułatwia wycenę."
 config.liquid_analysis,Analiza składu cieczy
 config.liquid_analysis.tip,"Pokazuje czystość i zanieczyszczenia wody oraz skład i działanie leków i chemikaliów. „Ze skanerem” pokazuje to tylko, gdy masz skaner wody lub chemiczny."
+config.color_liquid_components,Koloruj składniki cieczy według typu
+config.color_liquid_components.tip,"Nadaje każdemu rodzajowi zanieczyszczeń w tabeli składu osobny kolor: zanieczyszczenia chemiczne, odpady organiczne, drobnoustroje, minerały, metale ciężkie i zanieczyszczenia fizyczne. Wyłączone: wszystkie białe."
 config.liquid_analysis.off,Wyłączone
 config.liquid_analysis.scanner,Ze skanerem
 config.liquid_analysis.always,Zawsze

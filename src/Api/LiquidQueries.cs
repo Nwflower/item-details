@@ -40,7 +40,7 @@ internal static class LiquidQueries
 
     internal static LiquidAnalysis? Analyze(GameItem item)
     {
-        if (item == null || !LiquidGate.Enabled) return null;
+        if (item == null || !LiquidGate.Allows(item)) return null;
         bool cache = ReferenceEquals(item, TooltipPipeline.Current);
         if (cache && analyzed) return currentAnalysis;
         var raw = WaterInfo.Analyze(item);
@@ -96,7 +96,7 @@ internal static class LiquidQueries
 
     internal static Advice? GetAdvice(GameItem item)
     {
-        if (item == null || !LiquidGate.Enabled) return null;
+        if (item == null || !LiquidGate.Allows(item)) return null;
         bool cache = ReferenceEquals(item, TooltipPipeline.Current);
         if (cache && simulated) return currentAdvice;
         var methods = WaterAdvice.SimulateMethods(item, out bool available);

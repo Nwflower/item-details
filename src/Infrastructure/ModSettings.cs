@@ -103,6 +103,7 @@ internal static class ModSettings
     private static readonly Toggle ValuationToggle = new(true);          // 价值构成 + 完美区间 + 鉴定标题报价
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
     private static readonly Toggle HiddenTruthToggle = new(true);        // 揭示伪装与真实属性
+    private static readonly Toggle ColorLiquidToggle = new(false);       // 液体成分按种类上色
     private static readonly Toggle ScratcherToggle = new(false);         // 刮刮乐预知
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
     private static readonly Toggle ResultPrefillToggle = new(false);     // 鉴定结果预填
@@ -189,6 +190,12 @@ internal static class ModSettings
                 Text("config.liquid_analysis", "Liquid Composition Analysis"),
                 Text("config.liquid_analysis.tip", "Shows water purity and impurities, and the composition and effects " +
                      "of drugs and chemicals. \"With scanner\" only shows it while you own a water or chemical scanner."));
+
+            ColorLiquidToggle.Define(_cfg, "color_liquid_components", SecRevealKey, SecRevealEn,
+                Text("config.color_liquid_components", "Color Liquid Components by Type"),
+                Text("config.color_liquid_components.tip", "Gives each kind of impurity in the composition table its " +
+                     "own color: chemical contaminants, organic waste, microbes, minerals, heavy metals and physical " +
+                     "contaminants. Off, they are all white."));
 
             ScratcherToggle.Define(_cfg, "show_scratcher", SecRevealKey, SecRevealEn,
                 Text("config.scratcher", "Scratcher Preview"),
@@ -555,6 +562,7 @@ internal static class ModSettings
     internal static bool HiddenTruth => HiddenTruthToggle.Value;
     internal static bool Wine => InfoEnhance && WineToggle.Value;
     internal static bool Scratcher => ScratcherToggle.Value;
+    internal static bool ColorLiquidComponents => ColorLiquidToggle.Value;
     internal static bool SealedBox => SealedBoxToggle.Value;
     internal static bool ResultPrefill => ResultPrefillToggle.Value;
 
