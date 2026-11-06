@@ -129,6 +129,9 @@ internal static class WaterColumns
 
     private static float Em(string? text) => Measure(text) / ProbeFontSize;
 
+    /// <summary>字符串宽度（em）；其它按列排版的行用它量字宽。</summary>
+    internal static float TextEm(string? text) => Em(text);
+
     private static string Pos(float em)
         => "<pos=" + em.ToString("0.##", CultureInfo.InvariantCulture) + "em>";
 
@@ -274,9 +277,46 @@ internal static class WaterColumns
     {
         var lines = new List<TooltipLine>(rows.Count);
         var layout = Measure(rows);
+        _tableFrame = Time.frameCount;
+        _tablePercentStart = layout.PercentStart;
         foreach (var row in rows)
             lines.Add(new TooltipLine(WaterTable.JoinCells(row, CellSeparator), ColorOf(comps, row))
                 .WithRender(Row(row, layout)));
+        return lines;
+    }
+
+    /// <summary>本帧成分表的百分比列起点；净水建议据此对齐。跨帧的值不可信，不使用。</summary>
+    private static int _tableFrame = -1;
+    private static float _tablePercentStart;
+
+    /// <summary>
+    /// 净水建议：一种手段一行，名称靠左、增益靠右，数字右端对齐在成分表的百分比列。
+    /// 本帧没有成分表（折叠/无表）时按自己的名称宽度另起一列；名称比成分表名称列还宽时顺延，避免叠字。
+    /// 文本是全角空格分隔的规范输出，渲染写法是 &lt;pos&gt;。
+    /// </summary>
+    internal static List<TooltipLine> AdviceLines(
+        IReadOnlyList<(string Name, double GainPercentagePoints)> methods, RenderHandler.ColorPalette color)
+    {
+        var gains = new string[methods.Count];
+        float nameEm = 0f;
+        float gainEm = 0f;
+        for (int i = 0; i < methods.Count; i++)
+        {
+            gains[i] = "+" + methods[i].GainPercentagePoints.ToString("0.00", Loc.Culture) + "%";
+            nameEm = Math.Max(nameEm, Em(methods[i].Name));
+            gainEm = Math.Max(gainEm, Em(gains[i]));
+        }
+
+        float start = nameEm + ColumnGapEm;
+        if (_tableFrame == Time.frameCount) start = Math.Max(start, _tablePercentStart);
+
+        var lines = new List<TooltipLine>(methods.Count);
+        for (int i = 0; i < methods.Count; i++)
+        {
+            string name = methods[i].Name;
+            lines.Add(new TooltipLine(name + CellSeparator + gains[i], color)
+                .WithRender(name + Pos(start + gainEm - Em(gains[i])) + gains[i]));
+        }
         return lines;
     }
 

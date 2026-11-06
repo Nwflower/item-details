@@ -441,18 +441,8 @@ public sealed partial class ModEntry
 
         // 建议行不参与「折叠水质成分」：那条折叠只收 1% 以下的小成分，
         // 建议本身是玩家操作水时的依据，始终画出来，不再要求按 Ctrl。
-        bool wrote = false;
-        foreach (var mtd in shown)
-        {
-            // 分隔用普通空格而不是全角空格：原版折行只在普通空格处断，
-            // 建议行因此能自然折成两行，不会把 tooltip 撑宽。
-            if (wrote) builder.Add(" ", RenderHandler.ColorPalette.Gray);
-            builder.Add(mtd.Name + " +" + mtd.GainPercentagePoints.ToString("0.00", Loc.Culture) + "%", RenderHandler.ColorPalette.LightTurquoise);
-            wrote = true;
-        }
-        builder.NextLine();
-
-        return true;
+        // 一种手段一行，增益右对齐到成分表的百分比列
+        return AppendLines(builder, WaterColumns.AdviceLines(shown, RenderHandler.ColorPalette.LightTurquoise));
     }
 
     /// <summary>按提升幅度去重：收益相同的手段只留第一个（顺序即扫描顺序）。</summary>
