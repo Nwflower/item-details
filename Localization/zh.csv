@@ -302,3 +302,4 @@ config.info_container_units.tip,大于 3 L 的液体改用 L 显示，3 L 及以
 list.zone_sep,；
 module.special_label,特殊
 module.learn_chance,每晚{0}%概率赋予模组自学习
+module.learn_extra,每日{0}次额外学习

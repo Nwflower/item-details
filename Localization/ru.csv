@@ -302,3 +302,4 @@ config.info_container_units.tip,Показывает объёмы жидкост
 list.zone_sep,; 
 module.special_label,Особое
 module.learn_chance,{0}% шанс за ночь получить «Самообучающийся»
+module.learn_extra,{0} доп. шагов обучения в день

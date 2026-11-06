@@ -40,43 +40,18 @@ internal static class SelfLearningMachine
         return Math.Clamp(performance, 0, 100);
     }
 
-    private static System.Reflection.MethodInfo? _preview, _previewText;
-    private static bool _resolved;
-
-    private static void Resolve()
+    /// <summary>
+    /// 质量每满多少算一次额外推进：从机器说明里「质量每 50%」这类文字取第一个百分数（Pen 的设置值已写进说明）。
+    /// 不反射 Pen 的程序集——跨程序集反射会让加载器把本 mod 判成 reflection-external，清单就得声明能力。
+    /// </summary>
+    internal static int? QualityPerAdvance(GameItem machine)
     {
-        if (_resolved) return;
-        _resolved = true;
-        try
-        {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var night = asm.GetType("PenSelfLearning.NightService", false);
-                var loc = asm.GetType("PenSelfLearning.Loc", false);
-                if (night == null || loc == null) continue;
-                _preview = night.GetMethod("PreviewAdvances", new[] { typeof(GameItem) });
-                _previewText = loc.GetMethod("TrainingPreview", new[] { typeof(int) });
-                return;
-            }
-        }
-        catch { }
-    }
-
-    /// <summary>Pen 自己的「当晚训练：X 次」文字（它的预览函数与本地化），取不到返回 null。</summary>
-    internal static string? TrainingText(GameItem machine)
-    {
-        try
-        {
-            Resolve();
-            if (_preview == null || _previewText == null) return null;
-            if (_preview.Invoke(null, new object[] { machine }) is not int advances) return null;
-            return _previewText.Invoke(null, new object[] { advances }) as string;
-        }
-        catch { return null; }
+        var m = System.Text.RegularExpressions.Regex.Match(machine.flavorText ?? "", @"(\d+)\s*%");
+        return m.Success && int.TryParse(m.Groups[1].Value, out int v) && v > 0 ? Math.Clamp(v, 10, 200) : null;
     }
 
     /// <summary>
-    /// 机器的说明（效率、质量、概率三句）已全部体现在色块第三列，整行隐藏。
+    /// 机器的说明（效率、质量、概率三句）已全部体现在色块第三列，整行隐藏。「当晚训练」那行是 Pen 自己写的合计，保留。
     /// 只在说明原样等于机器的背景文字、且色块可用时才隐藏，否则原样保留。
     /// </summary>
     internal static bool ShouldHideFlavor(string text, GameItem? item)
@@ -85,10 +60,7 @@ internal static class SelfLearningMachine
         {
             if (!ModSettings.ModuleEffects || !LabelChips.Available || !IsMachine(item)) return false;
             string flavor = item!.flavorText ?? "";
-            if (flavor.Length > 0 && string.Equals(text.Trim(), flavor.Trim(), StringComparison.Ordinal)) return true;
-            // 「当晚训练：X 次」已并进质量色块的第三列
-            string? training = TrainingText(item);
-            return training != null && string.Equals(text.Trim(), training.Trim(), StringComparison.Ordinal);
+            return flavor.Length > 0 && string.Equals(text.Trim(), flavor.Trim(), StringComparison.Ordinal);
         }
         catch { return false; }
     }

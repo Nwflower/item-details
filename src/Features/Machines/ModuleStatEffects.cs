@@ -403,12 +403,13 @@ internal static class ModuleStatEffects
     }
 
     /// <summary>催陈器：再加多少质量每天多陈化一天。陈化天数随质量无上限递增。</summary>
-    /// <summary>自学习强化机：质量的第三列直接用 Pen 自己的「当晚训练：X 次」。</summary>
+    /// <summary>自学习强化机：质量每满一档（说明里的百分数）多推进 1 次学习，写「每日+N次额外学习」。</summary>
     private static string? LearningExtraSteps(GameItem machine, out int? nextBonus)
     {
         nextBonus = null;
-        string? text = SelfLearningMachine.TrainingText(machine);
-        return string.IsNullOrEmpty(text) ? null : text!.Trim();
+        if (SelfLearningMachine.QualityPerAdvance(machine) is not int per) return null;
+        int quality = Math.Max(-80, GameRead.TagInt(machine, QualityTag) ?? 0);
+        return Loc.T("module.learn_extra", "{0} extra learning steps per day", Plus(quality / per));   // 向零取整，同 Pen
     }
 
     private static string? WineNextAging(GameItem machine, out int? nextBonus)

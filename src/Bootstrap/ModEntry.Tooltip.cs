@@ -495,7 +495,15 @@ public sealed partial class ModEntry
             if (builder.Capturing && ln.DataKind != null && ln.Data != null)
                 (rowData ??= new()).Add((i, ln.DataKind, ln.Data));
             if (ln.HasBar) builder.Bar(ln);
-            else if (ln.Render != null) builder.AddLine(ln.Text, ln.Color, ln.Render);
+            else if (ln.Render != null)
+            {
+                // 色块行：规范文本比当前折行预算长时，原版会在规范文本里断行，渲染写法随之被切断，
+                // 玩家就会看到半截 <color=…> 标签。窗口里没有更宽的行（如没装模组）时尤其常见，所以这里按需放宽预算
+                if (ln.Render.Contains(LabelChips.LinkPrefix))
+                    builder.RequireWidth(ProgressBarStyle.WidthForLine(Math.Max(
+                        ProgressBarStyle.VisibleLength(ln.Text), ProgressBarStyle.VisibleLength(ln.Render) + 6)) + 4);
+                builder.AddLine(ln.Text, ln.Color, ln.Render);
+            }
             else builder.AddLine(ln.Text, ln.Color);
         }
         if (rowData != null) builder.Field("rowData", rowData.AsReadOnly());

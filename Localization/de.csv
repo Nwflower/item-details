@@ -302,3 +302,4 @@ config.info_container_units.tip,Zeigt Flüssigkeitsmengen über 3 L in Litern an
 list.zone_sep,; 
 module.special_label,Spezial
 module.learn_chance,{0} % Chance pro Nacht auf „Lernender Algorithmus“
+module.learn_extra,{0} zusätzliche Lernschritte pro Tag

@@ -302,3 +302,4 @@ config.info_container_units.tip,Mostra em litros os volumes de líquido acima de
 list.zone_sep,; 
 module.special_label,Especial
 module.learn_chance,{0}% de chance por noite de receber «Algoritmo de aprendizado»
+module.learn_extra,{0} passos extras de aprendizado por dia

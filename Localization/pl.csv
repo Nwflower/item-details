@@ -302,3 +302,4 @@ config.info_container_units.tip,Pokazuje objętość płynu powyżej 3 L w litra
 list.zone_sep,; 
 module.special_label,Specjalne
 module.learn_chance,{0}% szans na noc na „Algorytm uczący się”
+module.learn_extra,{0} dodatkowych kroków nauki dziennie

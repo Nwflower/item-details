@@ -302,3 +302,4 @@ config.info_container_units.tip,3 L を超える液量を L で表示します�
 list.zone_sep,／
 module.special_label,特殊
 module.learn_chance,毎晩{0}%の確率で学習アルゴリズムを付与
+module.learn_extra,毎日{0}回の追加学習

@@ -302,3 +302,4 @@ config.info_container_units.tip,3 L를 초과하는 액체는 L로 표시합니�
 list.zone_sep,; 
 module.special_label,특수
 module.learn_chance,매일 밤 {0}% 확률로 학습 알고리즘 부여
+module.learn_extra,매일 추가 학습 {0}회
