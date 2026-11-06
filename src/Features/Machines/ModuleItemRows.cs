@@ -38,8 +38,20 @@ internal static class ModuleItemRows
 
     private static readonly HashSet<string> Descriptions = new(StringComparer.Ordinal);
 
+    // 特殊效果交给原版 CreateModuleEffectTooltip 照常写（别的模组——比如更好的节点把说明里的 20% 换成叠层后的数值——
+    // 补丁挂在这个函数上，我们不能绕过它）；写的过程中由管线按下面的状态给名字行换色块、给说明行换灰色缩小样式。
+    private static readonly HashSet<string> EffectNames = new(StringComparer.Ordinal);
+    private static string _specialLabel = "";
+    private static float _specialColumn;
+    internal static bool EffectPhase { get; private set; }
+
     /// <summary>这段文字是否是正在写的模块特殊效果说明（管线据此按物品描述的样式处理）。</summary>
-    internal static bool IsEffectDescription(string text) => Descriptions.Contains(text);
+    internal static bool IsEffectDescription(string text)
+        => EffectPhase ? !EffectNames.Contains(text) : Descriptions.Contains(text);
+
+    /// <summary>正在写特殊效果且这一行是效果名：返回它的色块两列写法，否则 null。</summary>
+    internal static string? EffectNameRender(string text)
+        => EffectPhase && EffectNames.Contains(text) ? SpecialRender(_specialLabel, text, _specialColumn) : null;
 
     private static bool Prefix(RichTextBuilder builder, GameItem item)
     {
@@ -100,18 +112,15 @@ internal static class ModuleItemRows
             }
             output.Emit();
 
-            foreach (var (name, description) in effects)
+            if (effects.Count > 0)
             {
-                var effectOut = new TooltipSections.Writer(builder, item, "module-effect-special", TooltipGroupIds.Module);
-                effectOut.AddRendered(name, RenderHandler.ColorPalette.LightBlue, SpecialRender(special, name, col2));
-                effectOut.NextLine();
-                effectOut.Emit();
-                // 说明按物品描述处理：灰色、缩小、不缩进，折行规则也一样（管线认得这段文字）
-                if (!string.IsNullOrEmpty(description))
-                {
-                    Descriptions.Add(description);
-                    builder.AddLine(description, true, RenderHandler.ColorPalette.Gray);
-                }
+                EffectNames.Clear();
+                foreach (var (name, _) in effects) EffectNames.Add(name);
+                _specialLabel = special;
+                _specialColumn = col2;
+                EffectPhase = true;
+                try { ModuleEffectHelper.CreateModuleEffectTooltip(builder, item); }
+                finally { EffectPhase = false; EffectNames.Clear(); }
             }
             if (stuck.Length > 0) builder.AddLine(stuck, true, RenderHandler.ColorPalette.LightRed);
             Descriptions.Clear();

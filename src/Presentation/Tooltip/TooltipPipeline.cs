@@ -218,6 +218,13 @@ internal static class TooltipPipeline
                 return false;   // 有第三方读区块时保留这一行：它们只读规范文本，质量列里只有兜底的额外次数
             // 自学习强化机：说明讲的效率、质量、概率都已写进色块第三列，整段不再显示
             if (SelfLearningMachine.ShouldHideFlavor(__0, cur)) return false;
+            // 模块的特殊效果（原版 CreateModuleEffectTooltip 在写）：名字行换成色块两列，说明行按物品描述的灰色小字
+            if (ModuleItemRows.EffectNameRender(__0) is string effectName)
+            {
+                __2 = RenderHandler.ColorPalette.LightBlue;
+                Swap(effectName);
+            }
+            else if (ModuleItemRows.EffectPhase) __2 = RenderHandler.ColorPalette.Gray;
             bool isDescription = NoteDescription(__0, cur);
             if (isDescription) _lineWrap = true;
             if (__2 != originalColor || __0 != originalDescription)

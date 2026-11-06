@@ -52,14 +52,14 @@ auth.counterfeit,× Подделка ({0})
 auth.genuine,√ Оригинал
 berry.dried,Высушенная
 berry.line,{0} — качество: {1}
-berry.wine, (ценность вина {0})
+berry.wine," (вклад в вино {0})"
 berry.moldy,Заплесневелая
 berry.normal,Нормальная
 berry.small,Маленькая
 berry.unripe,Недозревшая
 calorie.line,Энергия: {0} {1}
 calorie.per_credit," ({0} {1}/{2})"
-calorie.unit,kcal
+calorie.unit,ккал
 condition.line,Состояние: {0} {1}
 contraband.markup,Чёрный рынок: +{0}%
 generic.line,Источник: {0}
@@ -210,7 +210,7 @@ machine.eta_water," (воды хватит на {0} дн.)"
 machine.paused,Пауза: {0}
 machine.paused_label,Пауза
 hydro.water,"Вода: {0}{3} ({2}{3}/день), {1} дн."
-hydro.water_short,"Вода: {0}{3} ({2}{3}/день), <1 дня"
+hydro.water_short,"Вода: {0}{3} ({2}{3}/день), <1 дн."
 hydro.status_label,Статус: 
 hydro.eta_paused,"прибл. {0} дн., {1}"
 hydro.eta_growing,"прибл. {0} дн., {1}"
@@ -222,7 +222,7 @@ hydro.left_short,<1 дн.
 purifier.estimate,"Ожидаемое удаление этой ночью: {0} мл"
 purifier.tier," ({0} → {1})"
 purifier.label,Очистка
-purifier.rate,{0}mL/сегодня ночью
+purifier.rate,{0} мл/сегодня ночью
 fridge.no_effect,", без эффекта: {0}"
 fridge.label,Холодильник
 wine.rack,"Выдерживается бутылок: {0}, +{1} дн./день"
@@ -256,6 +256,8 @@ learning.nights,({0} {0|день|дня|дней})
 recharger.label,Зарядка
 module.days_faster,", примерно на {0} дн. быстрее"
 module.output,{0} мл в день
+module.evaporate,{0} мл испарения за ночь
+module.recover,{0}% дистиллята возвращается
 module.attract,{0}% привлекательности
 module.bargain,{0}% успеха торга
 module.theft,{0}% защиты от краж
@@ -303,7 +305,7 @@ config.info_progress_bar.tip,Заменяет текстовые индикат�
 config.info_manufacturer_inline,Название компании справа
 config.info_manufacturer_inline.tip,Переносит название компании вправо в строку с названием предмета.
 config.info_container_units,Единицы объёма контейнеров
-config.info_container_units.tip,Показывает объёмы жидкости свыше 3 L в литрах. До 3 L сохраняет ml. Независимо от оформления текста подсказок.
+config.info_container_units.tip,Показывает объёмы жидкости свыше 3 л в литрах. До 3 л сохраняет мл. Независимо от оформления текста подсказок.
 list.zone_sep,; 
 module.special_label,Особое
 module.learn_chance,{0}% шанс за ночь получить «Самообучающийся»

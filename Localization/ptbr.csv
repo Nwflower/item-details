@@ -11,7 +11,7 @@ auth.logo,Defeito no logotipo
 auth.seal,Defeito no selo
 auth.serial,Defeito no número de série
 # key,value
-alert.aug_kill_reward,Recompensa por abate-lo: {0}
+alert.aug_kill_reward,Recompensa por abatê-lo: {0}
 alert.aug_presence,Ameaça ciberaumentada: {0}/100
 alert.bounty," (recompensa {0})"
 alert.real_name,Nome real: {0}
@@ -52,7 +52,7 @@ auth.counterfeit,× Falsificação ({0})
 auth.genuine,√ Autêntico
 berry.dried,Seca
 berry.line,Qualidade de {0}: {1}
-berry.wine, (valor do vinho {0})
+berry.wine," (valor de vinificação {0})"
 berry.moldy,Mofada
 berry.normal,Normal
 berry.small,Pequena
@@ -173,7 +173,7 @@ config.container_name.tip,Mostra o nome na parte inferior do ícone de contêine
 config.container_name_bg,Fundo dos nomes
 config.container_name_bg.tip,"Opacidade do fundo preto atrás do nome (0–100%); em 0, sem fundo."
 config.customer_alert,Alerta de chegada de cliente
-config.customer_alert.tip,Avisa quando chega um cliente procurado ou ciberaumentado e mostra a recompensa real, o nome verdadeiro, e a recompensa por abate-lo e a ameaça ciberaumentada.
+config.customer_alert.tip,Avisa quando chega um cliente procurado ou ciberaumentado e mostra a recompensa real, o nome verdadeiro, e a recompensa por abatê-lo e a ameaça ciberaumentada.
 config.customer_history,Histórico ao passar o mouse
 config.customer_history.tip,Ao passar o mouse sobre um cliente da loja mostra a conversa desta visita.
 config.section.interaction,Controles
@@ -256,6 +256,8 @@ learning.nights,({0} {0|dia|dias})
 recharger.label,Carga
 module.days_faster,", cerca de {0} {0|dia|dias} mais rápido"
 module.output,{0} ml por dia
+module.evaporate,{0} ml evaporados por noite
+module.recover,{0}% de destilado recuperado
 module.attract,{0}% de atratividade
 module.bargain,{0}% de sucesso na barganha
 module.theft,{0}% de prevenção de roubo

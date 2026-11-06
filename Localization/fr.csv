@@ -52,7 +52,7 @@ auth.counterfeit,× Contrefaçon ({0})
 auth.genuine,√ Authentique
 berry.dried,Desséchée
 berry.line,Qualité de {0} : {1}
-berry.wine, (valeur du vin {0})
+berry.wine," (valeur vinicole {0})"
 berry.moldy,Partiellement moisie
 berry.normal,Normale
 berry.small,Petits grains
@@ -179,7 +179,7 @@ config.customer_history.tip,Survoler un client du magasin affiche les répliques
 config.section.interaction,Commandes
 config.double_click_inspect,Double-clic pour analyser
 config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus. L'indication de la loupe devient « Double-clic pour analyser ». Désactivez pour revenir au fonctionnement d'origine."
-config.double_click_scan,Double-clic pour analyser
+config.double_click_scan,Double-clic pour scanner
 config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Sans l'appareil, le double-clic d'origine s'applique."
 config.context_menu_scan,Ajouter le scan au menu contextuel
 config.context_menu_scan.tip,"Si vous possédez l'appareil correspondant, le menu du clic droit d'un objet propose « Scanner », qui ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines."
@@ -256,6 +256,8 @@ learning.nights,({0} {0|jour|jours})
 recharger.label,Charge
 module.days_faster,", environ {0} {0|jour|jours} plus tôt"
 module.output,{0} ml/jour
+module.evaporate,{0} ml évaporés par nuit
+module.recover,{0}% de distillat récupéré
 module.attract,{0} % d'attractivité
 module.bargain,{0} % de réussite au marchandage
 module.theft,{0} % de prévention des vols

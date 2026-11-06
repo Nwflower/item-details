@@ -12,7 +12,7 @@ auth.seal,セキュリティシールの問題
 auth.serial,シリアル番号
 # key,value
 alert.aug_kill_reward,撃破報酬：{0}
-alert.aug_presence,改造体の脅威：{0}/100
+alert.aug_presence,AI人間の脅威：{0}/100
 alert.bounty,（懸賞金 {0}）
 alert.real_name,本名：{0}
 alert.title_augmented,AI人間の客
@@ -52,7 +52,7 @@ auth.counterfeit,× 偽造品（{0}）
 auth.genuine,✓ 正規品
 berry.dried,乾燥
 berry.line,{0}の品質：{1}
-berry.wine,（ワイン評価 {0}）
+berry.wine,（醸造値 {0}）
 berry.moldy,カビあり
 berry.normal,通常
 berry.small,小さい
@@ -173,7 +173,7 @@ config.container_name.tip,コンテナと機械のアイコン下部に名前を
 config.container_name_bg,名前ラベルの背景
 config.container_name_bg.tip,名前ラベルの後ろの黒い背景の不透明度（0–100%）。0 で背景なし。
 config.customer_alert,来客アラート
-config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・撃破報酬・改造体の脅威を表示します。
+config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・撃破報酬・AI人間の脅威を表示します。
 config.customer_history,顧客にカーソルで今回の会話
 config.customer_history.tip,店内の顧客にマウスを合わせると、今回の接客で交わした会話を表示します。
 config.section.interaction,操作
@@ -256,6 +256,8 @@ learning.nights,（{0}日）
 recharger.label,充電
 module.days_faster,、約 {0} 日短縮
 module.output,{0}ml/日
+module.evaporate,{0}ml 蒸発/晩
+module.recover,蒸留液 {0}% 回収
 module.attract,{0}%魅力
 module.bargain,{0}%交渉成功率
 module.theft,{0}%盗難防止率

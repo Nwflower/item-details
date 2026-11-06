@@ -79,7 +79,7 @@ lottery.not_drawn,第{0}期尚未开奖（每周六上午公布）
 lottery.winning,中奖号码：{0}
 market.line,市场：{0}
 module.power,{0}能量/天
-module.speed,{0}速度
+module.speed,{0}作业速度
 price.buy,进价：
 price.cost_close,）
 price.cost_open,"（进价 "
@@ -256,6 +256,8 @@ learning.nights,（{0}天）
 recharger.label,充能
 module.days_faster,，约快 {0} 天
 module.output,{0}毫升/天
+module.evaporate,{0}毫升蒸发量/晚
+module.recover,{0}%蒸馏液回收
 module.attract,{0}%吸引力
 module.bargain,{0}%议价成功率
 module.theft,{0}%防盗率

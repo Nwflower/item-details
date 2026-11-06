@@ -161,7 +161,7 @@ config.container_contents,Behälterinhalt
 config.container_contents.tip,Zeigt den Inhalt unverschlossener Behälter im separaten Symbolfenster.
 config.section.info,Einstellungen für Zusatzinfos
 config.info_enhance,Zusätzliche Gegenstandsinfos
-config.info_enhance.tip,Aktiviert Zusatzinfos und zeigt ihre Einstellungen unter Enthüllung. Die Einzelauswahl bleibt beim Ausschalten erhalten.
+config.info_enhance.tip,Aktiviert Zusatzinfos und zeigt ihre Einstellungen unter Einblick. Die Einzelauswahl bleibt beim Ausschalten erhalten.
 config.tooltip_formatting,Tooltip-Textformatierung
 config.tooltip_formatting.tip,"Klarere Preisangaben, Beschreibungsumbrüche, Kalorienhinweise und Preisblockabstände. Deaktivieren erhält das originale Textlayout."
 config.type_badge,Kategorie-Plaketten
@@ -219,7 +219,7 @@ hydro.label,Wasser
 hydro.value,{0}{1} ({2}{1}/Tag)
 hydro.left,{0} {0|Tag|Tage}
 hydro.left_short,<1 Tag
-purifier.estimate,"Geschätzte Entfernung heute Nacht: {0} ml"
+purifier.estimate,Geschätzte Reinigung heute Nacht: {0} ml
 purifier.tier," ({0} → {1})"
 purifier.label,Reinigung
 purifier.rate,{0}mL/heute Nacht
@@ -256,6 +256,8 @@ learning.nights,({0} {0|Tag|Tage})
 recharger.label,Laden
 module.days_faster,", etwa {0} {0|Tag|Tage} schneller"
 module.output,{0} ml/Tag
+module.evaporate,{0} ml Verdampfung pro Nacht
+module.recover,{0}% Destillat zurückgewonnen
 module.attract,{0} % Attraktivität
 module.bargain,{0} % Feilscherfolg
 module.theft,{0} % Diebstahlschutz

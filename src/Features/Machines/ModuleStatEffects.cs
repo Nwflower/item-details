@@ -142,6 +142,15 @@ internal static class ModuleStatEffects
             PerformanceKey = "module.output", PerformanceEn = "{0} ml/day", PerformanceDivisor = 1000,
             CustomQuality = MoistureNextWater,
         },
+        // 蒸发器（MachineEvaporator 夜间回调）：每晚蒸发 300 ml × (1 + 性能%)；
+        // 蒸馏液回收比例 = 质量加成限制在 0..100 后的百分比（装溶剂回收模组时只回收酒精）
+        ["evaporator"] = new()
+        {
+            Performance = m => (int)Math.Round(300000 * Math.Max(0f, 1f + MachineryHelper.GetCurrentPerformanceBonus(m) / 100f)),
+            PerformanceKey = "module.evaporate", PerformanceEn = "{0} ml evaporated per night", PerformanceDivisor = 1000,
+            Quality = m => Math.Clamp(MachineryHelper.GetCurrentQualityBonus(m), 0, 100),
+            QualityKey = "module.recover", QualityEn = "{0}% distillate recovered",
+        },
         ["mirage_projector"] = new()
         {
             Performance = MachineProjector.GetAttractivenessBoost,
@@ -228,7 +237,8 @@ internal static class ModuleStatEffects
             : null;
         if (power != null && noPerf != null)
         {
-            if (Diff(now.Speed, noPerf.Speed) is int sp && sp != 0)
+            // 速度差为 0 也写出来（+0 速度）：性能加成被原版整数取整吃掉时，玩家能看到「加了但没用」
+            if (Diff(now.Speed, noPerf.Speed) is int sp)
             {
                 deltas.Add(("module.speed", sp));
                 string text = Loc.T("module.speed", "{0} speed", Plus(sp));
