@@ -33,23 +33,18 @@ internal static class WaterColumns
     /// <summary>规范输出里格子之间的分隔：全角空格（U+3000），排版方按它切列。</summary>
     private const char CellSeparator = '\u3000';
 
-    /// <summary>
-    /// 固定配色（按液体 identifier）：水蓝、化学污染物紫、有机废物绿、微生物黄、
-    /// 矿物质白、重金属灰、物理污染物红；其它液体按顺序取剩余颜色。
-    /// </summary>
-    private static readonly Dictionary<string, RenderHandler.ColorPalette> FixedColors = new(StringComparer.Ordinal)
-    {
-        ["water"] = RenderHandler.ColorPalette.LightBlue,
-        ["chemical_contaminant"] = RenderHandler.ColorPalette.LightPurple,
-        ["organic_waste"] = RenderHandler.ColorPalette.LightGreen,
-        ["microbe"] = RenderHandler.ColorPalette.LightYellow,
-        ["mineral"] = RenderHandler.ColorPalette.White,
-        ["heavy_metal"] = RenderHandler.ColorPalette.Gray,
-        ["physical_contaminant"] = RenderHandler.ColorPalette.LightRed,
-    };
+    /// <summary>水行固定水蓝：整张表里只有它代表「水本身」。</summary>
+    private const RenderHandler.ColorPalette WaterColor = RenderHandler.ColorPalette.LightBlue;
 
-    /// <summary>没有固定配色的液体依次取这些颜色。</summary>
-    private static readonly RenderHandler.ColorPalette[] FallbackColors =
+    /// <summary>
+    /// 杂质一律白色，不按液体种类上色。它们只回答「水里还有什么」，
+    /// 逐种配彩会让末位那几行比水本身更抢眼，也让人误以为颜色另有一层含义。
+    /// 试剂、溶剂、固体化学品里的水同样走这一类。
+    /// </summary>
+    private const RenderHandler.ColorPalette ImpurityColor = RenderHandler.ColorPalette.White;
+
+    /// <summary>药物活性成分是玩家真正要读的量，按出现顺序取色以示区分。</summary>
+    private static readonly RenderHandler.ColorPalette[] ActiveColors =
     {
         RenderHandler.ColorPalette.LightOrange,
         RenderHandler.ColorPalette.LightTurquoise,
@@ -179,14 +174,14 @@ internal static class WaterColumns
         LiquidAnalysis analysis, bool waterMismatch)
     {
         var comps = new List<(string Name, int Parts, RenderHandler.ColorPalette Color)>();
-        int activeIndex = 0, otherIndex = 0;
+        int activeIndex = 0;
         foreach (var component in analysis.Components)
         {
             string name = component.Name;
             if (waterMismatch && component.Role == "water" && analysis.LabelMismatch)
                 name += Loc.T("water.mismatch", " (doesn't match label)");
-            int index = component.Role == "active" ? activeIndex++ : component.Role == "other" ? otherIndex++ : 0;
-            comps.Add((name, component.Microliters, ColorOf(component.Id, index)));
+            int index = component.Role == "active" ? activeIndex++ : 0;
+            comps.Add((name, component.Microliters, ColorOf(component.Role, index)));
         }
         return comps;
     }
@@ -309,10 +304,11 @@ internal static class WaterColumns
             ? comps[row.Index].Color
             : RenderHandler.ColorPalette.Gray;
 
-    private static RenderHandler.ColorPalette ColorOf(string id, int fallbackIndex)
-        => id != null && FixedColors.TryGetValue(id, out var color)
-            ? color
-            : FallbackColors[fallbackIndex % FallbackColors.Length];
+    /// <summary>行的颜色：水蓝、药物活性成分按顺序取色、其余（杂质/试剂/溶剂）白色。</summary>
+    private static RenderHandler.ColorPalette ColorOf(string role, int fallbackIndex)
+        => role == "water" ? WaterColor
+         : role == "active" ? ActiveColors[fallbackIndex % ActiveColors.Length]
+         : ImpurityColor;
 
     private static string VolumeOf(int parts, bool liters)
         => WaterLayout.VolumeText(parts, liters, Loc.Culture)

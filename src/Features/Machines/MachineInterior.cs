@@ -11,7 +11,7 @@ namespace ItemDetails;
 ///      不看 MACHINE 类型或物品 ID；逐个面板读出 role、已本地化的标题和内容物。
 ///      跳过 power / module / note 面板（电池和模块另有模块显示，说明书没有信息量）。
 ///   2. 内容渲染（本文件）：按物品标签识别滤芯、液体容器、计次工具、电池，放在任何机器里都按同一规则显示。
-///      其中电池电量归「电池」，其余归「容器内容物」；专门适配归「机器」。
+///      其中电池电量归「电池」、滤芯耐久归「信息增强」，其余归「容器内容物」；专门适配归「机器」。
 ///   3. 专门适配（<see cref="MachineAdapters"/>）：进度剩余几天、水培用水、冰箱、催陈器、
 ///      自学习算法模块的学习进度（模块面板不列出，但读出来给适配器汇总）。
 ///      适配器先跑，可以"认领"面板；没被认领、也没被第二层汇总的物品由骨架按面板通用列出。
@@ -106,17 +106,24 @@ internal static class MachineInterior
         Failures.Clear();
     }
 
-    /// <param name="listing">列出内容物并做第二层汇总（「容器内容物」开关）；电池电量不在这里。</param>
+    /// <param name="listing">列出内容物并做第二层汇总（「容器内容物」开关）；滤芯与电池不在这里。</param>
     /// <param name="adapters">「机器」专门适配：剩余几天、用水、冷藏、陈化等；电量由「电池」独立控制。</param>
     /// <param name="hiddenTruth">滤芯显示真实耐久（「透视」开关）；关闭时与物品自身 tooltip 一致。</param>
     /// <param name="purity">液体容器附带水质纯度。</param>
     /// <param name="listContents">是否输出最后的通用内容物清单；不影响滤芯、液体等状态摘要。</param>
+    /// <remarks>
+    /// 滤芯耐久行不受 <paramref name="listing"/> 管辖：它跟随「信息增强」总开关
+    /// （<see cref="ModSettings.InfoEnhance"/>），与「电池」同一种待遇。
+    /// </remarks>
     internal static List<TooltipLine> Collect(GameItem? item, bool listing, bool adapters,
                                               bool hiddenTruth, bool purity, bool listContents = true)
     {
         var lines = new List<TooltipLine>();
         bool batteries = ModSettings.MachineBattery;
-        if (item == null || (!listing && !adapters && !batteries)) return lines;
+        // 滤芯耐久归「信息增强」：容器内容物关掉也照样显示。耗尽滤芯在游戏里完全不过滤，
+        // 不写出来玩家只能看到机器「在运行」，看不出它其实已经不起作用。
+        bool filters = ModSettings.InfoEnhance;
+        if (item == null || (!listing && !adapters && !batteries && !filters)) return lines;
         listContents &= !ThirdPartyProviders.HandlesTooltip(item, ItemDetailsTooltipSection.Contents);
 
         string key = KindKey(item);
@@ -127,7 +134,8 @@ internal static class MachineInterior
             if (LockedContainer.IsLocked(item)) return lines;
 
             int flags = (listing ? 1 : 0) | (adapters ? 2 : 0) | (hiddenTruth ? 4 : 0) | (purity ? 8 : 0)
-                | (listContents ? 16 : 0) | (batteries ? 32 : 0) | (ModSettings.ContainerUnits ? 64 : 0);
+                | (listContents ? 16 : 0) | (batteries ? 32 : 0) | (ModSettings.ContainerUnits ? 64 : 0)
+                | (filters ? 128 : 0);
             string locale = Loc.Code;
             float now = UnityEngine.Time.unscaledTime;
 
@@ -140,7 +148,8 @@ internal static class MachineInterior
 
             var ctx = Read(item);
             if (ctx == null) return lines;
-            if (!ctx.IsMachine && !listing) return lines;
+            // 槽位容器（过滤水壶这类）不在机器摘要里，只有清单或滤芯这两条路会读它。
+            if (!ctx.IsMachine && !listing && !filters) return lines;
 
             var all = AllItems(ctx);
             long state = StateHash(item, all);
@@ -155,9 +164,10 @@ internal static class MachineInterior
             var built = new List<TooltipLine>();
             bool clean = true;
             if (adapters && ctx.IsMachine) clean &= Stage(key, "Adapters", () => MachineAdapters.Run(ctx, built));
+            // 滤芯先认领自己的物品，后面的液体、工具与通用清单才不会重复列出它们。
+            if (filters) clean &= Stage(key, "Filters", () => SummarizeFilters(ctx, built, hiddenTruth));
             if (listing)
             {
-                clean &= Stage(key, "Filters", () => SummarizeFilters(ctx, built, hiddenTruth));
                 clean &= Stage(key, "Liquids", () => SummarizeLiquids(ctx, built, purity));
                 clean &= Stage(key, "Tools", () => SummarizeTools(ctx, built));
             }
@@ -298,6 +308,7 @@ internal static class MachineInterior
     /// <summary>
     /// 滤芯：真实耐久为 0 时游戏完全不过滤（WaterHelper.HandleFilter），玩家只看机器看不出来。
     /// 透视关闭且未揭露时显示伪装值，与滤芯自身 tooltip 一致。
+    /// 是否出这一行只看「信息增强」总开关，与「容器内容物」「机器」都无关。
     /// </summary>
     private static void SummarizeFilters(Context ctx, List<TooltipLine> lines, bool hiddenTruth)
     {

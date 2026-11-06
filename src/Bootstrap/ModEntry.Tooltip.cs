@@ -235,7 +235,9 @@ public sealed partial class ModEntry
     // ---------------- 机器与槽位容器内部：滤芯、液体、工具、剩余几晚 ----------------
     private bool TryAppendMachineInterior(TooltipSections.Writer builder, GameItem item)
     {
-        if (!ModSettings.Container && !ModSettings.Machines && !ModSettings.MachineBattery) return false;
+        // 滤芯耐久归「信息增强」总开关（见 MachineInterior.Collect），所以这里只看它：
+        // 容器内容物、机器、电池三项本来就是它的子项，总开关关掉时必然全关。
+        if (!ModSettings.InfoEnhance) return false;
         return AppendLines(builder, MachineInterior.Collect(item,
             listing: ModSettings.Container,
             adapters: ModSettings.Machines,

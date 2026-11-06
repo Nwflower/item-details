@@ -23,7 +23,7 @@
 肉类物品会显示来源物种；没有来源记录或来源无法识别时显示「未知」。同时显示朊病毒「携带」或「未标记」状态；未标记不代表食用同类肉没有感染风险。
 
 **机器内部**
-机器与水壶列出里面的东西：滤芯耐久、水量、工具剩余次数、还需几天完成、净水器今晚能净化多少（会间接透露水质）。熔炉给出下次冶炼的金属锭档位，以及质量加成还能再升几档。充电器里插着的电池逐个显示电量（归「电池」开关，与「机器」和「容器内容物」无关）。
+机器与水壶列出里面的东西：滤芯耐久、水量、工具剩余次数、还需几天完成、净水器今晚能净化多少（会间接透露水质）。熔炉给出下次冶炼的金属锭档位，以及质量加成还能再升几档。滤芯耐久归「信息增强」，与「容器内容物」「机器」无关；充电器里插着的电池逐个显示电量，归「电池」开关，同样独立。
 
 **模组效果**
 机器的每项模组加成补上实际影响，例如集水器 +136 毫升/天；带「自学习算法」的模组显示学习进度与上限。
@@ -68,7 +68,7 @@
 
 在游戏「模组」菜单中打开本模组设置，修改后点击「应用」生效。「显示优化」中的「信息增强」是总开关；开启时，在「透视」下方显示第四组「信息增强配置」，关闭时隐藏该组并保留各子项选择。
 
-第四组包含十个独立开关，默认全部开启：**价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位优化、公司名称后置**。彩票只显示结果，不改变开奖；酿酒包含原料酿酒值；机器与电池分别控制，互不依赖。容器单位优化控制超过 3 L 时改用 L 显示，独立于提示框文字优化；关闭后保留 ml。
+第四组包含十个独立开关，默认全部开启：**价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位优化、公司名称后置**。彩票只显示结果，不改变开奖；酿酒包含原料酿酒值；机器与电池分别控制，互不依赖。容器单位优化控制超过 3 L 时改用 L 显示，独立于提示框文字优化；关闭后保留 ml。滤芯耐久跟随「信息增强」总开关，与「容器内容物」无关，关闭容器内容物后水壶和机器里的滤芯耐久照常显示。
 
 水质本地化兼容修复在启用模组或重启时应用。中文字体回退没有独立设置，随模组启停，用于修复控制台等界面的中文缺字。
 
@@ -130,7 +130,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 
 Open this mod's settings in the game's Mods menu and click Apply after editing. Extra Item Info in Display is the master switch. When enabled, a fourth section, Item Info Settings, appears below Reveal; disabling it hides the section and preserves individual choices.
 
-The ten options default to on: **Price Modifiers, Black Market Markup, Lottery, Brewing, Meat, Machines, Batteries, Progress Bars, Container Volume Units, and Inline Company Name**. Lottery only displays results; Brewing includes ingredient wine values. Machines and Batteries are independent, including batteries inside chargers. Container Volume Units switches volumes above 3 L to L independently of Tooltip Text Formatting; disabling it keeps ml.
+The ten options default to on: **Price Modifiers, Black Market Markup, Lottery, Brewing, Meat, Machines, Batteries, Progress Bars, Container Volume Units, and Inline Company Name**. Lottery only displays results; Brewing includes ingredient wine values. Machines and Batteries are independent, including batteries inside chargers. Container Volume Units switches volumes above 3 L to L independently of Tooltip Text Formatting; disabling it keeps ml. Filter durability follows the Extra Item Info master switch rather than Container Contents, so it stays visible with Container Contents off.
 
 Both the water probe prewarm and the water localization fix follow **Liquid Composition Analysis**: they run whenever it is set to With scanner or Always, so there is no separate switch for either. Chinese font fallback follows the mod's lifecycle without a separate setting and repairs missing Chinese glyphs in the console and other UI.
 
