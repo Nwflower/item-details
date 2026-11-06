@@ -1,0 +1,2 @@
+machine-speed|basePerDay=6;currentPerDay=8;group=machine;|text:Speed: :LightCyan:0:0:0:;text:6 → :Gray:0:0:0:;text:8/day:LightGreen:0:0:0:;break::0:0:0:0:;
+value|parts=<ReadOnlyCollection`1>;perfectMax=525;perfectMin=475;total=500;|line:Total: 500 | perfect 475-525:Green:0:0:0:;text:From: :White:0:0:0:;text:Base100:White:0:0:0:;text:+Carbon composite50:White:0:0:0:;text:+Neural interface120:White:0:0:0:;text:+Armor add-on50:White:0:0:0:;text:+Blade add-on80:White:0:0:0:;text:+Tactical set bonus100:White:0:0:0:;break::0:0:0:0:;

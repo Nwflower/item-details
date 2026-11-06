@@ -99,7 +99,8 @@ private static void ReadWaterRows(IReadOnlyDictionary<string, object> fields)
 
 - **可用性**：`SectionProtocolAvailable` / `LiquidProtocolAvailable` 反映物品详情是否在线；区块是否**适用**仍以快照/查询返回为准（设置关闭、缺扫描仪时返回空）。
 - **接管要成套**：`RegisterTooltipSections` 的回调只在本次构建区块准备完成后返回 true；返回 false 或抛错都算不接管。接管 `contents`/`sealed-contents` 时同步用 `RegisterTooltipLayout` 声明 `DrawsContents`，让分类徽章和图标浮窗贴你的窗口。
-- **字段只增不改**：区块 ID 用 `TooltipSectionIds` 常量；读取用 `TryGet` 并给默认值。`CanReplace=false` 的区块（`label`、`manufacturer`、`inspect-hint` 等）是原生行的展示，物品详情没有独立输出它们。
+- **字段只增不改**：区块 ID 用 `TooltipSectionIds` 常量；读取用 `TryGet` 并给默认值。`CanReplace=false` 的区块是原生行的展示（`label`、`manufacturer`、`inspect-hint`、`liquid-volume`、`price`、`calories`、`machine-effect` 等）：那几行的原文由游戏写出，物品详情只在原版窗口里换显示，接管也压不掉原版那一行。
+- **离线契约样例**：`tests/fixtures/sections/contract.txt` 是固定物品的区块快照（id、`group`、字段名与标量、每段 run 的形状），不启动游戏就能拿来测归类。
 - **布局声明**：附加进度条统一走游戏 `AddProgressBar`，成分表统一提供自然文本，旧 `NativeProgressBars` / `FlowingText` 声明继续有效且无需迁移。回调返回 null 表示本次不接管排版。
 - **旧版支持**：新字段和槽位可选，已有消费者无需更新 SDK。SectionedTooltips 1.6.2 / 1.6.3 的配置兼容由物品详情维护；范围和显式协议优先规则见 [CONTRIBUTING.md](../CONTRIBUTING.md)。徽章未显示时槽位返回 null，旧节点名仍保留。
 - **锚点**：`RegisterTooltipAnchor` 每次返回当前可见提示框的 `RectTransform`；窗口重建后无需重新注册。

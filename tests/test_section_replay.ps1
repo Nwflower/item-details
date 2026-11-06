@@ -1,5 +1,5 @@
 #Requires -Version 7.4
-param([Parameter(Mandatory)][string]$GameDir)
+param([Parameter(Mandatory)][string]$GameDir, [switch]$Update)
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $managed = Join-Path $GameDir 'Probably Stolen_Data/Managed'
@@ -31,6 +31,37 @@ public static class ReplayProbe
             sb.Append(s.Id).Append('|');
             foreach (var f in s.Fields) sb.Append(f.Key).Append('=').Append(f.Value).Append(';');
             foreach (var r in s.Runs) sb.Append(r.Kind).Append(':').Append(r.Text).Append(':').Append(r.Color).Append(';');
+        }
+        return sb.ToString();
+    }
+    // 契约样例：区块 id、group 字段、其余字段（按名字排序）与每段 run 的形状。
+    // 数字一律按不变文化格式化，跨机器与区域设置可比。
+    // 字段值只写形状：标量按不变文化格式化，集合等复杂值只记类型名，读法由 SDK 的类型化访问器负责。
+    private static string Fmt(object v)
+    {
+        if (v == null) return "null";
+        if (v is string s) return s;
+        if (v is bool b) return b ? "true" : "false";
+        if (v is System.IFormattable f) return f.ToString(null, System.Globalization.CultureInfo.InvariantCulture);
+        return "<" + v.GetType().Name + ">";
+    }
+    public static string Canonical(RichTextBuilder builder)
+    {
+        if (!ItemDetailsClient.TryGetTooltipSections(builder, out var sections)) return "";
+        var sb = new System.Text.StringBuilder();
+        foreach (var s in sections)
+        {
+            var keys = new System.Collections.Generic.List<string>();
+            foreach (var f in s.Fields) keys.Add(f.Key);
+            keys.Sort(string.CompareOrdinal);
+            sb.Append(s.Id).Append('|');
+            foreach (var k in keys) sb.Append(k).Append('=').Append(Fmt(s.Fields[k])).Append(';');
+            sb.Append('|');
+            foreach (var r in s.Runs)
+                sb.Append(r.Kind).Append(':').Append(r.Text).Append(':').Append(r.Color).Append(':')
+                  .Append(r.Ratio.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)).Append(':')
+                  .Append(r.Length).Append(':').Append(r.Background).Append(':').Append(r.Tail).Append(';');
+            sb.Append('\n');
         }
         return sb.ToString();
     }
@@ -91,6 +122,20 @@ try {
     Check ($probe::UsesStableIds($first)) "emitted ids match the SDK constants (actual: $($probe::Ids($first)))"
     Check ($probe::Runs($first).Contains('basePerDay=6') -and $probe::Runs($first).Contains('currentPerDay=8')) 'machine speed fields survive into the snapshot'
     Check ($probe::Runs($first).Contains('total=500')) 'appraisal total survives into the snapshot'
+
+    # 契约样例：固定物品的快照逐字比对，双方共用同一份文件测归类。
+    $fixture = Join-Path $repo 'tests/fixtures/sections/contract.txt'
+    $canonical = $probe::Canonical($first)
+    if ($Update) {
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $fixture) | Out-Null
+        [IO.File]::WriteAllText($fixture, $canonical.Replace("`r`n", "`n"), [Text.UTF8Encoding]::new($false))
+        Write-Output "UPDATED $fixture"
+    }
+    else {
+        Check (Test-Path $fixture) 'section contract fixture exists (run with -Update to create it)'
+        $expected = ([IO.File]::ReadAllText($fixture)).Replace("`r`n", "`n")
+        Check ($canonical -eq $expected) "section snapshots match the frozen contract fixture$(if ($canonical -ne $expected) { "`n--- expected ---`n$expected--- actual ---`n$canonical" })"
+    }
 
     # C# 5 客户端：槽位按委托的运行时类型匹配，只编译通过不够，必须真的读到同一份快照。
     $c5Path = Join-Path $repo 'tests/CSharp5Client/bin/Release/netstandard2.1/ItemDetailsClient5.dll'
@@ -220,6 +265,17 @@ $state = [object[]]@($sb4, $null); $before.Invoke($null,$state)
 Check ($l4.Count -eq 3 -and [object]::ReferenceEquals($l4[1],$w1) -and [object]::ReferenceEquals($l4[2],$alt)) 'appended note follows the untouched native slice'
 [void]$after.Invoke($null,@($sb4, $state[1], $null))
 Check ($l4.Count -eq 2) 'append rolls back to canonical slices'
+# 多段显示：价格行由售价、进价、标价几段不同颜色拼成，替换后片段数跟着变。
+$sb6 = [RichTextBuilder]::new(40); $l6 = $sliceField.GetValue($sb6)
+$x0 = New-Slice; $x1 = New-Slice; $l6.Add($x0); $l6.Add($x1)
+$twoParts = [Array]::CreateInstance($partType, 2)
+$twoParts.SetValue([Activator]::CreateInstance($partType, $rw, $null, @('售价: 69', $style), $null), 0)
+$twoParts.SetValue([Activator]::CreateInstance($partType, $rw, $null, @("`n标价: 60", $style), $null), 1)
+$replace.Invoke($null, @($sb6, 1, '预估价值: 69, 基础价值: 60', $twoParts))
+$state = [object[]]@($sb6, $null); $before.Invoke($null,$state)
+Check ($l6.Count -eq 3 -and [object]::ReferenceEquals($l6[0],$x0) -and [object]::ReferenceEquals($l6[1],$alt) -and [object]::ReferenceEquals($l6[2],$alt)) 'multi-part display keeps every styled piece'
+[void]$after.Invoke($null,@($sb6, $state[1], $null))
+Check ($l6.Count -eq 2 -and [object]::ReferenceEquals($l6[1],$x1)) 'multi-part display rolls back'
 # 隐藏：整行连换行一起去掉，不留空行。
 $sb5 = [RichTextBuilder]::new(40); $l5 = $sliceField.GetValue($sb5)
 $h0 = New-Slice; $h1 = New-Slice; $l5.Add($h0); $l5.Add($h1)

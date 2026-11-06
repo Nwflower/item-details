@@ -437,10 +437,8 @@ internal static class TooltipPipeline
             {
                 var cur = _current;
 
-                if (cur != null && TryBuildPriceLine(cur, builder, color))
-                {
-                    return false;   // 已自行输出，丢弃原行
-                }
+                // 构造成功就由渲染层把这一行换成售价/进价/标价；原版行留在 builder 里给第三方
+                if (cur != null && TryBuildPriceLine(cur, builder, color)) return true;
 
                 // 构造失败就保留原版文案，不再"只换词"糊一个自己没验证的版本
                 Log.Warn("TooltipPipeline.PriceTerms", "价格行构造失败，保留原版文案");
@@ -565,6 +563,9 @@ internal static class TooltipPipeline
     ///
     /// 标价只在它与售价不同（<c>list != sell</c>）时写：没有价格修正的物品两个数本就相等，
     /// 再写一遍只是把同一个数字重复两次。差异来源由价格影响行（标签/状态）与市场行解释。
+    ///
+    /// 返回 true 表示已登记显示写法：原版那行留在 builder 里（第三方读到的是原版价格文案），
+    /// 原版窗口构建时换成这里拼的行。
     /// </summary>
     private static bool TryBuildPriceLine(GameItem item, RichTextBuilder builder, RenderHandler.ColorPalette color)
     {
@@ -607,9 +608,16 @@ internal static class TooltipPipeline
             output.Field("sell", sell);
             output.Field("list", list);
             if (buy != 0) output.Field("buy", buy);
+
+            // 显示写法：售价（进价 差价）+ 标价；超宽时标价另起一行。原版那行留在 builder 里不动。
+            var parts = new List<RenderSlices.Part>(5) { Part(sellPart, color) };
             output.Add(sellPart, color);
             if (buy != 0)
             {
+                parts.Add(Part(buyHead, RenderHandler.ColorPalette.Gray));
+                parts.Add(Part(buy.ToString(), RenderHandler.ColorPalette.Gray));
+                if (diff != 0) parts.Add(Part(diffTxt, diffColor));
+                parts.Add(Part(buyTail, RenderHandler.ColorPalette.Gray));
                 output.Add(buyHead, RenderHandler.ColorPalette.Gray);
                 output.Add(buy.ToString(), RenderHandler.ColorPalette.Gray);
                 if (diff != 0) output.Add(diffTxt, diffColor);
@@ -620,22 +628,25 @@ internal static class TooltipPipeline
             {
                 if (splitLines)
                 {
+                    parts.Add(Part("\n" + listPart.TrimStart(), color));
                     output.NextLine();
                     output.Add(listPart.TrimStart(), color);
                 }
                 else
                 {
+                    parts.Add(Part(listPart, color));
                     output.Add(listPart, color);
                 }
             }
 
-            output.NextLine();
-            output.Emit();
+            // 行本身是原版的：只对外提供数据，显示走渲染注解
+            output.Observe();
+            Show(parts.ToArray());
             _priceEmbeddedBuy = buy != 0;
 
             // 性价比紧跟价格行，与它的来源放在一起
-            ValueEnhance.TryWrite(builder, item);
-            return true;   // 已自行输出，调用方丢弃原行
+            _afterValueEnhance = true;
+            return true;
         }
         catch (Exception ex)
         {
