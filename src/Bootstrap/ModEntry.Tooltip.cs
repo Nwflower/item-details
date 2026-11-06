@@ -442,6 +442,9 @@ public sealed partial class ModEntry
         // 建议行不参与「折叠水质成分」：那条折叠只收 1% 以下的小成分，
         // 建议本身是玩家操作水时的依据，始终画出来，不再要求按 Ctrl。
         // 一种手段一行，增益右对齐到成分表的百分比列
+        // 折行预算按最长的一行留：名称里常有空格，预算不够时原版会在名称中间折行，右对齐随之错位
+        foreach (var m in shown)
+            builder.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(m.Name + "　+00.00%")));
         return AppendLines(builder, WaterColumns.AdviceLines(shown, RenderHandler.ColorPalette.LightTurquoise));
     }
 

@@ -69,10 +69,12 @@ internal static class ModuleEffectAnnotation
                 if (changes != null) output.Field("changes", changes);
             }
             string annotation = note.Length > 0 ? " (" + note + ")" : "";
-            // 净水器的质量：第三列直接用它自己的「纯度上限」（原版文案与数值），比「再加多少能到纯水」更直观；
-            // 规范文本里没有注释时也补上这一句，因为原版单独那行在色块模式下会被去掉
-            string? purity = kind == 'q' ? PurityText(item) : null;
-            if (purity != null && annotation.Length == 0) annotation = " (" + purity + ")";
+            // 净水器的质量：第三列直接用它自己的「纯度上限」（原版文案与数值），比「再加多少能到纯水」更直观。
+            // 原版单独那行只在色块模式下才被丢，所以纯度也只在色块可用时并进来；
+            // 规范文本同时带注释与纯度上限，渲染层的第三列再取舍，读正文的一方信息不少
+            string? purity = kind == 'q' && LabelChips.Available ? PurityText(item) : null;
+            if (purity != null)
+                annotation = " (" + (note.Length > 0 ? note + "; " : "") + purity + ")";
             // 第三列的显示文字：列已经靠缩进分隔，不再加括号
             string shown = purity ?? note;
             output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)

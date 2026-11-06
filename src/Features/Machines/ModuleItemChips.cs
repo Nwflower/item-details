@@ -50,7 +50,6 @@ internal static class ModuleItemChips
             if (!item.IsTag("MODULE_TAG")) return true;
 
             var rows = new List<Row>();
-            string header = LocHelper.GetLocalizedMechanic("mech_module_effect_header") ?? "";
             string baseLabel = LocHelper.GetLocalizedMechanic("mech_base_stat") ?? "";
             string special = Loc.T("module.special_label", "Special");
             float col2 = Math.Max(ModuleEffectAnnotation.ColumnEm(),
@@ -89,7 +88,7 @@ internal static class ModuleItemChips
                     effects.Add((effect.displayName, effect.description));
             }
 
-            if (rows.Count == 0 && effects.Count == 0 && stuck.Length == 0) return false;   // 空块：连表头一起不写
+            if (rows.Count == 0 && effects.Count == 0 && stuck.Length == 0) return false;   // 空块什么都不写；有内容时表头也不写（每项都带色块，表头多余）
 
             // ---- 以下才动笔 ----
             var output = new TooltipSections.Writer(builder, item, "module-effect", TooltipGroupIds.Module);

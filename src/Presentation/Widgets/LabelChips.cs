@@ -80,7 +80,7 @@ internal static class LabelChips
     {
         try
         {
-            bool patched = false;
+            bool patched = false;   // 只认「显示」补丁：没有它就没有任何东西画底色，不能算可用
             foreach (var m in new[]
             {
                 AccessTools.Method(typeof(OverlayHandler), "ShowTooltip",
@@ -91,7 +91,7 @@ internal static class LabelChips
             {
                 patched |= scope.Patch(m, postfix: new HarmonyMethod(typeof(LabelChips), nameof(AfterShow)));
             }
-            patched |= scope.Patch(AccessTools.Method(typeof(OverlayHandler), "HideTooltip"),
+            scope.Patch(AccessTools.Method(typeof(OverlayHandler), "HideTooltip"),
                 postfix: new HarmonyMethod(typeof(LabelChips), nameof(AfterHide)));
 
             _installed = patched;
@@ -103,6 +103,7 @@ internal static class LabelChips
     internal static void Remove()
     {
         _installed = false;
+        _broken = false;
         try { if (_container != null) UnityEngine.Object.Destroy(_container); } catch { }
         _container = null;
         _containerRect = null;
@@ -123,6 +124,7 @@ internal static class LabelChips
 
     private static void AfterShow()
     {
+        if (_broken) return;   // 出过错就不再每帧重试
         try
         {
             var tmp = SpriteProgressBar.TooltipText();
