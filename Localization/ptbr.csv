@@ -185,7 +185,7 @@ config.double_click_scan.tip,"Se você tiver o dispositivo correspondente, cliqu
 config.context_menu_scan,Adicionar escaneamento ao menu de contexto
 config.context_menu_scan.tip,"Se você tiver o dispositivo correspondente, o menu do clique direito do item ganha a opção ""Escanear"", que abre o painel de escaneamento: scanner de água ou químico para líquidos e produtos químicos, scanner de raios X para caixas de suprimentos trancadas e analisador de plantas para sementes."
 config.fold_water_components,Recolher componentes da água
-config.fold_water_components.tip,Só os componentes acima de 1% são listados. Segure uma das teclas Ctrl para mostrar os recolhidos junto com a recomendação de purificação. Desative para sempre listar todos os componentes.
+config.fold_water_components.tip,Só os componentes acima de 1% são listados. Segure uma das teclas Ctrl para mostrar os recolhidos. Desative para sempre listar todos os componentes.
 config.section.reveal,Revelação
 config.hidden_truth,Revelar disfarces e valores reais
 config.hidden_truth.tip,"Mostra o que as características disfarçadas escondem, a durabilidade real e a pureza real de lingotes e produtos químicos. Expõe falsificações na hora e facilita muito a avaliação."

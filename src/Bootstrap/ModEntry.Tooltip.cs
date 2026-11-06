@@ -302,9 +302,7 @@ public sealed partial class ModEntry
         {
             // 液体容器：表头只画「体积条 + 2000/2000mL 档位」，下面每种成分一行；
             // 单元格按全角空格分隔，原版窗口构建时换成 TMP 的 <pos> 三列（见 WaterColumns）。
-            var table = WaterColumns.Build(r, item,
-                advicePossible: !ThirdPartyProviders.HandlesTooltip(item, ItemDetailsTooltipSection.WaterAdvice),
-                visible: visible);
+            var table = WaterColumns.Build(r, visible: visible);
             PublishWaterRows(builder, visible);
             // 折行预算按本表实际最宽的一行算：原版 40（中文折算 26）通常够用，
             // 只有名称特别长的行才放宽，且只放宽到够用。以前一律放到 64，
@@ -429,10 +427,8 @@ public sealed partial class ModEntry
         if (LiquidQueries.TryDisplay(ItemDetailsClient.AdviceDisplay, item, shown)) return true;
         if (shown.Count == 0) return builder.Capturing;
 
-        // 折叠态不画建议行：默认只留水和大于 1% 的杂质，按 Ctrl 连建议一起展开。
-        // 数据仍然通过 Field 暴露给快照与接管方。
-        if (!WaterColumns.Expanded()) return builder.Capturing;
-
+        // 建议行不参与「折叠水质成分」：那条折叠只收 1% 以下的小成分，
+        // 建议本身是玩家操作水时的依据，始终画出来，不再要求按 Ctrl。
         bool wrote = false;
         foreach (var mtd in shown)
         {

@@ -212,7 +212,7 @@ internal static class TooltipDump
             foreach (var it in Liquids()) { if (it.identifier == "large_bottled_water") { sample = it; break; } }
             if (sample == null) { Report.AppendLine("没有大瓶水样本"); return; }
             var r = WaterInfo.Analyze(sample);
-            var rows = WaterColumns.Build(LiquidQueries.Snapshot(r, sample), sample);
+            var rows = WaterColumns.Build(LiquidQueries.Snapshot(r, sample));
 
             TMPro.TMP_FontAsset? font = null;
             foreach (var t in UnityEngine.Object.FindObjectsOfType<TMPro.TMP_Text>())

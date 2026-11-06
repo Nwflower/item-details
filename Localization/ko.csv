@@ -185,7 +185,7 @@ config.double_click_scan.tip,"해당 장치를 보유하고 있으면 아이템�
 config.context_menu_scan,우클릭 메뉴에 스캔 추가
 config.context_menu_scan.tip,"해당 장치를 보유하고 있으면 아이템 우클릭 메뉴에 '스캔'이 추가되어 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다."
 config.fold_water_components,물 성분 접기
-config.fold_water_components.tip,1%를 넘는 성분만 표시합니다. 접힌 성분과 정화 조언은 Ctrl 키(좌우 아무거나)를 누르고 있는 동안 표시됩니다. 끄면 항상 모든 성분을 표시합니다.
+config.fold_water_components.tip,1%를 넘는 성분만 표시합니다. 접힌 성분은 Ctrl 키(좌우 아무거나)를 누르고 있는 동안 표시됩니다. 끄면 항상 모든 성분을 표시합니다.
 config.section.reveal,투시
 config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."

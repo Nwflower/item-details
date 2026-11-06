@@ -50,7 +50,7 @@
 默认开启。拥有对应设备时，液体、化学品、种子或上锁补给箱的右键菜单里多出「扫描」，点击直接打开扫描结果。不占用双击。可以和双击扫描同时开启。
 
 **折叠水质成分**
-默认开启。成分类提示框只列 1% 以上的成分，被折起的小成分与净化建议按住左右 Ctrl 展开；关闭后始终列出全部成分。
+默认开启。成分类提示框只列 1% 以上的成分，被折起的小成分按住左右 Ctrl 展开；关闭后始终列出全部成分。净化建议不参与折叠，始终显示。
 
 **透视（可选）**
 这一组会明显降低难度，按喜好开启：
@@ -125,7 +125,7 @@ A *Probably Stolen* mod: hover over an item and its tooltip shows authenticity, 
 - **Double-click to inspect** — open the inspection panel without the Magnifying Glass; double-click another item to switch.
 - **Double-click to scan** (off by default; preserves the old setting) — scan liquids, chemicals, seeds and locked supply crates when you own the matching scanner. Native container-opening and activation actions take priority.
 - **Add Scan to context menu** (on by default) — independently adds a Scan entry to the right-click menu for the same item types; both controls may be enabled together.
-- **Fold water components** (on by default) — composition tables list only components above 1%; hold either Ctrl to expand the folded ones along with the purification advice. Turn it off in Controls to always list everything.
+- **Fold water components** (on by default) — composition tables list only components above 1%; hold either Ctrl to expand the folded ones. Turn it off in Controls to always list everything. The purification advice is never folded and always shows.
 - **Reveal (optional)** — Authenticity Check, Appraisal Calculator, Customer Arrival Alert and Reveal Disguises & True Stats are on by default. Liquid Composition Analysis turns on when you own a scanner. Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off, because they make the game noticeably easier.
 
 Open this mod's settings in the game's Mods menu and click Apply after editing. Extra Item Info in Display is the master switch. When enabled, a fourth section, Item Info Settings, appears below Reveal; disabling it hides the section and preserves individual choices.

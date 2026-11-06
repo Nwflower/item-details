@@ -210,7 +210,7 @@ internal static class WaterColumns
     {
         var comps = Components(analysis, waterMismatch: false);
         var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, Expanded(),
-            hintWithoutFolded: false, FoldHint, WaterInfo.Amount, Loc.Culture);
+            FoldHint, WaterInfo.Amount, Loc.Culture);
         visible?.AddRange(plan.Rows);
 
         var lines = RowLines(plan.Rows, comps);
@@ -234,14 +234,11 @@ internal static class WaterColumns
     /// <summary>
     /// 液体容器的成分表：体积条表头 + 每种成分一行。
     /// 低于 1% 的成分折起，按住 Ctrl 全部展开——默认只留水和大项，行数少、
-    /// tooltip 也就不被那条长建议撑宽。净化建议同样只在展开时出现（见
-    /// ModEntry.TryAppendWaterAdvice），所以建议被折起来时也要留一行提示。
+    /// tooltip 也就不被那条长建议撑宽。净化建议不受折叠影响，始终单独一行
+    /// （见 ModEntry.TryAppendWaterAdvice），所以提示行只在真的折了成分时出现。
     /// </summary>
-    /// <param name="advicePossible">净化建议这段是否可能显示；被第三方接管时不模拟，
-    /// 免得白跑一次昂贵的净化试算。</param>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
-    internal static List<TooltipLine> Build(LiquidAnalysis analysis, GameItem item, bool advicePossible = true,
-        List<WaterRow>? visible = null)
+    internal static List<TooltipLine> Build(LiquidAnalysis analysis, List<WaterRow>? visible = null)
     {
         int totalMl = analysis.TotalMicroliters / 1000;
         int capacityMl = analysis.CapacityMicroliters / 1000;
@@ -250,14 +247,8 @@ internal static class WaterColumns
             ? Math.Min(1f, (float)analysis.TotalMicroliters / analysis.CapacityMicroliters) : 0f;
         bool expand = Expanded();
 
-        // 折叠态也要知道有没有净水建议：建议同样只在展开时画，没有折叠的杂质时
-        // 也得给一行提示，否则玩家不知道按 Ctrl 还有东西。与 water-advice 渲染器
-        // 共用同一次模拟（LiquidQueries 按本次构建缓存）。
-        var advice = advicePossible ? LiquidQueries.GetAdvice(item) : null;
-        bool adviceFolded = !expand && advice != null && advice.Count > 0;
-
         var comps = Components(analysis, waterMismatch: true);
-        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expand, adviceFolded,
+        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expand,
             FoldHint, parts => VolumeOf(parts, liters), Loc.Culture);
         visible?.AddRange(plan.Rows);
 

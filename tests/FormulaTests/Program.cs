@@ -67,7 +67,7 @@ Check("liquid amounts above 3 liters use liters", () =>
 });
 Check("component table folds sub-1% rows into a hint with the empty amount cell", () =>
 {
-    var table = WaterTable.Build(Components(), 1_908_000, expanded: false, hintWithoutFolded: false,
+    var table = WaterTable.Build(Components(), 1_908_000, expanded: false,
         "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture);
     Require(table.Rows.Count == 3, "two bulky components plus one hint row");
     Require(table.Rows[0].Kind == WaterRowKind.Component && table.Rows[0].Percent == "78.62%", "water percent");
@@ -80,30 +80,22 @@ Check("component table folds sub-1% rows into a hint with the empty amount cell"
 });
 Check("component table lists everything and drops the hint while expanded", () =>
 {
-    var table = WaterTable.Build(Components(), 1_908_000, expanded: true, hintWithoutFolded: true,
+    var table = WaterTable.Build(Components(), 1_908_000, expanded: true,
         "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture);
     Require(table.Rows.Count == 4, "expanded table has no hint row");
     foreach (var row in table.Rows) Require(row.Kind == WaterRowKind.Component, "only component rows");
     Require(table.FoldedCount == 0, "nothing folded while expanded");
 });
-Check("liquid keeps a hint when only the advice is folded", () =>
+Check("no hint at all when nothing is folded", () =>
 {
-    var table = WaterTable.Build(BigComponents(), 1_908_000, expanded: false, hintWithoutFolded: true,
-        "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture);
-    var hint = table.Rows[table.Rows.Count - 1];
-    Require(hint.Kind == WaterRowKind.FoldHint, "advice-only fold still explains Ctrl");
-    Require(hint.Percent.Length == 0, "no folded parts means no total in the percent cell");
-});
-Check("no hint at all when nothing is folded and no advice hides behind Ctrl", () =>
-{
-    var table = WaterTable.Build(BigComponents(), 1_908_000, expanded: false, hintWithoutFolded: false,
+    var table = WaterTable.Build(BigComponents(), 1_908_000, expanded: false,
         "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture);
     Require(table.Rows.Count == 2, "only the two visible components");
     foreach (var row in table.Rows) Require(row.Kind == WaterRowKind.Component, "no hint row");
 });
 Check("solid components reuse the same rows with their own amount format", () =>
 {
-    var table = WaterTable.Build(Components(), 1_908_000, expanded: false, hintWithoutFolded: false,
+    var table = WaterTable.Build(Components(), 1_908_000, expanded: false,
         "Ctrl to expand", p => (p / 1000.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " mL",
         System.Globalization.CultureInfo.InvariantCulture);
     Require(table.Rows[0].Amount == "1500.00 mL", "solid amount comes from the injected formatter, got " + table.Rows[0].Amount);
@@ -121,7 +113,7 @@ Check("a near-full bar matches either fill convention", () =>
 });
 Check("flowing rows always keep three cells, hint included", () =>
 {
-    var table = WaterTable.Build(Components(), 1_908_000, expanded: false, hintWithoutFolded: false,
+    var table = WaterTable.Build(Components(), 1_908_000, expanded: false,
         "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture);
     string[] component = WaterTable.JoinCells(table.Rows[0], '　').Split('　');
     Require(component.Length == 3 && component[1] == "1500000u", "component keeps name, amount, percent");

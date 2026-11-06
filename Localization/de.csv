@@ -185,7 +185,7 @@ config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein
 config.context_menu_scan,Scannen zum Kontextmenü hinzufügen
 config.context_menu_scan.tip,"Wenn Sie das passende Gerät besitzen, enthält das Rechtsklickmenü eines Gegenstands den Eintrag „Scannen“, der die Scanansicht öffnet: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen."
 config.fold_water_components,Wasserbestandteile einklappen
-config.fold_water_components.tip,"Nur Bestandteile über 1 % werden gelistet. Zum Aufklappen der eingeklappten Bestandteile und der Reinigungsempfehlung eine der Strg-Tasten gedrückt halten. Ausschalten, um immer alle Bestandteile zu zeigen."
+config.fold_water_components.tip,"Nur Bestandteile über 1 % werden gelistet. Zum Aufklappen der eingeklappten Bestandteile eine der Strg-Tasten gedrückt halten. Ausschalten, um immer alle Bestandteile zu zeigen."
 config.section.reveal,Einblick
 config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."

@@ -168,8 +168,7 @@ internal static class ModSettings
             FoldWaterToggle.Define(_cfg, "fold_water_components", SecInteractionKey, SecInteractionEn,
                 Text("config.fold_water_components", "Fold Water Components"),
                 Text("config.fold_water_components.tip", "Only components above 1% are listed. Hold either Ctrl " +
-                     "to expand the folded ones together with the purification advice. Turn off to always list " +
-                     "every component."));
+                     "to expand the folded ones. Turn off to always list every component."));
 
             // ================= 透视 =================
             AuthenticityToggle.Define(_cfg, "show_authenticity", SecRevealKey, SecRevealEn,

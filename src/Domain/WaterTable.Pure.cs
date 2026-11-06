@@ -65,14 +65,12 @@ internal static class WaterTable
     /// <param name="components">按含量降序的成分；下标用于回查颜色。</param>
     /// <param name="totalParts">占比的分母，含低于显示阈值的微量成分。</param>
     /// <param name="expanded">按住 Ctrl：全部列出，不画提示行。</param>
-    /// <param name="hintWithoutFolded">没有折起来的成分时也要提示（液体：净化建议同样只在展开时画）。</param>
     /// <param name="hint">折叠提示的文案，已本地化。</param>
     /// <param name="amountOf">用量格的格式化：液体用容器体积单位，固体用扫描仪的量。</param>
     internal static Plan Build(
         IReadOnlyList<(string Name, int Parts)> components,
         int totalParts,
         bool expanded,
-        bool hintWithoutFolded,
         string hint,
         Func<int, string> amountOf,
         IFormatProvider? culture)
@@ -92,10 +90,11 @@ internal static class WaterTable
                 amountOf(component.Parts), Percent(component.Parts, totalParts, culture)));
         }
 
-        if (!expanded && (foldedCount > 0 || hintWithoutFolded))
+        // 只有真的折起了成分才提示：净化建议始终显示，不再藏在 Ctrl 后面。
+        if (!expanded && foldedCount > 0)
         {
             rows.Add(new WaterRow(WaterRowKind.FoldHint, -1, hint, "",
-                foldedCount > 0 ? Percent(foldedParts, totalParts, culture) : ""));
+                Percent(foldedParts, totalParts, culture)));
         }
 
         return new Plan(rows.AsReadOnly(), foldedParts, foldedCount);

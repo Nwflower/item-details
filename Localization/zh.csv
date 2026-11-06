@@ -185,7 +185,7 @@ config.double_click_scan.tip,拥有对应设备时，双击物品直接打开扫
 config.context_menu_scan,右键菜单添加扫描
 config.context_menu_scan.tip,拥有对应设备时，物品右键菜单里多出「扫描」，点击即打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。
 config.fold_water_components,折叠水质成分
-config.fold_water_components.tip,成分表只列 1% 以上的成分，被折起的小成分与净化建议按住左右 Ctrl 展开；关闭后始终列出全部成分。
+config.fold_water_components.tip,成分表只列 1% 以上的成分，被折起的小成分按住左右 Ctrl 展开；关闭后始终列出全部成分。
 config.section.reveal,透视
 config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。

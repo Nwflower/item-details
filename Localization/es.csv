@@ -185,7 +185,7 @@ config.double_click_scan.tip,"Si tienes el dispositivo correspondiente, haz dobl
 config.context_menu_scan,Añadir escaneo al menú contextual
 config.context_menu_scan.tip,"Si tienes el dispositivo correspondiente, el menú del clic derecho de un objeto incluye «Escanear», que abre su panel de escaneo: escáner de agua o químico para líquidos y productos químicos, escáner de rayos X para cajas de suministros cerradas y analizador de plantas para semillas."
 config.fold_water_components,Plegar componentes del agua
-config.fold_water_components.tip,Solo se listan los componentes por encima del 1 %. Mantén pulsada cualquiera de las teclas Ctrl para mostrar los plegados junto con la recomendación de purificación. Desactívalo para listar siempre todos los componentes.
+config.fold_water_components.tip,Solo se listan los componentes por encima del 1 %. Mantén pulsada cualquiera de las teclas Ctrl para mostrar los componentes plegados. Desactívalo para listar siempre todos los componentes.
 config.section.reveal,Revelación
 config.hidden_truth,Revelar disfraces y valores reales
 config.hidden_truth.tip,"Muestra qué ocultan las características disfrazadas, la durabilidad real y la pureza real de lingotes y productos químicos. Delata las falsificaciones y facilita mucho la tasación."
