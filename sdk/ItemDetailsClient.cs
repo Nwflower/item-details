@@ -218,6 +218,9 @@ internal sealed class TooltipSection
         return true;
     }
 
+    /// <summary>“（另 N 项低于显示阈值）”那一行的整行文本；没有隐藏成分时返回 false。</summary>
+    internal bool TryGetTrace(out string text) => TryGet("trace", out text);
+
     internal bool TryGetMachineEffect(out (string Stat, int? BonusPercent, string Text,
         IReadOnlyList<(string Metric, double Delta)> Changes) effect)
     {

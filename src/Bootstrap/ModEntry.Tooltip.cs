@@ -317,6 +317,9 @@ public sealed partial class ModEntry
             // 成分与液体容器共用同一份行数据与同一种写法。
             var table = WaterColumns.BuildSolid(r, visible);
             PublishWaterRows(builder, visible);
+            // 低于阈值那一行不是成分行，单发一个字段，读取方才能把它归到液体里。
+            string? trace = WaterColumns.TraceLine(r);
+            if (trace != null) builder.Field("trace", trace);
             AppendLines(builder, table);
             wrote = true;
         }

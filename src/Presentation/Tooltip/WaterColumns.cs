@@ -219,10 +219,21 @@ internal static class WaterColumns
         visible?.AddRange(plan.Rows);
 
         var lines = RowLines(plan.Rows, comps);
-        if (analysis.HiddenComponents > 0)
-            lines.Add(new TooltipLine(Loc.T("water.trace_count", "(+{0} more below display threshold)", analysis.HiddenComponents),
-                RenderHandler.ColorPalette.Gray));
+        string? trace = TraceLine(analysis);
+        if (trace != null)
+            lines.Add(new TooltipLine(trace, RenderHandler.ColorPalette.Gray));
         return lines;
+    }
+
+    /// <summary>
+    /// 低于显示阈值的成分数量那一行（“（另 3 项低于显示阈值）”）；没有隐藏成分时为 null。
+    /// 绘制和区块发布共用这一份文本，免得两边各写一次、翻错一处。
+    /// </summary>
+    internal static string? TraceLine(LiquidAnalysis analysis)
+    {
+        return analysis.HiddenComponents > 0
+            ? Loc.T("water.trace_count", "(+{0} more below display threshold)", analysis.HiddenComponents)
+            : null;
     }
 
     /// <summary>

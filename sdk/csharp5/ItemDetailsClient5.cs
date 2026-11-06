@@ -110,6 +110,12 @@ namespace ItemDetails.Integration
             value = (T)raw;
             return true;
         }
+
+        /// <summary>“（另 N 项低于显示阈值）”那一行的整行文本；没有隐藏成分时返回 false。</summary>
+        public bool TryGetTrace(out string text)
+        {
+            return TryGet("trace", out text);
+        }
     }
 
     public static class ItemDetailsClient
