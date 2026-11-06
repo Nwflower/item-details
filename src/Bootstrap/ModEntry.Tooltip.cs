@@ -509,7 +509,14 @@ public sealed partial class ModEntry
     {
         try
         {
-            if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
+            if (ln.Text.Length > 0)
+            {
+                // 行首文字的呈现写法（例如缩进）：规范文本不变，原版窗口构建时才换入
+                int before = ln.Render != null ? RenderSlices.Count(builder) : -1;
+                builder.Add(ln.Text, ln.Color);
+                if (before >= 0)
+                    RenderSlices.Annotate(builder, before, ln.Text, new RenderSlices.Style(ln.Color), ln.Render);
+            }
             builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, end: " ");
             ProgressBarStyle.MarkOwnBar(builder);
             AddLine(builder, ln.Tail ?? "", ln.Color);

@@ -164,6 +164,7 @@ internal static class MachineInterior
             var built = new List<TooltipLine>();
             bool clean = true;
             if (adapters && ctx.IsMachine) clean &= Stage(key, "Adapters", () => MachineAdapters.Run(ctx, built));
+            int adapterLines = built.Count;
             // 滤芯先认领自己的物品，后面的液体、工具与通用清单才不会重复列出它们。
             if (filters) clean &= Stage(key, "Filters", () => SummarizeFilters(ctx, built, hiddenTruth));
             if (listing)
@@ -175,6 +176,7 @@ internal static class MachineInterior
             if (batteries) clean &= Stage(key, "Batteries", () => SummarizeBatteries(ctx, built));
             if (listing && listContents) clean &= Stage(key, "List", () => ListRemaining(ctx, built));
 
+            IndentContent(ctx, built, adapterLines);
             Store(item, locale, flags, now, all, state, built, entry);
             lines.AddRange(built);
             // 只有整次构建没有任何一步失败才清零：否则某步每次都坏、其它步照常输出，
@@ -192,9 +194,31 @@ internal static class MachineInterior
         return lines;
     }
 
+    /// <summary>
+    /// 二级信息：适配器那几行（一级，色块）之后的库存与内容物缩进到第二列，不再和一级行并排。
+    /// 只在适配器自己写出了色块行时才缩进，否则保持原样顶格。
+    /// </summary>
+    private static void IndentContent(Context ctx, List<TooltipLine> built, int from)
+    {
+        if (!ctx.IsMachine || from >= built.Count) return;
+        if (!LabelChips.Available || !ModSettings.ModuleEffects) return;
+        // 只认紧挨着的适配器色块行：模组效果的色块行和这里之间常隔着原版的普通行（如「状态：就绪」），
+        // 那时缩进的内容没有上一级可挂，反而显得错位。
+        bool chips = false;
+        for (int i = 0; !chips && i < from; i++)
+            chips = built[i].Render != null && built[i].Render!.Contains(LabelChips.LinkPrefix);
+        if (!chips) return;
+        for (int i = from; i < built.Count; i++) built[i] = MachineAdapters.Indented(built[i]);
+    }
+
     // ---------------- 第一层：结构读取 ----------------
 
     /// <summary>读出全部面板；不是机器、也不是槽位容器时返回 null。</summary>
+    internal static Context? ReadContext(GameItem item)
+    {
+        try { return Read(item); } catch { return null; }
+    }
+
     private static Context? Read(GameItem item)
     {
         var root = item.contentWindow?.childElement;
@@ -326,15 +350,20 @@ internal static class MachineInterior
         if (filters.Count == 0) return;
         foreach (var f in filters) ctx.Summarized.Add(f.Item);
 
+        // 一级色块行：[滤芯] 高级滤水器 3/10（耗尽或被伪装时在第三列说明）
+        string label = Loc.T("filter.label", "Filter");
         if (filters.Count == 1)
         {
             var f = filters[0];
             string text = Loc.T("inner.durability", "{0}: durability {1}/{2}",
                 GameRead.ItemDisplayName(f.Item), f.Cur, f.Max);
+            string extra = "";
             if (hiddenTruth && f.Fake != f.Cur && !IsDiscovered(f.Item, "DURABILITY_TAG"))
-                text += Loc.T("inner.faked", " (labelled {0})", f.Fake);
-            if (f.Cur <= 0) text += Loc.T("inner.filter_spent", " (spent, no longer filters)");
-            lines.Add(new TooltipLine(text, Level(f.Cur, f.Max)).WithData("filter", (f.Cur, f.Max)));
+                extra += Loc.T("inner.faked", " (labelled {0})", f.Fake);
+            if (f.Cur <= 0) extra += Loc.T("inner.filter_spent", " (spent, no longer filters)");
+            string value = GameRead.ItemDisplayName(f.Item) + " " + f.Cur + "/" + f.Max;
+            lines.Add(MachineAdapters.ChipLine(text + extra, label, value, Unwrap(extra), Level(f.Cur, f.Max))
+                .WithData("filter", (f.Cur, f.Max)));
             return;
         }
 
@@ -347,10 +376,15 @@ internal static class MachineInterior
         }
         string summary = Loc.T("inner.filters", "Filters ×{0}: lowest durability {1}/{2}",
             filters.Count, lowest.Cur, lowest.Max);
-        if (spent > 0) summary += Loc.T("inner.spent_count", ", {0} spent", spent);
-        lines.Add(new TooltipLine(summary, spent > 0 ? Bad : Level(lowest.Cur, lowest.Max))
+        string spentText = spent > 0 ? Loc.T("inner.spent_count", ", {0} spent", spent) : "";
+        lines.Add(MachineAdapters.ChipLine(summary + spentText, label,
+                Loc.T("filter.lowest", "×{0}, lowest {1}/{2}", filters.Count, lowest.Cur, lowest.Max),
+                MachineAdapters.TrimLead(spentText), spent > 0 ? Bad : Level(lowest.Cur, lowest.Max))
             .WithData("filters", (filters.Count, lowest.Cur, lowest.Max, spent)));
     }
+
+    /// <summary>去掉拼接时带的括号与前导空格：「 (耗尽)」→「耗尽」。</summary>
+    private static string Unwrap(string text) => text.Trim().Trim('(', ')', '（', '）', ' ');
 
     /// <summary>液体容器：容量，按开关附带水质。超出上限的留给通用列表。</summary>
     private static void SummarizeLiquids(Context ctx, List<TooltipLine> lines, bool purity)
@@ -493,12 +527,12 @@ internal static class MachineInterior
     }
 
     /// <summary>
-    /// 仅为 Mod 的内容摘要命名当前输入/输出槽，不改变游戏原版面板名称。
-    /// 显示的是槽内现有物品，不代表配方需求或本次生产的结果。
+    /// 内容摘要里的槽名优先取机器面板自己的标题（与打开机器后看到的一致，也不用翻译）；
+    /// 取不到才退回我们按角色起的名字。显示的是槽内现有物品，不代表配方需求或本次生产的结果。
     /// </summary>
     private static string PanelContentsLabel(GameItem machine, Panel panel)
     {
-        if (panel.Role != "input" && panel.Role != "output") return panel.Label;
+        if (panel.Label.Length > 0 || (panel.Role != "input" && panel.Role != "output")) return panel.Label;
 
         bool printer = string.Equals(machine.identifier, "printer", StringComparison.Ordinal);
         if (panel.Role == "input")
@@ -512,7 +546,7 @@ internal static class MachineInterior
     }
 
     /// <summary>名称×数量，按首次出现顺序，超出种类上限折叠。</summary>
-    private static string Names(List<GameItem> items)
+    internal static string Names(List<GameItem> items)
     {
         var counts = new Dictionary<string, int>(StringComparer.Ordinal);
         var order = new List<string>();

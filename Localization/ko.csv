@@ -209,17 +209,26 @@ machine.eta_battery," (배터리 {0}일분)"
 machine.eta_battery_short," (배터리 부족)"
 machine.eta_water," (물 {0}일분)"
 machine.paused,일시 정지: {0}
+machine.paused_label,일시정지
 hydro.water,"물: {0}{3} ({2}{3}/일), {1}일분"
 hydro.water_short,"물: {0}{3} ({2}{3}/일), 1일 미만"
 hydro.status_label,상태: 
 hydro.eta_paused,"약 {0}일, {1}"
 hydro.eta_growing,"약 {0}일, {1}"
+hydro.progress,{0}/{1} ({2}일)
+hydro.label,물
+hydro.value,{0}{1} ({2}{1}/일)
+hydro.left,{0}일
+hydro.left_short,1일 미만
 purifier.estimate,오늘 밤 예상 정화: {0}ml
 purifier.tier," ({0} → {1})"
-fridge.summary,{0}: {1}개; {2}: {3}개
+purifier.label,정화
+purifier.rate,{0}mL/오늘 밤
 fridge.no_effect,", 효과 없음 {0}개"
+fridge.label,냉장고
 wine.rack,"{0}병 숙성 중, 하루에 {1}일씩 숙성"
 wine.rack_idle,", {0}병은 숙성 안 됨"
+wine.rack_label,숙성
 inner.line,{0}: {1}
 inner.input_slot,입력 슬롯
 inner.output_slot,출력 슬롯
@@ -228,6 +237,8 @@ inner.printer_product_slot,완제품 슬롯
 inner.durability,{0}: 내구도 {1}/{2}
 inner.faked," (표시 {0})"
 inner.filter_spent," (소진됨, 더 이상 거르지 않음)"
+filter.label,필터
+filter.lowest,"×{0}, 최저 {1}/{2}"
 inner.filters,필터 ×{0}: 최저 내구도 {1}/{2}
 inner.spent_count,", {0}개 소진"
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,학습 진행: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} 최대
 learning.machine,자가 학습: {0}/{1}개 모듈 학습 중
-learning.bar_left,{0}: {1} 남음
 learning.bar_full,최대
 module.days_faster,", 약 {0}일 단축"
 module.output,{0}ml/일
@@ -257,9 +267,8 @@ module.water_next,+{0}% 더하면 {1} 생산
 module.water_top,{0} 생산 중
 module.purifier_next,+{0}% 더하면 {1}까지 정화 가능
 module.purifier_top,{0}까지 정화 가능
-module.furnace_gain,순도 {0}단계
+module.furnace_gain,순도{0}
 module.furnace_result,금속괴×{0}: {1}/10
-module.furnace_next,+{0}%면 다음 단계
 module.furnace_cap,최고 순도
 module.furnace_basic,일반 융제 소모
 module.furnace_junk,폐기물 변환에 품질 효과 없음
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,회사명을 오른쪽에 표시
 config.info_manufacturer_inline.tip,회사명을 아이템 이름과 같은 줄의 오른쪽으로 옮깁니다.
 config.info_container_units,용기 부피 단위
 config.info_container_units.tip,3 L를 초과하는 액체는 L로 표시합니다. 3 L 이하는 ml를 유지하며 툴팁 텍스트 서식과 독립적입니다.
+list.zone_sep,; 
+module.special_label,특수

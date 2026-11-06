@@ -46,11 +46,21 @@ internal static class ModuleEffectAnnotation
             else return false;
 
             string note = ModuleStatEffects.Note(kind, item, out var changes);
+            // 熔炉的冶炼预览（纯度档位、再加多少升档）作为质量行的第三列，不再另起一行
+            (int? Ingots, int? Purity, int Gain, int? NextBonus)? furnace = null;
+            if (kind == 'q' && note.Length == 0 && LabelChips.Available
+                && string.Equals(item.identifier, "furnace", StringComparison.Ordinal))
+            {
+                var ctx = MachineInterior.ReadContext(item);
+                string? preview = ctx == null ? null : FurnaceQuality.Note(ctx, out furnace);
+                if (!string.IsNullOrEmpty(preview)) note = preview!;
+            }
 
             // 原行照旧，注释用灰色；这里自己收行，所以调用方不要再走原 AddLine
             var output = new TooltipSections.Writer(builder, item, "machine-effect", TooltipGroupIds.Machine);
             output.Field("stat", kind == 'p' ? "performance" : kind == 'e' ? "efficiency" : "quality");
             if (note.Length > 0) output.Field("effectText", note);
+            if (furnace.HasValue) output.Field("furnace", furnace.Value);
             if (output.Capturing)
             {
                 string tag = kind == 'p' ? "TOTAL_PERCENTAGE_PERFORMANCE_BONUS_INT"
@@ -59,12 +69,18 @@ internal static class ModuleEffectAnnotation
                 if (changes != null) output.Field("changes", changes);
             }
             string annotation = note.Length > 0 ? " (" + note + ")" : "";
+            // 净水器的质量：第三列直接用它自己的「纯度上限」（原版文案与数值），比「再加多少能到纯水」更直观；
+            // 规范文本里没有注释时也补上这一句，因为原版单独那行在色块模式下会被去掉
+            string? purity = kind == 'q' ? PurityText(item) : null;
+            if (purity != null && annotation.Length == 0) annotation = " (" + purity + ")";
+            // 第三列的显示文字：列已经靠缩进分隔，不再加括号
+            string shown = purity ?? note;
             output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
                 + ProgressBarStyle.VisibleLength(annotation)));
             string label = kind == 'p' ? _perf : kind == 'e' ? _eff : _qual;
             string tag2 = kind == 'p' ? "TOTAL_PERCENTAGE_PERFORMANCE_BONUS_INT"
                 : kind == 'e' ? "TOTAL_PERCENTAGE_POWER_BONUS_INT" : "TOTAL_PERCENTAGE_QUALITY_BONUS_INT";
-            var cols = ChipRender(text, label, (GameRead.TagInt(item, tag2) ?? 0) >= 0, annotation);
+            var cols = ChipRender(text, label, (GameRead.TagInt(item, tag2) ?? 0) >= 0, shown);
             if (cols != null)
             {
                 output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
@@ -94,7 +110,7 @@ internal static class ModuleEffectAnnotation
     /// 返回正文片段与注释片段各自的渲染写法；找不到标签或色块不可用时返回 null，调用方照原样写。
     /// 列位置按三个标签里最宽的算，几行之间对得齐；项目符号与冒号一并去掉，色块本身就是行首标记。
     /// </summary>
-    private static (string Main, string Note)? ChipRender(string text, string label, bool positive, string annotation)
+    private static (string Main, string Note)? ChipRender(string text, string label, bool positive, string shown)
     {
         if (label.Length == 0 || !LabelChips.Available) return null;
         int at = text.IndexOf(label, StringComparison.Ordinal);
@@ -107,30 +123,77 @@ internal static class ModuleEffectAnnotation
         string value = pct >= 0 ? tail.Substring(0, pct + 1) : tail;
         string extra = pct >= 0 ? tail.Substring(pct + 1).Trim() : "";
         // 有我们的附加信息时不再显示原版的「系数」：附加信息更详细，两者并排只是重复
-        if (annotation.Length > 0) extra = "";
+        if (shown.Length > 0) extra = "";
 
         // 列宽：色块取三个标签里最宽的；第三列起点不能压住这一行自己的数值
-        float chip = 0f;
-        foreach (var l in new[] { _perf, _eff, _qual })
-            if (l.Length > 0) chip = Math.Max(chip, WaterColumns.TextEm(" " + l + " ") + ChipPadEm);
-        float col2 = chip + ColumnGapEm;
+        float col2 = ColumnEm();
         float col3 = Math.Max(col2 + WaterColumns.TextEm("+100%"), col2 + WaterColumns.TextEm(value)) + ColumnGapEm;
 
         string fore = positive ? LabelChips.PositiveText : LabelChips.NegativeText;
         string valueColor = positive ? LabelChips.ValuePositive : LabelChips.ValueNegative;
-        string chipText = LabelChips.Wrap(
-            "<color=" + fore + "> <space=" + ChipPadEm.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
-            + "em>" + label + " </color>", positive);
+        string chipText = ChipMarkup(label, positive ? '+' : '-', fore);
 
         string main = chipText + Pos(col2) + "<color=" + valueColor + ">" + value + "</color>";
-        if (extra.Length > 0 || annotation.Length > 0) main += Pos(col3) + extra;
+        if (extra.Length > 0 || shown.Length > 0) main += Pos(col3) + extra;
         // 注释原文以空格开头；有「系数」之类的内容时与它隔一格，否则直接从第三列起笔
-        string note = (extra.Length > 0 ? " " : "") + annotation.TrimStart();
+        string note = (extra.Length > 0 ? " " : "") + shown;
         return (main, note);
     }
 
-    private static string Pos(float em)
+    /// <summary>色块标签的渲染写法：链接包住（供矩形层定位）+ 内边距 + 同色系亮字。</summary>
+    internal static string ChipMarkup(string label, char kind, string foreColor)
+        => LabelChips.Wrap("<color=" + foreColor + "> <space="
+            + ChipPadEm.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
+            + "em>" + label + " </color>", kind);
+
+    /// <summary>色块标签占的宽度（em，含内边距）。</summary>
+    internal static float ChipEm(string label) => WaterColumns.TextEm(" " + label + " ") + ChipPadEm;
+
+    /// <summary>第二列起点：三个加成标签里最宽的色块加列间距。</summary>
+    internal static float ColumnEm()
+    {
+        EnsureLabels();
+        float chip = 0f;
+        foreach (var l in new[] { _perf, _eff, _qual })
+            if (l.Length > 0) chip = Math.Max(chip, ChipEm(l));
+        return chip + ColumnGapEm;
+    }
+
+    internal static string Pos(float em)
         => "<pos=" + em.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "em>";
+
+    /// <summary>净水器的原版「纯度上限：99.65%」整句；不是净水器或坏了时为 null。</summary>
+    private static string? PurityText(GameItem item)
+    {
+        try
+        {
+            if (!string.Equals(item.identifier, "water_purifier", StringComparison.Ordinal)) return null;
+            if (GameRead.IsTag(item, "BROKEN_MACHINE_TAG")) return null;
+            string cap = ((double)MachinePurifier.GetMaxPurityCap(MachineryHelper.GetCurrentQualityBonus(item)) / 100.0)
+                .ToString("0.##");
+            return LocHelper.GetLocalizedMechanicOrDefault("mech_purifier_tooltip_max_purity", "Max Purity: {0}%", cap);
+        }
+        catch { return null; }
+    }
+
+    /// <summary>
+    /// 净水器原版单独一行的「纯度上限」：质量色块那行的第三列已经写了同一句，这里去掉重复。
+    /// 只在质量行确实会出现（有模组加成且质量加成不为零）、色块可用时才去掉。
+    /// </summary>
+    internal static bool ShouldDropPurityLine(string text, GameItem? item)
+    {
+        try
+        {
+            if (!ModSettings.ModuleEffects || !LabelChips.Available) return false;
+            if (item == null || string.IsNullOrEmpty(text)) return false;
+            if (!GameRead.IsTag(item, "machinery")) return false;
+            if (!GameRead.TagBool(item, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")) return false;
+            if ((GameRead.TagInt(item, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) == 0) return false;
+            string? purity = PurityText(item);
+            return purity != null && string.Equals(text.Trim(), purity.Trim(), StringComparison.Ordinal);
+        }
+        catch { return false; }
+    }
 
     /// <summary>
     /// 机器上的「模组效果:」表头：三项加成已经各带一块色标，表头多余，整行丢掉。

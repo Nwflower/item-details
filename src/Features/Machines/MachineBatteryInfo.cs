@@ -196,6 +196,10 @@ internal static class MachineBatteryInfo
         // 头部已由上面的 Direct 逐段写出，这里只画条与尾部：TooltipLine 的 Text 必须传空，
         // 否则 AddInlineBarLine/AddBarLine 会把头部再写一遍（实测「耗能 4/天」出现两次）。
         string tail = battery.Value.Text.TrimStart();
+        // 记下这条条的右端（em），紧随其后的作业速度行据此把自己的条对齐到同一位置
+        var headText = new System.Text.StringBuilder();
+        foreach (var part in head) headText.Append(part.Text);
+        NoteBarEnd(machine, WaterColumns.TextEm(headText + " ") + EnergyBarLength * WaterColumns.TextEm("█"));
         output.RequireWidth(ProgressBarStyle.WidthForLine(headLength + 1 + EnergyBarLength + 3
             + ProgressBarStyle.VisibleLength(tail)));
         foreach (var part in head) output.Direct(part.Text, part.Color);
@@ -207,6 +211,27 @@ internal static class MachineBatteryInfo
     }
 
     private const int EnergyBarLength = 6;
+
+    private static GameItem? _endMachine;
+    private static int _endFrame = -1;
+    private static float _endEm;
+
+    private static void NoteBarEnd(GameItem machine, float em)
+    {
+        _endMachine = machine;
+        _endFrame = UnityEngine.Time.frameCount;
+        _endEm = em;
+    }
+
+    /// <summary>
+    /// 本帧这台机器的耗能条右端（em）；耗能行没画条（没有电池）时返回 false。
+    /// 作业速度行用它算出自己的条长，让两条的右端对齐。
+    /// </summary>
+    internal static bool TryBarEnd(GameItem machine, out float em)
+    {
+        em = _endEm;
+        return ReferenceEquals(_endMachine, machine) && _endFrame == UnityEngine.Time.frameCount;
+    }
 
     /// <summary>
     /// 电池段：剩余/最大 kJ 与可运行天数。普通电池才返回非空。

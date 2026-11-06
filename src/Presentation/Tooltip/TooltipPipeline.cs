@@ -231,6 +231,8 @@ internal static class TooltipPipeline
 
             // 机器的「模组效果:」表头：三项加成各带色标后不再需要
             if (ModuleEffectAnnotation.ShouldDropMachineHeader(__0, cur)) return false;
+            // 净水器原版单独的「纯度上限」：并进质量色块的第三列后不再重复
+            if (ModuleEffectAnnotation.ShouldDropPurityLine(__0, cur)) return false;
 
             return true;
         }
@@ -304,6 +306,7 @@ internal static class TooltipPipeline
         try
         {
             if (!ModSettings.TooltipFormatting || text.Length == 0 || text.IndexOf('<') >= 0) return false;
+            if (ModuleItemChips.IsEffectDescription(text)) return true;
             return string.Equals(text, item.shortDescription, StringComparison.Ordinal)
                 || (!string.IsNullOrEmpty(item.flavorText)
                     && string.Equals(text, " " + item.flavorText, StringComparison.Ordinal));

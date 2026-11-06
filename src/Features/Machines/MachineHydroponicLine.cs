@@ -31,12 +31,26 @@ internal static class MachineHydroponicLine
             }
 
             scope.Patch(target, prefix: new HarmonyMethod(typeof(MachineHydroponicLine), nameof(Prefix)));
+            scope.Patch(AccessTools.Method(typeof(MachineProgressHelper), "CreateMachineTooltip",
+                    new[] { typeof(RichTextBuilder), typeof(GameItem) }),
+                prefix: new HarmonyMethod(typeof(MachineHydroponicLine), nameof(DefaultStatusPrefix)));
             Log.Msg("MachineHydroponicLine: patched MachineHydroponic.CreateMachineTooltip");
         }
         catch (Exception ex)
         {
             Log.Error("MachineHydroponicLine.Apply", ex);
         }
+    }
+
+    /// <summary>用原版默认「状态 + 进度条」写法的进度型机器（水培机有自己的写法，不在此列）。</summary>
+    internal static bool IsDefaultProgressMachine(GameItem item)
+        => item.IsTag("PROGRESS_TYPE_MACHINE_TAG") && item.IsTag("PROGRESS_TYPE_DEFAULT_TOOLTIP");
+
+    /// <summary>作业速度行已经带上进度条与工期：原版默认的「状态 + 进度条」那几行不再写。</summary>
+    private static bool DefaultStatusPrefix(GameItem item)
+    {
+        try { return !MachineSpeedLine.AbsorbsStatus(item); }
+        catch { return true; }
     }
 
     private static bool Prefix(RichTextBuilder builder, GameItem item)
@@ -71,29 +85,44 @@ internal static class MachineHydroponicLine
     /// <summary>
     /// 水培机工作中的状态：进度比例、尾部文字（「16/43 预计4天，水量不足」）与状态色。
     /// 不是水培机、不在工作、或对应开关关闭时返回 false。作业速度行与单独的状态行共用这一份。
+    /// <paramref name="compact"/>：并进作业速度行时写成「24/28（1天）」，缺水不再写原因
+    /// （下面的水量行已经说明），状态色仍变红；缺电的原因照写。
     /// </summary>
-    internal static bool TryStatus(GameItem item, out float ratio, out string tail, out RenderHandler.ColorPalette color)
+    internal static bool TryStatus(GameItem item, bool compact, out float ratio, out string tail, out RenderHandler.ColorPalette color)
     {
         ratio = 0f;
         tail = "";
         color = RenderHandler.ColorPalette.LightGreen;
         if (!ModSettings.TooltipFormatting || !ModSettings.Machines || item == null) return false;
-        if (!item.IsTag("HYDROPONIC_MACHINE_TAG")) return false;
+        bool hydro = item.IsTag("HYDROPONIC_MACHINE_TAG");
+        if (!hydro && !(compact && IsDefaultProgressMachine(item))) return false;
         if (!string.Equals(MachineProgressHelper.GetMachineState(item), "STATE_WORKING", StringComparison.Ordinal))
             return false;
 
         var (cur, target) = MachineProgressHelper.GetProgress(item);
         int speed = item.GetTagReadonly("CURRENT_PROCESSING_SPEED_TAG")?.GetInt() ?? 0;
 
-        int waterDays = GetWaterDays(item);
+        // 只有水培机有用水限制；其它进度型机器只看供电
+        int waterDays = hydro ? GetWaterDays(item) : -1;
         bool canPower = MachineHelper.CanPower(item);
-        bool canWater = waterDays >= 1;
+        bool canWater = !hydro || waterDays >= 1;
 
         int daysNeeded = (speed > 0 && target > cur)
             ? (target - cur + speed - 1) / speed
             : 0;
 
         string etaText;
+        if (compact)
+        {
+            string days = daysNeeded > 0
+                ? Loc.T("hydro.progress", "{0}/{1} ({2} {2|day|days})", cur, target, daysNeeded)
+                : cur + "/" + target;
+            tail = !canPower ? days + " " + LocHelper.GetLocalizedMechanic("mech_hydroponic_status_no_power") : days;
+            color = !canPower || !canWater ? RenderHandler.ColorPalette.LightRed : RenderHandler.ColorPalette.LightGreen;
+            ratio = (float)cur / Mathf.Max(1, target);
+            return true;
+        }
+
         if (!canPower || !canWater)
         {
             string reason = !canPower && !canWater
@@ -127,7 +156,7 @@ internal static class MachineHydroponicLine
 
     private static void WriteHydroponicLine(RichTextBuilder builder, GameItem item)
     {
-        if (!TryStatus(item, out float ratio, out string tail, out var statusColor)) return;
+        if (!TryStatus(item, false, out float ratio, out string tail, out var statusColor)) return;
         string label = Loc.T("hydro.status_label", "Status: ");
 
         int barLength = BarLength(ProgressBarStyle.VisibleLength(label), tail, 22, BarMinLength, BarFullLength);

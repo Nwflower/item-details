@@ -209,17 +209,26 @@ machine.eta_battery," (Batterie reicht {0} {0|Tag|Tage})"
 machine.eta_battery_short," (Batterie reicht nicht)"
 machine.eta_water," (Wasser reicht {0} {0|Tag|Tage})"
 machine.paused,Pausiert: {0}
+machine.paused_label,Pausiert
 hydro.water,"Wasser: {0}{3} ({2}{3}/Tag), {1} {1|Tag|Tage}"
 hydro.water_short,"Wasser: {0}{3} ({2}{3}/Tag), <1 Tag"
 hydro.status_label,Status: 
 hydro.eta_paused,"ca. {0} {0|Tag|Tage}, {1}"
 hydro.eta_growing,"ca. {0} {0|Tag|Tage}, {1}"
+hydro.progress,{0}/{1} ({2} {2|Tag|Tage})
+hydro.label,Wasser
+hydro.value,{0}{1} ({2}{1}/Tag)
+hydro.left,{0} {0|Tag|Tage}
+hydro.left_short,<1 Tag
 purifier.estimate,"Geschätzte Entfernung heute Nacht: {0} ml"
 purifier.tier," ({0} → {1})"
-fridge.summary,{0}: {1}; {2}: {3}
+purifier.label,Reinigung
+purifier.rate,{0}mL/heute Nacht
 fridge.no_effect,", {0} ohne Wirkung"
+fridge.label,Kühlschrank
 wine.rack,"{0} {0|Flasche reift|Flaschen reifen}, +{1} {1|Tag|Tage}/Tag"
 wine.rack_idle,", {0} reifen nicht"
+wine.rack_label,Reifung
 inner.line,{0}: {1}
 inner.input_slot,Eingabefach
 inner.output_slot,Ausgabefach
@@ -228,6 +237,8 @@ inner.printer_product_slot,Produktfach
 inner.durability,{0}: Haltbarkeit {1}/{2}
 inner.faked," (angezeigt: {0})"
 inner.filter_spent," (verbraucht, filtert nicht mehr)"
+filter.label,Filter
+filter.lowest,"×{0}, niedrigste {1}/{2}"
 inner.filters,Filter ×{0}: niedrigste Haltbarkeit {1}/{2}
 inner.spent_count,", {0} verbraucht"
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,Lernfortschritt: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} ausgelernt
 learning.machine,Lernen: {0}/{1} {1|Modul|Module}
-learning.bar_left,{0}: noch {1} {1|Punkt|Punkte}
 learning.bar_full,ausgelernt
 module.days_faster,", etwa {0} {0|Tag|Tage} schneller"
 module.output,{0} ml/Tag
@@ -257,9 +267,8 @@ module.water_next,+{0} % für {1}
 module.water_top,erzeugt {0}
 module.purifier_next,+{0} % zum Reinigen bis {1}
 module.purifier_top,reinigt bis {0}
-module.furnace_gain,Reinheit {0} Stufe(n)
+module.furnace_gain,Reinheit {0}
 module.furnace_result,Barren ×{0}: {1}/10
-module.furnace_next,+{0}% bis zur nächsten Stufe
 module.furnace_cap,Maximale Reinheit
 module.furnace_basic,Einfaches Flussmittel verbraucht
 module.furnace_junk,Kein Qualitätseffekt bei Abfall
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,Firmenname rechts
 config.info_manufacturer_inline.tip,Verschiebt den Firmennamen nach rechts in die Zeile des Gegenstandsnamens.
 config.info_container_units,Volumeneinheiten für Behälter
 config.info_container_units.tip,Zeigt Flüssigkeitsmengen über 3 L in Litern an. Bis 3 L bleibt ml erhalten. Unabhängig von der Tooltip-Textformatierung.
+list.zone_sep,; 
+module.special_label,Spezial

@@ -112,7 +112,7 @@ internal static class TooltipSections
         // 规范文本进 runs，第三方读到的是它；render 只在原样回放到原版 builder 时挂成渲染注解。
         internal void AddLine(string text, Color color, string render) => Write(("line", text, color, 0, 0, default, ""), render);
         internal void NextLine() => Write(("break", "", default, 0, 0, default, ""));
-        internal void Bar(TooltipLine line) => Write(("bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""));
+        internal void Bar(TooltipLine line) => Write(("bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""), line.Render);
         internal void InlineBar(TooltipLine line) => Write(("inline-bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""));
 
         private void Write(Run run, string? render = null)
@@ -211,8 +211,12 @@ internal static class TooltipSections
                     else ModEntry.AddLine(builder, run.Text, run.Color);
                     break;
                 case "break": builder.NextLine(); break;
-                case "bar": ModEntry.AddBarLine(builder, new TooltipLine(run.Text, run.Ratio, run.Length,
-                    run.Tail, run.Color, run.Background)); break;
+                case "bar":
+                {
+                    var barLine = new TooltipLine(run.Text, run.Ratio, run.Length, run.Tail, run.Color, run.Background);
+                    ModEntry.AddBarLine(builder, render != null ? barLine.WithRender(render) : barLine);
+                    break;
+                }
                 case "inline-bar": ModEntry.AddInlineBarLine(builder, new TooltipLine(run.Text, run.Ratio, run.Length,
                     run.Tail, run.Color, run.Background)); break;
             }

@@ -1144,11 +1144,14 @@ internal static partial class SelfTest
             var modules = MachineHelper.GetBodyStorage(furnace, 1);
             if (input == null || modules == null) return "furnace quality: 样本缺少投料或模块槽";
 
-            // 与悬停同一条路径：只读摘要 + 适配器；每次都清缓存，避免 0.25s 的重扫窗口。
+            // 预览现在写进质量行的第三列，不再是适配器的独立行：直接取同一份文本
+            // （摘要上下文与悬停同一条路径，只读，不跑夜间回调）。
             List<TooltipLine> Collect()
             {
                 MachineInterior.Stop();
-                return MachineInterior.Collect(furnace, false, true, true, false);
+                var ctx = MachineInterior.ReadContext(furnace);
+                string? note = ctx == null ? null : FurnaceQuality.Note(ctx, out _);
+                return new List<TooltipLine> { new TooltipLine(note ?? "", RenderHandler.ColorPalette.Gray) };
             }
             bool Put(string id, GraphNodeStorage storage)
             {

@@ -209,17 +209,26 @@ machine.eta_battery,（電池は {0} 日分）
 machine.eta_battery_short,（電池が足りない）
 machine.eta_water,（水は {0} 日分）
 machine.paused,停止中：{0}
+machine.paused_label,一時停止
 hydro.water,水量：{0}{3}（{2}{3}/日）、{1}日分
 hydro.water_short,水量：{0}{3}（{2}{3}/日）、1日未満
 hydro.status_label,状態：
 hydro.eta_paused,約{0}日、{1}
 hydro.eta_growing,約{0}日、{1}
+hydro.progress,{0}/{1}（{2}日）
+hydro.label,水量
+hydro.value,{0}{1}（{2}{1}/日）
+hydro.left,{0}日
+hydro.left_short,1日未満
 purifier.estimate,今夜の浄化予定量：{0}ml
 purifier.tier,（{0} → {1}）
-fridge.summary,{0}：{1} 個／{2}：{3} 個
+purifier.label,浄化
+purifier.rate,{0}mL/今夜
 fridge.no_effect,、効果なし {0} 個
+fridge.label,冷蔵庫
 wine.rack,{0} 本熟成中、1日ごとに {1} 日分熟成
 wine.rack_idle,、{0} 本は熟成しない
+wine.rack_label,熟成
 inner.line,{0}：{1}
 inner.input_slot,入力スロット内
 inner.output_slot,出力スロット内
@@ -228,6 +237,8 @@ inner.printer_product_slot,製品スロット内
 inner.durability,{0}：耐久性 {1}/{2}
 inner.faked,（表示は {0}）
 inner.filter_spent,（使い切り、ろ過しない）
+filter.label,ろ過器
+filter.lowest,×{0}、最低 {1}/{2}
 inner.filters,ろ過器 ×{0}：最低耐久性 {1}/{2}
 inner.spent_count,、{0} 個使い切り
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,学習進度：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}は上限
 learning.machine,自己学習：{0}/{1} 個のモジュールが学習中
-learning.bar_left,{0}：あと {1}
 learning.bar_full,上限
 module.days_faster,、約 {0} 日短縮
 module.output,{0}ml/日
@@ -257,9 +267,8 @@ module.water_next,あと+{0}%で{1}を生産
 module.water_top,{0}を生産中
 module.purifier_next,あと+{0}%で{1}まで浄化可能
 module.purifier_top,{0}まで浄化可能
-module.furnace_gain,純度{0}段階
+module.furnace_gain,純度{0}
 module.furnace_result,インゴット×{0}：{1}/10
-module.furnace_next,あと+{0}%で昇格
 module.furnace_cap,最高純度
 module.furnace_basic,通常融剤を消費
 module.furnace_junk,廃物変換に品質効果なし
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,会社名を右に表示
 config.info_manufacturer_inline.tip,会社名をアイテム名と同じ行の右側に表示します。
 config.info_container_units,容器の体積単位
 config.info_container_units.tip,3 L を超える液量を L で表示します。3 L 以下は ml のままです。ツールチップの文字設定とは独立しています。
+list.zone_sep,／
+module.special_label,特殊

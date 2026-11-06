@@ -42,10 +42,12 @@ internal static class MachineAdapters
         // 登记表先跑：水培算出的"水还够几天"要给进度推算用。
         string id = "";
         try { id = ctx.Machine.identifier ?? ""; } catch { }
+        // 自学习属于模组效果，紧跟在「效率/质量」后面；机器自己的色块行（水量等）排在它后面，
+        // 这样下面缩进的槽位内容挂在最后一个一级行上，不会像是自学习的附注。
+        Learning(ctx, lines, id);
         if (ById.TryGetValue(id, out var adapter)) adapter(ctx, lines);
 
         Progress(ctx, lines);
-        Learning(ctx, lines, id);
     }
 
     /// <summary>
@@ -54,6 +56,11 @@ internal static class MachineAdapters
     /// </summary>
     private static void Furnace(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
+        // 质量行没有出现时（没有模组加成，或质量加成为 0）这一行也不显示
+        if (!GameRead.TagBool(ctx.Machine, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")
+            || (GameRead.TagInt(ctx.Machine, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) == 0) return;
+        // 色块模式下预览已经写进质量行的第三列（ModuleEffectAnnotation），这里不再另起一行
+        if (LabelChips.Available && ModSettings.ModuleEffects) return;
         string? note = FurnaceQuality.Note(ctx, out var data);
         if (string.IsNullOrEmpty(note)) return;
         var line = new TooltipLine(note, RenderHandler.ColorPalette.Gray);
@@ -75,7 +82,9 @@ internal static class MachineAdapters
         // 没有电源面板的机器不知道它怎么取电，不推算。
         if (!ctx.HasPowerPanel) return;
 
-        // 水培机若已在首行合并显示了状态、进度条与工期推算，不在内部列表重复追加
+        // 作业速度行已并入进度条与工期的机器，不在内部列表重复追加；
+        // 水培机即使速度行没写成（回退到单独的状态行），也同样带着工期，同样跳过
+        if (MachineSpeedLine.AbsorbsStatus(m)) return;
         if (ModSettings.TooltipFormatting && ModSettings.Machines && m.IsTag("HYDROPONIC_MACHINE_TAG"))
             return;
 
@@ -146,8 +155,46 @@ internal static class MachineAdapters
             ? Loc.T("hydro.water_short", "Water: {0}{3} ({2}{3}/day), <1 day", currentAmount, days, rateAmount, unit)
             : Loc.T("hydro.water", "Water: {0}{3} ({2}{3}/day), {1} {1|day|days}", currentAmount, days, rateAmount, unit);
 
-        lines.Add(new TooltipLine(text, days == 0 ? Bad : days < 3 ? Warn : Info)
+        var tone = days == 0 ? Bad : days < 3 ? Warn : Info;
+        string note = days == 0 ? Loc.T("hydro.left_short", "<1 day") : Loc.T("hydro.left", "{0} {0|day|days}", days);
+        lines.Add(ChipLine(text, Loc.T("hydro.label", "Water"),
+                Loc.T("hydro.value", "{0}{1} ({2}{1}/day)", currentAmount, unit, rateAmount), note, tone)
             .WithData("waterSupply", (ml, perNight, days)));
+    }
+
+    // ---------------- 一级信息行：色块标签 + 数值 + 说明 ----------------
+
+    /// <summary>
+    /// 机器信息分两层：一级是「[标签] 数值 说明」的色块行（与模组效果、自学习同一种样式），
+    /// 二级是缩进的普通文字（库存、内容物）。规范文本仍是 <paramref name="canonical"/>，
+    /// 色块、列位置只在原版窗口构建时换入；色块不可用时就是普通一行。
+    /// 色块颜色随这一行的语气：正常青蓝、良好绿、提示琥珀、不足红。
+    /// </summary>
+    internal static TooltipLine ChipLine(string canonical, string label, string value, string note,
+        RenderHandler.ColorPalette tone)
+    {
+        var line = new TooltipLine(canonical, tone);
+        if (!LabelChips.Available || !ModSettings.ModuleEffects || label.Length == 0) return line;
+
+        char kind = tone == Good ? '+' : tone == Warn ? 'y' : tone == Bad ? '-' : 'c';
+        string fore = kind == '+' ? LabelChips.PositiveText : kind == 'y' ? LabelChips.AmberText
+            : kind == '-' ? LabelChips.NegativeText : LabelChips.CyanText;
+        float col2 = Math.Max(ModuleEffectAnnotation.ColumnEm(), ModuleEffectAnnotation.ChipEm(label) + 0.7f);
+        string render = ModuleEffectAnnotation.ChipMarkup(label, kind, fore) + ModuleEffectAnnotation.Pos(col2) + value;
+        if (note.Length > 0)
+            render += ModuleEffectAnnotation.Pos(col2 + WaterColumns.TextEm(value) + 0.7f)
+                    + RenderHandler.ApplyRichTextColorTag(note, RenderHandler.ColorPalette.Gray);
+        return line.WithRender(render);
+    }
+
+    /// <summary>去掉拼接用的前导标点与空格（「，1 件无效果」→「1 件无效果」）。</summary>
+    internal static string TrimLead(string text) => text.TrimStart(',', '，', '、', ';', '；', ' ');
+
+    /// <summary>二级信息行缩进到第二列（与一级行的数值对齐）；已有渲染写法或带条的行不动。</summary>
+    internal static TooltipLine Indented(TooltipLine line)
+    {
+        if (line.Render != null || line.HasBar || line.Text.Length == 0) return line;
+        return line.WithRender(ModuleEffectAnnotation.Pos(ModuleEffectAnnotation.ColumnEm()) + line.Text.TrimStart());
     }
 
     // ---------------- 净水器：今晚还能净化多少、净化到哪一档 ----------------
@@ -182,8 +229,16 @@ internal static class MachineAdapters
 
         string text = Loc.T("purifier.estimate", "Estimated removal tonight: {0} ml", WaterInfo.Ml(parts));
         text += TierChange(purityBefore, purityAfter);
-        lines.Add(new TooltipLine(text, Info).WithData("purification", (parts, purityBefore, purityAfter)));
+        // 色块行：[净化] 58.8mL/今晚  96.37% → 99.65%（规范文本仍是上面那句）
+        lines.Add(ChipLine(text, Loc.T("purifier.label", "Purify"),
+                Loc.T("purifier.rate", "{0}mL/tonight", WaterInfo.Ml(parts)),
+                Pct(purityBefore) + " → " + Pct(purityAfter), Info)
+            .WithData("purification", (parts, purityBefore, purityAfter)));
     }
+
+    /// <summary>纯度（万分比）写成「96.37%」。</summary>
+    private static string Pct(int purity)
+        => (purity / (WaterInfo.PurityFull / 100.0)).ToString("0.00", Loc.Culture) + "%";
 
     /// <summary>
     /// 使用真实水质计算净化前后档位，包括同档位和零净化量的情况。
@@ -221,12 +276,20 @@ internal static class MachineAdapters
         foreach (var it in freeze.Items)
             if (!Cooled(it, freezeZone: true)) idle++;
 
-        // 分区名直接用面板自带的本地化标题，与机器窗口里看到的一致。
-        string text = Loc.T("fridge.summary", "{0}: {1}; {2}: {3}",
-            ZoneLabel(chill, "mech_fridge_label_chill"), chill.Items.Count,
-            ZoneLabel(freeze, "mech_fridge_label_freeze"), freeze.Items.Count);
-        if (idle > 0) text += Loc.T("fridge.no_effect", ", {0} get no effect", idle);
-        lines.Add(new TooltipLine(text, idle > 0 ? Warn : Info).WithData("fridge", (chill.Items.Count, freeze.Items.Count, idle)));
+        // 直接列出各分区里有什么（分区名取面板自带的本地化标题）；内容由这一行完整给出，通用内容行不再重复。
+        string summary = "";
+        foreach (var (panel, key) in new[] { (chill, "mech_fridge_label_chill"), (freeze, "mech_fridge_label_freeze") })
+        {
+            panel.Claimed = true;
+            if (panel.Items.Count == 0) continue;
+            if (summary.Length > 0) summary += Loc.T("list.zone_sep", "; ");
+            summary += Loc.T("inner.line", "{0}: {1}", ZoneLabel(panel, key), MachineInterior.Names(panel.Items));
+        }
+        string noEffect = idle > 0 ? Loc.T("fridge.no_effect", ", {0} get no effect", idle) : "";
+        // [冰箱] 冷藏区：牛奶；冷冻区：汽水  1 件无效果
+        lines.Add(ChipLine(summary + noEffect, Loc.T("fridge.label", "Fridge"), summary, TrimLead(noEffect),
+                idle > 0 ? Warn : Info)
+            .WithData("fridge", (chill.Items.Count, freeze.Items.Count, idle)));
 
         if (ctx.HasPowerPanel && !CanPower(ctx))
             lines.Add(Paused(NoPower));
@@ -271,9 +334,11 @@ internal static class MachineAdapters
         int idle = rack.Items.Count - aging;
         int days = MachineWineRack.GetAgingDays(m);
 
-        string text = Loc.T("wine.rack", "{0} {0|bottle|bottles} aging, +{1} {1|day|days}/day", aging, days);
-        if (idle > 0) text += Loc.T("wine.rack_idle", ", {0} not aging", idle);
-        lines.Add(new TooltipLine(text, idle > 0 ? Warn : Info).WithData("aging", (aging, days, idle)));
+        string rackText = Loc.T("wine.rack", "{0} {0|bottle|bottles} aging, +{1} {1|day|days}/day", aging, days);
+        string idleText = idle > 0 ? Loc.T("wine.rack_idle", ", {0} not aging", idle) : "";
+        lines.Add(ChipLine(rackText + idleText, Loc.T("wine.rack_label", "Aging"), rackText, TrimLead(idleText),
+                idle > 0 ? Warn : Info)
+            .WithData("aging", (aging, days, idle)));
 
         if (aging > 0 && ctx.HasPowerPanel && !CanPower(ctx))
             lines.Add(Paused(NoPower));
@@ -316,33 +381,86 @@ internal static class MachineAdapters
             var stats = ModuleLearning.Read(module);
             if (stats.Count == 0) continue;
 
+            // 进度比例只算有上限的正面项；负面项向 0 学，起点没有记录，不参与比例，只参与「还差几点」
             int cur = 0, max = 0, remaining = 0;
             foreach (var s in stats)
             {
-                cur += Math.Clamp(s.Current, 0, s.Max);
-                max += s.Max;
+                if (!s.Negative)
+                {
+                    cur += Math.Clamp(s.Current, 0, s.Max);
+                    max += s.Max;
+                }
                 remaining = Math.Max(remaining, s.Remaining);
             }
             if (remaining == 0)
             {
                 if (!IsPenLearningMachine(machineId)) continue;
-                bars.Add(new TooltipLine(" ", 1f, LearningBar, Loc.T("learning.bar_full", "Maxed"),
-                    Maxed, RenderHandler.ColorPalette.DarkPurple).WithData("learning", (module.identifier, cur, max, remaining)));
+                bars.Add(MakeLearningBar(1f, Loc.T("learning.bar_full", "Maxed"), Maxed,
+                    RenderHandler.ColorPalette.DarkPurple).WithData("learning", (module.identifier, cur, max, remaining)));
                 continue;
             }
 
             learning++;
-            bars.Add(new TooltipLine(" ", (float)cur / max, LearningBar,
-                // 模块名按当前语言取：item.name 是创建/读档时固化的，见 GameRead.ItemDisplayName
-                Loc.T("learning.bar_left", "{0}: {1} {1|point|points} to go", GameRead.ItemDisplayName(module), remaining),
-                Info, RenderHandler.ColorPalette.VeryDarkCyan).WithData("learning", (module.identifier, cur, max, remaining)));
+            float ratio = max > 0 ? (float)cur / max : 0f;
+            bars.Add(MakeLearningBar(ratio, LearningStats(stats), Info, RenderHandler.ColorPalette.VeryDarkCyan)
+                .WithData("learning", (module.identifier, cur, max, remaining)));
         }
         if (bars.Count == 0) return;
 
-        lines.Add(new TooltipLine(
-            Loc.T("learning.machine", "Learning: {0}/{1} {1|module|modules}", learning, total),
-            learning == 0 ? Good : Info).WithData("learningCount", (learning, total)));
+        string header = Loc.T("learning.machine", "Learning: {0}/{1} {1|module|modules}", learning, total);
+        var headerLine = new TooltipLine(header, learning == 0 ? Good : Info)
+            .WithData("learningCount", (learning, total));
+        string? render = LearningHeaderRender(header);
+        lines.Add(render != null ? headerLine.WithRender(render) : headerLine);
         lines.AddRange(bars);
+    }
+
+    /// <summary>「性能+3/32、效率-8/0」：加成名 + 当前值/学习上限；负面加成的上限是 0。</summary>
+    private static string LearningStats(List<ModuleLearning.Stat> stats)
+    {
+        var parts = new List<string>(stats.Count);
+        foreach (var s in stats)
+            parts.Add(ModuleLearning.NameOf(s.Index) + (s.Current >= 0 ? "+" : "") + s.Current + "/" + s.Max);
+        return string.Join(Loc.T("list.sep", ", "), parts);
+    }
+
+    /// <summary>
+    /// 一根学习进度条。行首的一个空格在原版窗口里换成缩进（对齐表头「1/2 个模组学习中」那一列），
+    /// 规范文本仍是原来的空格；色块不可用时不缩进。
+    /// </summary>
+    private static TooltipLine MakeLearningBar(float ratio, string tail, RenderHandler.ColorPalette color,
+        RenderHandler.ColorPalette dark)
+    {
+        var line = new TooltipLine(" ", ratio, LearningBar, tail, color, dark);
+        return LearningColumn() is float col ? line.WithRender(ModuleEffectAnnotation.Pos(col)) : line;
+    }
+
+    /// <summary>表头里「自学习」那个词；取不出冒号分隔的标签时为空。</summary>
+    private static string LearningLabel(string header)
+    {
+        int at = header.IndexOfAny(new[] { ':', '：' });
+        return at > 0 ? header.Substring(0, at).Trim() : "";
+    }
+
+    /// <summary>表头第二列的起点（em）：不小于加成色块的第二列，也不压住「自学习」自己的色块。</summary>
+    private static float? LearningColumn()
+    {
+        if (!LabelChips.Available || !ModSettings.ModuleEffects) return null;
+        string label = LearningLabel(Loc.T("learning.machine", "Learning: {0}/{1} {1|module|modules}", 0, 0));
+        if (label.Length == 0) return null;
+        return Math.Max(ModuleEffectAnnotation.ColumnEm(), ModuleEffectAnnotation.ChipEm(label) + 0.7f);
+    }
+
+    /// <summary>表头的渲染写法：紫色色块「自学习」+ 第二列文字；不可用时返回 null，按原文显示。</summary>
+    private static string? LearningHeaderRender(string header)
+    {
+        float? col = LearningColumn();
+        string label = LearningLabel(header);
+        if (col == null || label.Length == 0) return null;
+        int rest = header.IndexOfAny(new[] { ':', '：' }) + 1;
+        while (rest < header.Length && header[rest] == ' ') rest++;
+        return ModuleEffectAnnotation.ChipMarkup(label, 'c', LabelChips.CyanText)
+             + ModuleEffectAnnotation.Pos(col.Value) + header.Substring(rest);
     }
 
     // ---------------- 共用 ----------------
@@ -357,7 +475,9 @@ internal static class MachineAdapters
         try { reason = LocHelper.GetLocalizedMechanic(mechanicKey) ?? ""; }
         catch { reason = ""; }
         if (reason.Length == 0) reason = mechanicKey == NoWater ? "Not enough water" : "Not enough power";
-        return new TooltipLine(Loc.T("machine.paused", "Paused: {0}", reason), Bad).WithData("paused", mechanicKey);
+        // [暂停] 电力不足
+        return ChipLine(Loc.T("machine.paused", "Paused: {0}", reason), Loc.T("machine.paused_label", "Paused"),
+            reason, "", Bad).WithData("paused", mechanicKey);
     }
 
     /// <summary>今晚能否供电：与原版 MachineHelper.CanPower 相同的判定，但电源按 role 找。</summary>

@@ -209,17 +209,26 @@ machine.eta_battery," (батареи хватит на {0} дн.)"
 machine.eta_battery_short," (батареи не хватит)"
 machine.eta_water," (воды хватит на {0} дн.)"
 machine.paused,Пауза: {0}
+machine.paused_label,Пауза
 hydro.water,"Вода: {0}{3} ({2}{3}/день), {1} дн."
 hydro.water_short,"Вода: {0}{3} ({2}{3}/день), <1 дня"
 hydro.status_label,Статус: 
 hydro.eta_paused,"прибл. {0} дн., {1}"
 hydro.eta_growing,"прибл. {0} дн., {1}"
+hydro.progress,{0}/{1} ({2} дн.)
+hydro.label,Вода
+hydro.value,{0}{1} ({2}{1}/дн.)
+hydro.left,{0} дн.
+hydro.left_short,<1 дн.
 purifier.estimate,"Ожидаемое удаление этой ночью: {0} мл"
 purifier.tier," ({0} → {1})"
-fridge.summary,{0}: {1}; {2}: {3}
+purifier.label,Очистка
+purifier.rate,{0}mL/сегодня ночью
 fridge.no_effect,", без эффекта: {0}"
+fridge.label,Холодильник
 wine.rack,"Выдерживается бутылок: {0}, +{1} дн./день"
 wine.rack_idle,", не выдерживается: {0}"
+wine.rack_label,Выдержка
 inner.line,{0}: {1}
 inner.input_slot,Входной слот
 inner.output_slot,Выходной слот
@@ -228,6 +237,8 @@ inner.printer_product_slot,Отсек изделий
 inner.durability,{0}: прочность {1}/{2}
 inner.faked," (указано {0})"
 inner.filter_spent," (израсходован, больше не фильтрует)"
+filter.label,Фильтр
+filter.lowest,"×{0}, мин. {1}/{2}"
 inner.filters,Фильтры ×{0}: минимальная прочность {1}/{2}
 inner.spent_count,", израсходовано: {0}"
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,Обучение: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} — максимум
 learning.machine,Обучение: {0}/{1} {1|модуль|модуля|модулей}
-learning.bar_left,{0}: осталось {1} ед.
 learning.bar_full,максимум
 module.days_faster,", примерно на {0} дн. быстрее"
 module.output,{0} мл в день
@@ -257,9 +267,8 @@ module.water_next,ещё +{0}% — будет {1}
 module.water_top,производит: {0}
 module.purifier_next,ещё +{0}% — очистка до: {1}
 module.purifier_top,очистка до: {0}
-module.furnace_gain,чистота {0} ур.
+module.furnace_gain,Чистота {0}
 module.furnace_result,слиток ×{0}: {1}/10
-module.furnace_next,ещё +{0}% до уровня
 module.furnace_cap,предел чистоты
 module.furnace_basic,обычный флюс расходуется
 module.furnace_junk,переработка без бонуса качества
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,Название компании справа
 config.info_manufacturer_inline.tip,Переносит название компании вправо в строку с названием предмета.
 config.info_container_units,Единицы объёма контейнеров
 config.info_container_units.tip,Показывает объёмы жидкости свыше 3 L в литрах. До 3 L сохраняет ml. Независимо от оформления текста подсказок.
+list.zone_sep,; 
+module.special_label,Особое

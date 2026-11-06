@@ -60,12 +60,9 @@ internal static class FurnaceQuality
 
             int difference = current - baseline;
             var parts = new List<string>();
-            // +0 is technically correct, but repeats the visible percentage without explaining anything.
-            if (difference != 0)
-            {
-                string change = difference >= 0 ? "+" + difference : difference.ToString();
-                parts.Add(Loc.T("module.furnace_gain", "purity {0} tier(s)", change));
-            }
+            // 只报现在加了多少纯度（+0 也写出来），不预测下一档
+            string change = difference >= 0 ? "+" + difference : difference.ToString();
+            parts.Add(Loc.T("module.furnace_gain", "purity {0}", change));
 
             if (contents.CanSmelt)
             {
@@ -78,10 +75,7 @@ internal static class FurnaceQuality
                     count, purity.PurityLevel));
             }
 
-            int next = FurnacePurity.NextImprovement(q, Level);
-            if (next > 0)
-                parts.Add(Loc.T("module.furnace_next", "+{0}% to next tier", next));
-            else if (contents.CanSmelt)
+            if (contents.CanSmelt)
             {
                 // 只在确实触及游戏纯度表上限时显示“封顶”，不把搜索范围不足误报为封顶。
                 string maxKey = IngotPurityHelper.GetPurityConst(LowPurity, 1000);
@@ -95,7 +89,7 @@ internal static class FurnaceQuality
                 parts.Add(Loc.T("module.furnace_basic", "basic flux consumed"));
             // Advanced flux is already visible in the input list; don't restate that it is reusable.
             data = (contents.CanSmelt ? FurnacePurity.OutputCount(contents.Blast) : null,
-                contents.CanSmelt ? current : null, difference, next > 0 ? next : null);
+                contents.CanSmelt ? current : null, difference, null);
             return parts.Count > 0 ? string.Join(Loc.T("list.sep", ", "), parts) : null;
         }
         catch (Exception ex)

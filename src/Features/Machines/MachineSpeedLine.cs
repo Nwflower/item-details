@@ -157,10 +157,18 @@ internal static class MachineSpeedLine
         }
 
         // 水培机工作中：进度条与预计工期并在速度后面（和耗能行同一种写法），不再另起「状态」行
-        if (MachineHydroponicLine.TryStatus(machine, out float ratio, out string tail, out var statusColor))
+        if (MachineHydroponicLine.TryStatus(machine, true, out float ratio, out string tail, out var statusColor))
         {
             int headWidth = ProgressBarStyle.VisibleLength(head + speedText);
-            int barLength = MachineHydroponicLine.BarLength(headWidth, tail, 34, 5, 8);
+            // 条的右端与上一行耗能条对齐：按两行头部的实际字宽折成格数；耗能行没有条时按文字长度自适应
+            int barLength;
+            float cell = WaterColumns.TextEm("█");
+            if (cell > 0.01f && MachineBatteryInfo.TryBarEnd(machine, out float endEm))
+            {
+                float headEm = WaterColumns.TextEm(head + speedText + " ");
+                barLength = Math.Clamp((int)Math.Round((endEm - headEm) / cell), 3, 12);
+            }
+            else barLength = MachineHydroponicLine.BarLength(headWidth, tail, 34, 5, 8);
             output.RequireWidth(ProgressBarStyle.WidthForLine(headWidth + 1 + barLength + 3
                 + ProgressBarStyle.VisibleLength(tail)));
             output.Add(" ", RenderHandler.ColorPalette.LightCyan);

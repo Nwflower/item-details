@@ -35,6 +35,19 @@ internal static class LabelChips
     /// <summary>色块右侧数值的正负色（取自 AdvancedUI 的加成数值）。</summary>
     internal static readonly string ValuePositive = "#90C65B";
     internal static readonly string ValueNegative = "#E78885";
+    /// <summary>紫色色块（自学习）：取自 AdvancedUI 的性能紫。</summary>
+    internal static readonly string PurpleText = "#E3CCF5";
+    private static readonly Color32 PurpleBg = new(0x65, 0x37, 0x8B, 0xFF);
+    private static readonly Color32 PurpleBar = new(0xB6, 0x8A, 0xDB, 0xFF);
+    /// <summary>琥珀色块：提示类（水不多了、将要不够）。</summary>
+    internal static readonly string AmberText = "#FFEBB5";
+    private static readonly Color32 AmberBg = new(0x7A, 0x5A, 0x1F, 0xFF);
+    private static readonly Color32 AmberBar = new(0xE0, 0xB8, 0x4A, 0xFF);
+
+    /// <summary>青蓝色块（自学习）：与原来那一行 LightCyan 文字同色系。</summary>
+    internal static readonly string CyanText = "#D2F4F7";
+    private static readonly Color32 CyanBg = new(0x27, 0x6C, 0x73, 0xFF);
+    private static readonly Color32 CyanBar = new(0x5C, 0xC1, 0xCB, 0xFF);
     private static readonly Color32 PositiveBg = new(0x3E, 0x6B, 0x2E, 0xFF);
     private static readonly Color32 PositiveBar = new(0x90, 0xC6, 0x5B, 0xFF);
     private static readonly Color32 NegativeBg = new(0x7A, 0x33, 0x31, 0xFF);
@@ -57,9 +70,11 @@ internal static class LabelChips
     /// <summary>补丁打上且没出过错：调用方据此决定写不写 idchip 链接。</summary>
     internal static bool Available => _installed && !_broken;
 
-    /// <summary>给渲染写法包上链接；<paramref name="positive"/> 决定绿底还是红底。</summary>
-    internal static string Wrap(string inner, bool positive)
-        => "<link=\"" + LinkPrefix + (positive ? "+" : "-") + "\">" + inner + "</link>";
+    /// <summary>色块种类：'+' 绿底、'-' 红底、'p' 紫底、'c' 青蓝底、'y' 琥珀底。</summary>
+    internal static string Wrap(string inner, char kind)
+        => "<link=\"" + LinkPrefix + kind + "\">" + inner + "</link>";
+
+    internal static string Wrap(string inner, bool positive) => Wrap(inner, positive ? '+' : '-');
 
     internal static void Install(PatchScope scope)
     {
@@ -194,7 +209,7 @@ internal static class LabelChips
             var link = info.linkInfo[i];
             string id = link.GetLinkID();
             if (!id.StartsWith(LinkPrefix, StringComparison.Ordinal) || link.linkTextLength <= 0) continue;
-            bool positive = id.Length <= LinkPrefix.Length || id[LinkPrefix.Length] != '-';
+            char kind = id.Length <= LinkPrefix.Length ? '+' : id[LinkPrefix.Length];
 
             // 取链接文字的第一行（色块不跨行）
             int first = link.linkTextfirstCharacterIndex;
@@ -215,11 +230,11 @@ internal static class LabelChips
             top -= inset;
             if (!(right > left) || !(top > bottom)) continue;
 
-            AddChip(left, bottom, right - left, top - bottom, positive);
+            AddChip(left, bottom, right - left, top - bottom, kind);
         }
     }
 
-    private static void AddChip(float x, float y, float w, float h, bool positive)
+    private static void AddChip(float x, float y, float w, float h, char kind)
     {
         var go = new GameObject("Chip", typeof(RectTransform));
         go.layer = _container!.layer;
@@ -230,7 +245,7 @@ internal static class LabelChips
         rect.sizeDelta = new Vector2(w, h);
         Chips.Add(go);
 
-        MakeImage(go, positive ? PositiveBg : NegativeBg);
+        MakeImage(go, kind == 'y' ? AmberBg : kind == 'c' ? CyanBg : kind == 'p' ? PurpleBg : kind == '-' ? NegativeBg : PositiveBg);
 
         float barW = Mathf.Max(1f, Mathf.Round(h * BarRatio));
         var bar = new GameObject("Bar", typeof(RectTransform));
@@ -242,7 +257,7 @@ internal static class LabelChips
         barRect.pivot = Vector2.zero;
         barRect.anchoredPosition = Vector2.zero;
         barRect.sizeDelta = new Vector2(barW, 0f);
-        MakeImage(bar, positive ? PositiveBar : NegativeBar);
+        MakeImage(bar, kind == 'y' ? AmberBar : kind == 'c' ? CyanBar : kind == 'p' ? PurpleBar : kind == '-' ? NegativeBar : PositiveBar);
     }
 
     private static void MakeImage(GameObject go, Color32 color)

@@ -36,21 +36,41 @@ internal static class ModuleLearning
         }
 
         internal int Remaining => Math.Max(0, Max - Current);
+        /// <summary>负面加成：从负值向 0 学。</summary>
+        internal bool Negative => Max <= 0;
     }
 
-    /// <summary>模块各项的学习进度；不是学习模块时返回空表。</summary>
+    private const string LearningEffect = "MODULE_EFFECT_LEARNING_ALGORITHM";
+
+    /// <summary>
+    /// 是学习模块：任一项有学习上限，或带原版的学习效果标记。
+    /// 全部为负的模块在 InitLearningAlgo 里一个上限也不会写，只能靠效果标记认出来。
+    /// </summary>
+    private static bool IsLearning(GameItem module)
+    {
+        for (int i = 0; i < Stats.Length; i++)
+            if (GameRead.TagEnabled(module, "LEARNING_ALGO_MAX_" + Stats[i] + "_INT")
+                && (GameRead.TagInt(module, "LEARNING_ALGO_MAX_" + Stats[i] + "_INT") ?? 0) > 0) return true;
+        return string.Equals(GameRead.TagString(module, "MODULE_EFFECT1_TAG"), LearningEffect, StringComparison.Ordinal)
+            || string.Equals(GameRead.TagString(module, "MODULE_EFFECT2_TAG"), LearningEffect, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// 模块各项的学习进度；不是学习模块时返回空表。
+    /// 负面加成同样会学：原版 OnUsedLearningAlgo 对没有上限标签的项按「上限 0」处理，
+    /// 每次运转把负值 +1，直到 0。所以负项记作 当前值/0，不再被「没有上限标签」跳过。
+    /// </summary>
     internal static List<Stat> Read(GameItem? module)
     {
         var stats = new List<Stat>();
-        if (module == null) return stats;
+        if (module == null || !IsLearning(module)) return stats;
         for (int i = 0; i < Stats.Length; i++)
         {
             string maxTag = "LEARNING_ALGO_MAX_" + Stats[i] + "_INT";
-            if (!GameRead.TagEnabled(module, maxTag)) continue;
-            int max = GameRead.TagInt(module, maxTag) ?? 0;
-            if (max <= 0) continue;
             int cur = GameRead.TagInt(module, "BONUS_PERCENTAGE_" + Stats[i] + "_INT") ?? 0;
-            stats.Add(new Stat(i, cur, max));
+            int max = GameRead.TagEnabled(module, maxTag) ? GameRead.TagInt(module, maxTag) ?? 0 : 0;
+            if (max > 0) stats.Add(new Stat(i, cur, max));
+            else if (cur < 0) stats.Add(new Stat(i, cur, 0));
         }
         return stats;
     }
@@ -103,6 +123,9 @@ internal static class ModuleLearning
         }
         return lines;
     }
+
+    /// <summary>加成名称（游戏原文）。</summary>
+    internal static string NameOf(int index) => StatName(index);
 
     /// <summary>加成名称用游戏原文（与模块 tooltip 的「性能 +16%」同一个词），去掉可能带的冒号和短横。</summary>
     private static string StatName(int index)

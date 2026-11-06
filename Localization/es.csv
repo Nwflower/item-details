@@ -209,17 +209,26 @@ machine.eta_battery," (batería para {0} {0|día|días})"
 machine.eta_battery_short," (batería insuficiente)"
 machine.eta_water," (agua para {0} {0|día|días})"
 machine.paused,En pausa: {0}
+machine.paused_label,En pausa
 hydro.water,"Agua: {0}{3} ({2}{3}/día), {1} {1|día|días}"
 hydro.water_short,"Agua: {0}{3} ({2}{3}/día), <1 día"
 hydro.status_label,Estado: 
 hydro.eta_paused,"aprox. {0} {0|día|días}, {1}"
 hydro.eta_growing,"aprox. {0} {0|día|días}, {1}"
+hydro.progress,{0}/{1} ({2} {2|día|días})
+hydro.label,Agua
+hydro.value,{0}{1} ({2}{1}/día)
+hydro.left,{0} {0|día|días}
+hydro.left_short,<1 día
 purifier.estimate,"Eliminación estimada esta noche: {0} ml"
 purifier.tier," ({0} → {1})"
-fridge.summary,{0}: {1}; {2}: {3}
+purifier.label,Purificación
+purifier.rate,{0}mL/esta noche
 fridge.no_effect,", {0} sin efecto"
+fridge.label,Nevera
 wine.rack,"{0} {0|botella|botellas} envejeciendo, +{1} {1|día|días}/día"
 wine.rack_idle,", {0} no envejecen"
+wine.rack_label,Añejado
 inner.line,{0}: {1}
 inner.input_slot,Ranura de entrada
 inner.output_slot,Ranura de salida
@@ -228,6 +237,8 @@ inner.printer_product_slot,Ranura de producto
 inner.durability,{0}: durabilidad {1}/{2}
 inner.faked," (indica {0})"
 inner.filter_spent," (agotado, ya no filtra)"
+filter.label,Filtro
+filter.lowest,"×{0}, mínima {1}/{2}"
 inner.filters,Filtros ×{0}: durabilidad mínima {1}/{2}
 inner.spent_count,", {0} agotados"
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,Aprendizaje: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
 learning.machine,Aprendizaje: {0}/{1} {1|módulo|módulos}
-learning.bar_left,{0}: {1|falta|faltan} {1} {1|punto|puntos}
 learning.bar_full,al máximo
 module.days_faster,", unos {0} {0|día|días} antes"
 module.output,{0} ml al día
@@ -257,9 +267,8 @@ module.water_next,+{0}% para producir {1}
 module.water_top,produce {0}
 module.purifier_next,+{0}% para purificar hasta {1}
 module.purifier_top,purifica hasta {0}
-module.furnace_gain,pureza {0} niveles
+module.furnace_gain,Pureza {0}
 module.furnace_result,lingote ×{0}: {1}/10
-module.furnace_next,+{0}% para el nivel siguiente
 module.furnace_cap,pureza máxima
 module.furnace_basic,se consume fundente normal
 module.furnace_junk,sin efecto en el reciclaje
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,Empresa a la derecha
 config.info_manufacturer_inline.tip,Mueve el nombre de la empresa a la derecha en la línea del nombre del objeto.
 config.info_container_units,Unidades de volumen de recipientes
 config.info_container_units.tip,Muestra en litros los volúmenes de líquido superiores a 3 L. Hasta 3 L conserva ml. Independiente del formato de texto.
+list.zone_sep,; 
+module.special_label,Especial

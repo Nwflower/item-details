@@ -26,7 +26,10 @@ internal static partial class SelfTest
             if (solid.Count == 0) return "component columns: 固体成分表为空";
 
             if (solid.Any(l => l.Text.Contains("<pos="))) return "component columns: 规范文本里混进了 <pos>";
-            var rows = solid.Where(l => l.Render != null && l.Render.Contains("<pos=")).ToList();
+            // 折叠提示行（「按 Ctrl 展开杂质」）只有名称和百分比，没有用量，不算成分行。
+            string foldHint = Loc.T("water.fold_expand", "Ctrl to expand impurities");
+            var rows = solid.Where(l => l.Render != null && l.Render.Contains("<pos=")
+                && !l.Render.StartsWith(foldHint, StringComparison.Ordinal)).ToList();
             if (rows.Count == 0) return "component columns: 固体行没有 <pos> 呈现";
             bool structured = rows.All(l =>
             {
@@ -39,7 +42,7 @@ internal static partial class SelfTest
 
             ok = structured;
             return $"component columns: rows={rows.Count} structured={structured} " +
-                   $"first='{rows[0].Render}' (期望 structured=True)";
+                   $"all='{string.Join(" || ", rows.ConvertAll(r => r.Render))}' (期望 structured=True)";
         }
         catch (Exception ex) { return "component columns: " + ex; }
     }

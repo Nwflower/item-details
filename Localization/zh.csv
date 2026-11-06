@@ -209,17 +209,26 @@ machine.eta_battery,（电量只够 {0} 天）
 machine.eta_battery_short,（电力不足）
 machine.eta_water,（水只够 {0} 天）
 machine.paused,暂停：{0}
+machine.paused_label,暂停
 hydro.water,水量: {0}{3} ({2}{3}/天)，{1}天
 hydro.water_short,水量: {0}{3} ({2}{3}/天)，不足1天
 hydro.status_label,状态: 
 hydro.eta_paused,预计{0}天，{1}
 hydro.eta_growing,预计{0}天，{1}
+hydro.progress,{0}/{1}（{2}天）
+hydro.label,水量
+hydro.value,{0}{1}（{2}{1}/天）
+hydro.left,{0}天
+hydro.left_short,不足1天
 purifier.estimate,预计今晚净化：{0}毫升
 purifier.tier,（{0} → {1}）
-fridge.summary,{0}：{1} 件；{2}：{3} 件
+purifier.label,净化
+purifier.rate,{0}mL/今晚
 fridge.no_effect,，{0} 件无效果
+fridge.label,冰箱
 wine.rack,{0} 瓶陈化中，每天陈化 {1} 天
 wine.rack_idle,，{0} 瓶不陈化
+wine.rack_label,陈化
 inner.line,{0}：{1}
 inner.input_slot,输入槽内
 inner.output_slot,输出槽内
@@ -228,6 +237,8 @@ inner.printer_product_slot,产物槽内
 inner.durability,{0}：耐久度 {1}/{2}
 inner.faked,（标示为 {0}）
 inner.filter_spent,（已耗尽，不再过滤）
+filter.label,滤芯
+filter.lowest,×{0}，最低 {1}/{2}
 inner.filters,滤水器 ×{0}：最低耐久度 {1}/{2}
 inner.spent_count,，{0} 件已耗尽
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,学习进度：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}已学满
 learning.machine,自学习：{0}/{1} 个模组学习中
-learning.bar_left,{0}，还差 {1} 点
 learning.bar_full,已学满
 module.days_faster,，约快 {0} 天
 module.output,{0}毫升/天
@@ -257,9 +267,8 @@ module.water_next,+{0}%后产出{1}
 module.water_top,已产出{0}
 module.purifier_next,+{0}%后可产出{1}
 module.purifier_top,已可产出{0}
-module.furnace_gain,纯度{0}档
+module.furnace_gain,纯度{0}
 module.furnace_result,金属锭×{0}：{1}/10
-module.furnace_next,再+{0}%升档
 module.furnace_cap,已达最高纯度
 module.furnace_basic,消耗普通助熔剂
 module.furnace_junk,废物转换不受质量影响
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,公司名称后置
 config.info_manufacturer_inline.tip,将生产公司名并到物品名称行右侧。
 config.info_container_units,容器单位优化
 config.info_container_units.tip,大于 3 L 的液体改用 L 显示，3 L 及以下仍用 ml；独立于提示框文字优化。
+list.zone_sep,；
+module.special_label,特殊

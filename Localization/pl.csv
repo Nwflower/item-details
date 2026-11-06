@@ -209,17 +209,26 @@ machine.eta_battery," (bateria na {0} {0|dzień|dni|dni})"
 machine.eta_battery_short," (za mało baterii)"
 machine.eta_water," (woda na {0} {0|dzień|dni|dni})"
 machine.paused,Wstrzymano: {0}
+machine.paused_label,Wstrzymano
 hydro.water,"Woda: {0}{3} ({2}{3}/dzień), {1} {1|dzień|dni|dni}"
 hydro.water_short,"Woda: {0}{3} ({2}{3}/dzień), <1 dzień"
 hydro.status_label,Stan: 
 hydro.eta_paused,"ok. {0} {0|dzień|dni|dni}, {1}"
 hydro.eta_growing,"ok. {0} {0|dzień|dni|dni}, {1}"
+hydro.progress,{0}/{1} ({2} {2|dzień|dni|dni})
+hydro.label,Woda
+hydro.value,{0}{1} ({2}{1}/dzień)
+hydro.left,{0} {0|dzień|dni|dni}
+hydro.left_short,<1 dzień
 purifier.estimate,"Szacowane usunięcie tej nocy: {0} ml"
 purifier.tier," ({0} → {1})"
-fridge.summary,{0}: {1}; {2}: {3}
+purifier.label,Oczyszczanie
+purifier.rate,{0}mL/dziś w nocy
 fridge.no_effect,", bez efektu: {0}"
+fridge.label,Lodówka
 wine.rack,"Butelki dojrzewające: {0}, +{1} {1|dzień|dni|dni}/dzień"
 wine.rack_idle,", niedojrzewające: {0}"
+wine.rack_label,Leżakowanie
 inner.line,{0}: {1}
 inner.input_slot,Slot wejściowy
 inner.output_slot,Slot wyjściowy
@@ -228,6 +237,8 @@ inner.printer_product_slot,Komora produktów
 inner.durability,{0}: trwałość {1}/{2}
 inner.faked," (oznaczono {0})"
 inner.filter_spent," (zużyty, już nie filtruje)"
+filter.label,Filtr
+filter.lowest,"×{0}, najniższa {1}/{2}"
 inner.filters,Filtry ×{0}: najniższa trwałość {1}/{2}
 inner.spent_count,", zużyte: {0}"
 inner.liquid,{0}/{1}{2}
@@ -242,7 +253,6 @@ learning.progress,Postęp nauki: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} maks.
 learning.machine,Nauka: {0}/{1} {1|moduł|moduły|modułów}
-learning.bar_left,{0}: brakuje {1} pkt
 learning.bar_full,maks.
 module.days_faster,", ok. {0} {0|dzień|dni|dni} szybciej"
 module.output,{0} ml/dzień
@@ -257,9 +267,8 @@ module.water_next,+{0}% do: {1}
 module.water_top,produkuje: {0}
 module.purifier_next,+{0}% do oczyszczania do: {1}
 module.purifier_top,oczyszcza do: {0}
-module.furnace_gain,czystość {0} poziom(y)
+module.furnace_gain,Czystość {0}
 module.furnace_result,sztabka ×{0}: {1}/10
-module.furnace_next,+{0}% do następnego poziomu
 module.furnace_cap,maksymalna czystość
 module.furnace_basic,zwykły topnik zostanie zużyty
 module.furnace_junk,bez wpływu na przetwarzanie odpadów
@@ -294,3 +303,5 @@ config.info_manufacturer_inline,Nazwa firmy po prawej
 config.info_manufacturer_inline.tip,Przenosi nazwę firmy na prawą stronę wiersza z nazwą przedmiotu.
 config.info_container_units,Jednostki objętości pojemników
 config.info_container_units.tip,Pokazuje objętość płynu powyżej 3 L w litrach. Do 3 L zachowuje ml. Niezależnie od formatowania tekstu.
+list.zone_sep,; 
+module.special_label,Specjalne
