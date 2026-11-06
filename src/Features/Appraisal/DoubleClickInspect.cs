@@ -56,15 +56,16 @@ internal static class DoubleClickInspect
         // 第二次就可能取不到同一件物品，表现为双击偶发失效。
         var nativeDouble = AccessTools.Method(typeof(ItemMouseDoubleClickHandler), "DoubleClickAction",
             new[] { typeof(GameItem), typeof(Vector2) });
-        if (nativeDouble != null)
+        bool nativePatched = nativeDouble != null && scope.Patch(nativeDouble,
+            prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
+        if (nativePatched)
         {
-            scope.Patch(nativeDouble,
-                prefix: new HarmonyMethod(typeof(DoubleClickInspect), nameof(NativeDoubleClickPrefix)));
             _nativePatched = true;
         }
         else
         {
-            Log.Warn("DoubleClick.Apply", "未找到 ItemMouseDoubleClickHandler.DoubleClickAction，保留 ticker 兜底");
+            // 只有确实打上才算走原版判定；否则 Install() 会照常装上 ticker 兜底。
+            Log.Warn("DoubleClick.Apply", "ItemMouseDoubleClickHandler.DoubleClickAction 补丁未打上，保留 ticker 兜底");
         }
 
         scope.OnDispose(Remove);
@@ -85,7 +86,7 @@ internal static class DoubleClickInspect
         StopTicker();
     }
 
-    private static void StopTicker()
+    internal static void StopTicker()
     {
         if (_go == null) return;
         try { UnityEngine.Object.Destroy(_go); } catch { }

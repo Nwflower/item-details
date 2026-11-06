@@ -29,10 +29,16 @@ internal static class ProbeDestroyGuard
             Log.Warn("ProbeDestroyGuard.Apply", "未找到 GameItemElement.Destroy，化学剂探针退回逐次克隆");
             return;
         }
-        scope.Patch(target, prefix: new HarmonyMethod(typeof(ProbeDestroyGuard), nameof(Prefix))
+        bool patched = scope.Patch(target, prefix: new HarmonyMethod(typeof(ProbeDestroyGuard), nameof(Prefix))
         {
             priority = Priority.First,
         });
+        if (!patched)
+        {
+            // 没打上就不能声称在保护：Run 会据此让调用方停止池化壳。
+            Log.Warn("ProbeDestroyGuard.Apply", "GameItemElement.Destroy 补丁未打上，化学剂探针退回逐次克隆");
+            return;
+        }
         Active = true;
         scope.OnDispose(Remove);
         Log.Msg("ProbeDestroyGuard patched GameItemElement.Destroy");

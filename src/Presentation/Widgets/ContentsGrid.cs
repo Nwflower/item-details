@@ -85,6 +85,7 @@ internal static class ContentsGrid
     {
         try
         {
+            bool patched = false;
             foreach (var m in new[]
             {
                 AccessTools.Method(typeof(OverlayHandler), "ShowTooltip",
@@ -93,11 +94,16 @@ internal static class ContentsGrid
                     new[] { typeof(Vector2), typeof(Vector2), typeof(RichText), typeof(int) }),
             })
             {
-                scope.Patch(m, postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterShow)));
+                patched |= scope.Patch(m, postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterShow)));
             }
-            scope.Patch(AccessTools.Method(typeof(OverlayHandler), "HideTooltip"),
+            patched |= scope.Patch(AccessTools.Method(typeof(OverlayHandler), "HideTooltip"),
                 postfix: new HarmonyMethod(typeof(ContentsGrid), nameof(AfterHide)));
 
+            if (!patched)
+            {
+                Log.Warn("ContentsGrid.Apply", "OverlayHandler 补丁一个都没打上，内容物网格停用");
+                return;
+            }
             _patched = true;
             scope.OnDispose(Remove);
             Log.Msg("ContentsGrid: patched OverlayHandler tooltip");

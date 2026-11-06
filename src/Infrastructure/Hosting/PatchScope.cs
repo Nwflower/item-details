@@ -36,18 +36,20 @@ internal sealed class PatchScope : IDisposable
     internal static Harmony Shared => _shared ??= new Harmony(HarmonyId);
 
     /// <summary>
-    /// 登记一个补丁。<paramref name="target"/> 为 null 表示游戏里找不到该方法（版本改名等）：
-    /// 整条登记跳过，功能自行降级，不抛给调用方。
+    /// 登记一个补丁，返回是否真的打上。<paramref name="target"/> 为 null 表示游戏里找不到该方法
+    /// （版本改名等）：整条登记跳过，功能自行降级，不抛给调用方。
+    /// 调用方在拿到 false 时必须按"没有这个补丁"处理——不要置"已就绪"标志，
+    /// 也不要据此跳过自己的兜底路径（见 <see cref="ProbeDestroyGuard"/>、双击判定的 ticker）。
     /// </summary>
-    internal void Patch(MethodBase? target, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null,
+    internal bool Patch(MethodBase? target, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null,
         HarmonyMethod? finalizer = null)
     {
-        if (_disposed || target == null) return;
+        if (_disposed || target == null) return false;
 
         var prefixMethod = prefix?.method;
         var postfixMethod = postfix?.method;
         var finalizerMethod = finalizer?.method;
-        if (prefixMethod == null && postfixMethod == null && finalizerMethod == null) return;
+        if (prefixMethod == null && postfixMethod == null && finalizerMethod == null) return false;
 
         try
         {
@@ -55,14 +57,19 @@ internal sealed class PatchScope : IDisposable
         }
         catch (Exception ex)
         {
-            // 打不上就当作没登记：不留半条补丁，调用方照常继续。
+            // 可能已经挂上了其中一部分（例如 prefix 成功、postfix 失败）：把这次请求的全部撤掉，
+            // 不留半条补丁，调用方按"没打上"处理。
             Log.Error("Patch." + _name + "." + target.Name, ex);
-            return;
+            TryUnpatch(target, prefixMethod);
+            TryUnpatch(target, postfixMethod);
+            TryUnpatch(target, finalizerMethod);
+            return false;
         }
 
         if (prefixMethod != null) _patches.Add((target, prefixMethod));
         if (postfixMethod != null) _patches.Add((target, postfixMethod));
         if (finalizerMethod != null) _patches.Add((target, finalizerMethod));
+        return true;
     }
 
     /// <summary>停用时要做的额外清理（重置缓存、撤销订阅、停掉 ticker）；按登记逆序执行。</summary>
@@ -80,8 +87,7 @@ internal sealed class PatchScope : IDisposable
         for (int i = _patches.Count - 1; i >= 0; i--)
         {
             var (target, patch) = _patches[i];
-            try { Shared.Unpatch(target, patch); }
-            catch (Exception ex) { Log.Warn("Unpatch." + _name, ex); }
+            TryUnpatch(target, patch);
         }
         _patches.Clear();
 
@@ -91,5 +97,12 @@ internal sealed class PatchScope : IDisposable
             catch (Exception ex) { Log.Warn("Cleanup." + _name, ex); }
         }
         _cleanups.Clear();
+    }
+
+    private void TryUnpatch(MethodBase target, MethodInfo? patch)
+    {
+        if (patch == null) return;
+        try { Shared.Unpatch(target, patch); }
+        catch (Exception ex) { Log.Warn("Unpatch." + _name, ex); }
     }
 }

@@ -164,8 +164,13 @@ public sealed partial class ModEntry : IMod
         Patch("CustomerHistory", CustomerHistory.Install);
         Patch("LabelImpact", LabelImpact.Install);
         Patch("DoubleClickInspect", DoubleClickInspect.InstallPatches);
-        // 双击判定的 ticker 兜底不是补丁，装配失败也不影响补丁类的那一半。
-        Try("DoubleClickInspect.Ticker", DoubleClickInspect.Install);
+        // 双击的 ticker 兜底不是补丁，但同样要有人负责清理：给它一个只登记清理的作用域。
+        // 否则补丁那一半装配失败时，ticker 仍会被装上，停用后却是 DontDestroyOnLoad 留下的残留。
+        Patch("DoubleClickInspect.Ticker", scope =>
+        {
+            scope.OnDispose(DoubleClickInspect.StopTicker);
+            DoubleClickInspect.Install();
+        });
         Patch("ContextMenuScan", ContextMenuScan.Install);
         Patch("TooltipPipeline", TooltipPipeline.Install);
         Patch("MachineBattery", MachineBatteryInfo.Install);

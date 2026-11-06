@@ -21,7 +21,8 @@ internal static class CheckTooltipWidth
             bool patched = false;
             if (info?.Postfixes != null)
                 foreach (var patch in info.Postfixes)
-                    if (patch.owner == "item_details.tooltip_width") { patched = true; break; }
+                    // 全部补丁共用 PatchScope 的单一所有者，不能再按旧的分类所有者字符串查找。
+                    if (patch.owner == PatchScope.HarmonyId) { patched = true; break; }
 
             // 「水<pos=5.9em>196.37 mL<pos=11.67em>78.55%」：原始 40 字符，去掉标签后可见 16 字符。
             const string sample = "水<pos=5.9em>196.37 mL<pos=11.67em>78.55%";
