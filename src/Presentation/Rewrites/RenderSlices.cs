@@ -47,25 +47,56 @@ internal static class RenderSlices
         }
     }
 
+    /// <summary>显示写法的一段：文本与样式。</summary>
+    internal readonly struct Part
+    {
+        internal readonly string Text;
+        internal readonly Style Style;
+
+        internal Part(string text, Style style)
+        {
+            Text = text;
+            Style = style;
+        }
+    }
+
+    /// <summary>这批片段在构建时怎么处理。</summary>
+    internal enum NoteKind
+    {
+        /// <summary>按折行预算决定（描述）；不需要折行就不换。</summary>
+        Wrap,
+        /// <summary>换成给定的显示片段（整行改写法）。</summary>
+        Replace,
+        /// <summary>原片段保留，显示片段接在后面（就地追加说明）。</summary>
+        Append,
+        /// <summary>整行连同换行一起去掉。</summary>
+        Hide,
+    }
+
     /// <summary>一段规范文本写出的片段，以及构建时换成什么。</summary>
     internal sealed class Note
     {
         internal readonly object[] Run;
         internal readonly string Text;
         internal readonly Style Style;
+        internal readonly NoteKind Kind;
         /// <summary>固定的呈现文本（成分表的 &lt;pos&gt; 列）；null 表示按折行预算决定（描述）。</summary>
         internal readonly string? Fixed;
+        /// <summary>换写法或追加用的显示片段。</summary>
+        internal readonly Part[]? Parts;
 
         // 替换片段按需生成一次；描述随折行宽度变，按宽度缓存最近一份。
         internal object[]? Alt;
         internal int AltLimit = -1;
 
-        internal Note(object[] run, string text, Style style, string? fixedText)
+        internal Note(object[] run, string text, Style style, NoteKind kind, string? fixedText, Part[]? parts)
         {
             Run = run;
             Text = text;
             Style = style;
+            Kind = kind;
             Fixed = fixedText;
+            Parts = parts;
         }
     }
 
@@ -139,6 +170,39 @@ internal static class RenderSlices
     /// 新增片段里前面可能是上一行留下的换行（nextBegin），末尾 <see cref="Pieces"/> 个才是这段文字。
     /// </summary>
     internal static void Annotate(RichTextBuilder builder, int before, string text, Style style, string? fixedText)
+        => Register(builder, before, text, style, NoteKind.Wrap, fixedText, null);
+
+    /// <summary>原版行：builder 里保留原文，原版窗口构建时换成 <paramref name="parts"/>。</summary>
+    internal static void Replace(RichTextBuilder builder, int before, string text, params Part[] parts)
+        => Register(builder, before, text, parts.Length > 0 ? parts[0].Style : default, NoteKind.Replace, null, parts);
+
+    /// <summary>原版行：原文留在原处，显示时把 <paramref name="parts"/> 接在行尾。</summary>
+    internal static void Append(RichTextBuilder builder, int before, string text, params Part[] parts)
+        => Register(builder, before, text, parts.Length > 0 ? parts[0].Style : default, NoteKind.Append, null, parts);
+
+    /// <summary>
+    /// 原版行整行去掉。范围取"这次 AddLine 写下的全部片段"：原版 AddLine 先把上一行的换行
+    /// （<c>nextBegin</c>）补在这一行前面，所以起点 <paramref name="before"/> 正好落在换行之前，
+    /// 连换行一起删掉才不会留下空行。
+    /// </summary>
+    internal static void Hide(RichTextBuilder builder, int before)
+    {
+        try
+        {
+            if (_slices == null || before < 0 || !(_slices.GetValue(builder) is IList list)) return;
+            int k = list.Count - before;
+            if (k <= 0) return;
+            var run = new object[k];
+            for (int i = 0; i < k; i++) run[i] = list[before + i];
+            Notes.Remove(run[0]);
+            Notes.Add(run[0], new Note(run, "", default, NoteKind.Hide, null, null));
+            Marked.GetOrCreateValue(builder);
+        }
+        catch (Exception ex) { Log.Warn("RenderSlices.Hide", ex); }
+    }
+
+    private static void Register(RichTextBuilder builder, int before, string text, Style style,
+        NoteKind kind, string? fixedText, Part[]? parts)
     {
         try
         {
@@ -149,7 +213,7 @@ internal static class RenderSlices
             var run = new object[k];
             for (int i = 0; i < k; i++) run[i] = list[start + i];
             Notes.Remove(run[0]);
-            Notes.Add(run[0], new Note(run, text, style, fixedText));
+            Notes.Add(run[0], new Note(run, text, style, kind, fixedText, parts));
             Marked.GetOrCreateValue(builder);
         }
         catch (Exception ex) { Log.Warn("RenderSlices.Annotate", ex); }
@@ -214,17 +278,34 @@ internal static class RenderSlices
             object slice = list[i];
             if (slice != null && Notes.TryGetValue(slice, out var note) && Contiguous(list, i, note.Run))
             {
-                var alt = replacement(note);
-                if (alt != null && alt.Length > 0)
+                if (note.Kind == NoteKind.Hide)
                 {
-                    if (rebuilt == null)
-                    {
-                        rebuilt = new List<object>(list.Count + 8);
-                        for (int j = 0; j < i; j++) rebuilt.Add(list[j]);
-                    }
-                    rebuilt.AddRange(alt);
+                    Begin(ref rebuilt, list, i);
                     i += note.Run.Length - 1;
                     continue;
+                }
+                if (note.Kind == NoteKind.Append)
+                {
+                    var add = note.Alt ??= BuildParts(note.Parts);
+                    if (add != null && add.Length > 0)
+                    {
+                        Begin(ref rebuilt, list, i);
+                        for (int j = 0; j < note.Run.Length; j++) rebuilt!.Add(note.Run[j]);
+                        rebuilt!.AddRange(add);
+                        i += note.Run.Length - 1;
+                        continue;
+                    }
+                }
+                else
+                {
+                    var alt = replacement(note);
+                    if (alt != null && alt.Length > 0)
+                    {
+                        Begin(ref rebuilt, list, i);
+                        rebuilt!.AddRange(alt);
+                        i += note.Run.Length - 1;
+                        continue;
+                    }
                 }
             }
             rebuilt?.Add(slice!);
@@ -246,6 +327,28 @@ internal static class RenderSlices
         return saved;
     }
 
+    /// <summary>第一次真正改内容时把前 i 片原样抄进新列表；之后就在这份副本上继续。</summary>
+    private static void Begin(ref List<object>? rebuilt, IList list, int index)
+    {
+        if (rebuilt != null) return;
+        rebuilt = new List<object>(list.Count + 8);
+        for (int j = 0; j < index; j++) rebuilt.Add(list[j]);
+    }
+
+    private static object[]? BuildParts(Part[]? parts)
+    {
+        if (parts == null || parts.Length == 0) return null;
+        if (parts.Length == 1) return MakeSlices(parts[0].Text, parts[0].Style);
+
+        var all = new List<object>(parts.Length + 4);
+        foreach (var part in parts)
+        {
+            var slices = MakeSlices(part.Text, part.Style);
+            if (slices != null) all.AddRange(slices);
+        }
+        return all.Count == 0 ? null : all.ToArray();
+    }
+
     internal static void Restore(IList list, object[] saved)
     {
         list.Clear();
@@ -262,6 +365,7 @@ internal static class RenderSlices
 
     private static object[]? Replacement(RichTextBuilder builder, Note note)
     {
+        if (note.Kind == NoteKind.Replace) return note.Alt ??= BuildParts(note.Parts);
         if (note.Fixed != null)
             return note.Alt ??= MakeSlices(note.Fixed, note.Style);
 

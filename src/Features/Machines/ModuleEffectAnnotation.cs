@@ -24,18 +24,21 @@ internal static class ModuleEffectAnnotation
     private static string _qual = "";
     private static string _header = "";
 
-    /// <summary>命中「加成行」时自己写完整行并返回 true（调用方丢弃原行）。</summary>
-    internal static bool TryApply(ref string text, RichTextBuilder builder,
+    /// <summary>
+    /// 命中「加成行」时返回要接在行尾的灰色批注（含外层括号）；null 表示这一行不适用。
+    /// 原版行本身留在 builder 里，本作只在自己的渲染层把批注接上，第三方读到的仍是原版文本。
+    /// </summary>
+    internal static string? Annotation(string text, RichTextBuilder builder,
         RenderHandler.ColorPalette color, GameItem? item)
     {
         try
         {
-            if (!ModSettings.ModuleEffects) return false;
-            if (item == null || string.IsNullOrEmpty(text)) return false;
+            if (!ModSettings.ModuleEffects) return null;
+            if (item == null || string.IsNullOrEmpty(text)) return null;
             // 只对机器生效：模块物品（MODULE_TAG）用的是另一套 BONUS_PERCENTAGE_* 标签，
             // 拿机器口径去算会得出莫名其妙的值（质量行甚至会去问水分收集器的档位）。
-            if (!GameRead.IsTag(item, "machinery")) return false;
-            if (text.IndexOf('%') < 0) return false;   // 只认「+16%」这种加成行
+            if (!GameRead.IsTag(item, "machinery")) return null;
+            if (text.IndexOf('%') < 0) return null;   // 只认「+16%」这种加成行
 
             EnsureLabels();
 
@@ -43,12 +46,12 @@ internal static class ModuleEffectAnnotation
             if (_perf.Length > 0 && text.Contains(_perf, StringComparison.Ordinal)) kind = 'p';
             else if (_eff.Length > 0 && text.Contains(_eff, StringComparison.Ordinal)) kind = 'e';
             else if (_qual.Length > 0 && text.Contains(_qual, StringComparison.Ordinal)) kind = 'q';
-            else return false;
+            else return null;
 
             string note = ModuleStatEffects.Note(kind, item, out var changes);
-            if (note.Length == 0) return false;
+            if (note.Length == 0) return null;
 
-            // 原行照旧，注释用灰色；这里自己收行，所以调用方不要再走原 AddLine
+            // 原行照旧，注释用灰色；行由原版写出，这里只发布数据
             var output = new TooltipSections.Writer(builder, item, "machine-effect", TooltipGroupIds.Machine);
             output.Field("stat", kind == 'p' ? "performance" : kind == 'e' ? "efficiency" : "quality");
             output.Field("effectText", note);
@@ -64,11 +67,10 @@ internal static class ModuleEffectAnnotation
                 + ProgressBarStyle.VisibleLength(annotation)));
             output.Add(text, color);
             output.Add(annotation, RenderHandler.ColorPalette.Gray);
-            output.NextLine();
-            output.Emit();
-            return true;
+            output.Observe();
+            return annotation;
         }
-        catch { return false; }
+        catch { return null; }
     }
 
     /// <summary>

@@ -194,4 +194,39 @@ $sb2 = [RichTextBuilder]::new(40); $l2 = $sliceField.GetValue($sb2); $d = New-Sl
 $annotate.Invoke($null,@($sb2, 0, ('长' * 60), $style, $null))
 $state = [object[]]@($sb2, $null); $before.Invoke($null,$state)
 Check ($state[1] -eq $null -and [object]::ReferenceEquals($l2[0],$d)) 'description stays canonical when the budget is not widened'
+
+# 原版行：builder 里保留原版原文，显示写法由注解换入。
+$partType = $provider.GetType('ItemDetails.RenderSlices+Part')
+$replace = $slicesType.GetMethod('Replace',$flags)
+$append = $slicesType.GetMethod('Append',$flags)
+$hide = $slicesType.GetMethod('Hide',$flags)
+function New-Parts([string]$text) {
+    $parts = [Array]::CreateInstance($partType, 1)
+    $parts.SetValue([Activator]::CreateInstance($partType, $rw, $null, @($text, $style), $null), 0)
+    return ,$parts
+}
+$sb3 = [RichTextBuilder]::new(40); $l3 = $sliceField.GetValue($sb3)
+$v0 = New-Slice; $v1 = New-Slice; $l3.Add($v0); $l3.Add($v1)
+$replace.Invoke($null, @($sb3, 1, '预估价值: 1, 基础价值: 2', (New-Parts '售价: 1')))
+$state = [object[]]@($sb3, $null); $before.Invoke($null,$state)
+Check ($state[1] -ne $null -and $l3.Count -eq 2 -and [object]::ReferenceEquals($l3[0],$v0) -and [object]::ReferenceEquals($l3[1],$alt)) 'native line is swapped for its display text'
+[void]$after.Invoke($null,@($sb3, $state[1], $null))
+Check ([object]::ReferenceEquals($l3[1],$v1)) 'native line slice comes back after Build'
+# 追加：原文留在原位，显示段接在它后面。
+$sb4 = [RichTextBuilder]::new(40); $l4 = $sliceField.GetValue($sb4)
+$w0 = New-Slice; $w1 = New-Slice; $l4.Add($w0); $l4.Add($w1)
+$append.Invoke($null, @($sb4, 1, '-性能: +16%', (New-Parts ' (+136毫升/天)')))
+$state = [object[]]@($sb4, $null); $before.Invoke($null,$state)
+Check ($l4.Count -eq 3 -and [object]::ReferenceEquals($l4[1],$w1) -and [object]::ReferenceEquals($l4[2],$alt)) 'appended note follows the untouched native slice'
+[void]$after.Invoke($null,@($sb4, $state[1], $null))
+Check ($l4.Count -eq 2) 'append rolls back to canonical slices'
+# 隐藏：整行连换行一起去掉，不留空行。
+$sb5 = [RichTextBuilder]::new(40); $l5 = $sliceField.GetValue($sb5)
+$h0 = New-Slice; $h1 = New-Slice; $l5.Add($h0); $l5.Add($h1)
+$hide.Invoke($null, @($sb5, 0))
+$state = [object[]]@($sb5, $null); $before.Invoke($null,$state)
+Check ($state[1] -ne $null -and $l5.Count -eq 0) 'hidden line takes its leading break with it'
+[void]$after.Invoke($null,@($sb5, $state[1], $null))
+Check ($l5.Count -eq 2) 'hide rolls back after Build'
+Check ($hide.Invoke($null, @($sb5, 2)) -eq $null -and $l5.Count -eq 2) 'hiding an empty range is a no-op'
 $slicesType.GetField('_slices',$flags).SetValue($null,$null)

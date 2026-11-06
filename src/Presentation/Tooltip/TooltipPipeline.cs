@@ -12,8 +12,13 @@ namespace ItemDetails;
 ///
 /// 原版整段 tooltip 在 GameItemElement.GetTooltipBasic() 内按顺序拼装：
 ///   - Prefix/Finalizer 记录当前物品并做深度计数；
-///   - RichTextBuilder.AddLine 负责估值行隐藏、描述淡化与价格/卡路里行改写；
+///   - RichTextBuilder.AddLine 的前缀只记"这一行显示成什么"，后缀把原版刚写出的片段挂成渲染注解
+///     （标签短名、液量单位、价格术语、卡路里、模组批注、估价行隐藏）；builder 里始终是原版原文，
+///     第三方在 GetTooltipBasic 返回时读到的是规范输出，不是本作的写法；
 ///   - RichTextBuilder.AddEmptyLine 跳过价格块前的占位行，避免价格行被缩进。
+///
+/// 例外：价格行的合并（售价 + 进价 + 标价拼成一行）与放大镜提示的替换仍在逻辑层直接写，
+/// 因为前者要重排整行、后者描述的是本作改过的操作，原版文案本身已经不成立。
 ///
 /// 所有状态集中在这里，Finalizer 在正常和异常路径都会清理。这样避免
 /// TooltipContext / EstimateLineHider / DescriptionDim / PriceTerms
@@ -121,6 +126,14 @@ internal static class TooltipPipeline
         // 下一个物品的独立「购买价格」行会被误删（跨物品、跨启停都会残留）。
         _priceEmbeddedBuy = false;
         _perCellAfterBuy = false;
+        _lineBuilder = null;
+        _lineBefore = -1;
+        _lineParts = null;
+        _lineAppend = false;
+        _lineHide = false;
+        _lineWrap = false;
+        _lineDepth = 0;
+        _afterValueEnhance = false;
     }
 
     private static bool ShouldHideEstimate(GameItemElement item)
@@ -138,29 +151,80 @@ internal static class TooltipPipeline
 
     // ---------------- 行改写 ----------------
 
-    /// <summary>返回 false 表示丢弃这一行。</summary>
+    // ---------------- 原版行：显示写法 ----------------
+    //
+    // 原版写出的文本是"规范输出"：第三方在 GetTooltipBasic 返回时读到的就是它，本作不替换成自己的写法。
+    // 玩家看到的版本由渲染层在 Build 前换入，所以这里只记"这一行显示成什么"，一句都不改 __0。
+
+    private static RichTextBuilder? _lineBuilder;
+    private static int _lineBefore = -1;
+    private static int _lineDepth;   // 本作自己写行时可能重入；只有最外层那一行登记显示写法
+    private static RenderSlices.Part[]? _lineParts;
+    private static bool _lineAppend;
+    private static bool _lineHide;
+    private static bool _lineWrap;
+    private static bool _afterValueEnhance;
+
+    private static void BeginLine(RichTextBuilder builder)
+    {
+        _lineBuilder = builder;
+        _lineBefore = RenderSlices.Count(builder);
+        _lineParts = null;
+        _lineAppend = false;
+        _lineHide = false;
+        _lineWrap = false;
+        _afterValueEnhance = false;
+    }
+
+    /// <summary>整行改成这几段（原文不进显示）。</summary>
+    private static void Show(params RenderSlices.Part[] parts) => _lineParts = parts;
+
+    /// <summary>原文照显示，这几段接在行尾。</summary>
+    private static void Append(RenderSlices.Part[] parts)
+    {
+        _lineParts = parts;
+        _lineAppend = true;
+    }
+
+    private static RenderSlices.Part Part(string text, RenderHandler.ColorPalette color)
+        => new(text, new RenderSlices.Style(color));
+
+    /// <summary>返回 false 表示丢弃这一行（整行由我方另行写出）。</summary>
     private static bool AddLinePrefix(ref string __0, ref RenderHandler.ColorPalette __2, ref bool __4,
         RichTextBuilder __instance)
     {
         try
         {
+            _lineDepth++;
             var cur = _current;
             if (cur == null || __0 == null) return true;
+            if (_lineDepth > 1) return true;   // 本作自己写行时的嵌套调用，不重复登记
 
-            // 原版方法照常执行，只在它们写出的那一行上改：标签行补价格影响、放大镜提示换成双击提示
-            LabelImpact.TryRewrite(ref __0, __instance, cur);
+            BeginLine(__instance);
+
+            // 放大镜提示换成双击提示：这条提示描述的是本 Mod 改过的操作，原版文案对任何读取方都不成立，
+            // 属于行为提示而非信息改写，留在逻辑层直接换。
             if (!DoubleClickInspect.TryRewriteHint(ref __0, ref __2, ref __4, __instance)) return false;
+
+            // 第三方行说明：规则表目前为空；将来加规则时改为 Append，不要在这里改 __0。
             LineAnnotations.TryAppend(ref __0, cur);
 
+            // 标签行：原版原文留在 builder 里，原版窗口构建时换短名并补价格影响
+            string? label = LabelImpact.Display(__0, __instance, cur);
+            if (label != null) Show(Part(label, __2));
+
+            // 估价行：第三方仍能读到原版那行，原版窗口里由我方「价值」区块取代
             if (_suppressEstimate)
             {
                 string prefix = EstimatePrefix();
                 if (prefix.Length > 0 && __0.StartsWith(prefix, StringComparison.Ordinal))
-                    return false;
+                {
+                    _lineHide = true;
+                    return true;
+                }
             }
 
             var originalColor = __2;
-            string originalDescription = __0;
             if (ModSettings.DimDescription
                 && !string.IsNullOrEmpty(cur.shortDescription)
                 && string.Equals(__0, cur.shortDescription, StringComparison.Ordinal))
@@ -169,23 +233,21 @@ internal static class TooltipPipeline
             }
 
             // 描述与背景故事写原文；原版窗口构建时若折行预算被别人的条放宽，渲染层再按常规宽度折行
-            NoteDescription(__0, cur, __instance);
-            if (__2 != originalColor || __0 != originalDescription)
+            if (NoteDescription(__0, cur)) _lineWrap = true;
+            if (__2 != originalColor)
                 TooltipSections.ObserveText(__instance, cur, "description", __0, __2, TooltipGroupIds.Description);
 
             // 价格术语本地化：预估价值→售价、基础价值→标价、购买价格→进价
-            if (!RewritePriceTerms(ref __0, __instance, __2)) return false;
-            if (!RewriteCalorieLine(ref __0, __instance)) return false;
-            string originalVolume = __0;
-            RewriteLiquidVolume(ref __0, cur);
-            if (__0 != originalVolume)
-                TooltipSections.ObserveText(__instance, cur, "liquid-volume", __0, __2, TooltipGroupIds.Liquid);
+            if (!PriceTerms(__0, __instance, __2)) return false;
+            CalorieLine(__0, __instance, cur);
+            LiquidVolume(__0, __instance, __2, cur);
 
-            // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)
-            if (ModuleEffectAnnotation.TryApply(ref __0, __instance, __2, cur)) return false;
+            // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)，原文保留、批注接在行尾
+            string? effect = ModuleEffectAnnotation.Annotation(__0, __instance, __2, cur);
+            if (effect != null) Append(new[] { Part(effect, RenderHandler.ColorPalette.Gray) });
 
-            // 模块物品的空「模组效果：」表头（三项加成全 0）直接丢掉
-            if (ModuleEffectAnnotation.ShouldDrop(__0, cur)) return false;
+            // 模块物品的空「模组效果：」表头（三项加成全 0）：原文留给第三方，原版窗口不显示
+            if (ModuleEffectAnnotation.ShouldDrop(__0, cur)) _lineHide = true;
 
             return true;
         }
@@ -201,14 +263,15 @@ internal static class TooltipPipeline
     ///   - 否则沿用「容器单位优化」：超过 3 L 时把 ml 换成 L。
     /// 两种写法都不本地化单位符号（mL / L 各语言一致），与原版一致。
     /// </summary>
-    private static void RewriteLiquidVolume(ref string text, GameItem item)
+    /// <summary>显示写法；null 表示这一行按原版显示。</summary>
+    private static string? LiquidVolumeText(string text, GameItem item)
     {
-        if (!text.EndsWith(" ml", StringComparison.Ordinal)) return;
-        if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return;
+        if (!text.EndsWith(" ml", StringComparison.Ordinal)) return null;
+        if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return null;
         var m = LiquidLine.Match(text);
         if (!m.Success
             || !int.TryParse(m.Groups[1].Value, out int cur)
-            || !int.TryParse(m.Groups[2].Value, out int max)) return;
+            || !int.TryParse(m.Groups[2].Value, out int max)) return null;
 
         if (!GameRead.IsTag(item, "WINE_CONTAINER_TAG"))
         {
@@ -216,57 +279,85 @@ internal static class TooltipPipeline
             if (r != null)
             {
                 bool liters = Volume.UseLiters(max);
-                text = " " + WaterLayout.Capacity(cur, max, liters, Loc.Culture)
+                return " " + WaterLayout.Capacity(cur, max, liters, Loc.Culture)
                      + (r.Tier.Length > 0 ? " " + r.Tier : "");
-                return;
             }
         }
 
-        if (!ModSettings.ContainerUnits || !Volume.UseLiters(cur)) return;
-        text = " " + Volume.Number(cur, true, Loc.Culture) + " L / " + Volume.Number(max, true, Loc.Culture) + " L";
+        if (!ModSettings.ContainerUnits || !Volume.UseLiters(cur)) return null;
+        return " " + Volume.Number(cur, true, Loc.Culture) + " L / " + Volume.Number(max, true, Loc.Culture) + " L";
     }
 
-    /// <summary>即将由原版 AddLine 写出的描述行：后缀拿到它写出的片段后挂渲染注解。</summary>
-    private static RichTextBuilder? _descBuilder;
-    private static int _descBefore = -1;
+    private static void LiquidVolume(string text, RichTextBuilder builder,
+        RenderHandler.ColorPalette color, GameItem item)
+    {
+        string? display = LiquidVolumeText(text, item);
+        if (display == null) return;
+        Show(Part(display, color));
+        TooltipSections.ObserveText(builder, item, "liquid-volume", display, color, TooltipGroupIds.Liquid);
+    }
 
     /// <summary>
     /// 原版 Build 的折行宽度：中日韩（字宽缩放 &gt; 1）是 maxCharWidth × 0.66，
     /// 但只要有进度条等 noBreak 片段就整段放宽到 × 0.875，描述也跟着变成一长行把 tooltip 撑宽。
-    /// 这里只认原版的两行描述（shortDescription、" " + flavorText），记下写之前的片段数；
+    /// 这里只认原版的两行描述（shortDescription、" " + flavorText），返回 true 让后缀挂折行注解；
     /// 文字保持原文（第三方读到的就是原文），由 <see cref="RenderSlices"/> 在原版窗口构建时按 0.66 预折行。
     /// 含富文本标签的不动，避免切断标签。
     /// </summary>
-    private static void NoteDescription(string text, GameItem item, RichTextBuilder builder)
+    private static bool NoteDescription(string text, GameItem item)
     {
-        _descBuilder = null;
         try
         {
-            if (!ModSettings.TooltipFormatting || text.Length == 0 || text.IndexOf('<') >= 0) return;
-            bool isDesc = string.Equals(text, item.shortDescription, StringComparison.Ordinal)
+            if (!ModSettings.TooltipFormatting || text.Length == 0 || text.IndexOf('<') >= 0) return false;
+            return string.Equals(text, item.shortDescription, StringComparison.Ordinal)
                 || (!string.IsNullOrEmpty(item.flavorText)
                     && string.Equals(text, " " + item.flavorText, StringComparison.Ordinal));
-            if (!isDesc) return;
-            _descBefore = RenderSlices.Count(builder);
-            if (_descBefore >= 0) _descBuilder = builder;
         }
-        catch { }
+        catch { return false; }
     }
 
+    /// <summary>原版行写完：把前缀记下的显示写法挂成渲染注解。builder 本身始终是规范输出。</summary>
     private static void AddLinePostfix(RichTextBuilder __instance, string __0, RenderHandler.ColorPalette __2,
         bool __3, bool __4, bool __5, bool __6, RenderHandler.ColorPalette __7, RenderHandler.ColorPalette __8,
         RenderHandler.ColorPalette __9)
     {
-        if (_descBuilder == null) return;
-        var builder = _descBuilder;
-        _descBuilder = null;
-        if (!ReferenceEquals(builder, __instance) || __0 == null) return;
+        if (_lineDepth > 0) _lineDepth--;
+        if (_lineDepth != 0) return;   // 内层收尾，外层那一行的状态还留着
+
+        var builder = _lineBuilder;
+        _lineBuilder = null;
+        if (builder == null) return;
+
+        var cur = _current;
+        var parts = _lineParts;
+        int before = _lineBefore;
+        bool hide = _lineHide, append = _lineAppend, wrap = _lineWrap, value = _afterValueEnhance;
+        _lineParts = null;
+        _lineAppend = false;
+        _lineHide = false;
+        _lineWrap = false;
+        _afterValueEnhance = false;
+
         try
         {
-            RenderSlices.Annotate(builder, _descBefore, __0,
-                new RenderSlices.Style(__2, __3, __4, __5, __6, __7, __8, __9), fixedText: null);
+            if (ReferenceEquals(builder, __instance) && __0 != null && before >= 0)
+            {
+                if (hide) RenderSlices.Hide(builder, before);
+                else if (parts != null && parts.Length > 0)
+                {
+                    if (append) RenderSlices.Append(builder, before, __0, parts);
+                    else RenderSlices.Replace(builder, before, __0, parts);
+                }
+                else if (wrap)
+                {
+                    RenderSlices.Annotate(builder, before, __0,
+                        new RenderSlices.Style(__2, __3, __4, __5, __6, __7, __8, __9), fixedText: null);
+                }
+            }
+
+            if (value && cur != null) ValueEnhance.TryWrite(__instance, cur);
         }
-        catch { }
+        catch (Exception ex) { Log.Warn("TooltipPipeline.Line", ex); }
     }
 
     /// <summary>
@@ -332,7 +423,7 @@ internal static class TooltipPipeline
     /// 原版文案不硬编码：用哨兵数字格式化一次本地化模板，反查出前缀与中间段，
     /// 换语言后会自动重建。
     /// </summary>
-    private static bool RewritePriceTerms(ref string text, RichTextBuilder builder, RenderHandler.ColorPalette color)
+    private static bool PriceTerms(string text, RichTextBuilder builder, RenderHandler.ColorPalette color)
     {
         try
         {
@@ -361,31 +452,28 @@ internal static class TooltipPipeline
             if (!string.IsNullOrEmpty(_totalHead) && text.StartsWith(_totalHead!, StringComparison.Ordinal)
                 && _current != null && ValueEnhance.Applies(_current))
             {
-                if (HasBuyPrice(_current))
-                {
-                    _perCellAfterBuy = true;
-                    return true;
-                }
-                builder.Add(text, color);
-                builder.NextLine();
-                ValueEnhance.TryWrite(builder, _current);
-                return false;
+                if (HasBuyPrice(_current)) _perCellAfterBuy = true;
+                else _afterValueEnhance = true;   // 原行照常写，性价比由后缀补在它后面
+                return true;
             }
 
-            // 「购买价格: N」——若价格行已把进价写进括号，则整行丢弃，避免重复
+            // 「购买价格: N」——若价格行已把进价写进括号，原版窗口里就不重复显示
             if (!string.IsNullOrEmpty(_buyHead) && text.StartsWith(_buyHead!, StringComparison.Ordinal))
             {
-                if (_priceEmbeddedBuy) return false;
-                text = Loc.T("price.buy", "Buy: ") + text.Substring(_buyHead!.Length);
-                if (_current != null) TooltipSections.ObserveText(builder, _current, "purchase", text, color, TooltipGroupIds.Price);
+                if (_priceEmbeddedBuy)
+                {
+                    _lineHide = true;
+                    return true;
+                }
+                string shown = Loc.T("price.buy", "Buy: ") + text.Substring(_buyHead!.Length);
+                if (_current != null)
+                    TooltipSections.ObserveText(builder, _current, "purchase", shown, color, TooltipGroupIds.Price);
                 if (_perCellAfterBuy)
                 {
                     _perCellAfterBuy = false;
-                    builder.Add(text, color);
-                    builder.NextLine();
-                    ValueEnhance.TryWrite(builder, _current);
-                    return false;
+                    _afterValueEnhance = true;
                 }
+                Show(Part(shown, color));
             }
             return true;
         }
@@ -400,29 +488,27 @@ internal static class TooltipPipeline
     /// 只认与原版原文完全一致的行：官方钩子在 GetTooltipBasic 内触发，其它模组写的
     /// 短行（如「保质期 120」）也会经过这里，按数字模糊匹配会把它们误改成卡路里行。
     /// </summary>
-    private static bool RewriteCalorieLine(ref string text, RichTextBuilder builder)
+    private static void CalorieLine(string text, RichTextBuilder builder, GameItem item)
     {
         try
         {
-            if (!ModSettings.TooltipFormatting) return true;
-            var item = _current;
-            if (item == null || string.IsNullOrEmpty(text)) return true;
-            if (!item.IsTag("CALORIE_VALUE_TAG")) return true;
+            if (!ModSettings.TooltipFormatting || string.IsNullOrEmpty(text)) return;
+            if (!GameRead.IsTag(item, "CALORIE_VALUE_TAG")) return;
 
             int cal = 0;
-            try { cal = item.GetTagReadonly("CALORIE_VALUE_TAG").GetInt(); } catch { return true; }
-            if (cal <= 0) return true;
+            try { cal = item.GetTagReadonly("CALORIE_VALUE_TAG").GetInt(); } catch { return; }
+            if (cal <= 0) return;
 
-            if (text.IndexOf(cal.ToString(), StringComparison.Ordinal) < 0) return true;
-            string key = item.IsTag("MEAT_FOOD_TAG") ? "mech_food_calories_meat" : "mech_food_calories";
+            if (text.IndexOf(cal.ToString(), StringComparison.Ordinal) < 0) return;
+            string key = GameRead.IsTag(item, "MEAT_FOOD_TAG") ? "mech_food_calories_meat" : "mech_food_calories";
             string vanilla;
-            try { vanilla = " " + LocHelper.GetLocalizedMechanic(key, cal); } catch { return true; }
-            if (!string.Equals(text, vanilla, StringComparison.Ordinal)) return true;
+            try { vanilla = " " + LocHelper.GetLocalizedMechanic(key, cal); } catch { return; }
+            if (!string.Equals(text, vanilla, StringComparison.Ordinal)) return;
             int idx = text.IndexOf(cal.ToString(), StringComparison.Ordinal);
 
             // 单位后缀 = 数字之后、行尾之前的部分（去掉首尾空白）
             string tail = text.Substring(idx + cal.ToString().Length).Trim();
-            if (tail.Length > 6) return true;            // 不是纯卡路里行
+            if (tail.Length > 6) return;            // 不是纯卡路里行
             if (tail.Length == 0) tail = Loc.T("calorie.unit", "kcal");
 
             // 去掉后缀里的括号补充（如「（肉类）」），比率只用核心单位
@@ -435,6 +521,7 @@ internal static class TooltipPipeline
             output.Field("calories", cal);
             output.Add(head, RenderHandler.ColorPalette.LightCyan);
 
+            string? extra = null;
             if (ModSettings.ValueEnhance)
             {
                 // 单独兜底：价值读不到只丢这段灰色注释，不动已写好的能量行
@@ -445,19 +532,22 @@ internal static class TooltipPipeline
                     {
                         double per = (double)cal / value;
                         output.Field("caloriesPerCredit", per);
-                        output.Add(Loc.T("calorie.per_credit", " ({0} {1}/{2})",
-                                          per.ToString("0.#", Loc.Culture), core, GeneralHelper.CreditIcon()),
-                                    RenderHandler.ColorPalette.Gray);
+                        extra = Loc.T("calorie.per_credit", " ({0} {1}/{2})",
+                                      per.ToString("0.#", Loc.Culture), core, GeneralHelper.CreditIcon());
+                        output.Add(extra, RenderHandler.ColorPalette.Gray);
                     }
                 }
                 catch { }
             }
 
-            output.NextLine();
-            output.Emit();
-            return false;   // 已自行输出，丢弃原行
+            // 行本身是原版写的：只对外提供数据，不再替它写出，显示走渲染注解。
+            output.Observe();
+
+            var cyan = Part(head, RenderHandler.ColorPalette.LightCyan);
+            if (extra != null) Show(cyan, Part(extra, RenderHandler.ColorPalette.Gray));
+            else Show(cyan);
         }
-        catch { return true; }
+        catch { }
     }
     /// <summary>当前是否正在构建物品 tooltip（供其它模块判断"这次 Add 属于 tooltip"）。</summary>
     internal static bool IsBuilding => _current != null;
