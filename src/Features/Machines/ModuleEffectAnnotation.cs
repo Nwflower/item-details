@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 
 namespace ItemDetails;
 
@@ -48,7 +49,7 @@ internal static class ModuleEffectAnnotation
             if (note.Length == 0) return false;
 
             // 原行照旧，注释用灰色；这里自己收行，所以调用方不要再走原 AddLine
-            var output = new TooltipSections.Writer(builder, item, "machine-effect");
+            var output = new TooltipSections.Writer(builder, item, "machine-effect", TooltipGroupIds.Machine);
             output.Field("stat", kind == 'p' ? "performance" : kind == 'e' ? "efficiency" : "quality");
             output.Field("effectText", note);
             if (output.Capturing)
@@ -58,8 +59,11 @@ internal static class ModuleEffectAnnotation
                 if (GameRead.TagInt(item, tag) is int bonus) output.Field("bonusPercent", bonus);
                 if (changes != null) output.Field("changes", changes);
             }
+            string annotation = " (" + note + ")";
+            output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
+                + ProgressBarStyle.VisibleLength(annotation)));
             output.Add(text, color);
-            output.Add(" (" + note + ")", RenderHandler.ColorPalette.Gray);
+            output.Add(annotation, RenderHandler.ColorPalette.Gray);
             output.NextLine();
             output.Emit();
             return true;

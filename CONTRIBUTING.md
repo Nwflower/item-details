@@ -114,7 +114,7 @@ _claim = ItemDetailsClient.RegisterTooltipSections((item, builder, section) =>
 - `section.Runs` 是这次构建实际要输出的有序片段：`text`（行内文字）、`line`（整行）、`break`（换行）、`bar`（进度条，带 0–1 比例、格数与后缀）。每段带游戏调色板枚举。直接复用这些片段即可换行、缩进、改列宽，不必再猜字符串。
 - `section.Fields` 是结构化字段，键为字符串，值为 BCL 元组、基础类型或游戏类型。列表型区块（滤芯、工具、电池、性状、特性等）把逐行数据放在 `rowData`：每项是 `(行号, 数据键, 值)`，行号对应 `Runs` 下标。常用区块有便捷读取：`TryGetAppraisal`（总价、完美区间、逐项金额）、`TryGetMachineEffect`（性能/效率/质量注释与数值差）、`Liquid`（同液体分析快照）、`WaterRows`（`water` 区块这一帧实际画出的成分行）、`PurificationMethods`（净化建议）。`WaterRows` 每项是 `(Kind, 名称, 用量, 百分比)`，Kind 取 `WaterRowKinds.Component` 或 `WaterRowKinds.FoldHint`；折叠提示行的用量为空，百分比是被折起来那几项的合计。行序即输出顺序，表头不在其中。
 - `section.CanReplace` 为 false 的区块（`label`、`manufacturer`、`inspect-hint` 等）只是原生行的展示，物品详情没有独立输出它们，接管方应改写对应原生行而不是删除。
-- 区块 ID 即功能名：`auth`、`value`、`injected-value`、`ribwich`、`berry`、`hidden`、`value-enhance`、`feature-reveal`、`storage`、`machine-interior`、`module-learning`、`conditions`、`contraband`、`lottery`、`water`、`sealed-box`、`scratcher`、`seed`、`water-advice`、`wine`、`meat`、`market`，以及内嵌改写 `price`、`calories`、`machine-speed`、`machine-power`、`machine-effect`、`categories`、`contents`、`sealed-contents`、`label`、`manufacturer`、`inspect-hint`。字段随功能演进可能新增，读取方用 `TryGet` 并给默认值。
+- 每个区块另带 `Fields["group"]`：这一块在玩家眼里属于哪类信息，取值见 `TooltipGroupIds`（`liquid`、`plant`、`machine`、`condition`、`appraisal`、`food`、`lottery`、`brew`、`module`、`label`、`description`、`price`、`contents`）。只增不改；读取方遇到不认识的组按原样保留该行。用组归类可以不必为每个新 id 补映射。- 区块 ID 即功能名：`auth`、`value`、`injected-value`、`ribwich`、`berry`、`hidden`、`value-enhance`、`feature-reveal`、`storage`、`machine-interior`、`module-learning`、`conditions`、`contraband`、`lottery`、`water`、`sealed-box`、`scratcher`、`seed`、`water-advice`、`wine`、`meat`、`market`，以及内嵌改写 `price`、`calories`、`machine-speed`、`machine-power`、`machine-effect`、`categories`、`contents`、`sealed-contents`、`label`、`manufacturer`、`inspect-hint`。字段随功能演进可能新增，读取方用 `TryGet` 并给默认值。
 - 已用旧 `ItemDetailsTooltipSection` 标志接管的区块仍按旧行为跳过，不产生快照。两种接管不要对同一区块混用。
 - 快照按 `RichTextBuilder` 实例和构建序号归档；每次重新构建会替换上次内容。只在游戏主线程查询。
 
@@ -133,9 +133,9 @@ _layout = ItemDetailsClient.RegisterTooltipLayout(item =>
 _anchor = ItemDetailsClient.RegisterTooltipAnchor(() => currentVisibleTooltipRect);
 ```
 
-`NativeProgressBars` 让自学习等附加条也通过游戏的 `AddProgressBar` 输出，便于读取准确比例。`FlowingText` 让成分表（液体与固体都算）使用可自然换行的文字，而不是 `<pos>` 定位。`DrawsContents` 只对本次物品让出内容物区块，声明前应确认本次能展示该区块（包括上锁容器的显示资格）。布局回调返回 null 时依次尝试其他显示方，首个非 null 声明用于本次构建；返回 `None` 表示本次由你绘制并使用默认样式。回调只读取本次排版状态。未接入协议的 SectionedTooltips 1.6.2 仍按其排版和内容物面板开关兼容。
+进度条一律由游戏的 `AddProgressBar` 写出（渲染层的 sprite 替换只作用于原版窗口），因此 `NativeProgressBars` 现在恒为真，位保留只为兼容旧声明。`FlowingText` 让成分表（液体与固体都算）使用可自然换行的文字，而不是 `<pos>` 定位。`DrawsContents` 只对本次物品让出内容物区块，声明前应确认本次能展示该区块（包括上锁容器的显示资格）。布局回调返回 null 时依次尝试其他显示方，首个非 null 声明用于本次构建；返回 `None` 表示本次由你绘制并使用默认样式。回调只读取本次排版状态。不按程序集名嗅探，也不读排版方的配置项：没有声明就当作没接管（旧版 SectionedTooltips 需要它自己注册声明，物品详情不再代它判断）。
 
-锚点用于分类徽章与旁边的内容物浮窗。回调每次返回当前可见的提示框，无可用窗口时返回 null。已有直接引用接口的锚点优先；使用可选客户端时优先采用首个有效锚点。
+分类徽章容器也可以经 `RegisterTooltipBadge(() => rect)` 发布（消费者用 `TryGetTooltipBadge` 读），排版方据此量高度，不必按节点名 `ItemDetailsTypeBadge` 找 GameObject。锚点用于分类徽章与旁边的内容物浮窗。回调每次返回当前可见的提示框，无可用窗口时返回 null。已有直接引用接口的锚点优先；使用可选客户端时优先采用首个有效锚点。
 
 ### 直接引用 ItemDetails.dll 的扩展接口
 

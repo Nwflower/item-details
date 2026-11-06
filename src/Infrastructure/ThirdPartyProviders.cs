@@ -15,6 +15,20 @@ internal static class ThirdPartyProviders
     private static Func<RectTransform?>? TooltipAnchorProvider;
     private static readonly List<ItemTooltipEntry> ItemTooltipDisplays = new();
 
+    // 抑制结果的一次构建缓存：键是物品实例 + 构建序号 + 注册表修订号。
+    // 修订号让"这次构建中途有人注册/注销"也立即生效，不看运气。
+    private static GameItem? _suppressItem;
+    private static int _suppressBuild = -1;
+    private static int _suppressRevision = -1;
+    private static ItemDetailsTooltipSection _suppressValue;
+    private static int _registryRevision;
+
+    /// <summary>注册表有变化就自增：抑制缓存按它失效。</summary>
+    private static int Revision
+    {
+        get { return _registryRevision; }
+    }
+
     internal static IDisposable RegisterAppraisal(string id, ItemDetailsAppraisalProvider provider)
     {
         id = Required(id, nameof(id));
@@ -44,7 +58,12 @@ internal static class ThirdPartyProviders
             throw new InvalidOperationException($"Tooltip display already registered: {id}");
         var entry = new TooltipEntry(sections);
         TooltipDisplays.Add(id, entry);
-        return new Subscription(() => Remove(TooltipDisplays, id, entry));
+        _registryRevision++;
+        return new Subscription(() =>
+        {
+            Remove(TooltipDisplays, id, entry);
+            _registryRevision++;
+        });
     }
 
     internal static IDisposable RegisterTooltipAnchor(Func<RectTransform?> provider)
@@ -87,7 +106,12 @@ internal static class ThirdPartyProviders
         if (sections == null) throw new ArgumentNullException(nameof(sections));
         var entry = new ItemTooltipEntry(sections);
         ItemTooltipDisplays.Add(entry);
-        return new Subscription(() => ItemTooltipDisplays.Remove(entry));
+        _registryRevision++;
+        return new Subscription(() =>
+        {
+            ItemTooltipDisplays.Remove(entry);
+            _registryRevision++;
+        });
     }
 
     /// <summary>逐件注册的接管合在一起；回调抛错的那一个这次算不接管。</summary>
@@ -125,6 +149,21 @@ internal static class ThirdPartyProviders
 
     /// <summary>该物品被第三方接管的信息块；没有注册或读取失败时不隐藏任何信息。</summary>
     internal static ItemDetailsTooltipSection TooltipSuppressions(GameItem item)
+    {
+        // 一次构建里正文分发和几个采集器会各问一次，答案只随物品和构建序号变；
+        // 每次重算要展开 MOD_ID_TAG 与物品工厂归属，缓存到下一次构建为止。
+        if (ReferenceEquals(item, _suppressItem) && _suppressBuild == TooltipPipeline.BuildId
+            && _suppressRevision == Revision) return _suppressValue;
+
+        var value = ComputeSuppressions(item);
+        _suppressItem = item;
+        _suppressBuild = TooltipPipeline.BuildId;
+        _suppressRevision = Revision;
+        _suppressValue = value;
+        return value;
+    }
+
+    private static ItemDetailsTooltipSection ComputeSuppressions(GameItem item)
     {
         var byItem = ItemSuppressions(item);
         if (SectionedLayout.DrawsContents(item)) byItem |= ItemDetailsTooltipSection.Contents;

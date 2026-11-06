@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using System.Collections.Generic;
 using HarmonyLib;
 
@@ -158,7 +159,7 @@ internal static class MachineBatteryInfo
         int baseDrawn = GameRead.TagInt(machine, "MACHINERY_DRAWN_POWER_BASE") ?? 0;
         string unit = Loc.T("machine.energy_unit", "/day");
 
-        var output = new TooltipSections.Writer(builder, machine, "machine-power");
+        var output = new TooltipSections.Writer(builder, machine, "machine-power", TooltipGroupIds.Machine);
         output.Field("basePerDay", baseDrawn);
         output.Field("currentPerDay", drawn);
 
@@ -184,9 +185,12 @@ internal static class MachineBatteryInfo
             head.Add((drawn + unit, RenderHandler.ColorPalette.LightCyan));
         }
 
+        int headLength = 0;
+        foreach (var part in head) headLength += ProgressBarStyle.VisibleLength(part.Text);
         var battery = Collect(machine, out int energy, out int maxEnergy, out int days);
         if (battery == null)
         {
+            output.RequireWidth(ProgressBarStyle.WidthForLine(headLength));
             foreach (var part in head) output.Direct(part.Text, part.Color);
             output.DirectNextLine();
             output.Emit();
@@ -199,12 +203,14 @@ internal static class MachineBatteryInfo
         // 条画的是剩余/最大电量；尾部是按可运行天数着色的「22/25kJ (4天)」。
         // 头部已由上面的 Direct 逐段写出，这里只画条与尾部：TooltipLine 的 Text 必须传空，
         // 否则 AddInlineBarLine/AddBarLine 会把头部再写一遍（实测「耗能 4/天」出现两次）。
+        string tail = battery.Value.Text.TrimStart();
+        output.RequireWidth(ProgressBarStyle.WidthForLine(headLength + 1 + EnergyBarLength + 3
+            + ProgressBarStyle.VisibleLength(tail)));
         foreach (var part in head) output.Direct(part.Text, part.Color);
         output.Direct(" ", RenderHandler.ColorPalette.LightCyan);
         output.Direct(new TooltipLine("", (float)energy / maxEnergy, EnergyBarLength,
-            battery.Value.Text.TrimStart(),
-            RenderHandler.ColorPalette.LightCyan, RenderHandler.ColorPalette.VeryDarkCyan));
-        output.DirectNextLine();
+            tail, RenderHandler.ColorPalette.LightCyan, RenderHandler.ColorPalette.VeryDarkCyan));
+        // inline-bar 已收行，不能再追加 break。
         output.Emit();
     }
 

@@ -22,6 +22,9 @@ try {
         foreach ($variant in @('Release', 'Diag', 'SelfTest')) {
             & (Join-Path $PSScriptRoot 'build.ps1') -GameDir $GameDir -Variant $variant
         }
+        # C# 5 客户端必须能在旧语言版本下编译，第三方才敢原样复制。
+        & dotnet build (Join-Path $repo 'tests/CSharp5Client/CSharp5Client.csproj') -c Release -p:GameDir=$GameDir
+        if ($LASTEXITCODE -ne 0) { throw 'C# 5 client does not compile with LangVersion 5.' }
         # Fresh processes prevent default-context Assembly.LoadFrom from reusing a prior build.
         foreach ($script in @('test_upstream_contracts.ps1', 'test_liquid_client.ps1', 'test_section_replay.ps1', 'test_build_outputs.ps1')) {
             & pwsh -NoProfile -File (Join-Path $repo "tests/$script") -GameDir $GameDir

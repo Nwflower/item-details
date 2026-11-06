@@ -80,6 +80,8 @@
 
   <ItemGroup>
     <Compile Remove="tools\**\*.cs;tests\**\*.cs;out\**\*.cs;obj\**\*.cs;bin\**\*.cs" />
+    <!-- C# 5 客户端是给第三方复制的独立源码，按 tests/CSharp5Client 单独编译校验，不进本程序集 -->
+    <Compile Remove="sdk\csharp5\**\*.cs" />
     <None Update="manifest.xml;Textures\**\*;Sounds\**\*;Localization\**\*;LootTables\**\*;Books\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

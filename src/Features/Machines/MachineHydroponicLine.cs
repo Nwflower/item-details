@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using HarmonyLib;
 using UnityEngine;
 
@@ -114,10 +115,11 @@ internal static class MachineHydroponicLine
         float ratio = (float)cur / Mathf.Max(1, target);
         string tail = cur + "/" + target + " " + etaText;
 
-        var output = new TooltipSections.Writer(builder, item, "hydroponic-status");
+        var output = new TooltipSections.Writer(builder, item, "hydroponic-status", TooltipGroupIds.Machine);
+        output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(label) + 13
+            + ProgressBarStyle.VisibleLength(tail))); // 10 格 + 两个括号 + 尾部分隔空格
         output.Direct(label, RenderHandler.ColorPalette.LightCyan);
         output.Direct(new TooltipLine("", ratio, 10, tail, statusColor, RenderHandler.ColorPalette.VeryDarkGreen));
-        output.DirectNextLine();
         output.Emit();
     }
 

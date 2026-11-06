@@ -99,3 +99,35 @@ $queries.GetMethod('Enable',$flags).Invoke($null,@())
 Check ($probe::LiquidAvailable()) 'liquid availability advertised independently'
 $queries.GetMethod('Disable',$flags).Invoke($null,@())
 Check (!$probe::LiquidAvailable()) 'liquid availability withdrawn independently'
+
+# Exercise the same float arithmetic as RichTextBuilder.Build, including CJK rounding edges.
+$barStyle = $provider.GetType('ItemDetails.ProgressBarStyle')
+$lineWidth = $barStyle.GetMethod('WidthForLine', $flags, $null, [type[]]@([int], [single]), $null)
+foreach ($scale in @([single]1, [single]1.5, [single]2)) {
+    foreach ($length in 0..512) {
+        $width = [int]$lineWidth.Invoke($null, @([int]$length, $scale))
+        $budget = if ($scale -gt 1) { [int][Math]::Truncate([single]($width * [single]0.66)) } else { $width }
+        if ($budget -lt $length) { throw "FAIL line width length=$length scale=$scale budget=$budget" }
+        if ($scale -le 1 -and $width -ne $length) { throw 'FAIL Latin width unnecessarily expanded' }
+    }
+}
+Check $true 'complete line width fits native Latin/CJK budgets for lengths 0..512'
+
+# Native Add depends on a live Unity renderer; pin the inline-bar newline contract without starting the game.
+foreach ($file in @('MachineBatteryInfo.cs', 'MachineHydroponicLine.cs')) {
+    $text = Get-Content (Join-Path $repo "src/Features/Machines/$file") -Raw
+    Check ($text -notmatch 'output\.Direct\(new TooltipLine\([\s\S]*?\)\);\s*output\.DirectNextLine\(\);') "$file does not append a break after inline-bar"
+    Check ($text.Contains('output.RequireWidth(ProgressBarStyle.WidthForLine(')) "$file reserves complete line width"
+}
+$powerSource = Get-Content (Join-Path $repo 'src/Features/Machines/MachineBatteryInfo.cs') -Raw
+Check ($powerSource.Contains('WidthForLine(headLength + 1 + EnergyBarLength + 3')) 'power width includes existing head, bar brackets and tail separator'
+$effectSource = Get-Content (Join-Path $repo 'src/Features/Machines/ModuleEffectAnnotation.cs') -Raw
+Check ($effectSource.Contains('+ ProgressBarStyle.VisibleLength(annotation)')) 'module width includes parenthesized annotation'
+# 渲染器表同时承载归属组：排版方按 group 归类，新增区块不必让对方补映射。
+$renderers = $entryType.GetField('Renderers',$flags).GetValue($null)
+$groupField = $renderers[0].GetType().GetField('Group',$rw)
+$groups = @($renderers | ForEach-Object { [string]$groupField.GetValue($_) })
+Check (($groups -notcontains '') -and ($groups -notcontains $null)) 'every renderer declares a group'
+$vocabulary = @($provider.GetType('ItemDetails.Integration.TooltipGroupIds').GetFields($flags) | ForEach-Object { [string]$_.GetValue($null) })
+Check (@($groups | Where-Object { $vocabulary -notcontains $_ }).Count -eq 0) "renderer groups all come from the SDK vocabulary (actual: $($groups -join ','))"
+Check (($vocabulary -contains 'liquid') -and ($vocabulary -contains 'appraisal') -and ($vocabulary -contains 'contents')) 'group vocabulary covers liquid, appraisal and contents'

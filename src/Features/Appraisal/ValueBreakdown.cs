@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
 
 namespace ItemDetails;
 
@@ -49,6 +50,16 @@ internal static partial class ValueBreakdown
             // 先认类型：大多数鉴定物不是这三类，不必为它们去算真实值
             Kind k = DetectKind(item);
             if (k == Kind.None) return null;
+
+            // 公式归属：写死的常量只有在"游戏还在用原版算法、且没人改过它"时才可信。
+            // 第三方换了 getCorrectValue 或给原版方法打了补丁，常量随时会失配，干脆不拆。
+            if (!VanillaFormula(k, item))
+            {
+                Log.Warn("ValueBreakdown.Formula",
+                    $"kind={k} 的定价已不是原版函数（被替换或打过补丁），不显示这三类的价值分解");
+                return null;
+            }
+
             int native = GameRead.TrueValue(item) ?? 0;
 
             Func<string, string?> str = key => StrTag(item, key);
@@ -82,4 +93,57 @@ internal static partial class ValueBreakdown
     }
 
     private static string? StrTag(GameItem item, string key) => GameRead.TagString(item, key);
+
+    /// <summary>
+    /// 这三类的定价现在是否仍由原版函数决定：鉴定类型挂的还是原版 <c>GetCorrectValue</c>，
+    /// 并且那个方法上没有别的模组的 Harmony 补丁。
+    /// 原版委托被替换（第三方另写了算法）或方法被改写（改了系数）时，反编译得到的常量都不再适用。
+    /// 判定失败一律当作"不是原版"，宁可不拆解。
+    /// </summary>
+    // 三个原版定价函数的方法信息：直接取静态方法组，不走反射查找，模组扫描器因此不需要额外能力。
+    private static readonly System.Reflection.MethodInfo? HandMethod =
+        ((Func<GameItem, int>)AppHandHelper.GetCorrectValue).Method;
+    private static readonly System.Reflection.MethodInfo? PlasmaMethod =
+        ((Func<GameItem, int>)PlasmaHelper.GetCorrectValue).Method;
+    private static readonly System.Reflection.MethodInfo? RibwichMethod =
+        ((Func<GameItem, int>)RibwichHelper.GetCorrectValue).Method;
+
+    private static bool VanillaFormula(Kind kind, GameItem item)
+    {
+        try
+        {
+            System.Reflection.MethodInfo? vanilla = kind switch
+            {
+                Kind.Hand => HandMethod,
+                Kind.Plasma => PlasmaMethod,
+                Kind.Ribwich => RibwichMethod,
+                _ => null,
+            };
+            if (vanilla == null) return false;
+            if (ForeignPatches(vanilla)) return false;
+
+            // 类型表里登记的函数必须还是这个原版方法；登记不到（没有类型或没挂函数）时按标签走，不额外拦。
+            var func = AppraisalItemRegistry.Find(item)?.getCorrectValue;
+            return func == null || func.Method == vanilla;
+        }
+        catch { return false; }
+    }
+
+    /// <summary>方法上是否有别的模组留下的补丁（我们自己从不补这些函数）。</summary>
+    private static bool ForeignPatches(System.Reflection.MethodBase method)
+    {
+        try
+        {
+            var info = HarmonyLib.Harmony.GetPatchInfo(method);
+            if (info == null) return false;
+            foreach (var p in info.Prefixes) if (!Mine(p)) return true;
+            foreach (var p in info.Postfixes) if (!Mine(p)) return true;
+            foreach (var p in info.Transpilers) if (!Mine(p)) return true;
+            return false;
+        }
+        catch { return false; }
+    }
+
+    private static bool Mine(HarmonyLib.Patch patch) =>
+        patch.owner != null && patch.owner.StartsWith("item_details", StringComparison.Ordinal);
 }

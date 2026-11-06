@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -117,7 +118,7 @@ internal static class ManufacturerInline
             if (string.IsNullOrEmpty(company)) return;
             if (TooltipPipeline.Current is GameItem item)
             {
-                var output = new TooltipSections.Writer(__0, item, "manufacturer");
+                var output = new TooltipSections.Writer(__0, item, "manufacturer", TooltipGroupIds.Label);
                 if (output.Capturing)
                 {
                     output.Field("id", manufacturer);

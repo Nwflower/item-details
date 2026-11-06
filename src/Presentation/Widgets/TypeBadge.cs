@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ItemDetails.Integration;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -78,6 +79,7 @@ internal static class TypeBadge
     private static bool _patched;
     private static Harmony? _harmony;
     private static GameObject? _badge;          // 容器（无渲染组件）
+    private static IDisposable? _badgeHook;     // 徽章槽位注册句柄（排版方按它量高度）
     private static TMP_Text? _textTemplate;     // 文本模板
 
     private static readonly List<Entry> Pending = new();
@@ -133,6 +135,8 @@ internal static class TypeBadge
                 _harmony.Patch(hide, postfix: new HarmonyMethod(typeof(TypeBadge), nameof(AfterHide)));
 
             _patched = true;
+            // 徽章位置由排版方决定摆放时，它按这个槽位量高度，不再按节点名找 GameObject。
+            try { PublishBadge(); } catch (Exception ex) { Log.Warn("TypeBadge.Badge", ex); }
             Log.Msg("TypeBadge: patched OverlayHandler tooltip");
         }
         catch (Exception ex)
@@ -146,6 +150,7 @@ internal static class TypeBadge
         try { _harmony?.UnpatchAll(HarmonyId); } catch { }
         _harmony = null;
         _patched = false;
+        try { WithdrawBadge(); } catch { }
         DestroyBadge();
     }
 
@@ -189,7 +194,7 @@ internal static class TypeBadge
     internal static void Publish(RichTextBuilder builder, GameItem item)
     {
         if (Pending.Count == 0 || !ModSettings.TypeBadge || !ReferenceEquals(item, TooltipPipeline.Current)) return;
-        var output = new TooltipSections.Writer(builder, item, "categories");
+        var output = new TooltipSections.Writer(builder, item, "categories", TooltipGroupIds.Label);
         if (!output.Capturing) return;
         output.Field("types", Pending.ConvertAll(e => (e.TypeConst, e.Display)).AsReadOnly());
         // 分类徽章本身已由 AfterShow 画在原生提示框上；这里只暴露数据，接管方负责隐藏原生「[类型]」。
@@ -674,5 +679,24 @@ internal static class TypeBadge
         Pending.Clear();
         Built.Clear();
         Widths.Clear();
+    }
+
+    /// <summary>
+    /// 当前的分类徽章容器；没显示时返回 null，而容器存在但已隐藏时返回隐藏的 RectTransform。
+    /// 排版方原来按节点名 <c>ItemDetailsTypeBadge</c> 在父节点上找它并量高度，
+    /// 改走槽位后我们改节点名或层级都不影响它。
+    /// </summary>
+    private static RectTransform? BadgeRect()
+    {
+        try { return _badge != null ? _badge.GetComponent<RectTransform>() : null; }
+        catch { return null; }
+    }
+
+    internal static void PublishBadge() => _badgeHook ??= ItemDetailsClient.RegisterTooltipBadge(BadgeRect);
+
+    internal static void WithdrawBadge()
+    {
+        _badgeHook?.Dispose();
+        _badgeHook = null;
     }
 }

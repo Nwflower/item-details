@@ -59,6 +59,7 @@ internal static class ItemDetailsClient
 
     internal const string LayoutSlot = "item_details.tooltip_layout.v1";
     internal const string AnchorSlot = "item_details.tooltip_anchor.v1";
+    internal const string BadgeSlot = "item_details.tooltip_badge.v1";
 
     // null means this renderer does not own the current tooltip.
     internal static IDisposable RegisterTooltipLayout(Func<GameItem, TooltipLayoutOptions?> describe)
@@ -70,6 +71,24 @@ internal static class ItemDetailsClient
 
     internal static IDisposable RegisterTooltipAnchor(Func<RectTransform?> anchor)
         => new Registration(AnchorSlot, anchor ?? throw new ArgumentNullException(nameof(anchor)));
+
+    // 分类徽章的容器；没显示时返回 null。排版方按它留出行高，不再按节点名找 GameObject。
+    internal static IDisposable RegisterTooltipBadge(Func<RectTransform?> badge)
+        => new Registration(BadgeSlot, badge ?? throw new ArgumentNullException(nameof(badge)));
+
+    // 读取方：当前可见分类徽章，没有则 false。多次注册时先返回非空的那个。
+    internal static bool TryGetTooltipBadge(out RectTransform? badge)
+    {
+        badge = null;
+        if (AppDomain.CurrentDomain.GetData(BadgeSlot) is not Func<RectTransform?> providers) return false;
+        foreach (Func<RectTransform?> getBadge in providers.GetInvocationList())
+        {
+            try { badge = getBadge(); }
+            catch { continue; }
+            if (badge != null) return true;
+        }
+        return false;
+    }
 
     internal const string AnalysisSlot = "item_details.liquid_analysis.v1";
     internal const string AdviceSlot = "item_details.water_advice.v1";
@@ -261,6 +280,27 @@ internal static class TooltipSectionIds
     internal const string Label = "label";
     internal const string Manufacturer = "manufacturer";
     internal const string InspectHint = "inspect-hint";
+}
+
+/// <summary>
+/// 区块 `group` 字段的固定词表：这一块在玩家眼里属于哪一类信息。
+/// 只增不改；读取方遇到不认识的组按原样保留该行，不要丢。
+/// </summary>
+internal static class TooltipGroupIds
+{
+    internal const string Liquid = "liquid";
+    internal const string Plant = "plant";
+    internal const string Machine = "machine";
+    internal const string Condition = "condition";
+    internal const string Appraisal = "appraisal";
+    internal const string Food = "food";
+    internal const string Lottery = "lottery";
+    internal const string Brew = "brew";
+    internal const string Module = "module";
+    internal const string Label = "label";
+    internal const string Description = "description";
+    internal const string Price = "price";
+    internal const string Contents = "contents";
 }
 
 /// <summary>

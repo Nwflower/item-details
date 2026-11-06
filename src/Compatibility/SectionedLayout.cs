@@ -13,9 +13,6 @@ internal static class SectionedLayout
     private static int cachedBuild;
     private static TooltipLayoutOptions cachedOptions;
 
-    internal static bool UsesNativeBars => TooltipPipeline.Current is GameItem item
-        && (For(item) & TooltipLayoutOptions.NativeProgressBars) != 0;
-
     internal static bool UsesFlowingText(GameItem item)
         => (For(item) & TooltipLayoutOptions.FlowingText) != 0;
 

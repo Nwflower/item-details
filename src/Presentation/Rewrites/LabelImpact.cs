@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using HarmonyLib;
 
 namespace ItemDetails;
@@ -99,7 +100,7 @@ internal static class LabelImpact
 
             string impact = Impact(feature, out int modifier, out string suffix);
             text = impact.Length > 0 ? $"{name} ({impact})" : name;
-            var output = new TooltipSections.Writer(builder, item, "label");
+            var output = new TooltipSections.Writer(builder, item, "label", TooltipGroupIds.Label);
             if (output.Capturing)
             {
                 output.Field("name", name);

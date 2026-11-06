@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using System.Collections.Generic;
 using HarmonyLib;
 using TMPro;
@@ -151,7 +152,7 @@ internal static class ContentsGrid
             if (!ModSettings.ContentsGrid) return false;
             if (builder != null)
             {
-                var output = new TooltipSections.Writer(builder, item, sealedBox ? "sealed-contents" : "contents");
+                var output = new TooltipSections.Writer(builder, item, sealedBox ? "sealed-contents" : "contents", TooltipGroupIds.Contents);
                 if (output.Capturing)
                 {
                     output.Field("items", Array.AsReadOnly(items.ToArray()));

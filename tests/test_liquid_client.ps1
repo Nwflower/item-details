@@ -46,6 +46,8 @@ public static class ConsumerProbe
         ItemDetailsClient.TryGetWaterAdvice(item, out var methods) && methods.Count == 0;
     public static IDisposable Subscribe(bool accept) =>
         ItemDetailsClient.RegisterLiquidAnalysisDisplay((item, data) => data.Effects.Toxic && accept);
+    public static IDisposable BadgeNull() => ItemDetailsClient.RegisterTooltipBadge(() => null);
+    public static bool HasBadge() { RectTransform? badge; return ItemDetailsClient.TryGetTooltipBadge(out badge) && badge != null; }
     public static IDisposable Layout(GameItem item) =>
         ItemDetailsClient.RegisterTooltipLayout(current =>
             ReferenceEquals(current, item) ? TooltipLayoutOptions.NativeProgressBars | TooltipLayoutOptions.DrawsContents : null);
@@ -95,15 +97,22 @@ try {
     $tp = $provider.GetType('ItemDetails.TooltipPipeline')
     $tp.GetField('_current',$flags).SetValue($null,$item)
     $tp.GetField('_buildId',$flags).SetValue($null,1)
-    $nativeBars = $layout.GetProperty('UsesNativeBars',$flags)
     $sup = $provider.GetType('ItemDetails.ThirdPartyProviders').GetMethod('TooltipSuppressions',$flags)
-    Check ($nativeBars.GetValue($null) -and !$flow.Invoke($null,@($item))) 'renderer requests native bars independently of column layout'
     Check ($sup.Invoke($null,@($item)).ToString() -eq 'Contents') 'optional client claims only the current item contents'
     $other = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([GameItemElement])
     Check ($sup.Invoke($null,@($other)).ToString() -eq 'None') 'unclaimed item keeps its contents'
+    # 进度条不再按排版方声明分叉：文本一律由游戏 AddProgressBar 产出，本作只保留渲染层的替换。
+    $barStyle = $provider.GetType('ItemDetails.ProgressBarStyle')
+    Check ($barStyle.GetMethod('Format',$flags) -eq $null) 'bar text comes from the game AddProgressBar, not a local formatter'
+    Check ($layout.GetProperty('UsesNativeBars',$flags) -eq $null) 'bar layout no longer branches on the declaration'
     $custom.Dispose()
     $tp.GetField('_buildId',$flags).SetValue($null,2)
-    Check (!$nativeBars.GetValue($null) -and $sup.Invoke($null,@($item)).ToString() -eq 'None') 'next tooltip after disposal restores default styling and contents'
+    Check (!$flow.Invoke($null,@($item)) -and $sup.Invoke($null,@($item)).ToString() -eq 'None') 'next tooltip after disposal restores default styling and contents'
+    $badgeHook = $client::BadgeNull()
+    Check (!$client::HasBadge()) 'badge provider returning null reads as absent'
+    $badgeHook.Dispose()
+    Check (!$client::HasBadge()) 'disposed badge provider is no longer queried'
+    Check ($provider.GetType('ItemDetails.TypeBadge').GetMethod('PublishBadge',$flags) -ne $null) 'type badge publishes its rect through the badge slot'
     $anchor = $client::Anchor()
     $getAnchor = $provider.GetType('ItemDetails.ThirdPartyProviders').GetMethod('TryTooltipAnchor',$flags)
     Check (!$getAnchor.Invoke($null,@($null)) -and $client::AnchorCalls -eq 1) 'optional anchor queried and null falls back'

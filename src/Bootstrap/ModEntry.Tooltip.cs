@@ -496,26 +496,17 @@ public sealed partial class ModEntry
     }
 
     /// <summary>
-    /// 输出进度条行：前缀 → 条文本 → 后缀。
-    /// 原版布局直接输出条文本，避免 noBreak 改变 CJK 换行宽度。美化布局从 AddProgressBar 读取比例。
+    /// 输出进度条行：说明 → 条 → 尾注，一条一行。
+    /// 条一律交给游戏自己的 <c>AddProgressBar</c>：它写出原版 <c>[=====     ]</c> 并把这条标成不折行片段。
+    /// 逻辑层因此不必知道谁来画——原版窗口用渲染层还原成高清条，排版方从同一个入口读比例。
+    /// 条的高精度比例与底色由 <see cref="ProgressBarStyle"/> 在同一个入口记录，原版会丢掉底色。
     /// </summary>
     internal static void AddBarLine(RichTextBuilder builder, TooltipLine ln)
     {
         try
         {
-            if (SectionedLayout.UsesNativeBars)
-            {
-                // 完整说明在前，让带冒号的译文也把条留在值列。美化布局自行决定条与文字的位置。
-                builder.Add((ln.Text + " " + ln.Tail).Trim() + " ", ln.Color);
-                builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark);
-                builder.NextLine();
-                return;
-            }
             if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
-            int visible = ProgressBarStyle.VisibleLength(ln.Text) + ln.BarLength + 1
-                + ProgressBarStyle.VisibleLength(ln.Tail);
-            string bar = ProgressBarStyle.Format(builder, ln.Bar, ln.BarLength, ln.BarDark, fullLength: true);
-            builder.Add(bar, ln.Color, end: " ");
+            builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, end: " ");
             AddLine(builder, ln.Tail ?? "", ln.Color);
         }
         catch (Exception ex)
@@ -526,23 +517,14 @@ public sealed partial class ModEntry
 
     /// <summary>
     /// 原地改写行的进度条：条直接放在文字后面，不再另起一行说明。
-    /// 不带不折行标记，折行预算与普通文本一致；放不下一行时退回 addProgressBar 的默认渲染。
+    /// 调用方负责为完整行（含先前写出的头部）预留宽度；本方法负责收行，不能再追加 NextLine。
     /// </summary>
     internal static void AddInlineBarLine(RichTextBuilder builder, TooltipLine ln)
     {
         try
         {
-            if (SectionedLayout.UsesNativeBars)
-            {
-                AddBarLine(builder, ln);
-                return;
-            }
-            int visible = ProgressBarStyle.VisibleLength(ln.Text) + ln.BarLength + 2
-                + ProgressBarStyle.VisibleLength(ln.Tail);
-            bool fits = ProgressBarStyle.FitsOneLine(builder, visible);
             if (ln.Text.Length > 0) builder.Add(ln.Text, ln.Color);
-            builder.Add(ProgressBarStyle.Format(builder, ln.Bar, ln.BarLength, ln.BarDark,
-                fullLength: true), ln.Color, end: " ");
+            builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, end: " ");
             if (!string.IsNullOrEmpty(ln.Tail)) builder.Add(ln.Tail, ln.Color);
             builder.NextLine();
         }

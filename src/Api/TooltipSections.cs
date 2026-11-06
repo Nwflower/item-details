@@ -40,9 +40,10 @@ internal static class TooltipSections
     }
 
     // For a native text slice shared with another game helper (e.g. the label prefix).
-    internal static void ObserveText(RichTextBuilder builder, GameItem item, string id, string text, Color color)
+    internal static void ObserveText(RichTextBuilder builder, GameItem item, string id, string text, Color color,
+        string? group = null)
     {
-        var output = new Writer(builder, item, id);
+        var output = new Writer(builder, item, id, group);
         if (!output.Capturing) return;
         output.AddLine(text, color);
         output.Observe();
@@ -83,11 +84,15 @@ internal static class TooltipSections
         /// <summary>当前 tooltip 的折行预算（字符数）；原版按物品给 40/60/80。</summary>
         internal int MaxCharWidth => Native.maxCharWidth;
 
-        internal Writer(RichTextBuilder builder, GameItem item, string id)
+        internal Writer(RichTextBuilder builder, GameItem item, string id) : this(builder, item, id, null) { }
+
+        internal Writer(RichTextBuilder builder, GameItem item, string id, string? group)
         {
             Native = builder;
             var (displays, watch) = Listeners();
             buffer = displays != null || watch ? new Buffer(item, id, displays, watch) : null;
+            // 归属词表随每个区块一起发出去：读取方不必为每个新 id 补一条映射，认不出的组按原样保留。
+            if (buffer != null && group != null) Field("group", group);
         }
 
         internal void Field<T>(string key, T value) where T : notnull

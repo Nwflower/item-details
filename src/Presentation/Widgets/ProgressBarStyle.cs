@@ -12,12 +12,12 @@ namespace ItemDetails;
 
 /// <summary>
 /// 逻辑层与渲染层分离的进度条实现：
-/// - 逻辑层（RichTextBuilder / TextSlice）：保留原版 `[=====     ]` 纯文本格式与字符宽度，
-///   并在内部上下文中记录高精度条元数据（BarRecord）；
-/// - 第三方层：像 SectionedTooltips 等美化排版 Mod 读取和切分原版文本时，看到的是标准原版字符，
-///   正则提取与列宽计算完全不会被 TMP sprite 标签破坏；
+/// - 逻辑层：条一律由游戏自己的 <c>AddProgressBar</c> 写出，原版 `[=====     ]` 纯文本、字符宽度不变；
+///   同一个入口（<see cref="BeforeBar"/>）记录高精度比例与底色，原版会丢掉背景色；
+/// - 第三方层：美化排版 Mod 从 `<c>AddProgressBar</c>` 读比例、从文本切分时看到的是标准原版字符，
+///   提取与列宽计算不会被 TMP sprite 标签破坏；
 /// - 渲染层（RichTextElement.SetRichText）：在实际向屏幕 TextMeshPro 提交富文本的前夕，
-///   统一匹配 `[=====     ]` 并根据之前记录的高精度浮点数替换为高清 SpriteProgressBar（或回退为 █ 块）。
+///   统一匹配 `[=====     ]` 并根据记录的高精度浮点数替换为高清 SpriteProgressBar（或回退为 █ 块）。
 /// </summary>
 internal static class ProgressBarStyle
 {
@@ -264,43 +264,30 @@ internal static class ProgressBarStyle
     }
 
     /// <summary>
-    /// 生成进度条文本。在逻辑层返回标准原版格式 `[=====     ]`，
-    /// 同时在 builder 上记录高精度条元数据，供后续渲染层替换为 Sprite 进度条。
-    /// </summary>
-    internal static string Format(RichTextBuilder? builder, float ratio, int length, RenderHandler.ColorPalette dark,
-        bool fullLength = true)
-    {
-        if (length <= 0) return "";
-        if (builder != null && ModSettings.BlockProgressBar)
-        {
-            RecordBar(builder, ratio, length, dark, fullLength);
-        }
-        return RenderAscii(ratio, length, fullLength);
-    }
-
-    /// <summary>无 builder 重载（向下兼容）：生成纯 ASCII 条</summary>
-    internal static string Format(float ratio, int length, RenderHandler.ColorPalette dark, bool fullLength = true,
-        bool allowSprite = false)
-    {
-        if (length <= 0) return "";
-        return RenderAscii(ratio, length, fullLength);
-    }
-
-    /// <summary>
     /// 原版 RichTextBuilder 计折行时的可见字符数：跳过 &lt;…&gt; 标签与控制字符。
     /// 与框宽修正共用同一套标签判定，字面尖括号（「不足 1 天」写作 &lt;1 day）按普通字符计。
     /// </summary>
     internal static int VisibleLength(string? text) => TooltipWidthFix.VisibleWidth(text);
 
     /// <summary>
-    /// 一行文字在原版 Build 里会不会折行。中日韩（字宽缩放 &gt; 1）取不带不折行片段时的 0.66 倍宽，
-    /// 这是两种系数里较窄的一个，判断偏保守。
+    /// 完整行所需的 maxCharWidth；反算原版 CJK 的 0.66 折行预算，避免框宽足够却提前断行。
+    /// 条一律由 <c>AddProgressBar</c> 写出并带不折行片段，折行预算实际是更宽的 0.875，
+    /// 按 0.66 预留对这一行仍然成立（更保守）。
     /// </summary>
-    internal static bool FitsOneLine(RichTextBuilder builder, int visibleLength)
+    internal static int WidthForLine(int visibleLength)
     {
         float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
-        int limit = scale > 1f ? Math.Max(1, (int)(builder.maxCharWidth * 0.66f)) : builder.maxCharWidth;
-        return visibleLength <= limit;
+        return WidthForLine(visibleLength, scale);
+    }
+
+    internal static int WidthForLine(int visibleLength, float scale)
+    {
+        if (visibleLength <= 0) return 0;
+        if (scale <= 1f) return visibleLength;
+        int width = (int)Math.Ceiling(visibleLength / 0.66f);
+        // 与 Build 的 float 乘法及向下取整保持一致，防止边界舍入少一个字符。
+        while ((int)(width * 0.66f) < visibleLength) width++;
+        return width;
     }
 
     /// <summary>格数同原版 floor(比例 × 长度)，只是接近满时按满画（见 <see cref="ProgressFill"/>）。</summary>
@@ -318,18 +305,6 @@ internal static class ProgressBarStyle
                 ? RenderHandler.ApplyRichTextColorTag(rest, dark)
                 : DimAlpha + rest + "<alpha=#FF>");
         }
-        return sb.ToString();
-    }
-
-    private static string RenderAscii(float rawRatio, int length, bool fullLength)
-    {
-        int filled = ProgressFill.Filled(rawRatio, length);
-        int empty = fullLength ? length - filled : 0;
-        var sb = new StringBuilder(length + 2);
-        sb.Append('[');
-        if (filled > 0) sb.Append('=', filled);
-        if (empty > 0) sb.Append(' ', empty);
-        sb.Append(']');
         return sb.ToString();
     }
 }

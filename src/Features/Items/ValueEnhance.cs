@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 
 namespace ItemDetails;
 
@@ -67,7 +68,7 @@ internal static class ValueEnhance
     internal static bool TryWrite(RichTextBuilder builder, GameItem? item)
     {
         if (item == null) return false;
-        var output = new TooltipSections.Writer(builder, item, "value-enhance");
+        var output = new TooltipSections.Writer(builder, item, "value-enhance", TooltipGroupIds.Price);
         bool wrote = TryWrite(output, item);
         output.Finish();
         return wrote;

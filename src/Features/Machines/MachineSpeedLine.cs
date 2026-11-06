@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using HarmonyLib;
 
 namespace ItemDetails;
@@ -137,7 +138,7 @@ internal static class MachineSpeedLine
         string head = label.TrimEnd();
         if (head.Length > 0 && head[head.Length - 1] != '：') head += " ";
 
-        var output = new TooltipSections.Writer(builder, machine, "machine-speed");
+        var output = new TooltipSections.Writer(builder, machine, "machine-speed", TooltipGroupIds.Machine);
         output.Field("basePerDay", baseSpeed);
         output.Field("currentPerDay", speed);
         output.Add(head, RenderHandler.ColorPalette.LightCyan);

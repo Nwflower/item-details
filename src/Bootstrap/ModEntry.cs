@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using ItemDetails.Integration;
 
 namespace ItemDetails;
 
@@ -48,18 +49,23 @@ public sealed partial class ModEntry : IMod
     }
 #endif
 
-    /// <summary>一个 tooltip 追加器：名字用于日志，信息块用于第三方接管，执行顺序即数组顺序。</summary>
+    /// <summary>
+    /// 一个 tooltip 追加器：名字用于日志，信息块用于第三方接管，归属组用于告诉排版方这一块该归到哪个小节，
+    /// 执行顺序即数组顺序。新增模块只改这张表，不改分发代码。
+    /// </summary>
     private readonly struct RendererDef
     {
         internal readonly string Name;
         internal readonly ItemDetailsTooltipSection Section;
+        internal readonly string Group;
         internal readonly Func<ModEntry, TooltipSections.Writer, GameItem, bool> Append;
 
-        internal RendererDef(string name, ItemDetailsTooltipSection section,
+        internal RendererDef(string name, ItemDetailsTooltipSection section, string group,
             Func<ModEntry, TooltipSections.Writer, GameItem, bool> append)
         {
             Name = name;
             Section = section;
+            Group = group;
             Append = append;
         }
     }
@@ -67,31 +73,33 @@ public sealed partial class ModEntry : IMod
     /// <summary>
     /// tooltip 追加器按固定顺序执行；新增模块只改这里和对应方法。
     /// storage 同时含压缩率和内容物，在采集器内分别判断，因此这里标为 None。
+    /// 第三列是归属组（见 SDK 的 <see cref="ItemDetails.Integration.TooltipGroupIds"/>）：区块快照里的 group 字段取自它，
+    /// 排版方按组归类，不必为每个新 id 补映射。
     /// </summary>
     private static readonly RendererDef[] Renderers =
     {
-        new("auth", ItemDetailsTooltipSection.Authenticity, (m, b, i) => m.TryAppendAuthenticity(b, i)),
-        new("value", ItemDetailsTooltipSection.ValueBreakdown, (m, b, i) => m.TryAppendValue(b, i)),
-        new("ribwich", ItemDetailsTooltipSection.Authenticity, (m, b, i) => m.TryAppendRibwichReasons(b, i)),
-        new("injected-value", ItemDetailsTooltipSection.ValueBreakdown, (m, b, i) => m.TryAppendInjectedValue(b, i)),
-        new("berry", ItemDetailsTooltipSection.BerryQuality, (m, b, i) => m.TryAppendBerry(b, i)),
-        new("hidden", ItemDetailsTooltipSection.HiddenInfo, (m, b, i) => m.TryAppendHidden(b, i)),
-        new("value-enhance", ItemDetailsTooltipSection.ValueEnhance, (m, b, i) => m.TryAppendValueEnhance(b, i)),
-        new("feature-reveal", ItemDetailsTooltipSection.HiddenInfo, (m, b, i) => m.TryAppendFeatureReveal(b, i)),
-        new("storage", ItemDetailsTooltipSection.None, (m, b, i) => m.TryAppendStorage(b, i)),
-        new("machine-interior", ItemDetailsTooltipSection.MachineInterior, (m, b, i) => m.TryAppendMachineInterior(b, i)),
-        new("module-learning", ItemDetailsTooltipSection.ModuleLearning, (m, b, i) => m.TryAppendModuleLearning(b, i)),
-        new("conditions", ItemDetailsTooltipSection.ConditionEffects, (m, b, i) => m.TryAppendConditions(b, i)),
-        new("contraband", ItemDetailsTooltipSection.Contraband, (m, b, i) => m.TryAppendContraband(b, i)),
-        new("lottery", ItemDetailsTooltipSection.Lottery, (m, b, i) => m.TryAppendLottery(b, i)),
-        new("water", ItemDetailsTooltipSection.LiquidAnalysis, (m, b, i) => m.TryAppendWater(b, i)),
-        new("sealed-box", ItemDetailsTooltipSection.Contents, (m, b, i) => m.TryAppendSealedBox(b, i)),
-        new("scratcher", ItemDetailsTooltipSection.Scratcher, (m, b, i) => m.TryAppendScratcher(b, i)),
-        new("seed", ItemDetailsTooltipSection.Seed, (m, b, i) => m.TryAppendSeed(b, i)),
-        new("water-advice", ItemDetailsTooltipSection.WaterAdvice, (m, b, i) => m.TryAppendWaterAdvice(b, i)),
-        new("wine", ItemDetailsTooltipSection.Wine, (m, b, i) => m.TryAppendWine(b, i)),
-        new("meat", ItemDetailsTooltipSection.Meat, (m, b, i) => m.TryAppendMeat(b, i)),
-        new("market", ItemDetailsTooltipSection.Market, (m, b, i) => m.TryAppendMarket(b, i)),
+        new("auth", ItemDetailsTooltipSection.Authenticity, TooltipGroupIds.Appraisal, (m, b, i) => m.TryAppendAuthenticity(b, i)),
+        new("value", ItemDetailsTooltipSection.ValueBreakdown, TooltipGroupIds.Appraisal, (m, b, i) => m.TryAppendValue(b, i)),
+        new("ribwich", ItemDetailsTooltipSection.Authenticity, TooltipGroupIds.Appraisal, (m, b, i) => m.TryAppendRibwichReasons(b, i)),
+        new("injected-value", ItemDetailsTooltipSection.ValueBreakdown, TooltipGroupIds.Appraisal, (m, b, i) => m.TryAppendInjectedValue(b, i)),
+        new("berry", ItemDetailsTooltipSection.BerryQuality, TooltipGroupIds.Food, (m, b, i) => m.TryAppendBerry(b, i)),
+        new("hidden", ItemDetailsTooltipSection.HiddenInfo, TooltipGroupIds.Condition, (m, b, i) => m.TryAppendHidden(b, i)),
+        new("value-enhance", ItemDetailsTooltipSection.ValueEnhance, TooltipGroupIds.Price, (m, b, i) => m.TryAppendValueEnhance(b, i)),
+        new("feature-reveal", ItemDetailsTooltipSection.HiddenInfo, TooltipGroupIds.Condition, (m, b, i) => m.TryAppendFeatureReveal(b, i)),
+        new("storage", ItemDetailsTooltipSection.None, TooltipGroupIds.Contents, (m, b, i) => m.TryAppendStorage(b, i)),
+        new("machine-interior", ItemDetailsTooltipSection.MachineInterior, TooltipGroupIds.Machine, (m, b, i) => m.TryAppendMachineInterior(b, i)),
+        new("module-learning", ItemDetailsTooltipSection.ModuleLearning, TooltipGroupIds.Module, (m, b, i) => m.TryAppendModuleLearning(b, i)),
+        new("conditions", ItemDetailsTooltipSection.ConditionEffects, TooltipGroupIds.Condition, (m, b, i) => m.TryAppendConditions(b, i)),
+        new("contraband", ItemDetailsTooltipSection.Contraband, TooltipGroupIds.Price, (m, b, i) => m.TryAppendContraband(b, i)),
+        new("lottery", ItemDetailsTooltipSection.Lottery, TooltipGroupIds.Lottery, (m, b, i) => m.TryAppendLottery(b, i)),
+        new("water", ItemDetailsTooltipSection.LiquidAnalysis, TooltipGroupIds.Liquid, (m, b, i) => m.TryAppendWater(b, i)),
+        new("sealed-box", ItemDetailsTooltipSection.Contents, TooltipGroupIds.Contents, (m, b, i) => m.TryAppendSealedBox(b, i)),
+        new("scratcher", ItemDetailsTooltipSection.Scratcher, TooltipGroupIds.Lottery, (m, b, i) => m.TryAppendScratcher(b, i)),
+        new("seed", ItemDetailsTooltipSection.Seed, TooltipGroupIds.Plant, (m, b, i) => m.TryAppendSeed(b, i)),
+        new("water-advice", ItemDetailsTooltipSection.WaterAdvice, TooltipGroupIds.Liquid, (m, b, i) => m.TryAppendWaterAdvice(b, i)),
+        new("wine", ItemDetailsTooltipSection.Wine, TooltipGroupIds.Brew, (m, b, i) => m.TryAppendWine(b, i)),
+        new("meat", ItemDetailsTooltipSection.Meat, TooltipGroupIds.Food, (m, b, i) => m.TryAppendMeat(b, i)),
+        new("market", ItemDetailsTooltipSection.Market, TooltipGroupIds.Price, (m, b, i) => m.TryAppendMarket(b, i)),
     };
 
     /// <summary>连续失败到这个次数就停用该模块：坏的逻辑不该每次悬停都拖累整段 tooltip。</summary>
@@ -298,7 +306,7 @@ public sealed partial class ModEntry : IMod
 #endif
             try
             {
-                var output = new TooltipSections.Writer(builder, item, def.Name);
+                var output = new TooltipSections.Writer(builder, item, def.Name, def.Group);
                 if (def.Append(this, output, item)) output.Finish();
                 _rendererFailures[i] = 0;
             }

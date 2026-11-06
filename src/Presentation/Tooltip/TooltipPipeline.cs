@@ -1,4 +1,5 @@
 using System;
+using ItemDetails.Integration;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -184,7 +185,7 @@ internal static class TooltipPipeline
             // 描述与背景故事按常规宽度预折行，不让进度条把它们拉宽
             WrapDescription(ref __0, cur, __instance);
             if (__2 != originalColor || __0 != originalDescription)
-                TooltipSections.ObserveText(__instance, cur, "description", __0, __2);
+                TooltipSections.ObserveText(__instance, cur, "description", __0, __2, TooltipGroupIds.Description);
 
             // 价格术语本地化：预估价值→售价、基础价值→标价、购买价格→进价
             if (!RewritePriceTerms(ref __0, __instance, __2)) return false;
@@ -192,7 +193,7 @@ internal static class TooltipPipeline
             string originalVolume = __0;
             RewriteLiquidVolume(ref __0, cur);
             if (__0 != originalVolume)
-                TooltipSections.ObserveText(__instance, cur, "liquid-volume", __0, __2);
+                TooltipSections.ObserveText(__instance, cur, "liquid-volume", __0, __2, TooltipGroupIds.Liquid);
 
             // 模组加成行：-性能: +16% → -性能: +16%(+136毫升/天)
             if (ModuleEffectAnnotation.TryApply(ref __0, __instance, __2, cur)) return false;
@@ -371,7 +372,7 @@ internal static class TooltipPipeline
             {
                 if (_priceEmbeddedBuy) return false;
                 text = Loc.T("price.buy", "Buy: ") + text.Substring(_buyHead!.Length);
-                if (_current != null) TooltipSections.ObserveText(builder, _current, "purchase", text, color);
+                if (_current != null) TooltipSections.ObserveText(builder, _current, "purchase", text, color, TooltipGroupIds.Price);
                 if (_perCellAfterBuy)
                 {
                     _perCellAfterBuy = false;
@@ -425,7 +426,7 @@ internal static class TooltipPipeline
             if (core.Length == 0) core = tail;
 
             string head = Loc.T("calorie.line", "Energy: {0} {1}", cal, tail);
-            var output = new TooltipSections.Writer(builder, item, "calories");
+            var output = new TooltipSections.Writer(builder, item, "calories", TooltipGroupIds.Food);
             output.Field("calories", cal);
             output.Add(head, RenderHandler.ColorPalette.LightCyan);
 
@@ -507,7 +508,7 @@ internal static class TooltipPipeline
             int maxWidth = scale > 1f ? 30 : builder.maxCharWidth;
             bool splitLines = width > maxWidth;
 
-            var output = new TooltipSections.Writer(builder, item, "price");
+            var output = new TooltipSections.Writer(builder, item, "price", TooltipGroupIds.Price);
             output.Field("sell", sell);
             output.Field("list", list);
             if (buy != 0) output.Field("buy", buy);
