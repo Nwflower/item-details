@@ -299,7 +299,7 @@ public sealed partial class ModEntry
         if (!r.IsSolid)
         {
             // 液体容器：表头只画「体积条 + 2000/2000mL 档位」，下面每种成分一行；
-            // 三列用 TMP 的 <pos> 精确定位（见 WaterColumns），比空格补位准。
+            // 单元格按全角空格分隔，原版窗口构建时换成 TMP 的 <pos> 三列（见 WaterColumns）。
             var table = WaterColumns.Build(r, item,
                 advicePossible: !ThirdPartyProviders.HandlesTooltip(item, ItemDetailsTooltipSection.WaterAdvice),
                 visible: visible);
@@ -314,8 +314,8 @@ public sealed partial class ModEntry
         else
         {
             // 固体化学品（药片、作物、粪便等）：没有容器与体积，所以不画条；
-            // 成分与液体容器共用同一份行数据，也照同一份布局声明输出。
-            var table = WaterColumns.BuildSolid(r, visible, flowing: SectionedLayout.UsesFlowingText(item));
+            // 成分与液体容器共用同一份行数据与同一种写法。
+            var table = WaterColumns.BuildSolid(r, visible);
             PublishWaterRows(builder, visible);
             AppendLines(builder, table);
             wrote = true;
@@ -489,6 +489,7 @@ public sealed partial class ModEntry
             if (builder.Capturing && ln.DataKind != null && ln.Data != null)
                 (rowData ??= new()).Add((i, ln.DataKind, ln.Data));
             if (ln.HasBar) builder.Bar(ln);
+            else if (ln.Render != null) builder.AddLine(ln.Text, ln.Color, ln.Render);
             else builder.AddLine(ln.Text, ln.Color);
         }
         if (rowData != null) builder.Field("rowData", rowData.AsReadOnly());

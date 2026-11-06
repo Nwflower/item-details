@@ -158,3 +158,40 @@ Check (($groups -notcontains '') -and ($groups -notcontains $null)) 'every rende
 $vocabulary = @($provider.GetType('ItemDetails.Integration.TooltipGroupIds').GetFields($flags) | ForEach-Object { [string]$_.GetValue($null) })
 Check (@($groups | Where-Object { $vocabulary -notcontains $_ }).Count -eq 0) "renderer groups all come from the SDK vocabulary (actual: $($groups -join ','))"
 Check (($vocabulary -contains 'liquid') -and ($vocabulary -contains 'appraisal') -and ($vocabulary -contains 'contents')) 'group vocabulary covers liquid, appraisal and contents'
+# 渲染层片段替换：注解按片段对象身份挂，构建前换入、构建后还原；片段被挪动或重建就不换。
+$slicesType = $provider.GetType('ItemDetails.RenderSlices')
+$sliceField = [RichTextBuilder].GetField('slices', [Reflection.BindingFlags]'NonPublic,Instance')
+$slicesType.GetField('_slices',$flags).SetValue($null,$sliceField)
+$sliceType = [RichTextBuilder].GetNestedType('TextSlice','NonPublic')
+function New-Slice { [Activator]::CreateInstance($sliceType, [Reflection.BindingFlags]'Public,NonPublic,Instance', $null, @($false), $null) }
+$pieces = $slicesType.GetMethod('Pieces',$flags)
+Check ((($pieces.Invoke($null,@('a')),$pieces.Invoke($null,@("a`nb")),$pieces.Invoke($null,@("a`n")),$pieces.Invoke($null,@(''))) -join ',') -eq '1,3,2,0') 'piece count follows the native Add split'
+$alt = New-Slice
+$makeField = $slicesType.GetField('MakeSlices',$flags)
+$makeField.SetValue($null, ([scriptblock]{ param($t,$s) ,[object[]]@($alt) }) -as $makeField.FieldType)
+$styleType = $provider.GetType('ItemDetails.RenderSlices+Style')
+$style = [Activator]::CreateInstance($styleType, $rw, $null, @([RenderHandler+ColorPalette]::None,$false,$false,$false,$false,[RenderHandler+ColorPalette]::None,[RenderHandler+ColorPalette]::None,[RenderHandler+ColorPalette]::None), $null)
+$annotate = $slicesType.GetMethod('Annotate',$flags)
+$before = $slicesType.GetMethod('BeforeBuild',$flags)
+$after = $slicesType.GetMethod('AfterBuild',$flags)
+$sb = [RichTextBuilder]::new(40)
+$list = $sliceField.GetValue($sb)
+$s0 = New-Slice; $s1 = New-Slice; $s2 = New-Slice
+$list.Add($s0); $list.Add($s1)
+$annotate.Invoke($null,@($sb, 1, "水`u{3000}1 mL`u{3000}50%", $style, 'pos-row'))
+$list.Add($s2)
+$state = [object[]]@($sb, $null)
+$before.Invoke($null,$state)
+Check ($state[1] -ne $null -and [object]::ReferenceEquals($list[1],$alt) -and $list.Count -eq 3) 'annotated slice is swapped in before Build'
+[void]$after.Invoke($null,@($sb, $state[1], $null))
+Check ([object]::ReferenceEquals($list[1],$s1) -and [object]::ReferenceEquals($list[2],$s2)) 'builder is restored to canonical slices after Build'
+# 第三方重排：Clear 后写入新片段，注解不再命中。
+$sb.Clear(); $list.Add((New-Slice))
+$state = [object[]]@($sb, $null); $before.Invoke($null,$state)
+Check ($state[1] -eq $null) 'relayout with fresh slices leaves the text alone'
+# 描述：只有被别人的条放宽预算时才折；离线没有字宽缩放，所以不换。
+$sb2 = [RichTextBuilder]::new(40); $l2 = $sliceField.GetValue($sb2); $d = New-Slice; $l2.Add($d)
+$annotate.Invoke($null,@($sb2, 0, ('长' * 60), $style, $null))
+$state = [object[]]@($sb2, $null); $before.Invoke($null,$state)
+Check ($state[1] -eq $null -and [object]::ReferenceEquals($l2[0],$d)) 'description stays canonical when the budget is not widened'
+$slicesType.GetField('_slices',$flags).SetValue($null,$null)

@@ -64,7 +64,9 @@ internal static class TooltipPipeline
             _harmony.Patch(basic,
                 prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasicPrefix)),
                 finalizer: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasicFinalizer)));
-            _harmony.Patch(addLine, prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePrefix)));
+            _harmony.Patch(addLine,
+                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePrefix)),
+                postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddLinePostfix)));
             // 记录 AddEmptyLine：它内部是 `NextLine(); Add("<size=Npx> </size>")`，
             // 并不结束占位行，于是紧随其后的价格行会与之同行 → 表现为固定缩进。
             var emptyLine = AccessTools.Method(typeof(RichTextBuilder), "AddEmptyLine");
@@ -182,8 +184,8 @@ internal static class TooltipPipeline
                 __2 = RenderHandler.ColorPalette.Gray;
             }
 
-            // 描述与背景故事按常规宽度预折行，不让进度条把它们拉宽
-            WrapDescription(ref __0, cur, __instance);
+            // 描述与背景故事写原文；原版窗口构建时若折行预算被别人的条放宽，渲染层再按常规宽度折行
+            NoteDescription(__0, cur, __instance);
             if (__2 != originalColor || __0 != originalDescription)
                 TooltipSections.ObserveText(__instance, cur, "description", __0, __2, TooltipGroupIds.Description);
 
@@ -240,14 +242,20 @@ internal static class TooltipPipeline
         text = " " + Volume.Number(cur, true, Loc.Culture) + " L / " + Volume.Number(max, true, Loc.Culture) + " L";
     }
 
+    /// <summary>即将由原版 AddLine 写出的描述行：后缀拿到它写出的片段后挂渲染注解。</summary>
+    private static RichTextBuilder? _descBuilder;
+    private static int _descBefore = -1;
+
     /// <summary>
     /// 原版 Build 的折行宽度：中日韩（字宽缩放 &gt; 1）是 maxCharWidth × 0.66，
     /// 但只要有进度条等 noBreak 片段就整段放宽到 × 0.875，描述也跟着变成一长行把 tooltip 撑宽。
-    /// 这里只认原版的两行描述（shortDescription、" " + flavorText），按 0.66 提前断好；
-    /// 字宽缩放 ≤ 1 的语言原版不放宽，不处理。含富文本标签的不动，避免切断标签。
+    /// 这里只认原版的两行描述（shortDescription、" " + flavorText），记下写之前的片段数；
+    /// 文字保持原文（第三方读到的就是原文），由 <see cref="RenderSlices"/> 在原版窗口构建时按 0.66 预折行。
+    /// 含富文本标签的不动，避免切断标签。
     /// </summary>
-    private static void WrapDescription(ref string text, GameItem item, RichTextBuilder builder)
+    private static void NoteDescription(string text, GameItem item, RichTextBuilder builder)
     {
+        _descBuilder = null;
         try
         {
             if (!ModSettings.TooltipFormatting || text.Length == 0 || text.IndexOf('<') >= 0) return;
@@ -255,11 +263,24 @@ internal static class TooltipPipeline
                 || (!string.IsNullOrEmpty(item.flavorText)
                     && string.Equals(text, " " + item.flavorText, StringComparison.Ordinal));
             if (!isDesc) return;
+            _descBefore = RenderSlices.Count(builder);
+            if (_descBefore >= 0) _descBuilder = builder;
+        }
+        catch { }
+    }
 
-            float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
-            if (scale <= 1f) return;
-            int limit = Math.Max(8, (int)(builder.maxCharWidth * 0.66f));
-            if (text.Length > limit) text = TextWrap.Wrap(text, limit);
+    private static void AddLinePostfix(RichTextBuilder __instance, string __0, RenderHandler.ColorPalette __2,
+        bool __3, bool __4, bool __5, bool __6, RenderHandler.ColorPalette __7, RenderHandler.ColorPalette __8,
+        RenderHandler.ColorPalette __9)
+    {
+        if (_descBuilder == null) return;
+        var builder = _descBuilder;
+        _descBuilder = null;
+        if (!ReferenceEquals(builder, __instance) || __0 == null) return;
+        try
+        {
+            RenderSlices.Annotate(builder, _descBefore, __0,
+                new RenderSlices.Style(__2, __3, __4, __5, __6, __7, __8, __9), fixedText: null);
         }
         catch { }
     }

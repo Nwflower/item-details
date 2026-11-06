@@ -85,6 +85,7 @@ internal static class ProgressBarStyle
                 _harmony.Patch(clear, postfix: new HarmonyMethod(typeof(ProgressBarStyle), nameof(AfterClear)));
             // 预算收窄只靠计数：并入与清空都要能跟上，否则宁可保持原版放宽。
             bool canNarrow = addBuilder != null && clear != null;
+            _canNarrow = canNarrow;
             if (!canNarrow) Log.Warn("ProgressBar.Budget", "未找到 Add(builder)/Clear，含进度条的 tooltip 按原版 0.875 折行");
             // 另外两个也会写不折行片段的原版入口：只计数，不记录比例。
             foreach (string other in new[] { "AddProgressBarOld", "AddProgressTest" })
@@ -143,6 +144,14 @@ internal static class ProgressBarStyle
     }
 
     private static readonly ConditionalWeakTable<RichTextBuilder, BarCount> Counts = new();
+    private static bool _canNarrow;
+
+    /// <summary>
+    /// 构建这段 tooltip 时原版会不会把中日韩折行预算放宽到 0.875：写过不折行的条，且没被本作收窄
+    /// （有原版或别的模组的条，或缺少收窄所需的钩子）。只看计数，不看字宽缩放。
+    /// </summary>
+    internal static bool WidensBudget(RichTextBuilder builder)
+        => Counts.TryGetValue(builder, out var count) && count.All > 0 && (!_canNarrow || count.All != count.Own);
 
     /// <summary>刚由 <c>AddProgressBar</c> 写出的那条是本作的。紧跟在调用之后调用。</summary>
     internal static void MarkOwnBar(RichTextBuilder builder)

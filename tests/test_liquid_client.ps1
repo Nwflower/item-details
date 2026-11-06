@@ -82,7 +82,9 @@ try {
     $item = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([GameItemElement])
     $item.modifiedState = [TagSystem]::new()
     $layout = $provider.GetType('ItemDetails.SectionedLayout')
-    $flow = $layout.GetMethod('UsesFlowingText',$flags)
+    # 成分表与描述不再按排版声明分叉：规范输出一份，原版窗口的呈现在渲染层换入。
+    Check ($layout.GetMethod('UsesFlowingText',$flags) -eq $null) 'text layout no longer branches on the declaration'
+    $flow = $layout.GetMethod('DrawsContents',$flags)
     $mod = [LoadedMod]::new()
     $mod.Manifest = [ModManifest]::new()
     $mod.Manifest.ID = 'amres.sectioned_tooltips'

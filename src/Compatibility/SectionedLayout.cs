@@ -13,9 +13,6 @@ internal static class SectionedLayout
     private static int cachedBuild;
     private static TooltipLayoutOptions cachedOptions;
 
-    internal static bool UsesFlowingText(GameItem item)
-        => (For(item) & TooltipLayoutOptions.FlowingText) != 0;
-
     internal static bool DrawsContents(GameItem item)
         => (For(item) & TooltipLayoutOptions.DrawsContents) != 0;
 

@@ -107,14 +107,20 @@ internal static class TooltipSections
             Write(("text", text, color, 0, 0, default, end));
         }
         internal void AddLine(string text, Color color) => Write(("line", text, color, 0, 0, default, ""));
+        // 规范文本进 runs，第三方读到的是它；render 只在原样回放到原版 builder 时挂成渲染注解。
+        internal void AddLine(string text, Color color, string render) => Write(("line", text, color, 0, 0, default, ""), render);
         internal void NextLine() => Write(("break", "", default, 0, 0, default, ""));
         internal void Bar(TooltipLine line) => Write(("bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""));
         internal void InlineBar(TooltipLine line) => Write(("inline-bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""));
 
-        private void Write(Run run)
+        private void Write(Run run, string? render = null)
         {
-            if (buffer == null) Replay(Native, run);
-            else (buffer.Runs ??= new List<Run>()).Add(run);
+            if (buffer == null) Replay(Native, run, render);
+            else
+            {
+                (buffer.Runs ??= new List<Run>()).Add(run);
+                if (render != null) (buffer.Renders ??= new Dictionary<int, string>())[buffer.Runs.Count - 1] = render;
+            }
         }
 
 #if ITEMDETAILS_DIAG
@@ -179,16 +185,20 @@ internal static class TooltipSections
             if (observeOnly) return false;
             if (claimed) return true;
             if (buffer.Width > 0) Native.maxCharWidth = Math.Max(buffer.Width, Native.maxCharWidth);
-            foreach (var run in runs) Replay(Native, run);
+            for (int i = 0; i < runs.Count; i++)
+                Replay(Native, runs[i], buffer.Renders != null && buffer.Renders.TryGetValue(i, out var render) ? render : null);
             return false;
         }
 
-        private static void Replay(RichTextBuilder builder, Run run)
+        private static void Replay(RichTextBuilder builder, Run run, string? render = null)
         {
             switch (run.Kind)
             {
                 case "text": builder.Add(run.Text, run.Color, run.Tail); break;
-                case "line": ModEntry.AddLine(builder, run.Text, run.Color); break;
+                case "line":
+                    if (render != null) RenderSlices.AddLine(builder, run.Text, run.Color, render);
+                    else ModEntry.AddLine(builder, run.Text, run.Color);
+                    break;
                 case "break": builder.NextLine(); break;
                 case "bar": ModEntry.AddBarLine(builder, new TooltipLine(run.Text, run.Ratio, run.Length,
                     run.Tail, run.Color, run.Background)); break;
@@ -206,6 +216,8 @@ internal static class TooltipSections
         internal readonly bool Watch;
         internal int Width;
         internal List<Run>? Runs;
+        /// <summary>按 run 下标记的呈现写法；只给回放用，不进快照。</summary>
+        internal Dictionary<int, string>? Renders;
         internal Dictionary<string, object>? Fields;
 
         internal Buffer(GameItem item, string id, Display? displays, bool watch)

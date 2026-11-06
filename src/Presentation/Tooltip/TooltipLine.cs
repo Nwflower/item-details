@@ -69,5 +69,19 @@ internal readonly struct TooltipLine
 
     internal TooltipLine WithData(string kind, object data) => new TooltipLine(this, kind, data);
 
+    /// <summary>
+    /// 原版窗口里的呈现写法（如成分表的 &lt;pos&gt; 三列）；null 表示照 <see cref="Text"/> 显示。
+    /// <see cref="Text"/> 始终是规范输出，第三方读到的是它；呈现由 <see cref="RenderSlices"/> 在构建时换入。
+    /// </summary>
+    internal readonly string? Render;
+
+    private TooltipLine(TooltipLine source, string render)
+    {
+        this = source;
+        Render = render;
+    }
+
+    internal TooltipLine WithRender(string render) => new TooltipLine(this, render);
+
     internal bool HasBar => Tail != null;
 }

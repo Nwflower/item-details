@@ -8,7 +8,8 @@ using UnityEngine;
 namespace ItemDetails;
 
 /// <summary>
-/// 水质成分表排版：三列用 TMP 的 &lt;pos&gt; 标签精确定位，不再靠空格补位。
+/// 水质成分表排版。逻辑层写规范输出：单元格之间用全角空格分隔，第三方读到、重排的都是这一份；
+/// 原版窗口构建时由 <see cref="RenderSlices"/> 换成 TMP 的 &lt;pos&gt; 三列，精确定位，不靠空格补位。
 ///
 /// 依据：反编译正式版的 <c>TMP_Text.ValidateHtmlTag</c>，这版 TMP 支持
 /// <c>&lt;pos&gt;</c>（像素 / em / 百分比三种单位，走 <c>m_xAdvance = …</c>）。
@@ -29,8 +30,8 @@ internal static class WaterColumns
     /// <summary>数字列与上一列之间的间距（em）。</summary>
     private const float ColumnGapEm = 0.9f;
 
-    /// <summary>流式布局里格子之间的分隔：美化布局按全角空格切列（U+3000）。</summary>
-    private const char FlowingSeparator = '\u3000';
+    /// <summary>规范输出里格子之间的分隔：全角空格（U+3000），排版方按它切列。</summary>
+    private const char CellSeparator = '\u3000';
 
     /// <summary>
     /// 固定配色（按液体 identifier）：水蓝、化学污染物紫、有机废物绿、微生物黄、
@@ -210,17 +211,14 @@ internal static class WaterColumns
     /// 没有容器与体积，所以这里不写表头，直接从第一行成分开始；末尾补一行低于显示阈值的数量。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
-    /// <param name="flowing">美化布局声明了 FlowingText：按它的切列方式输出，不用 &lt;pos&gt;，
-    /// 否则它重排文字时三列定位会失效。固体与液体都照这个声明走。</param>
-    internal static List<TooltipLine> BuildSolid(LiquidAnalysis analysis, List<WaterRow>? visible = null,
-        bool flowing = false)
+    internal static List<TooltipLine> BuildSolid(LiquidAnalysis analysis, List<WaterRow>? visible = null)
     {
         var comps = Components(analysis, waterMismatch: false);
         var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, Expanded(),
             hintWithoutFolded: false, FoldHint, WaterInfo.Amount, Loc.Culture);
         visible?.AddRange(plan.Rows);
 
-        var lines = RowLines(plan.Rows, comps, flowing);
+        var lines = RowLines(plan.Rows, comps);
         if (analysis.HiddenComponents > 0)
             lines.Add(new TooltipLine(Loc.T("water.trace_count", "(+{0} more below display threshold)", analysis.HiddenComponents),
                 RenderHandler.ColorPalette.Gray));
@@ -260,48 +258,28 @@ internal static class WaterColumns
         string tail = " " + WaterLayout.Capacity(totalMl, capacityMl, liters, Loc.Culture)
                     + (analysis.Tier.Length > 0 ? " " + analysis.Tier : "");
 
-        if (SectionedLayout.UsesFlowingText(item))
-        {
-            // 美化 MOD 接管了这件物品：它用自己的一套单元格宽度重排，不认识 <pos>，
-            // 于是三列定位会失效。改成单行「名称 体积 百分比」，按全角空格分隔，
-            // 列对齐和表头进度条的绘制交给它。
-            var plain = new List<TooltipLine>(plan.Rows.Count + 1)
-            {
-                // 表头只有体积条与档位，和空瓶一样：条长 6，原版 10 格加上文字会折行
-                new(tail.TrimStart(), ratio, 6, "",
-                    RenderHandler.ColorPalette.LightCyan, RenderHandler.ColorPalette.VeryDarkCyan),
-            };
-            plain.AddRange(RowLines(plan.Rows, comps, flowing: true));
-            return plain;
-        }
-
+        // 表头与原版液体容器同一顺序：先条，后容量与档位。条长 6，原版 10 格加上文字会折行。
         var lines = new List<TooltipLine>(plan.Rows.Count + 1)
         {
             new("", ratio, 6, tail,
                 RenderHandler.ColorPalette.LightCyan, RenderHandler.ColorPalette.VeryDarkCyan),
         };
-        lines.AddRange(RowLines(plan.Rows, comps, flowing: false));
+        lines.AddRange(RowLines(plan.Rows, comps));
         return lines;
     }
 
     /// <summary>
-    /// 把行数据画成 tooltip 行。美化布局声明了 FlowingText 时按全角空格切列（它自己排），
-    /// 否则用 &lt;pos&gt; 精确定位。液体与固体都走这里，两条路径不会再各写一套。
+    /// 把行数据画成 tooltip 行：文字是全角空格分隔的规范输出，呈现写法是 &lt;pos&gt; 三列。
+    /// 液体与固体都走这里，两条路径不会再各写一套。
     /// </summary>
     private static List<TooltipLine> RowLines(IReadOnlyList<WaterRow> rows,
-        List<(string Name, int Parts, RenderHandler.ColorPalette Color)> comps, bool flowing)
+        List<(string Name, int Parts, RenderHandler.ColorPalette Color)> comps)
     {
         var lines = new List<TooltipLine>(rows.Count);
-        if (flowing)
-        {
-            foreach (var row in rows)
-                lines.Add(new TooltipLine(WaterTable.JoinCells(row, FlowingSeparator), ColorOf(comps, row)));
-            return lines;
-        }
-
         var layout = Measure(rows);
         foreach (var row in rows)
-            lines.Add(new TooltipLine(Row(row, layout), ColorOf(comps, row)));
+            lines.Add(new TooltipLine(WaterTable.JoinCells(row, CellSeparator), ColorOf(comps, row))
+                .WithRender(Row(row, layout)));
         return lines;
     }
 
