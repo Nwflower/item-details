@@ -164,8 +164,6 @@ config.info_enhance,Infos supplémentaires
 config.info_enhance.tip,Active les infos supplémentaires et affiche leurs réglages sous Révélation. Les choix individuels sont conservés à la désactivation.
 config.tooltip_formatting,Mise en forme du texte des infobulles
 config.tooltip_formatting.tip,"Libellés de prix plus clairs, descriptions à la ligne, annotations caloriques et espacement du bloc de prix. Désactivez pour conserver la mise en page d'origine."
-config.label_chips,Blocs colorés des libellés
-config.label_chips.tip,"Place des blocs colorés derrière les libellés comme Performance, Efficacité et Qualité sur machines et modules, et aligne leurs valeurs en colonnes. Désactivez pour du texte simple."
 config.type_badge,Badges de catégorie
 config.type_badge.tip,"Affiche les catégories de l'objet au-dessus de l'infobulle."
 config.type_badge_muted,Couleurs de badges atténuées
@@ -254,6 +252,8 @@ learning.progress,Apprentissage : {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} au maximum
 learning.machine,Apprentissage : {0}/{1} {1|module|modules}
+learning.nights,encore {0} {0|nuit|nuits}
+recharger.label,Charge
 module.days_faster,", environ {0} {0|jour|jours} plus tôt"
 module.output,{0} ml/jour
 module.attract,{0} % d'attractivité

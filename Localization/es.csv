@@ -164,8 +164,6 @@ config.info_enhance,Información adicional
 config.info_enhance.tip,Activa la información adicional y muestra sus ajustes bajo Revelación. Al desactivar se conservan las opciones individuales.
 config.tooltip_formatting,Formato del texto emergente
 config.tooltip_formatting.tip,"Etiquetas de precio más claras, descripciones ajustadas, notas de calorías y espaciado del bloque de precio. Desactívalo para conservar el diseño original."
-config.label_chips,Bloques de color en etiquetas
-config.label_chips.tip,"Coloca bloques de color tras etiquetas como Rendimiento, Eficiencia y Calidad en máquinas y módulos, y alinea sus valores en columnas. Desactívalo para texto plano."
 config.type_badge,Etiquetas de categoría
 config.type_badge.tip,Muestra las categorías del objeto sobre la descripción emergente.
 config.type_badge_muted,Atenuar colores de etiquetas
@@ -254,6 +252,8 @@ learning.progress,Aprendizaje: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} al máximo
 learning.machine,Aprendizaje: {0}/{1} {1|módulo|módulos}
+learning.nights,{0} {0|noche|noches} más
+recharger.label,Carga
 module.days_faster,", unos {0} {0|día|días} antes"
 module.output,{0} ml al día
 module.attract,{0}% de atractivo

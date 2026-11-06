@@ -164,8 +164,6 @@ config.info_enhance,Dodatkowe informacje
 config.info_enhance.tip,Włącza dodatkowe informacje i pokazuje ich ustawienia pod sekcją odkrywania. Wyłączenie zachowuje indywidualne wybory.
 config.tooltip_formatting,Formatowanie tekstu podpowiedzi
 config.tooltip_formatting.tip,"Czytelniejsze ceny, zawijanie opisów, adnotacje kalorii i odstępy bloku ceny. Wyłącz, aby zachować oryginalny układ tekstu."
-config.label_chips,Kolorowe bloki etykiet
-config.label_chips.tip,"Podkłada kolorowe bloki pod etykiety, takie jak Wydajność, Efektywność i Jakość, w maszynach i modułach oraz układa wartości w kolumnach. Wyłącz, aby uzyskać zwykły tekst."
 config.type_badge,Plakietki kategorii
 config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
 config.type_badge_muted,Stonowane kolory plakietek
@@ -254,6 +252,8 @@ learning.progress,Postęp nauki: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} maks.
 learning.machine,Nauka: {0}/{1} {1|moduł|moduły|modułów}
+learning.nights,jeszcze {0} {0|noc|noce|nocy}
+recharger.label,Ładowanie
 module.days_faster,", ok. {0} {0|dzień|dni|dni} szybciej"
 module.output,{0} ml/dzień
 module.attract,{0}% atrakcyjności

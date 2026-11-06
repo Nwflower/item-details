@@ -485,21 +485,52 @@ public sealed partial class ModEntry
 
     // ---------------- 工具 ----------------
 
+    /// <summary>
+    /// 充能行的进度条整组处理：每行先算自己放得下的最长条（最短 3 格），整组取最短的那个格数，
+    /// 这样条一样长；只要有一行连 3 格也放不下，整组都不画条、只留文字。
+    /// 没有充能条时返回 null。
+    /// </summary>
+    private static Func<TooltipLine, TooltipLine>? GroupBarFit(List<TooltipLine> lines, int budget)
+    {
+        int group = int.MaxValue;
+        foreach (var ln in lines)
+        {
+            if (!ln.HasBar || ln.DataKind != "recharge") continue;
+            int rest = ProgressBarStyle.VisibleLength(ln.Text) + 3 + ProgressBarStyle.VisibleLength(ln.Tail ?? "");
+            int fit = 0;
+            for (int length = ln.BarLength; length >= 3; length--)
+                if (ProgressBarStyle.WidthForLine(rest + length) + 4 <= budget) { fit = length; break; }
+            group = Math.Min(group, fit);
+        }
+        if (group == int.MaxValue) return null;
+        return ln => group == 0 ? ln.WithoutBar() : ln.BarLength == group ? ln : ln.WithBarLength(group);
+    }
+
     /// <summary>输出模块已经定好颜色的一组行；返回是否真的写入了内容。</summary>
     private static bool AppendLines(TooltipSections.Writer builder, List<TooltipLine> lines)
     {
         List<(int Line, string Kind, object Value)>? rowData = null;
+        Func<TooltipLine, TooltipLine>? barFit = GroupBarFit(lines, builder.MaxCharWidth);
         for (int i = 0; i < lines.Count; i++)
         {
             var ln = lines[i];
+            if (ln.HasBar && ln.DataKind == "recharge") ln = barFit == null ? ln : barFit(ln);
             if (builder.Capturing && ln.DataKind != null && ln.Data != null)
                 (rowData ??= new()).Add((i, ln.DataKind, ln.Data));
-            if (ln.HasBar) builder.Bar(ln);
+            if (ln.HasBar)
+            {
+                // 说明 + 条 + 尾注要排在一行：窗口里没有更宽的行时，尾注会被折到下一行且丢掉缩进
+                if (ln.Render != null && ln.Render.Contains("<pos=", StringComparison.Ordinal))
+                    builder.RequireWidth(ProgressBarStyle.WidthForLine(
+                        ProgressBarStyle.VisibleLength(ln.Text) + ln.BarLength + 3
+                        + ProgressBarStyle.VisibleLength(ln.Tail ?? "")) + 4);
+                builder.Bar(ln);
+            }
             else if (ln.Render != null)
             {
-                // 色块行：规范文本比当前折行预算长时，原版会在规范文本里断行，渲染写法随之被切断，
+                // 两列行：规范文本比当前折行预算长时，原版会在规范文本里断行，渲染写法随之被切断，
                 // 玩家就会看到半截 <color=…> 标签。窗口里没有更宽的行（如没装模组）时尤其常见，所以这里按需放宽预算
-                if (ln.Render.Contains(LabelChips.LinkPrefix))
+                if (ln.Render.Contains("<pos=", StringComparison.Ordinal))
                     builder.RequireWidth(ProgressBarStyle.WidthForLine(Math.Max(
                         ProgressBarStyle.VisibleLength(ln.Text), ProgressBarStyle.VisibleLength(ln.Render) + 6)) + 4);
                 builder.AddLine(ln.Text, ln.Color, ln.Render);
@@ -520,17 +551,34 @@ public sealed partial class ModEntry
     {
         try
         {
+            // 行首呈现里可带「\u0007剩余点数」：只给学习条用，名字后面补「还需 N 晚」
+            string? headRender = ln.Render;
+            int remaining = 0;
+            if (headRender != null)
+            {
+                int mark = headRender.IndexOf(SelfLearningMachine.RemainingMark);
+                if (mark >= 0)
+                {
+                    int.TryParse(headRender.Substring(mark + 1), out remaining);
+                    headRender = mark > 0 ? headRender.Substring(0, mark) : null;
+                }
+            }
             if (ln.Text.Length > 0)
             {
                 // 行首文字的呈现写法（例如缩进）：规范文本不变，原版窗口构建时才换入
-                int before = ln.Render != null ? RenderSlices.Count(builder) : -1;
+                int before = headRender != null ? RenderSlices.Count(builder) : -1;
                 builder.Add(ln.Text, ln.Color);
                 if (before >= 0)
-                    RenderSlices.Annotate(builder, before, ln.Text, new RenderSlices.Style(ln.Color), ln.Render);
+                    RenderSlices.Annotate(builder, before, ln.Text, new RenderSlices.Style(ln.Color), headRender);
             }
             builder.AddProgressBar(ln.Bar, ln.BarLength, ln.Color, ln.BarDark, end: " ");
             ProgressBarStyle.MarkOwnBar(builder);
-            AddLine(builder, ln.Tail ?? "", ln.Color);
+            string tail = ln.Tail ?? "";
+            if (remaining > 0 && tail.Length > 0)
+                RenderSlices.AddLine(builder, tail, ln.Color,
+                    tail + "  " + SelfLearningMachine.NightsStart + remaining + SelfLearningMachine.NightsEnd);
+            else
+                AddLine(builder, tail, ln.Color);
         }
         catch (Exception ex)
         {

@@ -265,7 +265,7 @@ internal static class RenderSlices
         if (note.Fixed != null)
         {
             // 带占位的呈现文字每次构建都要重新解析（取决于这一帧 Pen 写了什么），不缓存
-            if (note.Fixed.IndexOf(SelfLearningMachine.TokenStart) >= 0)
+            if (note.Fixed.IndexOf(SelfLearningMachine.TokenStart) >= 0 || note.Fixed.IndexOf(SelfLearningMachine.NightsStart) >= 0)
                 return MakeSlices(SelfLearningMachine.ResolveTokens(note.Fixed, builder), note.Style);
             return note.Alt ??= MakeSlices(note.Fixed, note.Style);
         }

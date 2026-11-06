@@ -201,12 +201,12 @@ internal static class MachineInterior
     private static void IndentContent(Context ctx, List<TooltipLine> built, int from)
     {
         if (!ctx.IsMachine || from >= built.Count) return;
-        if (!LabelChips.Available || !ModSettings.ModuleEffects) return;
+        if (!ModSettings.ModuleEffects) return;
         // 只认紧挨着的适配器色块行：模组效果的色块行和这里之间常隔着原版的普通行（如「状态：就绪」），
         // 那时缩进的内容没有上一级可挂，反而显得错位。
         bool chips = false;
         for (int i = 0; !chips && i < from; i++)
-            chips = built[i].Render != null && built[i].Render!.Contains(LabelChips.LinkPrefix);
+            chips = built[i].Render != null && built[i].Render!.Contains("<pos=", StringComparison.Ordinal);
         if (!chips) return;
         for (int i = from; i < built.Count; i++) built[i] = MachineAdapters.Indented(built[i]);
     }

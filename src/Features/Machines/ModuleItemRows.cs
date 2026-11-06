@@ -13,7 +13,7 @@ namespace ItemDetails;
 /// 规范文本逐行等于原版文字，色块和列位置只在渲染层，色块不可用时退回原版写法。
 /// 所有内容先算好再动笔，中途出错就让原方法照常运行，不会留下半截。
 /// </summary>
-internal static class ModuleItemChips
+internal static class ModuleItemRows
 {
     internal static void Install(PatchScope scope)
     {
@@ -21,7 +21,7 @@ internal static class ModuleItemChips
                 new[] { typeof(RichTextBuilder), typeof(GameItem) }),
             // 排在最后：别的模组（物品详情美化）给这个方法记区间用的前缀要先跑，
             // 我们再跳过原方法，它的后缀才不会在没有前缀配对时收尾
-            prefix: new HarmonyMethod(typeof(ModuleItemChips), nameof(Prefix)) { priority = Priority.Last });
+            prefix: new HarmonyMethod(typeof(ModuleItemRows), nameof(Prefix)) { priority = Priority.Last });
     }
 
     private sealed class Row
@@ -46,7 +46,7 @@ internal static class ModuleItemChips
         Descriptions.Clear();
         try
         {
-            if (!ModSettings.ModuleEffects || !LabelChips.Available || builder == null || item == null) return true;
+            if (!ModSettings.ModuleEffects || builder == null || item == null) return true;
             if (!item.IsTag("MODULE_TAG")) return true;
 
             var rows = new List<Row>();
@@ -120,13 +120,13 @@ internal static class ModuleItemChips
         catch (Exception ex)
         {
             Descriptions.Clear();
-            Log.Warn("ModuleItemChips", ex);
+            Log.Warn("ModuleItemRows", ex);
             return true;
         }
     }
 
     private static string SpecialRender(string label, string text, float col2)
-        => ModuleEffectAnnotation.ChipMarkup(label, 'p', LabelChips.PurpleText)
+        => ModuleEffectAnnotation.ChipMarkup(label, 'p', ColumnLayout.PurpleText)
            + ModuleEffectAnnotation.Pos(col2) + text;
 
     private static void AddStat(List<Row> rows, string key, GameItem item, string stat, string baseLabel, float col2)
@@ -148,8 +148,8 @@ internal static class ModuleItemChips
             note = $"{baseLabel} {signB}{b}%";
         }
 
-        string fore = positive ? LabelChips.PositiveText : LabelChips.NegativeText;
-        string valueColor = positive ? LabelChips.ValuePositive : LabelChips.ValueNegative;
+        string fore = positive ? ColumnLayout.PositiveText : ColumnLayout.NegativeText;
+        string valueColor = positive ? ColumnLayout.ValuePositive : ColumnLayout.ValueNegative;
         string render = ModuleEffectAnnotation.ChipMarkup(name, positive ? '+' : '-', fore)
             + ModuleEffectAnnotation.Pos(col2) + "<color=" + valueColor + ">" + value + "</color>";
         if (note.Length > 0)

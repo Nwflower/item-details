@@ -51,14 +51,20 @@ internal static class SelfLearningMachine
     }
 
     // ---------------- 「当晚训练：X 次」并入质量第三列 ----------------
-    // Pen 的这一行在机器信息之后才写出，而质量行已经先写好。所以质量行的渲染写法里放占位（兜底），
+    // Pen 的这一行在机器信息之后才写出，而质量行已经先写好。所以质量行的渲染写法里放占位（\u0001兜底\u0002），
     // 这一行写出时取走文本存在 builder 上，原版窗口构建时再把占位换成它。取不到时用兜底文字，信息不丢。
 
-    internal const char TokenStart = '';
-    internal const char TokenEnd = '';
+    internal const char TokenStart = '\u0001';
+    internal const char TokenEnd = '\u0002';
+    /// <summary>「还需 N 晚」占位：<c>\u0004剩余点数\u0005</c>，构建时用 Pen 的当晚训练次数换算。</summary>
+    internal const char NightsStart = '\u0004';
+    internal const char NightsEnd = '\u0005';
+    /// <summary>学习条行首呈现里标记「后面跟剩余点数」的分隔符（只在渲染写法里用，不进规范文本）。</summary>
+    internal const char RemainingMark = '\u0007';
+
     private const string PenModId = "Pen_mod_selflearning";
     private const string TrainingKey = "training_preview";
-    private const string Slot = "";
+    private const string Slot = "\u0003";
 
     private sealed class Box { internal string? Text; }
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<RichTextBuilder, Box> Captured = new();
@@ -101,13 +107,31 @@ internal static class SelfLearningMachine
     internal static string WithTrainingToken(string render, string note)
         => note.Length == 0 ? render : render.Replace(note, TokenStart + note + TokenEnd);
 
-    /// <summary>构建时把占位换成 Pen 的「当晚训练」文本；没取到就留兜底文字。</summary>
+    /// <summary>构建时把占位换成 Pen 的「当晚训练」文本；没取到就留兜底文字。「还需 N 晚」同理，取不到就整段去掉。</summary>
     internal static string ResolveTokens(string render, RichTextBuilder builder)
     {
         string? text = Captured.TryGetValue(builder, out var box) ? box.Text : null;
+        int advances = 0;
+        if (text != null)
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(text, @"\d+");
+            if (m.Success) int.TryParse(m.Value, out advances);
+        }
         var sb = new System.Text.StringBuilder(render.Length);
         for (int i = 0; i < render.Length; i++)
         {
+            if (render[i] == NightsStart)
+            {
+                int stop = render.IndexOf(NightsEnd, i + 1);
+                if (stop < 0) { break; }
+                if (advances > 0 && int.TryParse(render.Substring(i + 1, stop - i - 1), out int remaining) && remaining > 0)
+                {
+                    int nights = (remaining + advances - 1) / advances;
+                    sb.Append(Loc.T("learning.nights", "{0} more {0|night|nights}", nights));
+                }
+                i = stop;
+                continue;
+            }
             if (render[i] != TokenStart) { sb.Append(render[i]); continue; }
             int end = render.IndexOf(TokenEnd, i + 1);
             if (end < 0) { sb.Append(render, i + 1, render.Length - i - 1); break; }
@@ -125,7 +149,7 @@ internal static class SelfLearningMachine
     {
         try
         {
-            if (!ModSettings.ModuleEffects || !LabelChips.Available || !IsMachine(item)) return false;
+            if (!ModSettings.ModuleEffects || !IsMachine(item)) return false;
             string flavor = item!.flavorText ?? "";
             return flavor.Length > 0 && string.Equals(text.Trim(), flavor.Trim(), StringComparison.Ordinal);
         }

@@ -164,8 +164,6 @@ config.info_enhance,추가 아이템 정보
 config.info_enhance.tip,추가 정보를 켜고 투시 아래에 설정을 표시합니다. 꺼도 개별 선택은 유지됩니다.
 config.tooltip_formatting,툴팁 텍스트 서식
 config.tooltip_formatting.tip,"가격 표기, 설명 줄 바꿈, 칼로리 주석, 가격 블록 간격을 최적화합니다. 끄면 원래 텍스트 레이아웃을 유지합니다."
-config.label_chips,라벨 색 블록
-config.label_chips.tip,기계와 모듈의 '성능·효율·품질' 같은 라벨 뒤에 색 블록을 깔고 값을 열로 정렬합니다. 끄면 일반 텍스트로 표시됩니다.
 config.type_badge,아이템 분류 배지
 config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
 config.type_badge_muted,배지 색상 줄이기
@@ -254,6 +252,8 @@ learning.progress,학습 진행: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} 최대
 learning.machine,자가 학습: {0}/{1}개 모듈 학습 중
+learning.nights,{0}일 밤 더 필요
+recharger.label,충전
 module.days_faster,", 약 {0}일 단축"
 module.output,{0}ml/일
 module.attract,{0}% 매력

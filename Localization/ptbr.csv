@@ -164,8 +164,6 @@ config.info_enhance,Informações extras
 config.info_enhance.tip,Ativa as informações extras e mostra suas configurações abaixo de Revelação. Desativar preserva as escolhas individuais.
 config.tooltip_formatting,Formatação do texto das dicas
 config.tooltip_formatting.tip,"Rótulos de preço mais claros, quebra de descrições, notas de calorias e espaçamento do bloco de preço. Desative para manter o layout original."
-config.label_chips,Blocos coloridos nos rótulos
-config.label_chips.tip,"Coloca blocos coloridos atrás de rótulos como Desempenho, Eficiência e Qualidade em máquinas e módulos e alinha os valores em colunas. Desative para texto simples."
 config.type_badge,Selos de categoria
 config.type_badge.tip,"Mostra as categorias do item acima da dica."
 config.type_badge_muted,Cores de selos suavizadas
@@ -254,6 +252,8 @@ learning.progress,Aprendizado: {0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0} no máximo
 learning.machine,Aprendizado: {0}/{1} {1|módulo|módulos}
+learning.nights,mais {0} {0|noite|noites}
+recharger.label,Carga
 module.days_faster,", cerca de {0} {0|dia|dias} mais rápido"
 module.output,{0} ml por dia
 module.attract,{0}% de atratividade

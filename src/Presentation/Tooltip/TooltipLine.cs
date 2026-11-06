@@ -83,5 +83,23 @@ internal readonly struct TooltipLine
 
     internal TooltipLine WithRender(string render) => new TooltipLine(this, render);
 
+    private TooltipLine(TooltipLine source, int barLength)
+    {
+        this = source;
+        BarLength = barLength;
+    }
+
+    /// <summary>同一行，换一个进度条格数。</summary>
+    internal TooltipLine WithBarLength(int length) => new TooltipLine(this, length);
+
+    /// <summary>不画进度条：尾注并回行文字（规范文本与呈现写法都一样），其余不变。</summary>
+    internal TooltipLine WithoutBar()
+    {
+        string tail = Tail ?? "";
+        var plain = new TooltipLine(Text + tail, Color);
+        plain = plain.WithRender((Render ?? Text) + tail);
+        return DataKind != null && Data != null ? plain.WithData(DataKind, Data) : plain;
+    }
+
     internal bool HasBar => Tail != null;
 }

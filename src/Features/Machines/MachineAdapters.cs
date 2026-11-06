@@ -29,6 +29,7 @@ internal static class MachineAdapters
     private static readonly Dictionary<string, Adapter> ById = new(StringComparer.Ordinal)
     {
         ["furnace"] = Furnace,
+        ["recharger"] = Recharger,
         ["hydroponic"] = Hydroponic,
         ["fridge"] = Fridge,
         ["water_purifier"] = Purifier,
@@ -60,12 +61,73 @@ internal static class MachineAdapters
         // 没有色块模式时质量行没有第三列，纯度变化并回这一行
         bool qualityRow = GameRead.TagBool(ctx.Machine, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")
             && (GameRead.TagInt(ctx.Machine, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) != 0;
-        bool gainInQualityRow = qualityRow && LabelChips.Available && ModSettings.ModuleEffects;
+        bool gainInQualityRow = qualityRow && ModSettings.ModuleEffects;
         var part = qualityRow && !gainInQualityRow ? FurnaceQuality.Part.All : FurnaceQuality.Part.Rest;
         string? note = FurnaceQuality.Note(ctx, out var data, part);
         if (string.IsNullOrEmpty(note)) return;
         var line = new TooltipLine(note, RenderHandler.ColorPalette.Gray);
         lines.Add(data.HasValue ? line.WithData("furnace", data.Value) : line);
+    }
+
+    // ---------------- 充能器：每块电池的电量与今晚充多少 ----------------
+
+    private const int RechargerBar = 6;
+
+    /// <summary>
+    /// 充能器（<c>recharger</c>）：每晚给槽里每块可充电电池充 3（开通商业用电后 6）点，充到满为止
+    /// （原版 <c>MachineRecharger</c> 夜间回调 → <c>PowerHelper.ChargeBattery</c>，一次性电池、电流转换器、
+    /// 超科技电池不充）。仿照自学习的写法：「充能」标签 + 进度条 + 电池名 + 「现有+今晚/上限kJ」，
+    /// 一块电池一行；电池面板由这里完整给出，通用内容行不再重复。
+    /// </summary>
+    private static void Recharger(MachineInterior.Context ctx, List<TooltipLine> lines)
+    {
+        var panel = ctx.FindPanel("batteries");
+        if (panel == null || panel.Items.Count == 0) return;
+
+        int rate = 3;
+        try { rate = NetworkUpgrade.IsCommercialPowerUnlocked() ? 6 : 3; } catch { }
+        bool powered = false;
+        try { powered = PlayerStore.Instance != null && PlayerStore.Instance.isPowerOn; } catch { }
+
+        string label = Loc.T("recharger.label", "Charging");
+        float? col = ModuleEffectAnnotation.ChipEm(label) + 0.7f;
+        var bars = new List<TooltipLine>();
+        foreach (var battery in panel.Items)
+        {
+            if (battery == null) continue;
+            int energy = GameRead.TagInt(battery, "power_source_item_energy") ?? 0;
+            int max = GameRead.TagInt(battery, "power_source_item_max_energy") ?? 0;
+            if (max <= 0) continue;
+
+            bool chargeable = powered;
+            try
+            {
+                chargeable &= !PowerHelper.IsDisposablePowerSource(battery)
+                    && !CurrentConverterHelper.IsCurrentConverter(battery)
+                    && !HypertechBatteryHelper.IsHypertechBattery(battery);
+            }
+            catch { }
+            int gain = chargeable ? Math.Clamp(max - energy, 0, rate) : 0;
+
+            string name = GameRead.ItemDisplayName(battery);
+            string amount = energy + (gain > 0 ? "+" + gain : "") + "/" + max + "kJ";
+            bool full = energy >= max;
+            string prefix = bars.Count == 0 ? label + " " : " ";
+            var line = new TooltipLine(prefix, Math.Clamp((float)energy / max, 0f, 1f), RechargerBar,
+                    name + " " + amount, full ? Good : Info, RenderHandler.ColorPalette.VeryDarkCyan)
+                .WithData("recharge", (battery.identifier, energy, gain, max));
+            if (col is float c)
+            {
+                string head = bars.Count == 0
+                    ? ModuleEffectAnnotation.ChipMarkup(label, 'c', ColumnLayout.CyanText) + ModuleEffectAnnotation.Pos(c)
+                    : ModuleEffectAnnotation.Pos(c);
+                line = line.WithRender(head);
+            }
+            bars.Add(line);
+        }
+        if (bars.Count == 0) return;
+        panel.Claimed = true;
+        lines.AddRange(bars);
     }
 
     // ---------------- 进度型机器：还需几天 ----------------
@@ -175,11 +237,11 @@ internal static class MachineAdapters
         RenderHandler.ColorPalette tone)
     {
         var line = new TooltipLine(canonical, tone);
-        if (!LabelChips.Available || !ModSettings.ModuleEffects || label.Length == 0) return line;
+        if (!ModSettings.ModuleEffects || label.Length == 0) return line;
 
         char kind = tone == Good ? '+' : tone == Warn ? 'y' : tone == Bad ? '-' : 'c';
-        string fore = kind == '+' ? LabelChips.PositiveText : kind == 'y' ? LabelChips.AmberText
-            : kind == '-' ? LabelChips.NegativeText : LabelChips.CyanText;
+        string fore = kind == '+' ? ColumnLayout.PositiveText : kind == 'y' ? ColumnLayout.AmberText
+            : kind == '-' ? ColumnLayout.NegativeText : ColumnLayout.CyanText;
         float col2 = Math.Max(ModuleEffectAnnotation.ColumnEm(), ModuleEffectAnnotation.ChipEm(label) + 0.7f);
         string render = ModuleEffectAnnotation.ChipMarkup(label, kind, fore) + ModuleEffectAnnotation.Pos(col2) + value;
         if (note.Length > 0)
@@ -241,14 +303,15 @@ internal static class MachineAdapters
     private static string Pct(int purity)
         => (purity / (WaterInfo.PurityFull / 100.0)).ToString("0.00", Loc.Culture) + "%";
 
-    /// <summary>「幽灵水 → 纯水」：净化前后的档位名（游戏自己的名字）；取不到返回 null。</summary>
+    /// <summary>「幽灵水(96.37%)→优质水(99.00%)」：净化前后的档位名（游戏自己的名字）加纯度；取不到返回 null。</summary>
     private static string? TierPair(int purityBefore, int purityAfter)
     {
         try
         {
             string from = WaterFeatureHelper.GetWaterDisplayName(purityBefore) ?? "";
             string to = WaterFeatureHelper.GetWaterDisplayName(purityAfter) ?? "";
-            return from.Length == 0 || to.Length == 0 ? null : from + " → " + to;
+            return from.Length == 0 || to.Length == 0 ? null
+                : from + "(" + Pct(purityBefore) + ")→" + to + "(" + Pct(purityAfter) + ")";
         }
         catch { return null; }
     }
@@ -421,7 +484,8 @@ internal static class MachineAdapters
             learning++;
             float ratio = max > 0 ? (float)cur / max : 0f;
             if (negativePending) ratio = Math.Min(ratio, 0.99f);
-            bars.Add(MakeLearningBar(ratio, moduleName, Info, RenderHandler.ColorPalette.VeryDarkCyan)
+            bars.Add(MakeLearningBar(ratio, moduleName, Info, RenderHandler.ColorPalette.VeryDarkCyan,
+                    IsPenLearningMachine(machineId) ? remaining : 0)
                 .WithData("learning", (module.identifier, cur, max, remaining)));
         }
         if (bars.Count == 0) return;
@@ -438,11 +502,15 @@ internal static class MachineAdapters
     /// 一根学习进度条。行首的一个空格在原版窗口里换成缩进（对齐表头「1/2 个模组学习中」那一列），
     /// 规范文本仍是原来的空格；色块不可用时不缩进。
     /// </summary>
+    /// <param name="remainingPoints">还差多少点学满（各项取最大）；大于 0 时在名字后面补「还需 N 晚」（构建时按 Pen 的当晚训练次数换算）。</param>
     private static TooltipLine MakeLearningBar(float ratio, string tail, RenderHandler.ColorPalette color,
-        RenderHandler.ColorPalette dark)
+        RenderHandler.ColorPalette dark, int remainingPoints = 0)
     {
         var line = new TooltipLine(" ", ratio, LearningBar, tail, color, dark);
-        return LearningColumn() is float col ? line.WithRender(ModuleEffectAnnotation.Pos(col)) : line;
+        if (LearningColumn() is not float col) return line;
+        string render = ModuleEffectAnnotation.Pos(col);
+        if (remainingPoints > 0) render += SelfLearningMachine.RemainingMark + remainingPoints.ToString();
+        return line.WithRender(render);
     }
 
     /// <summary>表头里「自学习」那个词；取不出冒号分隔的标签时为空。</summary>
@@ -455,7 +523,7 @@ internal static class MachineAdapters
     /// <summary>表头第二列的起点（em）：不小于加成色块的第二列，也不压住「自学习」自己的色块。</summary>
     private static float? LearningColumn()
     {
-        if (!LabelChips.Available || !ModSettings.ModuleEffects) return null;
+        if (!ModSettings.ModuleEffects) return null;
         string label = LearningLabel(Loc.T("learning.machine", "Learning: {0}/{1} {1|module|modules}", 0, 0));
         if (label.Length == 0) return null;
         return Math.Max(ModuleEffectAnnotation.ColumnEm(), ModuleEffectAnnotation.ChipEm(label) + 0.7f);
@@ -469,7 +537,7 @@ internal static class MachineAdapters
         if (col == null || label.Length == 0) return null;
         int rest = header.IndexOfAny(new[] { ':', '：' }) + 1;
         while (rest < header.Length && header[rest] == ' ') rest++;
-        return ModuleEffectAnnotation.ChipMarkup(label, 'c', LabelChips.CyanText)
+        return ModuleEffectAnnotation.ChipMarkup(label, 'c', ColumnLayout.CyanText)
              + ModuleEffectAnnotation.Pos(col.Value) + header.Substring(rest);
     }
 

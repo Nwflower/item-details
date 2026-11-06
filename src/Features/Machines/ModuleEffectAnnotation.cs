@@ -67,7 +67,7 @@ internal static class ModuleEffectAnnotation
             string note = ModuleStatEffects.Note(kind, item, out var changes);
             // 熔炉的冶炼预览（纯度档位、再加多少升档）作为质量行的第三列，不再另起一行
             (int? Ingots, int? Purity, int Gain, int? NextBonus)? furnace = null;
-            if (kind == 'q' && note.Length == 0 && LabelChips.Available
+            if (kind == 'q' && note.Length == 0
                 && string.Equals(item.identifier, "furnace", StringComparison.Ordinal))
             {
                 var ctx = MachineInterior.ReadContext(item);
@@ -88,14 +88,8 @@ internal static class ModuleEffectAnnotation
                 if (changes != null) output.Field("changes", changes);
             }
             string annotation = note.Length > 0 ? " (" + note + ")" : "";
-            // 净水器的质量：第三列直接用它自己的「纯度上限」（原版文案与数值），比「再加多少能到纯水」更直观。
-            // 原版单独那行只在色块模式下才被丢，所以纯度也只在色块可用时并进来；
-            // 规范文本同时带注释与纯度上限，渲染层的第三列再取舍，读正文的一方信息不少
-            string? purity = kind == 'q' && LabelChips.Available ? PurityText(item) : null;
-            if (purity != null)
-                annotation = " (" + (note.Length > 0 ? note + "; " : "") + purity + ")";
             // 第三列的显示文字：列已经靠缩进分隔，不再加括号
-            string shown = purity ?? note;
+            string shown = note;
             output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
                 + ProgressBarStyle.VisibleLength(annotation)));
             string label = kind == 'p' ? _perf : kind == 'e' ? _eff : _qual;
@@ -125,8 +119,6 @@ internal static class ModuleEffectAnnotation
     }
 
 
-    /// <summary>标签内侧左边距（em）：让文字避开左侧亮条。</summary>
-    private const float ChipPadEm = 0.3f;
     private const float ColumnGapEm = 0.7f;
 
     /// <summary>
@@ -136,7 +128,7 @@ internal static class ModuleEffectAnnotation
     /// </summary>
     private static (string Main, string Note)? ChipRender(string text, string label, bool positive, string shown)
     {
-        if (label.Length == 0 || !LabelChips.Available) return null;
+        if (label.Length == 0) return null;
         int at = text.IndexOf(label, StringComparison.Ordinal);
         if (at < 0) return null;
 
@@ -153,8 +145,8 @@ internal static class ModuleEffectAnnotation
         float col2 = ColumnEm();
         float col3 = Math.Max(col2 + WaterColumns.TextEm("+100%"), col2 + WaterColumns.TextEm(value)) + ColumnGapEm;
 
-        string fore = positive ? LabelChips.PositiveText : LabelChips.NegativeText;
-        string valueColor = positive ? LabelChips.ValuePositive : LabelChips.ValueNegative;
+        string fore = positive ? ColumnLayout.PositiveText : ColumnLayout.NegativeText;
+        string valueColor = positive ? ColumnLayout.ValuePositive : ColumnLayout.ValueNegative;
         string chipText = ChipMarkup(label, positive ? '+' : '-', fore);
 
         string main = chipText + Pos(col2) + "<color=" + valueColor + ">" + value + "</color>";
@@ -164,14 +156,12 @@ internal static class ModuleEffectAnnotation
         return (main, note);
     }
 
-    /// <summary>色块标签的渲染写法：链接包住（供矩形层定位）+ 内边距 + 同色系亮字。</summary>
+    /// <summary>标签的渲染写法：同色系文字，不带底色。</summary>
     internal static string ChipMarkup(string label, char kind, string foreColor)
-        => LabelChips.Wrap("<color=" + foreColor + "> <space="
-            + ChipPadEm.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
-            + "em>" + label + " </color>", kind);
+        => "<color=" + foreColor + ">" + label + "</color>";
 
-    /// <summary>色块标签占的宽度（em，含内边距）。</summary>
-    internal static float ChipEm(string label) => WaterColumns.TextEm(" " + label + " ") + ChipPadEm;
+    /// <summary>标签占的宽度（em）。</summary>
+    internal static float ChipEm(string label) => WaterColumns.TextEm(label);
 
     /// <summary>第二列起点：三个加成标签里最宽的色块加列间距。</summary>
     internal static float ColumnEm()
@@ -187,36 +177,25 @@ internal static class ModuleEffectAnnotation
         => "<pos=" + em.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "em>";
 
     /// <summary>净水器的原版「纯度上限：99.65%」整句；不是净水器或坏了时为 null。</summary>
-    private static string? PurityText(GameItem item)
-    {
-        try
-        {
-            if (!string.Equals(item.identifier, "water_purifier", StringComparison.Ordinal)) return null;
-            if (GameRead.IsTag(item, "BROKEN_MACHINE_TAG")) return null;
-            string cap = ((double)MachinePurifier.GetMaxPurityCap(MachineryHelper.GetCurrentQualityBonus(item)) / 100.0)
-                .ToString("0.##");
-            return LocHelper.GetLocalizedMechanicOrDefault("mech_purifier_tooltip_max_purity", "Max Purity: {0}%", cap);
-        }
-        catch { return null; }
-    }
-
     /// <summary>
-    /// 净水器原版单独一行的「纯度上限」：质量色块那行的第三列已经写了同一句，这里去掉重复。
-    /// 只在质量行确实会出现（有模组加成且质量加成不为零）、色块可用时才去掉。
+    /// 净水器原版单独一行的「纯度上限：99%」：保留这一行，只在后面补上限对应的水质档位（幽灵水、纯水……，
+    /// 用游戏自己的档位名）。只认与原版整句完全相同的行，别的模组改过它就不动。
     /// </summary>
-    internal static bool ShouldDropPurityLine(string text, GameItem? item)
+    internal static void AnnotatePurityLine(ref string text, GameItem? item)
     {
         try
         {
-            if (!ModSettings.ModuleEffects || !LabelChips.Available) return false;
-            if (item == null || string.IsNullOrEmpty(text)) return false;
-            if (!GameRead.IsTag(item, "machinery")) return false;
-            if (!GameRead.TagBool(item, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")) return false;
-            if ((GameRead.TagInt(item, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) == 0) return false;
-            string? purity = PurityText(item);
-            return purity != null && string.Equals(text.Trim(), purity.Trim(), StringComparison.Ordinal);
+            if (!ModSettings.ModuleEffects || item == null || string.IsNullOrEmpty(text)) return;
+            if (!string.Equals(item.identifier, "water_purifier", StringComparison.Ordinal)) return;
+            if (GameRead.IsTag(item, "BROKEN_MACHINE_TAG")) return;
+            int limit = MachinePurifier.GetMaxPurityCap(MachineryHelper.GetCurrentQualityBonus(item));
+            string cap = ((double)limit / 100.0).ToString("0.##");
+            string original = LocHelper.GetLocalizedMechanicOrDefault("mech_purifier_tooltip_max_purity", "Max Purity: {0}%", cap);
+            if (!string.Equals(text.Trim(), original.Trim(), StringComparison.Ordinal)) return;
+            string tier = WaterFeatureHelper.GetWaterDisplayName(limit) ?? "";
+            if (tier.Length > 0) text = text + " (" + tier + ")";
         }
-        catch { return false; }
+        catch { }
     }
 
     /// <summary>

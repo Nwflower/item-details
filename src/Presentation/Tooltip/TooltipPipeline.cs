@@ -214,7 +214,7 @@ internal static class TooltipPipeline
             // 描述与背景故事写原文；原版窗口构建时若折行预算被别人的条放宽，渲染层再按常规宽度折行
             // 自学习强化机：Pen 的「当晚训练：X 次」并入质量第三列（质量行构建时取这一行的文字），这里不再单独显示
             if (SelfLearningMachine.CaptureTraining(__instance, __0, cur) && ModSettings.ModuleEffects
-                && LabelChips.Available && !TooltipSections.HasListeners)
+                && !TooltipSections.HasListeners)
                 return false;   // 有第三方读区块时保留这一行：它们只读规范文本，质量列里只有兜底的额外次数
             // 自学习强化机：说明讲的效率、质量、概率都已写进色块第三列，整段不再显示
             if (SelfLearningMachine.ShouldHideFlavor(__0, cur)) return false;
@@ -238,8 +238,8 @@ internal static class TooltipPipeline
 
             // 机器的「模组效果:」表头：三项加成各带色标后不再需要
             if (ModuleEffectAnnotation.ShouldDropMachineHeader(__0, cur)) return false;
-            // 净水器原版单独的「纯度上限」：并进质量色块的第三列后不再重复
-            if (ModuleEffectAnnotation.ShouldDropPurityLine(__0, cur)) return false;
+            // 净水器原版单独的「纯度上限」：保留，后面补上限对应的水质档位
+            ModuleEffectAnnotation.AnnotatePurityLine(ref __0, cur);
 
             return true;
         }
@@ -313,7 +313,7 @@ internal static class TooltipPipeline
         try
         {
             if (!ModSettings.TooltipFormatting || text.Length == 0 || text.IndexOf('<') >= 0) return false;
-            if (ModuleItemChips.IsEffectDescription(text)) return true;
+            if (ModuleItemRows.IsEffectDescription(text)) return true;
             return string.Equals(text, item.shortDescription, StringComparison.Ordinal)
                 || (!string.IsNullOrEmpty(item.flavorText)
                     && string.Equals(text, " " + item.flavorText, StringComparison.Ordinal));

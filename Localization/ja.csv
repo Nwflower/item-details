@@ -164,8 +164,6 @@ config.info_enhance,追加アイテム情報
 config.info_enhance.tip,追加情報を有効にし、透視の下に設定を表示します。オフにしても個別の選択は保持されます。
 config.tooltip_formatting,ツールチップ文章の整形
 config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで原版のレイアウトを維持します。
-config.label_chips,ラベルの色ブロック
-config.label_chips.tip,機械とモジュールの「性能・効率・品質」などのラベルに色ブロックを敷き、値を列にそろえます。オフで通常のテキスト表示になります。
 config.type_badge,アイテム分類バッジ
 config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
 config.type_badge_muted,バッジの色を控えめに
@@ -254,6 +252,8 @@ learning.progress,学習進度：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}は上限
 learning.machine,自己学習：{0}/{1} 個のモジュールが学習中
+learning.nights,あと{0}晩
+recharger.label,充電
 module.days_faster,、約 {0} 日短縮
 module.output,{0}ml/日
 module.attract,{0}%魅力

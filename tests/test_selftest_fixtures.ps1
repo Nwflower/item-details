@@ -51,7 +51,7 @@ namespace TEST_NAMESPACE {
    var entries = ModConfig.Current.Entries;
    entries.Clear(); ConfigEntry.Saves = 0;
    // Start scan enabled; the self-test should temporarily disable and then restore it.
-   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "show_cost_performance", "show_container_contents", "tooltip_text_formatting", "label_chips", "show_type_badge", "show_container_name_display", "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat", "info_machines", "info_batteries", "info_progress_bar", "info_container_units", "info_manufacturer_inline", "double_click_inspect", "double_click_scan", "context_menu_scan" })
+   foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "show_cost_performance", "show_container_contents", "tooltip_text_formatting", "show_type_badge", "show_container_name_display", "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat", "info_machines", "info_batteries", "info_progress_bar", "info_container_units", "info_manufacturer_inline", "double_click_inspect", "double_click_scan", "context_menu_scan" })
     entries.Add(key, new ConfigEntry { Value = key == "double_click_scan" });
    entries.Add("liquid_analysis", new ConfigEntry { Value = ModSettings.LiquidOffChoice, ValueType = typeof(string) });
    // Fail after double_click_scan has been modified, so rollback of that toggle is covered too.
