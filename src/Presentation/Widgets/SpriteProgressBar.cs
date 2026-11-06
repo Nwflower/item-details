@@ -295,7 +295,7 @@ internal static class SpriteProgressBar
     }
 
     /// <summary>原版 tooltip 正文的 TMP：OverlayHandler.current.tooltipElement.textNode。</summary>
-    private static TMP_Text? TooltipText()
+    internal static TMP_Text? TooltipText()
     {
         try
         {

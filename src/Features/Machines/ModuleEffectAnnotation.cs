@@ -46,12 +46,11 @@ internal static class ModuleEffectAnnotation
             else return false;
 
             string note = ModuleStatEffects.Note(kind, item, out var changes);
-            if (note.Length == 0) return false;
 
             // 原行照旧，注释用灰色；这里自己收行，所以调用方不要再走原 AddLine
             var output = new TooltipSections.Writer(builder, item, "machine-effect", TooltipGroupIds.Machine);
             output.Field("stat", kind == 'p' ? "performance" : kind == 'e' ? "efficiency" : "quality");
-            output.Field("effectText", note);
+            if (note.Length > 0) output.Field("effectText", note);
             if (output.Capturing)
             {
                 string tag = kind == 'p' ? "TOTAL_PERCENTAGE_PERFORMANCE_BONUS_INT"
@@ -59,14 +58,93 @@ internal static class ModuleEffectAnnotation
                 if (GameRead.TagInt(item, tag) is int bonus) output.Field("bonusPercent", bonus);
                 if (changes != null) output.Field("changes", changes);
             }
-            string annotation = " (" + note + ")";
+            string annotation = note.Length > 0 ? " (" + note + ")" : "";
             output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
                 + ProgressBarStyle.VisibleLength(annotation)));
-            output.Add(text, color);
-            output.Add(annotation, RenderHandler.ColorPalette.Gray);
+            string label = kind == 'p' ? _perf : kind == 'e' ? _eff : _qual;
+            string tag2 = kind == 'p' ? "TOTAL_PERCENTAGE_PERFORMANCE_BONUS_INT"
+                : kind == 'e' ? "TOTAL_PERCENTAGE_POWER_BONUS_INT" : "TOTAL_PERCENTAGE_QUALITY_BONUS_INT";
+            var cols = ChipRender(text, label, (GameRead.TagInt(item, tag2) ?? 0) >= 0, annotation);
+            if (cols != null)
+            {
+                output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(text)
+                    + ProgressBarStyle.VisibleLength(annotation)) + 4);
+                output.AddRendered(text, color, cols.Value.Main);
+                if (annotation.Length > 0) output.AddRendered(annotation, RenderHandler.ColorPalette.Gray, cols.Value.Note);
+            }
+            else
+            {
+                output.Add(text, color);
+                if (annotation.Length > 0) output.Add(annotation, RenderHandler.ColorPalette.Gray);
+            }
             output.NextLine();
             output.Emit();
             return true;
+        }
+        catch { return false; }
+    }
+
+
+    /// <summary>标签内侧左边距（em）：让文字避开左侧亮条。</summary>
+    private const float ChipPadEm = 0.3f;
+    private const float ColumnGapEm = 0.7f;
+
+    /// <summary>
+    /// 把「-效率: +32% (系数 0.5)」拆成三列：色块标签 / 数值 / 其余（系数与我们的附加信息）。
+    /// 返回正文片段与注释片段各自的渲染写法；找不到标签或色块不可用时返回 null，调用方照原样写。
+    /// 列位置按三个标签里最宽的算，几行之间对得齐；项目符号与冒号一并去掉，色块本身就是行首标记。
+    /// </summary>
+    private static (string Main, string Note)? ChipRender(string text, string label, bool positive, string annotation)
+    {
+        if (label.Length == 0 || !LabelChips.Available) return null;
+        int at = text.IndexOf(label, StringComparison.Ordinal);
+        if (at < 0) return null;
+
+        int rest = at + label.Length;
+        while (rest < text.Length && (text[rest] == ':' || text[rest] == '：' || text[rest] == ' ')) rest++;
+        string tail = text.Substring(rest);
+        int pct = tail.IndexOf('%');
+        string value = pct >= 0 ? tail.Substring(0, pct + 1) : tail;
+        string extra = pct >= 0 ? tail.Substring(pct + 1).Trim() : "";
+        // 有我们的附加信息时不再显示原版的「系数」：附加信息更详细，两者并排只是重复
+        if (annotation.Length > 0) extra = "";
+
+        // 列宽：色块取三个标签里最宽的；第三列起点不能压住这一行自己的数值
+        float chip = 0f;
+        foreach (var l in new[] { _perf, _eff, _qual })
+            if (l.Length > 0) chip = Math.Max(chip, WaterColumns.TextEm(" " + l + " ") + ChipPadEm);
+        float col2 = chip + ColumnGapEm;
+        float col3 = Math.Max(col2 + WaterColumns.TextEm("+100%"), col2 + WaterColumns.TextEm(value)) + ColumnGapEm;
+
+        string fore = positive ? LabelChips.PositiveText : LabelChips.NegativeText;
+        string valueColor = positive ? LabelChips.ValuePositive : LabelChips.ValueNegative;
+        string chipText = LabelChips.Wrap(
+            "<color=" + fore + "> <space=" + ChipPadEm.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
+            + "em>" + label + " </color>", positive);
+
+        string main = chipText + Pos(col2) + "<color=" + valueColor + ">" + value + "</color>";
+        if (extra.Length > 0 || annotation.Length > 0) main += Pos(col3) + extra;
+        // 注释原文以空格开头；有「系数」之类的内容时与它隔一格，否则直接从第三列起笔
+        string note = (extra.Length > 0 ? " " : "") + annotation.TrimStart();
+        return (main, note);
+    }
+
+    private static string Pos(float em)
+        => "<pos=" + em.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "em>";
+
+    /// <summary>
+    /// 机器上的「模组效果:」表头：三项加成已经各带一块色标，表头多余，整行丢掉。
+    /// 只认原版 <c>mech_effect_from_module</c> 这一句，且只对机器生效。
+    /// </summary>
+    internal static bool ShouldDropMachineHeader(string text, GameItem? item)
+    {
+        try
+        {
+            if (!ModSettings.ModuleEffects) return false;
+            if (item == null || string.IsNullOrEmpty(text)) return false;
+            if (!GameRead.IsTag(item, "machinery")) return false;
+            string header = LocHelper.GetLocalizedMechanic("mech_effect_from_module") ?? "";
+            return header.Length > 0 && string.Equals(text.Trim(), header.Trim(), StringComparison.Ordinal);
         }
         catch { return false; }
     }

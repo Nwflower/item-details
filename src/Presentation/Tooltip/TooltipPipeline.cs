@@ -229,6 +229,9 @@ internal static class TooltipPipeline
             // 模块物品的空「模组效果：」表头（三项加成全 0）整行丢掉
             if (ModuleEffectAnnotation.ShouldDrop(__0, cur)) return false;
 
+            // 机器的「模组效果:」表头：三项加成各带色标后不再需要
+            if (ModuleEffectAnnotation.ShouldDropMachineHeader(__0, cur)) return false;
+
             return true;
         }
         catch { return true; }

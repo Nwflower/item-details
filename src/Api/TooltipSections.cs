@@ -106,6 +106,8 @@ internal static class TooltipSections
             // end 是下次 Add 前插入的续行前缀（nextBegin）；不记录就无法逐字回放。
             Write(("text", text, color, 0, 0, default, end));
         }
+        // 行内片段的呈现写法：规范文本照旧，原版窗口构建时才换成 render（例如标签底色）。
+        internal void AddRendered(string text, Color color, string render) => Write(("text", text, color, 0, 0, default, ""), render);
         internal void AddLine(string text, Color color) => Write(("line", text, color, 0, 0, default, ""));
         // 规范文本进 runs，第三方读到的是它；render 只在原样回放到原版 builder 时挂成渲染注解。
         internal void AddLine(string text, Color color, string render) => Write(("line", text, color, 0, 0, default, ""), render);
@@ -194,7 +196,16 @@ internal static class TooltipSections
         {
             switch (run.Kind)
             {
-                case "text": builder.Add(run.Text, run.Color, run.Tail); break;
+                case "text":
+                    if (render != null)
+                    {
+                        int before = RenderSlices.Count(builder);
+                        builder.Add(run.Text, run.Color, run.Tail);
+                        if (before >= 0 && !string.Equals(run.Text, render, StringComparison.Ordinal))
+                            RenderSlices.Annotate(builder, before, run.Text, new RenderSlices.Style(run.Color), render);
+                    }
+                    else builder.Add(run.Text, run.Color, run.Tail);
+                    break;
                 case "line":
                     if (render != null) RenderSlices.AddLine(builder, run.Text, run.Color, render);
                     else ModEntry.AddLine(builder, run.Text, run.Color);
