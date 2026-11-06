@@ -99,7 +99,7 @@ internal static class LiquidQueries
         if (item == null || !LiquidGate.Allows(item)) return null;
         bool cache = ReferenceEquals(item, TooltipPipeline.Current);
         if (cache && simulated) return currentAdvice;
-        var methods = WaterAdvice.SimulateMethods(item, out bool available);
+        var methods = WaterAdvice.SimulateMethodsOnHover(item, out bool available);
         Advice? result = available ? methods.ConvertAll(m => (m.Name, m.GainPct)).AsReadOnly() : null;
         if (cache)
         {

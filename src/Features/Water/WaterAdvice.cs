@@ -73,6 +73,7 @@ internal static class WaterAdvice
     {
         internal GameItem Item = null!;
         internal long Means;
+        internal bool MeansValid;
         internal string Locale = "";
         internal float ComputedAt;
         internal float SeenAt;
@@ -94,188 +95,377 @@ internal static class WaterAdvice
     /// <summary>空白壳在溶解后被第三方销毁过；本场景内改为逐次克隆。</summary>
     private static bool _agentShellUnusable;
 
+    // ---------------- 模拟入口：同步（测试、API）与悬停分片 ----------------
+    //
+    // 悬停时 tooltip 每帧重建，缓存未命中的那一帧若一次算完，实测 10–28 ms，超过一帧预算。
+    // 悬停路径因此把模拟拆成一串小步骤，每帧最多用 <see cref="SliceBudgetMs"/> 毫秒，算完才写缓存：
+    //   - 新成分的水：前几帧没有建议（返回「不可用」），算完后下一帧自然出现，不需要额外刷新。
+    //   - 持续悬停同一件容器、成分在变：沿用上一次结果，后台重算完再替换。
+    // 步骤边界都在「重灌探针壳 → 跑一次 → 收集结果」之间，每步自包含，任务随时可以丢弃，不留需要清理的状态。
+    // 探针壳是共享的：任何同步入口（同步模拟、机器净化预测、预热、清理）开始前一律先丢弃进行中的任务。
+
+    /// <summary>每帧分给水质模拟的毫秒数。</summary>
+    private const double SliceBudgetMs = 1.5;
+    /// <summary>任务超过这么久没人继续推进（鼠标离开了）就作废，不拿陈旧的输入接着算。</summary>
+    private const float JobIdleSeconds = 1f;
+
+    /// <summary>一次模拟读到的全部输入；用它判断「还是不是同一个问题」。</summary>
+    private struct Inputs
+    {
+        internal GameItem Item;
+        internal PurifySources.Report Owned;
+        internal GameItem? InstalledFilter;
+        internal int Purity;
+        internal long Signature;
+        internal bool SignatureValid;
+        internal long Means;
+        internal bool MeansValid;
+        internal string FilterName;
+        internal string Locale;
+    }
+
+    private sealed class Job
+    {
+        internal Inputs In;
+        internal readonly List<Method> Result = new();
+        internal bool Available;
+        internal bool Cacheable;
+        internal float LastPumpAt;
+        internal IEnumerator<bool>? Steps;
+#if ITEMDETAILS_DIAG
+        internal double DiagMs;
+        internal double DiagMaxSliceMs;
+        internal int DiagSlices;
+#endif
+    }
+
+    private static Job? _job;
+
     internal static List<Method> SimulateMethods(GameItem? item) => SimulateMethods(item, out _);
 
+    /// <summary>同步算完才返回；测试与第三方调用用这个。</summary>
     internal static List<Method> SimulateMethods(GameItem? item, out bool available)
+        => Simulate(item, sliced: false, out available);
+
+    /// <summary>悬停路径：没算完时 <paramref name="available"/> 为 false，调用方按「暂无建议」处理，下一帧再来。</summary>
+    internal static List<Method> SimulateMethodsOnHover(GameItem? item, out bool available)
+        => Simulate(item, sliced: true, out available);
+
+    private static List<Method> Simulate(GameItem? item, bool sliced, out bool available)
     {
         available = false;
-        var result = new List<Method>();
         try
         {
-            if (item == null) return result;
-            if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return result;
-            // 酒瓶也是液体容器，但不能走水质净化链；空瓶/纯非水液体也不必扫描拥有物。
-            if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) return result;
-
-            int purity = SafePurity(item);
-            if (purity < 0) return result;
-
-            // 命中判断也必须知道净化手段：已安装滤芯立即取指纹，拥有设备走 2 秒扫描报告。
-            var owned = PurifySources.Scan();
-            GameItem? installedFilter = null;
-            try { installedFilter = WaterHelper.GetFilterItem(item); } catch { }
-            bool signatureValid = TrySimulationSignature(item, owned, installedFilter, out long signature);
-            bool meansValid = TryMeansSignature(owned, installedFilter, out long means);
-            string filterName = GameRead.ItemName(installedFilter);
-            string locale = Loc.Code;
+            if (!sliced) _job = null;   // 同步算会重灌同一批探针壳，先丢弃进行中的分片任务
+            if (!Prepare(item, out var inp)) return new List<Method>();
             float now = UnityEngine.Time.unscaledTime;
 
             var recent = _recent;
-            bool hovering = recent != null && ReferenceEquals(recent.Item, item)
-                            && now - recent.SeenAt <= HoverGapSeconds;
-            if (recent != null && ReferenceEquals(recent.Item, item)) recent.SeenAt = now;
+            bool sameItem = recent != null && ReferenceEquals(recent.Item, inp.Item);
+            bool hovering = sameItem && now - recent!.SeenAt <= HoverGapSeconds;
+            if (sameItem) recent!.SeenAt = now;
 
-            // 过期项顺手清掉，其余按最近使用顺序从后往前找。
-            for (int i = Cache.Count - 1; i >= 0; i--)
+            if (TryCached(inp, now, out var cached))
             {
-                var entry = Cache[i];
-                if (now - entry.At > CacheSeconds)
-                {
-                    Cache.RemoveAt(i);
-                    continue;
-                }
-                if (!signatureValid || entry.Signature != signature || entry.Purity != purity) continue;
-                if (entry.FilterName != filterName || entry.Locale != locale) continue;
-
-                if (i != Cache.Count - 1)
-                {
-                    Cache.RemoveAt(i);
-                    Cache.Add(entry);
-                }
-#if ITEMDETAILS_DIAG
-                TrackCache(hit: true, now);
-#endif
                 available = true;
-                return entry.Methods;
+                return cached;
             }
 
-            if (hovering && meansValid && now - recent!.ComputedAt < RecomputeSeconds
-                && recent.Means == means && recent.Locale == locale)
+            // 持续悬停：成分每秒都在变时，至多每 5 秒重算一次，其间沿用上次结果。
+            if (hovering && inp.MeansValid && recent!.MeansValid && now - recent.ComputedAt < RecomputeSeconds
+                && recent.Means == inp.Means && recent.Locale == inp.Locale)
             {
                 available = true;
                 return recent.Methods;
             }
 
-#if ITEMDETAILS_DIAG
-            TrackCache(hit: false, now);
-#endif
-
-#if ITEMDETAILS_DIAG
-            _diagCloneCreateMs = 0;
-            _diagCloneTagsMs = 0;
-            _diagFeatureMs = 0;
-            _diagCloneCount = 0;
-            var diagTotal = System.Diagnostics.Stopwatch.StartNew();
-            var diagScan = System.Diagnostics.Stopwatch.StartNew();
-#endif
-#if ITEMDETAILS_DIAG
-            diagScan.Stop();
-#endif
-            var usedNames = new HashSet<string>(StringComparer.Ordinal);
-
-            // 容器探针壳与净化源壳都按 identifier 复用；每次使用前只重灌标签。
-            GameItem? sharedProbe = GetShell(ProbeShells, item);
-            if (sharedProbe == null) return result;
-
-            // 0) 回调走 DissolveInto 但还没试验过的可溶物：先在标准试验水上判定，再并入本次模拟。
-            //    判出新结论时报告已失效、签名不含新净化剂，这次结果不进缓存。
-            var chemAgents = owned.ChemAgents;
-            bool cacheable = signatureValid;
-            if (owned.ChemCandidates.Count > 0)
+            if (!sliced)
             {
-                var found = RunTrials(sharedProbe, item, owned.ChemCandidates, TrialsPerHover, out bool changed);
-                if (changed) cacheable = false;
-                if (found.Count > 0) chemAgents = owned.ChemAgents.Concat(found).Take(PurifySources.MaxChemAgents).ToList();
+                var run = NewJob(inp, now);
+                Pump(run, now, long.MaxValue);
+                available = run.Available;
+                return run.Result;
             }
 
-            // 1) 机器：黑盒试 PurifyContainer。机器必须走深拷贝——函数内部用
-            //    GetTagReadonly 读品质/性能加成，而 TagSystem.GetTag 对缺键会插入 0，
-            //    那会把真实机器的加成钉死，净水器从此只能净化到 99.0%（GetPurityMult(0)=1.0）。
-            foreach (var machine in owned.Machines)
+            var job = _job;
+            if (job != null && (now - job.LastPumpAt > JobIdleSeconds || !SameQuestion(job.In, inp)))
+                job = _job = null;
+            job ??= _job = NewJob(inp, now);
+
+            if (Pump(job, now, SliceBudgetTicks))
             {
-                GameItem m = machine;
-                if (!ResetProbe(sharedProbe, item)) return result;
-                var shell = GetShell(SourceShells, m);
-                if (shell == null || !ResetSource(shell, m)) continue;
-                RunOnProbe(sharedProbe, m, usedNames, result,
-                    (probe, _) => ApplyMachineShell(probe, shell));
+                _job = null;
+                available = job.Available;
+                return job.Result;
             }
 
-            // 2) 便携净水器
-            if (owned.Portable != null)
+            // 还没算完：同一件容器上一次的结果先顶着，没有就暂无建议
+            if (hovering && recent!.Locale == inp.Locale)
             {
-                if (!ResetProbe(sharedProbe, item)) return result;
-                RunOnProbe(sharedProbe, owned.Portable, usedNames, result,
-                    (probe, _) => WaterHelper.PurifyToBaseWater(probe));
+                available = true;
+                return recent.Methods;
             }
-
-            // 3) 化学剂：溶入探针后跑游戏自己的反应链（只模拟登记过或试验通过的净化剂）
-            foreach (var agent in chemAgents)
-            {
-                GameItem a = agent;
-                if (!ResetProbe(sharedProbe, item)) return result;
-                RunOnProbe(sharedProbe, a, usedNames, result, (probe, _) => Dissolve(a, probe));
-            }
-
-            // 4) 可用的罐内滤芯优先；耗尽时仍列出玩家拥有的替换滤芯。
-            if (installedFilter != null && PurifySources.IsUsableFilter(installedFilter))
-            {
-                var shell = GetShell(SourceShells, installedFilter);
-                if (shell == null || !ResetSource(shell, installedFilter)) return result;
-                if (!ResetProbe(sharedProbe, item)) return result;
-                RunFilter(sharedProbe, installedFilter, shell, usedNames, result);
-            }
-            else
-            {
-                foreach (var f in owned.Filters)
-                {
-                    var shell = GetShell(SourceShells, f);
-                    if (shell == null || !ResetSource(shell, f)) continue;
-                    if (!ResetProbe(sharedProbe, item)) return result;
-                    RunFilter(sharedProbe, f, shell, usedNames, result);
-                }
-            }
-
-            result.RemoveAll(m => m.GainPct < 0.01);
-            result.Sort((a, b) => b.GainPct.CompareTo(a.GainPct));
-
-#if ITEMDETAILS_DIAG
-            diagTotal.Stop();
-            Log.Msg($"[perf] 水质模拟 purity={purity} methods={result.Count} clones={_diagCloneCount} " +
-                    $"total={diagTotal.Elapsed.TotalMilliseconds:0.00}ms scan={diagScan.Elapsed.TotalMilliseconds:0.00}ms " +
-                    $"create={_diagCloneCreateMs:0.00}ms tags={_diagCloneTagsMs:0.00}ms feature={_diagFeatureMs:0.00}ms");
-#endif
-            if (cacheable)
-            {
-                Cache.Add(new CacheEntry
-                {
-                    Signature = signature,
-                    Purity = purity,
-                    FilterName = filterName,
-                    Locale = locale,
-                    At = now,
-                    Methods = result,
-                });
-                if (Cache.Count > MaxEntries) Cache.RemoveAt(0);
-                // 只沿用本可进缓存的结果：化学剂试验刚改了结论、签名不可信时下次照常重算
-                _recent = new Recent
-                {
-                    Item = item,
-                    Means = means,
-                    Locale = locale,
-                    ComputedAt = now,
-                    SeenAt = now,
-                    Methods = result,
-                };
-            }
-            available = true;
-            return result;
+            return new List<Method>();
         }
         catch (Exception ex)
         {
             Log.Warn("WaterAdvice.SimulateMethods", ex);
-            return result;
+            _job = null;
+            return new List<Method>();
         }
+    }
+
+    private static readonly long SliceBudgetTicks =
+        (long)(SliceBudgetMs * System.Diagnostics.Stopwatch.Frequency / 1000.0);
+
+    /// <summary>读取这次模拟的输入；不适用（非水容器、酒瓶、读不到纯度）返回 false。</summary>
+    private static bool Prepare(GameItem? item, out Inputs inp)
+    {
+        inp = default;
+        if (item == null) return false;
+        if (!GameRead.IsTag(item, "LIQUID_CONTAINER_TAG")) return false;
+        // 酒瓶也是液体容器，但不能走水质净化链；空瓶/纯非水液体也不必扫描拥有物。
+        if (GameRead.IsTag(item, "WINE_CONTAINER_TAG")) return false;
+
+        int purity = SafePurity(item);
+        if (purity < 0) return false;
+
+        // 命中判断也必须知道净化手段：已安装滤芯立即取指纹，拥有设备走 2 秒扫描报告。
+        var owned = PurifySources.Scan();
+        GameItem? installedFilter = null;
+        try { installedFilter = WaterHelper.GetFilterItem(item); } catch { }
+
+        inp.Item = item;
+        inp.Owned = owned;
+        inp.InstalledFilter = installedFilter;
+        inp.Purity = purity;
+        inp.SignatureValid = TrySimulationSignature(item, owned, installedFilter, out inp.Signature);
+        inp.MeansValid = TryMeansSignature(owned, installedFilter, out inp.Means);
+        inp.FilterName = GameRead.ItemName(installedFilter);
+        inp.Locale = Loc.Code;
+        return true;
+    }
+
+    private static bool SameQuestion(in Inputs a, in Inputs b)
+        => ReferenceEquals(a.Item, b.Item) && a.Purity == b.Purity && a.Signature == b.Signature
+           && a.SignatureValid == b.SignatureValid && a.Means == b.Means && a.MeansValid == b.MeansValid
+           && a.FilterName == b.FilterName && a.Locale == b.Locale;
+
+    /// <summary>按最近使用顺序从后往前找；过期项顺手清掉。</summary>
+    private static bool TryCached(in Inputs inp, float now, out List<Method> methods)
+    {
+        methods = null!;
+        for (int i = Cache.Count - 1; i >= 0; i--)
+        {
+            var entry = Cache[i];
+            if (now - entry.At > CacheSeconds)
+            {
+                Cache.RemoveAt(i);
+                continue;
+            }
+            if (!inp.SignatureValid || entry.Signature != inp.Signature || entry.Purity != inp.Purity) continue;
+            if (entry.FilterName != inp.FilterName || entry.Locale != inp.Locale) continue;
+
+            if (i != Cache.Count - 1)
+            {
+                Cache.RemoveAt(i);
+                Cache.Add(entry);
+            }
+#if ITEMDETAILS_DIAG
+            TrackCache(hit: true, now);
+#endif
+            methods = entry.Methods;
+            return true;
+        }
+        return false;
+    }
+
+    private static Job NewJob(in Inputs inp, float now)
+    {
+#if ITEMDETAILS_DIAG
+        TrackCache(hit: false, now);
+        _diagCloneCreateMs = 0;
+        _diagCloneTagsMs = 0;
+        _diagFeatureMs = 0;
+        _diagCloneCount = 0;
+#endif
+        return new Job { In = inp, LastPumpAt = now };
+    }
+
+    /// <summary>
+    /// 推进任务直到用完预算或算完。返回 true 表示任务已结束（成功与否看 <see cref="Job.Available"/>）。
+    /// 步骤里抛错不再继续这个任务：记一条日志，按「不可用」结束。
+    /// </summary>
+    private static bool Pump(Job job, float now, long budgetTicks)
+    {
+        job.LastPumpAt = now;
+        long start = System.Diagnostics.Stopwatch.GetTimestamp();
+        try
+        {
+            job.Steps ??= Steps(job).GetEnumerator();
+            bool finished = false;
+            while (true)
+            {
+                if (!job.Steps.MoveNext()) { finished = true; break; }
+                if (System.Diagnostics.Stopwatch.GetTimestamp() - start >= budgetTicks) break;
+            }
+#if ITEMDETAILS_DIAG
+            double sliceMs = (System.Diagnostics.Stopwatch.GetTimestamp() - start) * 1000.0
+                             / System.Diagnostics.Stopwatch.Frequency;
+            job.DiagMs += sliceMs;
+            job.DiagSlices++;
+            if (sliceMs > job.DiagMaxSliceMs) job.DiagMaxSliceMs = sliceMs;
+#endif
+            if (!finished) return false;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.Pump", ex);
+            job.Available = false;
+            return true;
+        }
+
+        Finish(job, now);
+        return true;
+    }
+
+    /// <summary>
+    /// 任务算完：确认输入没变再写缓存。分片期间容器成分或净化手段变了，这份结果对不上现在的水，直接作废，
+    /// 下一帧按新输入重新开始。缓存键不可信（<see cref="Job.Cacheable"/> 为假）时结果只用这一次、不进缓存。
+    /// </summary>
+    private static void Finish(Job job, float now)
+    {
+        if (!job.Available) return;
+
+        var inp = job.In;
+        if (job.Cacheable && (!Prepare(inp.Item, out var again) || !SameQuestion(inp, again)))
+        {
+            job.Available = false;
+            return;
+        }
+
+        job.Result.RemoveAll(m => m.GainPct < 0.01);
+        job.Result.Sort((a, b) => b.GainPct.CompareTo(a.GainPct));
+
+#if ITEMDETAILS_DIAG
+        Log.Msg($"[perf] 水质模拟 purity={inp.Purity} methods={job.Result.Count} clones={_diagCloneCount} " +
+                $"total={job.DiagMs:0.00}ms 分片={job.DiagSlices} 最大单片={job.DiagMaxSliceMs:0.00}ms " +
+                $"create={_diagCloneCreateMs:0.00}ms tags={_diagCloneTagsMs:0.00}ms feature={_diagFeatureMs:0.00}ms");
+#endif
+        if (job.Cacheable)
+        {
+            Cache.Add(new CacheEntry
+            {
+                Signature = inp.Signature,
+                Purity = inp.Purity,
+                FilterName = inp.FilterName,
+                Locale = inp.Locale,
+                At = now,
+                Methods = job.Result,
+            });
+            if (Cache.Count > MaxEntries) Cache.RemoveAt(0);
+        }
+
+        // 持续悬停的沿用与分片期间的顶替都靠它；缓存键不可信时 MeansValid 为假，不会被当作「新鲜」
+        _recent = new Recent
+        {
+            Item = inp.Item,
+            Means = inp.Means,
+            MeansValid = inp.MeansValid && job.Cacheable,
+            Locale = inp.Locale,
+            ComputedAt = now,
+            SeenAt = now,
+            Methods = job.Result,
+        };
+    }
+
+    /// <summary>
+    /// 模拟的全部步骤。每个 <c>yield return</c> 是一个可以停下来的边界；
+    /// 中途 <c>yield break</c> 表示这次算不了（<see cref="Job.Available"/> 保持 false）。
+    /// 迭代器里不能包 try/catch：异常交给 <see cref="Pump"/> 统一处理，各步骤内部本来就各自兜底。
+    /// </summary>
+    private static IEnumerable<bool> Steps(Job job)
+    {
+        var item = job.In.Item;
+        var owned = job.In.Owned;
+        var installedFilter = job.In.InstalledFilter;
+        var result = job.Result;
+        var usedNames = new HashSet<string>(StringComparer.Ordinal);
+
+        // 容器探针壳与净化源壳都按 identifier 复用；每次使用前只重灌标签。
+        // 首次创建壳很贵，单独占一步，不与后面的模拟叠在同一帧。
+        GameItem? sharedProbe = GetShell(ProbeShells, item);
+        if (sharedProbe == null) yield break;
+        yield return true;
+
+        // 0) 回调走 DissolveInto 但还没试验过的可溶物：先在标准试验水上判定，再并入本次模拟。
+        //    判出新结论时报告已失效、签名不含新净化剂，这次结果不进缓存。
+        var chemAgents = owned.ChemAgents;
+        job.Cacheable = job.In.SignatureValid;
+        if (owned.ChemCandidates.Count > 0)
+        {
+            var trials = new TrialOutcome();
+            foreach (bool _ in TrialSteps(sharedProbe, item, owned.ChemCandidates, TrialsPerHover, trials))
+                yield return true;
+            if (trials.Changed) job.Cacheable = false;
+            if (trials.Positives.Count > 0)
+                chemAgents = owned.ChemAgents.Concat(trials.Positives).Take(PurifySources.MaxChemAgents).ToList();
+        }
+
+        // 1) 机器：黑盒试 PurifyContainer。机器必须走深拷贝——函数内部用
+        //    GetTagReadonly 读品质/性能加成，而 TagSystem.GetTag 对缺键会插入 0，
+        //    那会把真实机器的加成钉死，净水器从此只能净化到 99.0%（GetPurityMult(0)=1.0）。
+        foreach (var machine in owned.Machines)
+        {
+            GameItem m = machine;
+            if (!ResetProbe(sharedProbe, item)) yield break;
+            var shell = GetShell(SourceShells, m);
+            if (shell == null || !ResetSource(shell, m)) continue;
+            RunOnProbe(sharedProbe, m, usedNames, result,
+                (probe, _) => ApplyMachineShell(probe, shell));
+            yield return true;
+        }
+
+        // 2) 便携净水器
+        if (owned.Portable != null)
+        {
+            if (!ResetProbe(sharedProbe, item)) yield break;
+            RunOnProbe(sharedProbe, owned.Portable, usedNames, result,
+                (probe, _) => WaterHelper.PurifyToBaseWater(probe));
+            yield return true;
+        }
+
+        // 3) 化学剂：溶入探针后跑游戏自己的反应链（只模拟登记过或试验通过的净化剂）
+        foreach (var agent in chemAgents)
+        {
+            GameItem a = agent;
+            if (!ResetProbe(sharedProbe, item)) yield break;
+            RunOnProbe(sharedProbe, a, usedNames, result, (probe, _) => Dissolve(a, probe));
+            yield return true;
+        }
+
+        // 4) 可用的罐内滤芯优先；耗尽时仍列出玩家拥有的替换滤芯。
+        if (installedFilter != null && PurifySources.IsUsableFilter(installedFilter))
+        {
+            var shell = GetShell(SourceShells, installedFilter);
+            if (shell == null || !ResetSource(shell, installedFilter)) yield break;
+            if (!ResetProbe(sharedProbe, item)) yield break;
+            RunFilter(sharedProbe, installedFilter, shell, usedNames, result);
+            yield return true;
+        }
+        else
+        {
+            foreach (var f in owned.Filters)
+            {
+                var shell = GetShell(SourceShells, f);
+                if (shell == null || !ResetSource(shell, f)) continue;
+                if (!ResetProbe(sharedProbe, item)) yield break;
+                RunFilter(sharedProbe, f, shell, usedNames, result);
+                yield return true;
+            }
+        }
+
+        job.Available = true;
     }
 
     /// <summary>
@@ -393,6 +583,7 @@ internal static class WaterAdvice
 
     private static void ClearShells()
     {
+        _job = null;
         foreach (var shell in ProbeShells.Values)
             try { shell.Destroy(); } catch { }
         foreach (var shell in SourceShells.Values)
@@ -411,6 +602,7 @@ internal static class WaterAdvice
     /// </summary>
     internal static bool PrewarmOwned()
     {
+        _job = null;   // 预热会用探针壳做标准试验
         try
         {
             // 不按显示开关（LiquidGate）短路：玩家可能进入游戏后才切换档位，
@@ -461,6 +653,7 @@ internal static class WaterAdvice
 
     internal static void Stop()
     {
+        _job = null;
         Cache.Clear();
         _recent = null;
         ClearShells();
@@ -532,6 +725,7 @@ internal static class WaterAdvice
     /// </summary>
     internal static (int RemovedParts, int PurityAfter) SimulateMachineRemoval(GameItem machine, GameItem container)
     {
+        _job = null;   // 共用探针壳：进行中的分片任务让路
         try
         {
             var waterProbe = GetShell(ProbeShells, container);
@@ -627,8 +821,22 @@ internal static class WaterAdvice
     private static List<GameItem> RunTrials(GameItem probe, GameItem container, List<GameItem> candidates,
         int budget, out bool changed)
     {
-        changed = false;
-        var positives = new List<GameItem>();
+        var outcome = new TrialOutcome();
+        foreach (bool _ in TrialSteps(probe, container, candidates, budget, outcome)) { }
+        changed = outcome.Changed;
+        return outcome.Positives;
+    }
+
+    private sealed class TrialOutcome
+    {
+        internal readonly List<GameItem> Positives = new();
+        internal bool Changed;
+    }
+
+    /// <summary>逐个试验的迭代器：每试完一个让出一次，悬停路径据此分片；同步调用方直接跑完。</summary>
+    private static IEnumerable<bool> TrialSteps(GameItem probe, GameItem container, List<GameItem> candidates,
+        int budget, TrialOutcome outcome)
+    {
         foreach (var candidate in candidates)
         {
             string id = candidate.identifier ?? "";
@@ -636,12 +844,14 @@ internal static class WaterAdvice
             if (budget-- <= 0) break;
 
             bool? purifies = TrialPurifies(probe, container, candidate);
-            if (purifies == null) continue;
-            PurifySources.JudgeChem(id, purifies.Value);
-            changed = true;
-            if (purifies.Value) positives.Add(candidate);
+            if (purifies != null)
+            {
+                PurifySources.JudgeChem(id, purifies.Value);
+                outcome.Changed = true;
+                if (purifies.Value) outcome.Positives.Add(candidate);
+            }
+            yield return true;
         }
-        return positives;
     }
 
     /// <summary>标准试验：探针换成固定的试验水，溶入一份化学剂，纯度上升即为净化剂。</summary>
