@@ -106,8 +106,9 @@ internal static class MachineInterior
         Failures.Clear();
     }
 
-    /// <param name="listing">列出内容物并做第二层汇总（「容器内容物」开关）；滤芯与电池不在这里。</param>
-    /// <param name="adapters">「机器」专门适配：剩余几天、用水、冷藏、陈化等；电量由「电池」独立控制。</param>
+    /// <param name="listing">非机器的槽位容器（过滤水壶这类）列出内容物（「容器内容物」开关）；滤芯与电池不在这里。</param>
+    /// <param name="adapters">「机器」开关：专门适配（剩余几天、用水、冷藏、陈化等），
+    /// 同时管机器的输入输出物清单；电量由「电池」独立控制。</param>
     /// <param name="hiddenTruth">滤芯显示真实耐久（「透视」开关）；关闭时与物品自身 tooltip 一致。</param>
     /// <param name="purity">液体容器附带水质纯度。</param>
     /// <param name="listContents">是否输出最后的通用内容物清单；不影响滤芯、液体等状态摘要。</param>
@@ -166,14 +167,16 @@ internal static class MachineInterior
             if (adapters && ctx.IsMachine) clean &= Stage(key, "Adapters", () => MachineAdapters.Run(ctx, built));
             // 滤芯先认领自己的物品，后面的液体、工具与通用清单才不会重复列出它们。
             if (filters) clean &= Stage(key, "Filters", () => SummarizeFilters(ctx, built, hiddenTruth));
-            if (listing)
+            // 机器的输入输出物跟「机器」开关（信息增强）；其余槽位容器仍跟「容器内容物」
+            bool list = ctx.IsMachine ? adapters : listing;
+            if (list)
             {
                 clean &= Stage(key, "Liquids", () => SummarizeLiquids(ctx, built, purity));
                 clean &= Stage(key, "Tools", () => SummarizeTools(ctx, built));
             }
             // 机器或内容物关闭时，充电器内各电池的电量仍由「电池」独立控制。
             if (batteries) clean &= Stage(key, "Batteries", () => SummarizeBatteries(ctx, built));
-            if (listing && listContents) clean &= Stage(key, "List", () => ListRemaining(ctx, built));
+            if (list && listContents) clean &= Stage(key, "List", () => ListRemaining(ctx, built));
 
             Store(item, locale, flags, now, all, state, built, entry);
             lines.AddRange(built);
