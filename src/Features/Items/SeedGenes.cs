@@ -10,7 +10,9 @@ namespace ItemDetails;
 ///   营养丰富1   热量 +25%   固有
 /// 原版 <c>PlantGeneticsHelper.CreateSeedGeneticsTooltip</c> 一口气写完这一块（表头、性状行、被移除的固有性状），
 /// 这里整体换成两列写法：性状名（带阿拉伯数字等级）、效果、来源/状态。
-/// 规范文本逐行等于原版文字（第三方读到的不变），列位置只在渲染层；出错时让原方法照常运行。
+/// 规范文本逐行等于原版文字，只有一处合并：固有降级的性状，原版会另起一行写「X（已移除）」，
+/// 这里并进本行的「固有(2→1)」，既不再出现「又在又不在」的两行，也不用把这段信息只挂在渲染层。
+/// 列位置只在渲染层；出错时让原方法照常运行。
 /// </summary>
 internal static class SeedGenes
 {
@@ -94,7 +96,7 @@ internal static class SeedGenes
         => ModSettings.TooltipFormatting && item != null && item.IsTag("SEED_ITEM_TAG")
            && HydroponicHelper.GetPlant(item) != null && PlantGeneticsHelper.IsScannerOn();
 
-    private static void Read(GameItem item, out string header, out List<Row> rows, out List<string> removed)
+    private static void Read(GameItem item, out string header, out List<Row> rows, out int traitCount)
     {
             PlantDefinition plant = HydroponicHelper.GetPlant(item);
             var traits = PlantGeneticsHelper.GetTraits(item);
@@ -107,22 +109,25 @@ internal static class SeedGenes
             {
                 int innateRank = plant.GetInnateRank(trait.id);
                 bool innate = innateRank >= rank;
-                // 固有 2 级、现在只剩 1 级：原版仍标「固有」，另起一行写「已移除」，读起来像又在又不在。
-                // 这里在这一行的注记里直接写「固有2，降到 1」，那条「已移除」不再单列。
+                // 固有 2 级、现在只剩 1 级：原版在同一行标「固有」，再另起一行写「已移除」，
+                // 读起来像又在又不在。这里把两者合并成注记「固有(2→1)」，并写进规范文本。
                 bool lowered = !trait.locked && innateRank > rank && rank > 0;
+                string? loweredNote = lowered
+                    ? Loc.T("seed.innate_lowered", "Innate ({0}→{1})", innateRank, rank) : null;
                 bool usable = PlantGeneticsHelper.IsTraitUsable(item, trait, out _);
                 string name = trait.maxRank > 1 ? WithRank(trait.displayName, rank) : trait.displayName;
                 string effect = PlantGeneticsHelper.DescribeEffect(trait, rank);
 
-                // 规范文本：原版同一行（标签带「（固有）」等后缀）
+                // 规范文本：原版同一行（标签带「（固有）」等后缀）；降级的用合并注记代替「（固有）」后缀
                 string label = name;
                 if (trait.locked) label = PlantGeneticsText.OriginLocked(label);
+                else if (lowered) label += " " + loweredNote;
                 else if (innate) label = PlantGeneticsText.OriginInnate(label);
                 if (!usable) label = PlantGeneticsText.NoEffectSuffix(label);
 
                 var notes = new List<string>();
                 if (trait.locked) notes.Add(Tag(PlantGeneticsText.OriginLocked));
-                else if (lowered) notes.Add(Loc.T("seed.innate_lowered", "Innate ({0}→{1})", innateRank, rank));
+                else if (lowered) notes.Add(loweredNote!);
                 else if (innate) notes.Add(Tag(PlantGeneticsText.OriginInnate));
                 if (!usable) notes.Add(Tag(PlantGeneticsText.NoEffectSuffix));
 
@@ -135,27 +140,23 @@ internal static class SeedGenes
                     Negative = trait.IsNegative,
                 });
             }
+            traitCount = rows.Count;
 
-            // 原版的「已移除」行：现有等级低于固有等级就列。完全移除（0 级）的在这里补成一行，
-            // 画成删除线；只是降级的已写进上面那一行的注记，除非有第三方在读规范文本，才照原版保留。
-            removed = new List<string>();
+            // 原版的「已移除」行：只有完全移除（现有 0 级）的还需要单列，画成删除线；
+            // 只是降级的已并入上面那一行，任何环境下都不再多写一行（规范文本不随第三方是否在场变化）。
             foreach (var innateTrait in plant.innateTraits)
             {
                 var plantTrait = PlantTraitRegistry.Get(innateTrait.Key);
                 if (plantTrait == null) continue;
                 int current = PlantGeneticsHelper.GetTraitRank(item, plantTrait.id);
-                if (current >= innateTrait.Value) continue;
-                string vanilla = PlantGeneticsText.ReadoutInnateRemoved(plantTrait.displayName);
-                if (current <= 0)
-                    rows.Add(new Row
-                    {
-                        Canonical = vanilla,
-                        Label = plantTrait.displayName,
-                        Note = Loc.T("seed.innate_removed", "Removed"),
-                        Removed = true,
-                    });
-                else if (TooltipSections.HasListeners)
-                    removed.Add(vanilla);
+                if (current >= innateTrait.Value || current > 0) continue;
+                rows.Add(new Row
+                {
+                    Canonical = PlantGeneticsText.ReadoutInnateRemoved(plantTrait.displayName),
+                    Label = plantTrait.displayName,
+                    Note = Loc.T("seed.innate_removed", "Removed"),
+                    Removed = true,
+                });
             }
     }
 
@@ -164,7 +165,7 @@ internal static class SeedGenes
         try
         {
             if (builder == null || !Applies(item)) return true;
-            Read(item, out string header, out var rows, out var removed);
+            Read(item, out string header, out var rows, out int traitCount);
 
             // ---- 以下才动笔 ----
             var plan = MakePlan(rows);
@@ -184,7 +185,8 @@ internal static class SeedGenes
             if (headerRender != header) output.AddLine(header, RenderHandler.ColorPalette.LightPurple, headerRender);
             else output.AddLine(header, RenderHandler.ColorPalette.LightPurple);
 
-            if (rows.Count == 0)
+            // 原版在「没有任何性状」时才写这一行；被移除的固有性状是另外的行，不算在这里
+            if (traitCount == 0)
                 output.AddLine(PlantGeneticsText.ReadoutNoTraits(), RenderHandler.ColorPalette.Gray);
             // 整块按折行后的最宽一行留框宽；规范文本仍是原版一行，不参与宽度
             if (rows.Count > 0) output.RequireWidth(ProgressBarStyle.WidthForLine(plan.LineChars) + 4);
@@ -224,8 +226,6 @@ internal static class SeedGenes
                     render += "\n" + ModuleEffectAnnotation.Pos(col2) + "<color=" + fore + ">" + segs[s] + "</color>";
                 output.AddLine(row.Canonical, row.Negative ? RenderHandler.ColorPalette.LightRed : RenderHandler.ColorPalette.LightGreen, render);
             }
-            foreach (string text in removed)
-                output.AddLine(text, RenderHandler.ColorPalette.Gray);
             output.Emit();
             return false;
         }

@@ -64,7 +64,7 @@ internal static class FaucetInfo
     internal static int TapPurity()
     {
         var station = StoreStation.Instance;
-        if (station == null) return 0;
+        if (station == null || PlayerStore.Instance == null) return 0;
         if (NetworkUpgrade.GetUpgradeById("RUSTWATER_TAP").IsUnlocked()) return station.todayRustwaterPurity;
         if (NetworkUpgrade.GetUpgradeById("GUTTERFLOW_TAP").IsUnlocked()) return station.todayGutterflowPurity;
         return 0;

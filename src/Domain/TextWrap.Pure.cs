@@ -31,14 +31,17 @@ internal static class TextWrap
             List<string> one = WrapSegment(segment, limit);
             // 末行只剩一两个字（孤字）：把各行收窄一点重排，行数不变、末行变长
             // 上一行已经断在句末（。！？；）就是干净的断法，不再为了末行长短去拆句子
-            if (one.Count > 1 && one[one.Count - 1].Length < Math.Max(4, limit / 4)
-                && SentenceEnders.IndexOf(one[one.Count - 2][one[one.Count - 2].Length - 1]) < 0)
+            if (one.Count > 1 && one[one.Count - 1].Length < Math.Max(4, limit / 4))
             {
-                int balanced = (segment.Length + one.Count - 1) / one.Count + 2;
-                if (balanced < limit)
+                string prev = one[one.Count - 2];
+                if (prev.Length > 0 && SentenceEnders.IndexOf(prev[prev.Length - 1]) < 0)
                 {
-                    List<string> alt = WrapSegment(segment, balanced);
-                    if (alt.Count == one.Count && alt[alt.Count - 1].Length > one[one.Count - 1].Length) one = alt;
+                    int balanced = (segment.Length + one.Count - 1) / one.Count + 2;
+                    if (balanced < limit)
+                    {
+                        List<string> alt = WrapSegment(segment, balanced);
+                        if (alt.Count == one.Count && alt[alt.Count - 1].Length > one[one.Count - 1].Length) one = alt;
+                    }
                 }
             }
             lines.AddRange(one);

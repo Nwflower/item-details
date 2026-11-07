@@ -36,8 +36,10 @@ internal static class SeedBaseDelta
         try
         {
             if (!ModSettings.TooltipFormatting || !showBase || builder == null || effectiveText == null) return true;
-            Match match = Number.Match(effectiveText);
-            if (!match.Success || !int.TryParse(match.Value, out int current)) return true;
+            // 取最后一个数字：本地化标签本身可能带数字（如「每 1 周期」），数值总在文字的末尾
+            Match? match = null;
+            foreach (Match found in Number.Matches(effectiveText)) match = found;
+            if (match == null || !int.TryParse(match.Value, out int current)) return true;
 
             var color = RenderHandler.ColorPalette.LightCyan;
             if (current == baseValue)

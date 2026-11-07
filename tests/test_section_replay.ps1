@@ -234,11 +234,14 @@ Check ([object]::ReferenceEquals($list[1],$s1) -and [object]::ReferenceEquals($l
 $sb.Clear(); $list.Add((New-Slice))
 $state = [object[]]@($sb, $null); $before.Invoke($null,$state)
 Check ($state[1] -eq $null) 'relayout with fresh slices leaves the text alone'
-# 描述：只有被别人的条放宽预算时才折；离线没有字宽缩放，所以不换。
+# 描述：开启「提示框文字格式化」时一律按行宽预折行并缩小字号（缩小标签会被原版折行算进下标，
+# 所以不能交给原版折）；这是渲染写法，正文仍是原文，Build 后必须还原成原片段。
 $sb2 = [RichTextBuilder]::new(40); $l2 = $sliceField.GetValue($sb2); $d = New-Slice; $l2.Add($d)
 $annotate.Invoke($null,@($sb2, 0, ('长' * 60), $style, $null))
 $state = [object[]]@($sb2, $null); $before.Invoke($null,$state)
-Check ($state[1] -eq $null -and [object]::ReferenceEquals($l2[0],$d)) 'description stays canonical when the budget is not widened'
+Check ($state[1] -ne $null -and $l2.Count -eq 1 -and [object]::ReferenceEquals($l2[0],$alt)) 'description is swapped to its pre-wrapped, shrunk slices'
+[void]$after.Invoke($null,@($sb2, $state[1], $null))
+Check ($l2.Count -eq 1 -and [object]::ReferenceEquals($l2[0],$d)) 'pre-wrapped description is restored to the canonical slice after Build'
 
 # 只换写法的行：正文留原版，原版窗口构建时换成显示写法，Build 后还原。
 $sb3 = [RichTextBuilder]::new(40); $l3 = $sliceField.GetValue($sb3)

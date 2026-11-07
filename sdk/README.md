@@ -104,7 +104,7 @@ private static void ReadWaterRows(IReadOnlyDictionary<string, object> fields)
 - **布局声明**：附加进度条统一走游戏 `AddProgressBar`，成分表统一提供自然文本，旧 `NativeProgressBars` / `FlowingText` 声明继续有效且无需迁移。回调返回 null 表示本次不接管排版。
 - **旧版支持**：新字段和槽位可选，已有消费者无需更新 SDK。SectionedTooltips 1.6.2 / 1.6.3 的配置兼容由物品详情维护；范围、显式协议优先与 v1 冻结范围见[兼容契约](../COMPATIBILITY.md)。徽章未显示时槽位返回 null，旧节点名仍保留。
 - **锚点**：`RegisterTooltipAnchor` 每次返回当前可见提示框的 `RectTransform`；窗口重建后无需重新注册。
-- **液体**：`TryGetLiquidAnalysis` / `TryGetWaterAdvice` 与通用区块独立。净化收益单位是**百分点**；空列表是有效结果（当前无可列手段）。
+- **液体**：`TryGetLiquidAnalysis` / `TryGetWaterAdvice` 与通用区块独立。净化收益单位是**百分点**；空列表是有效结果（当前无可列手段）。0.9.0 起两者各受一个开关控制：液体组分分析关闭时 `TryGetLiquidAnalysis` 返回空，`TryGetWaterAdvice` 仍照常返回；只有分析设为「有扫描器时开启」时，净化建议才一起要求扫描器。见[兼容契约](../COMPATIBILITY.md)的「显隐变更」。
 - **线程与清理**：全部在游戏主线程；每帧悬停可能重建。逐件暂存随本次构建清理，句柄在 `OnDisable` 释放。
 
 字段与区块清单见 [CONTRIBUTING.md](../CONTRIBUTING.md)。

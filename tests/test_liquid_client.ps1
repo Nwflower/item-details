@@ -210,7 +210,9 @@ try {
     $entry = $choice.GetType().GetField('_entry',$inst)
     $off = [Activator]::CreateInstance([ConfigEntry[string]],$inst,$null,@('关闭 (Off)'),$null)
     $entry.SetValue($choice,$off)
-    Check (!$client::HasAnalysis($item) -and !$client::HasAdvice($item)) 'turning off analysis hides even a cached snapshot and advice'
+    # 0.9.0 起「净化建议」有自己的开关：液体组分分析关闭时，快照隐藏、建议照常可用
+    # （只有分析选「有扫描器时开启」时，建议才跟着查扫描器）。见 COMPATIBILITY.md「显隐变更」。
+    Check (!$client::HasAnalysis($item) -and $client::HasAdvice($item)) 'turning off analysis hides the cached snapshot but keeps advice on its own switch'
     $entry.SetValue($choice,$null)
     $payload = $snapshot.GetType().GetProperty('Data',$inst).GetValue($snapshot)
     $display = $queries.GetMethod('TryDisplay',$flags).MakeGenericMethod($payload.GetType())

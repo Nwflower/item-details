@@ -537,16 +537,16 @@ public sealed partial class ModEntry
     // ---------------- 工具 ----------------
 
     /// <summary>
-    /// 充能行的进度条整组处理：每行先算自己放得下的最长条（最短 3 格），整组取最短的那个格数，
-    /// 这样条一样长；只要有一行连 3 格也放不下，整组都不画条、只留文字。
-    /// 没有充能条时返回 null。
-    /// </summary>
-    /// <summary>
     /// 带条的行最多占多少个字符宽：窗口当前预算不够时，在这个范围内允许把窗口撑宽一点
     /// （下面输出时会按整行预留宽度），超过就宁可不画条。
     /// </summary>
     private const int MaxBarLineChars = 34;
 
+    /// <summary>
+    /// 充能行的进度条整组处理：每行先算自己放得下的最长条（最短 3 格），整组取最短的那个格数，
+    /// 这样条一样长；只要有一行连 3 格也放不下，整组都不画条、只留文字。
+    /// 没有充能条时返回 null。
+    /// </summary>
     private static Func<TooltipLine, TooltipLine>? GroupBarFit(List<TooltipLine> lines, int budget)
     {
         int group = int.MaxValue;

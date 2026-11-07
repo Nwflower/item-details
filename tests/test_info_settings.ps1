@@ -36,7 +36,14 @@ namespace TEST_NS {
  using System;
  using System.Collections.Generic;
  using System.Linq;
- internal static class ScannerInventory { internal static bool HasLiquidScanner; }
+ // LiquidGate（生产代码）也要编译：它按物品类型判定扫描器，这里给只读桩。
+ public class GameItem { public string identifier = ""; }
+ internal static class GameRead { internal static bool IsTag(GameItem item, string tag) => false; }
+ internal static class ScannerInventory {
+  internal static bool HasLiquidScanner;
+  internal const string ChemScanner = "chem_scanner";
+  internal static bool Has(string scanner) => HasLiquidScanner;
+ }
  internal static class Loc {
   internal static string Code = "en";
   internal static bool IsChinese => false;
