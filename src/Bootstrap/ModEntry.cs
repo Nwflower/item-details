@@ -193,10 +193,6 @@ public sealed partial class ModEntry : IMod
         Patch("ItemNameLabel", ItemNameLabel.Install);
         Patch("FaucetInfo", FaucetInfo.Install);
         Patch("CalendarEvents", CalendarEvents.Install);
-        // 兜底：别的模组（实测 Pen_mod_QoL_Tweaks / BrewingExpansion）可能在 Awake 阶段
-        // Patch 了会 JIT 到 WaterFeatureHelper / ItemConditionList 的方法，把水质档位名
-        // 冻成英文。装配完毕后统一按当前语言重写这两张静态表，确保品相与出售判定正确。
-        Try("WaterStaticLocalizationFix", WaterStaticLocalizationFix.Refresh);
         // F8 控制台的西文字体没有中文字形；把游戏自带中文字体登记成 TMP 全局回退，
         // 避免中文日志每行都触发 “character not found” 警告并显示成空框。
         Try("ChineseFontFallback", ChineseFontFallback.Apply);

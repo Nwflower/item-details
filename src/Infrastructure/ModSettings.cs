@@ -567,14 +567,6 @@ internal static class ModSettings
     internal static bool TooltipFormatting => InfoEnhance && TooltipFormattingToggle.Value;
     internal static bool ContainerUnits => InfoEnhance && ContainerUnitsToggle.Value;
 
-    /// <summary>
-    /// 水质本地化修复跟随「液体组分分析」，不再单独成项：分析关掉时不改写静态表；
-    /// 选「有扫描器」或「总是开启」时照常执行。只看这一项，不受「信息增强」总开关管辖
-    /// （液体分析本来就在「透视」分组独立生效）。
-    /// </summary>
-    private static bool LiquidConfigured => LiquidAnalysis != LiquidMode.Off;
-
-    internal static bool WaterLocalizationFix => LiquidConfigured;
     internal static bool Machines => InfoEnhance && MachineToggle.Value;
     internal static bool ModuleEffects => Machines;
     internal static bool MachineBattery => InfoEnhance && BatteryToggle.Value;
