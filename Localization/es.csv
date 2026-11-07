@@ -78,6 +78,8 @@ lottery.matched_prize,Acertados {0}/6 -> premio {1}
 lottery.not_drawn,Sorteo {0}: pendiente (sáb. mañana)
 lottery.winning,Números ganadores: {0}
 market.line,Mercado: {0}
+faucet.header,Agua del grifo: {0}
+calendar.today_events,Eventos de hoy
 module.power,{0} energía/día
 module.speed,{0} velocidad
 price.buy,"Compra: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Año {0} fuera de 425-429 / 432-438
 scratcher.no_prize,Rasca y Gana: sin premio
 scratcher.progress_part,", rascado {0}/3"
 scratcher.win,Rasca y Gana: gana {0} ({1} coincidencias)
-seed.line,Rasgos (sin analizar): {0}
+seed.header,Genes (sin analizar)
+seed.rank,Rango {0}
 seed.more,... y {0} más
 seed.trait_rank,{0} (rango {1})
+seed.innate_lowered,Innato ({0}→{1})
+seed.innate_removed,Eliminado
 storage.contains,"Contiene: "
 storage.more_kinds," ... {0} {0|tipo|tipos} en total"
 storage.ratio,Compresión: {0} ({1}/{2} {2|celda|celdas})
@@ -123,6 +128,7 @@ value.perfect_range," | perfecto {0}-{1}"
 value.total_line,Total: {0}
 water.mismatch," (etiqueta no coincide)"
 water.trace_count,(+{0} más bajo el umbral de visualización)
+water.fold_inactive,Ctrl para ver componentes inactivos
 chem.effects,Efectos: {0}
 chem.lethal,letal ({0}x dosis letal)
 chem.toxic,tóxico
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Da a cada tipo de impureza de la tabla de co
 config.liquid_analysis.off,Desactivado
 config.liquid_analysis.scanner,Con escáner
 config.liquid_analysis.always,Siempre
+config.water_advice,Consejos de purificación
+config.water_advice.tip,"En un recipiente con agua, muestra cuánto subiría su pureza cada método de purificación (filtros, máquinas). Se muestra con el análisis de líquidos activado o no; solo con «Con escáner» también requiere el escáner. El valor por defecto sigue al del análisis."
 config.scratcher,Vista previa de Rasca y Gana
 config.scratcher.tip,"Antes de rascar, muestra si un Rasca y Gana tiene premio, cuánto y cuánto se ha rascado ya. Solo lectura con las reglas del juego; nunca rasca por ti."
 config.sealed_box,Rayos X de contenedores cerrados

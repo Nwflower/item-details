@@ -86,6 +86,33 @@ Check("component table lists everything and drops the hint while expanded", () =
     foreach (var row in table.Rows) Require(row.Kind == WaterRowKind.Component, "only component rows");
     Require(table.FoldedCount == 0, "nothing folded while expanded");
 });
+Check("components fold by the caller's rule and keep the hint", () =>
+{
+    // 只留第 0 项（活性成分），其余按「非活性」折起
+    var table = WaterTable.Build(Components(), 1_908_000, expanded: false,
+        "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture,
+        foldable: i => i != 0);
+    Require(table.Rows.Count == 2, "one kept component plus the hint, got " + table.Rows.Count);
+    Require(table.Rows[0].Kind == WaterRowKind.Component && table.Rows[0].Index == 0, "kept component");
+    Require(table.Rows[1].Kind == WaterRowKind.FoldHint && table.FoldedCount == 3, "hint covers the other three");
+    var open = WaterTable.Build(Components(), 1_908_000, expanded: true,
+        "Ctrl to expand", parts => parts + "u", System.Globalization.CultureInfo.InvariantCulture,
+        foldable: i => i != 0);
+    Require(open.Rows.Count == 4 && open.FoldedCount == 0, "Ctrl expands everything");
+});
+Check("phrase wrap breaks at sentence ends and commas, never inside a stat", () =>
+{
+    string text = "收获后仍会存活，并再次结果。 收获数量 -25%, 生长速度 -20%, 种子产量 -50%";
+    string[] lines = TextWrap.WrapPhrases(text, 26).Split('\n');
+    Require(lines.Length == 3, "three lines, got " + lines.Length);
+    Require(lines[0] == "收获后仍会存活，并再次结果。", "first sentence alone, got " + lines[0]);
+    Require(lines[1] == "收获数量 -25%, 生长速度 -20%,", "stats packed at commas, got " + lines[1]);
+    Require(lines[2] == "种子产量 -50%", "last stat, got " + lines[2]);
+    foreach (var line in lines) Require(line.Length <= 26, "line within limit: " + line);
+    Require(TextWrap.WrapPhrases("短文字", 26) == "短文字", "short text untouched");
+    string hard = TextWrap.WrapPhrases(new string('字', 60), 26);
+    foreach (var line in hard.Split('\n')) Require(line.Length <= 26, "unbroken text still hard-wraps within the limit");
+});
 Check("no hint at all when nothing is folded", () =>
 {
     var table = WaterTable.Build(BigComponents(), 1_908_000, expanded: false,

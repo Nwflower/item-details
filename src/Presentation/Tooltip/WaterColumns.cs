@@ -151,30 +151,44 @@ internal static class WaterColumns
     {
         internal readonly float VolumeStart;
         internal readonly float PercentStart;
+        /// <summary>百分比列的右端；百分比与净化建议的增益都右对齐到这里。</summary>
+        internal readonly float RightEdge;
 
-        internal Layout(float volumeStart, float percentStart)
+        internal Layout(float volumeStart, float percentStart, float rightEdge)
         {
             VolumeStart = volumeStart;
             PercentStart = percentStart;
+            RightEdge = rightEdge;
         }
     }
 
     /// <summary>一行按列落位：名称 → 跳到用量列写用量 → 跳到百分比列写百分比。</summary>
     private static string Row(WaterRow row, Layout layout)
-        => row.Name + Pos(layout.VolumeStart) + row.Amount + Pos(layout.PercentStart) + row.Percent;
+        => row.Kind == WaterRowKind.FoldHint
+            // 折叠提示：名称合并占住名称列与用量列（不经过用量列起点），只把合计落在百分比列
+            ? row.Name + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent
+            : row.Name + Pos(layout.VolumeStart) + row.Amount + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent;
 
     /// <summary>按所有可见行的名称/用量算出列落点，折叠提示行也参与。</summary>
-    private static Layout Measure(IReadOnlyList<WaterRow> rows)
+    private static Layout Measure(IReadOnlyList<WaterRow> rows, float minRightEdge = 0f)
     {
         float nameEm = 0f;
         float volEm = 0f;
+        float hintEm = 0f;
+        float pctEm = 0f;
         for (int i = 0; i < rows.Count; i++)
         {
+            // 折叠提示比名称长得多，单独量：它横跨名称列与用量列，不能把用量列往右推
+            pctEm = Math.Max(pctEm, Em(rows[i].Percent));
+            if (rows[i].Kind == WaterRowKind.FoldHint) { hintEm = Math.Max(hintEm, Em(rows[i].Name)); continue; }
             nameEm = Math.Max(nameEm, Em(rows[i].Name));
             volEm = Math.Max(volEm, Em(rows[i].Amount));
         }
         float volStart = nameEm + ColumnGapEm;
-        return new Layout(volStart, volStart + volEm + ColumnGapEm);
+        // 提示盖不住两列时，只顺延百分比列，用量列位置不变
+        float percentStart = Math.Max(volStart + volEm + ColumnGapEm, hintEm + ColumnGapEm);
+        // 净化建议要求的右端更靠右时跟着它走，两列数字落在同一条竖线上
+        return new Layout(volStart, percentStart, Math.Max(percentStart + pctEm, minRightEdge));
     }
 
     /// <summary>液体容器的一行体积，单位随 <see cref="Volume.UseLiters"/>。</summary>
@@ -206,11 +220,15 @@ internal static class WaterColumns
     /// 没有容器与体积，所以这里不写表头，直接从第一行成分开始；末尾补一行低于显示阈值的数量。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
-    internal static List<TooltipLine> BuildSolid(LiquidAnalysis analysis, List<WaterRow>? visible = null)
+    /// <param name="foldInactive">只列活性成分，其余折成一行提示，按住 Ctrl 全部展开（作物用）；化学品全部列出。</param>
+    internal static List<TooltipLine> BuildSolid(LiquidAnalysis analysis, List<WaterRow>? visible = null,
+        bool foldInactive = false)
     {
         var comps = Components(analysis, waterMismatch: false);
-        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: true,
-            "", WaterInfo.Amount, Loc.Culture);
+        var components = analysis.Components;
+        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: !foldInactive || Expanded(),
+            Loc.T("water.fold_inactive", "Ctrl to expand inactive components"), WaterInfo.Amount, Loc.Culture,
+            foldInactive ? i => components[i].Role != "active" : null);
         visible?.AddRange(plan.Rows);
 
         var lines = RowLines(plan.Rows, comps);
@@ -218,6 +236,22 @@ internal static class WaterColumns
         if (trace != null)
             lines.Add(new TooltipLine(trace, RenderHandler.ColorPalette.Gray));
         return lines;
+    }
+
+    /// <summary>只有名称与百分比的成分表（水龙头出水用）：没有容器与体积，用量格留空。</summary>
+    internal static List<TooltipLine> BuildPercentOnly(LiquidAnalysis analysis)
+    {
+        var comps = Components(analysis, waterMismatch: false);
+        var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: true,
+            "", _ => "", Loc.Culture);
+        return RowLines(plan.Rows, comps);
+    }
+
+    /// <summary>按住左右 Ctrl 时展开被折叠的成分；读不到输入设备时按未按住处理。</summary>
+    internal static bool Expanded()
+    {
+        try { return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl); }
+        catch { return false; }
     }
 
     /// <summary>
@@ -236,7 +270,9 @@ internal static class WaterColumns
     /// 成分一律全部列出，不折叠；净化建议另起一行（见 ModEntry.TryAppendWaterAdvice）。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
-    internal static List<TooltipLine> Build(LiquidAnalysis analysis, List<WaterRow>? visible = null)
+    /// <param name="adviceRightEdge">净化建议要求的百分比列右端（见 <see cref="AdviceRightEdge"/>），0 表示没有建议行。</param>
+    internal static List<TooltipLine> Build(LiquidAnalysis analysis, List<WaterRow>? visible = null,
+        float adviceRightEdge = 0f)
     {
         int totalMl = analysis.TotalMicroliters / 1000;
         int capacityMl = analysis.CapacityMicroliters / 1000;
@@ -258,7 +294,7 @@ internal static class WaterColumns
             new("", ratio, 6, tail,
                 RenderHandler.ColorPalette.LightCyan, RenderHandler.ColorPalette.VeryDarkCyan),
         };
-        lines.AddRange(RowLines(plan.Rows, comps));
+        lines.AddRange(RowLines(plan.Rows, comps, adviceRightEdge));
         return lines;
     }
 
@@ -267,12 +303,12 @@ internal static class WaterColumns
     /// 液体与固体都走这里，两条路径不会再各写一套。
     /// </summary>
     private static List<TooltipLine> RowLines(IReadOnlyList<WaterRow> rows,
-        List<(string Name, int Parts, RenderHandler.ColorPalette Color)> comps)
+        List<(string Name, int Parts, RenderHandler.ColorPalette Color)> comps, float minRightEdge = 0f)
     {
         var lines = new List<TooltipLine>(rows.Count);
-        var layout = Measure(rows);
+        var layout = Measure(rows, minRightEdge);
         _tableFrame = Time.frameCount;
-        _tablePercentStart = layout.PercentStart;
+        _tableRightEdge = layout.RightEdge;
         foreach (var row in rows)
             lines.Add(new TooltipLine(WaterTable.JoinCells(row, CellSeparator), ColorOf(comps, row))
                 .WithRender(Row(row, layout)));
@@ -281,7 +317,21 @@ internal static class WaterColumns
 
     /// <summary>本帧成分表的百分比列起点；净水建议据此对齐。跨帧的值不可信，不使用。</summary>
     private static int _tableFrame = -1;
-    private static float _tablePercentStart;
+    private static float _tableRightEdge;
+
+    /// <summary>净化建议自己需要的百分比列右端：最长名称 + 列间距 + 最宽增益。</summary>
+    internal static float AdviceRightEdge(IReadOnlyList<(string Name, double GainPercentagePoints)> methods)
+    {
+        float nameEm = 0f, gainEm = 0f;
+        foreach (var m in methods)
+        {
+            nameEm = Math.Max(nameEm, Em(m.Name));
+            gainEm = Math.Max(gainEm, Em(GainText(m.GainPercentagePoints)));
+        }
+        return nameEm + ColumnGapEm + gainEm;
+    }
+
+    private static string GainText(double gain) => "+" + gain.ToString("0.00", Loc.Culture) + "%";
 
     /// <summary>
     /// 净水建议：一种手段一行，名称靠左、增益靠右，数字右端对齐在成分表的百分比列。
@@ -296,20 +346,20 @@ internal static class WaterColumns
         float gainEm = 0f;
         for (int i = 0; i < methods.Count; i++)
         {
-            gains[i] = "+" + methods[i].GainPercentagePoints.ToString("0.00", Loc.Culture) + "%";
+            gains[i] = GainText(methods[i].GainPercentagePoints);
             nameEm = Math.Max(nameEm, Em(methods[i].Name));
             gainEm = Math.Max(gainEm, Em(gains[i]));
         }
 
-        float start = nameEm + ColumnGapEm;
-        if (_tableFrame == Time.frameCount) start = Math.Max(start, _tablePercentStart);
+        float right = nameEm + ColumnGapEm + gainEm;
+        if (_tableFrame == Time.frameCount) right = Math.Max(right, _tableRightEdge);
 
         var lines = new List<TooltipLine>(methods.Count);
         for (int i = 0; i < methods.Count; i++)
         {
             string name = methods[i].Name;
             lines.Add(new TooltipLine(name + CellSeparator + gains[i], color)
-                .WithRender(name + Pos(start + gainEm - Em(gains[i])) + gains[i]));
+                .WithRender(name + Pos(right - Em(gains[i])) + gains[i]));
         }
         return lines;
     }

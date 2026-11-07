@@ -15,7 +15,7 @@ namespace ItemDetails;
 ///
 /// 游戏结算里这些 value 就是 `marketMult`（`GetCurrentValue` 中累加），
 /// 所以显示的百分比与真实价格修正同源。
-/// 用 publicDisplay（短文案）而不是事件长描述，避免撑长 tooltip。
+/// 用事件的日历标题（GetDisplayName）而不是报纸标题或长描述，避免撑长 tooltip。
 /// </summary>
 internal static class MarketModifier
 {
@@ -55,8 +55,10 @@ internal static class MarketModifier
                     if (shown >= MaxLines) break;
                     if (shown > 0) sb.Append(Loc.T("list.sep", ", "));
 
-                    string label = Safe(() => nd.publicDisplay);
-                    if (string.IsNullOrEmpty(label)) label = Safe(() => ev.displayName);
+                    // 日历上的事件标题（StoreEvent.GetDisplayName：displayName，缺省回退报纸标题）。
+                    // publicDisplay 是报纸上的短标题，和玩家在日历里看到的名字对不上。
+                    string label = Safe(() => ev.GetDisplayName());
+                    if (string.IsNullOrEmpty(label)) label = Safe(() => nd.publicDisplay);
                     if (string.IsNullOrEmpty(label)) label = nd.identifier ?? "?";
 
                     modifiers?.Add((nd.identifier ?? "", label, nd.value));

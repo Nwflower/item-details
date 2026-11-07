@@ -78,6 +78,8 @@ lottery.matched_prize,Совпало {0}/6 -> приз {1}
 lottery.not_drawn,Тираж {0}: ждёт розыгрыша (сб. утром)
 lottery.winning,Выигрышные номера: {0}
 market.line,Рынок: {0}
+faucet.header,Вода из крана: {0}
+calendar.today_events,События сегодня
 module.power,{0} энергии/день
 module.speed,{0} скорости
 price.buy,"Закупка: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Год {0} вне диапазонов 425-429 / 432-4
 scratcher.no_prize,Скретч-карта: без выигрыша
 scratcher.progress_part,", стёрто {0}/3"
 scratcher.win,Скретч-карта: выигрыш {0} ({1} совп.)
-seed.line,Признаки (не проанализированы): {0}
+seed.header,Гены (не проанализированы)
+seed.rank,Ранг {0}
 seed.more,... и ещё {0}
 seed.trait_rank,{0} (ранг {1})
+seed.innate_lowered,Врождённая ({0}→{1})
+seed.innate_removed,Удалена
 storage.contains,"Содержит: "
 storage.more_kinds," ... всего видов: {0}"
 storage.ratio,Сжатие: {0} ({1}/{2} {2|клетка|клетки|клеток})
@@ -123,6 +128,7 @@ value.perfect_range," | идеально {0}-{1}"
 value.total_line,Итого: {0}
 water.mismatch," (несовпадение этикетки)"
 water.trace_count,(ещё {0} ниже порога отображения)
+water.fold_inactive,Ctrl — показать неактивные компоненты
 chem.effects,Действие: {0}
 chem.lethal,смертельно ({0}x смертельная доза)
 chem.toxic,токсично
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Окрашивает каждый тип п�
 config.liquid_analysis.off,Выкл.
 config.liquid_analysis.scanner,При наличии сканера
 config.liquid_analysis.always,Всегда
+config.water_advice,Советы по очистке
+config.water_advice.tip,"На емкости с водой показывает, насколько каждый способ очистки (фильтры, машины) повысит чистоту. Показывается при включённом и выключенном анализе жидкостей; только в режиме «Со сканером» нужен и сканер. Значение по умолчанию следует настройке анализа."
 config.scratcher,Предпросмотр скретч-карты
 config.scratcher.tip,"До стирания показывает, выиграет ли скретч-карта, сколько и насколько она уже стёрта. Только чтение по правилам игры — карта за вас не стирается."
 config.sealed_box,Просвечивание запертых контейнеров

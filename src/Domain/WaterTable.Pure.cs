@@ -67,20 +67,23 @@ internal static class WaterTable
     /// <param name="expanded">按住 Ctrl：全部列出，不画提示行。</param>
     /// <param name="hint">折叠提示的文案，已本地化。</param>
     /// <param name="amountOf">用量格的格式化：液体用容器体积单位，固体用扫描仪的量。</param>
+    /// <param name="foldable">哪些成分在未展开时折起（按 <paramref name="components"/> 下标）；
+    /// 缺省按「低于 1%」。作物只留活性成分时，传「非活性」。</param>
     internal static Plan Build(
         IReadOnlyList<(string Name, int Parts)> components,
         int totalParts,
         bool expanded,
         string hint,
         Func<int, string> amountOf,
-        IFormatProvider? culture)
+        IFormatProvider? culture,
+        Func<int, bool>? foldable = null)
     {
         var rows = new List<WaterRow>(components.Count + 1);
         int foldedParts = 0, foldedCount = 0;
         for (int i = 0; i < components.Count; i++)
         {
             var component = components[i];
-            if (!expanded && WaterLayout.BelowOnePercent(component.Parts, totalParts))
+            if (!expanded && (foldable != null ? foldable(i) : WaterLayout.BelowOnePercent(component.Parts, totalParts)))
             {
                 foldedParts += component.Parts;
                 foldedCount++;

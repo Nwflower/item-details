@@ -78,6 +78,8 @@ lottery.matched_prize,一致 {0}/6 -> 賞金 {1}
 lottery.not_drawn,第{0}回：未抽選（毎週土曜の朝に発表）
 lottery.winning,当選番号：{0}
 market.line,市場：{0}
+faucet.header,蛇口の水質: {0}
+calendar.today_events,今日のイベント
 module.power,{0}電力/日
 module.speed,{0}速度
 price.buy,買値：
@@ -106,9 +108,12 @@ ribwich.reason_year_range,製造年 {0} は 425-429/432-438 外
 scratcher.no_prize,スクラッチカード：はずれ
 scratcher.progress_part,、削り済み {0}/3
 scratcher.win,スクラッチカード：当たり {0}（{1}個一致）
-seed.line,形質（未分析）：{0}
+seed.header,遺伝子（未分析）
+seed.rank,ランク{0}
 seed.more,…ほか {0} 件
 seed.trait_rank,{0}（ランク {1}）
+seed.innate_lowered,固有({0}→{1})
+seed.innate_removed,削除済み
 storage.contains,中身：
 storage.more_kinds," など計{0}種"
 storage.ratio,圧縮率：{0}（{1}/{2} マス）
@@ -123,6 +128,7 @@ value.perfect_range," ｜ 完璧 {0}–{1}"
 value.total_line,総額：{0}
 water.mismatch,（ラベルと不一致）
 water.trace_count,（ほか {0} 種が表示閾値未満）
+water.fold_inactive,Ctrl で非活性成分を表示
 chem.effects,効果：{0}
 chem.lethal,致死（致死量の {0} 倍）
 chem.toxic,有毒
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,成分表の不純物を種類ごとに色分
 config.liquid_analysis.off,オフ
 config.liquid_analysis.scanner,スキャナー所持時
 config.liquid_analysis.always,常に表示
+config.water_advice,浄化アドバイス
+config.water_advice.tip,水の容器で、各浄化手段(フィルター、機械など)が純度をどれだけ上げられるかを表示します。液体成分分析のオン/オフに関係なく表示され、分析が「スキャナー所持時」のときだけスキャナーも必要です。初期値は液体成分分析に合わせます。
 config.scratcher,スクラッチカードの事前確認
 config.scratcher.tip,削る前に、スクラッチカードの当たり外れ・賞金・削った進み具合を表示します。ゲームと同じルールで読み取るだけで、代わりに削ることはありません。
 config.sealed_box,施錠コンテナ透視

@@ -78,6 +78,8 @@ lottery.matched_prize,Bons numéros {0}/6 -> gain {1}
 lottery.not_drawn,Tirage {0} : à venir (samedi matin)
 lottery.winning,Numéros gagnants : {0}
 market.line,Marché : {0}
+faucet.header,Eau du robinet : {0}
+calendar.today_events,Événements du jour
 module.power,énergie {0}/jour
 module.speed,vitesse {0}
 price.buy,"Prix d'achat : "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
 scratcher.progress_part,", gratté {0}/3"
 scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
-seed.line,Traits (non analysés) : {0}
+seed.header,Gènes (non analysés)
+seed.rank,Rang {0}
 seed.more,... et {0} de plus
 seed.trait_rank,{0} (rang {1})
+seed.innate_lowered,Inné ({0}→{1})
+seed.innate_removed,Retiré
 storage.contains,"Contient : "
 storage.more_kinds," ... {0} {0|type|types} au total"
 storage.ratio,Compression : {0} ({1}/{2} {2|case|cases})
@@ -123,6 +128,7 @@ value.perfect_range," | parfait {0}-{1}"
 value.total_line,Total : {0}
 water.mismatch," (étiquette incohérente)"
 water.trace_count,(+{0} de plus sous le seuil d'affichage)
+water.fold_inactive,Ctrl pour afficher les composants inactifs
 chem.effects,Effets : {0}
 chem.lethal,mortel ({0}x la dose létale)
 chem.toxic,toxique
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Donne à chaque type d'impureté du tableau 
 config.liquid_analysis.off,Désactivé
 config.liquid_analysis.scanner,Avec scanner
 config.liquid_analysis.always,Toujours
+config.water_advice,Conseils de purification
+config.water_advice.tip,"Sur un récipient d'eau, indique de combien chaque méthode de purification (filtres, machines) augmenterait sa pureté. Affiché que l'analyse des liquides soit activée ou non ; seul le mode « Avec scanner » exige aussi le scanner. La valeur par défaut suit celle de l'analyse."
 config.scratcher,Aperçu des tickets à gratter
 config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant, combien il rapporte et où en est le grattage. Lecture seule selon les règles du jeu ; ne gratte jamais à votre place."
 config.sealed_box,Radiographie des conteneurs verrouillés

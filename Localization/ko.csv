@@ -78,6 +78,8 @@ lottery.matched_prize,적중 {0}/6 -> 상금 {1}
 lottery.not_drawn,제{0}회: 미추첨 (매주 토요일 아침)
 lottery.winning,당첨 번호: {0}
 market.line,시장: {0}
+faucet.header,수도꼭지 수질: {0}
+calendar.today_events,오늘의 이벤트
 module.power,{0} 전력/일
 module.speed,{0} 속도
 price.buy,"매입가: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,생산연도 {0}: 425-429/432-438 밖
 scratcher.no_prize,스크래치 복권: 꽝
 scratcher.progress_part,", 긁은 칸 {0}/3"
 scratcher.win,스크래치 복권: 당첨 {0} ({1}개 일치)
-seed.line,형질 (미분석): {0}
+seed.header,유전자(미분석)
+seed.rank,등급 {0}
 seed.more,…외 {0} 항목
 seed.trait_rank,{0} (등급 {1})
+seed.innate_lowered,고유({0}→{1})
+seed.innate_removed,제거됨
 storage.contains,"포함: "
 storage.more_kinds," 등 총 {0}종"
 storage.ratio,압축률: {0} ({1}/{2} 칸)
@@ -123,6 +128,7 @@ value.perfect_range," | 완벽 {0}–{1}"
 value.total_line,총액: {0}
 water.mismatch," (라벨과 불일치)"
 water.trace_count,(표시 임계값 미만 {0} 항목 더)
+water.fold_inactive,Ctrl: 비활성 성분 펼치기
 chem.effects,효과: {0}
 chem.lethal,치명적 (치사량의 {0}배)
 chem.toxic,유독
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"성분표의 불순물을 종류별로 다�
 config.liquid_analysis.off,끄기
 config.liquid_analysis.scanner,스캐너 보유 시
 config.liquid_analysis.always,항상
+config.water_advice,정화 조언
+config.water_advice.tip,"물 용기에서 각 정화 수단(필터, 기계 등)이 순도를 얼마나 올려 주는지 표시합니다. 액체 성분 분석이 켜져 있든 꺼져 있든 표시되며, 분석이 '스캐너 보유 시'일 때만 스캐너도 필요합니다. 기본값은 액체 성분 분석 설정을 따릅니다."
 config.scratcher,스크래치 복권 미리보기
 config.scratcher.tip,"긁기 전에 스크래치 복권의 당첨 여부, 당첨금, 긁은 진행도를 표시합니다. 게임과 같은 규칙으로 읽기만 하며 대신 긁지 않습니다."
 config.sealed_box,잠긴 컨테이너 투시

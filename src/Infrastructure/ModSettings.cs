@@ -103,6 +103,7 @@ internal static class ModSettings
     private static readonly Toggle ValuationToggle = new(true);          // 价值构成 + 完美区间 + 鉴定标题报价
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
     private static readonly Toggle HiddenTruthToggle = new(true);        // 揭示伪装与真实属性
+    private static readonly Toggle WaterAdviceToggle = new(true);        // 净化建议
     private static readonly Toggle ColorLiquidToggle = new(false);       // 液体成分按种类上色
     private static readonly Toggle ScratcherToggle = new(false);         // 刮刮乐预知
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
@@ -190,6 +191,11 @@ internal static class ModSettings
                 Text("config.liquid_analysis", "Liquid Composition Analysis"),
                 Text("config.liquid_analysis.tip", "Shows water purity and impurities, and the composition and effects " +
                      "of drugs and chemicals. \"With scanner\" only shows it while you own a water or chemical scanner."));
+
+            WaterAdviceToggle.Define(_cfg, "water_advice", SecRevealKey, SecRevealEn,
+                Text("config.water_advice", "Purification Advice"),
+                Text("config.water_advice.tip", "On a water container, lists how much each purification method " +
+                     "(filters, machines) would raise its purity. Works on its own, with or without liquid composition analysis."));
 
             ColorLiquidToggle.Define(_cfg, "color_liquid_components", SecRevealKey, SecRevealEn,
                 Text("config.color_liquid_components", "Color Liquid Components by Type"),
@@ -293,6 +299,7 @@ internal static class ModSettings
             MigrateLegacyAppraisalToggle();
             MigrateLegacyNameBgToggle();
             MigrateLegacyWaterToggle();
+            MigrateWaterAdviceDefault();
 
             _cfg.Save();
 
@@ -370,6 +377,26 @@ internal static class ModSettings
         catch (Exception ex)
         {
             Log.Warn("ModSettings.Migrate", ex);
+        }
+    }
+
+    /// <summary>
+    /// 「净化建议」是后加的开关，默认值跟随「液体组分分析」：配置里还没有 <c>water_advice</c> 时，
+    /// 分析为关闭的玩家升级后建议也保持关闭，不会突然多出一块显示；其余档位默认开。
+    /// 文件里已有该键就是玩家自己的选择，不再插手。必须在水质旧键迁移之后执行。
+    /// </summary>
+    private static void MigrateWaterAdviceDefault()
+    {
+        if (_cfg == null) return;
+        try
+        {
+            var raw = RawValues();
+            if (raw == null || raw.ContainsKey("water_advice")) return;
+            WaterAdviceToggle.Set(LiquidAnalysis != LiquidMode.Off);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("ModSettings.MigrateAdvice", ex);
         }
     }
 
@@ -563,13 +590,14 @@ internal static class ModSettings
     internal static bool Wine => InfoEnhance && WineToggle.Value;
     internal static bool Scratcher => ScratcherToggle.Value;
     internal static bool ColorLiquidComponents => ColorLiquidToggle.Value;
+    internal static bool WaterAdvice => WaterAdviceToggle.Value;
     internal static bool SealedBox => SealedBoxToggle.Value;
     internal static bool ResultPrefill => ResultPrefillToggle.Value;
 
     /// <summary>是否还有任何玩家功能生效；全部关闭时渲染器与后台能力按未启用处理。</summary>
     internal static bool AnyEnabled => InfoEnhance || CustomerHistory || DoubleClickInspect || DoubleClickScan
         || ContextMenuScan || AuthenticityToggle.Value || ValuationToggle.Value || CustomerAlert
-        || HiddenTruth || Scratcher || SealedBox || ResultPrefill || LiquidChoice.Index != (int)LiquidMode.Off;
+        || HiddenTruth || Scratcher || SealedBox || ResultPrefill || WaterAdviceToggle.Value || LiquidChoice.Index != (int)LiquidMode.Off;
 
     /// <summary>液体组分分析的三档。显示与否还要过 <see cref="LiquidGate"/>（“有扫描器”要查拥有关系）。</summary>
     internal enum LiquidMode

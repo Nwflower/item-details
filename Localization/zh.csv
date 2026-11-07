@@ -78,6 +78,8 @@ lottery.matched_prize,命中 {0}/6 → 奖金 {1}
 lottery.not_drawn,第{0}期尚未开奖（每周六上午公布）
 lottery.winning,中奖号码：{0}
 market.line,市场：{0}
+faucet.header,出水水质：{0}
+calendar.today_events,今日事件
 module.power,{0}能量/天
 module.speed,{0}作业速度
 price.buy,进价：
@@ -106,9 +108,12 @@ ribwich.reason_year_range,年份 {0} 不在 425-429/432-438
 scratcher.no_prize,刮刮乐：不中奖
 scratcher.progress_part,，已刮开 {0}/3
 scratcher.win,刮刮乐：中奖 {0}（{1} 个相同）
-seed.line,性状（未分析）：{0}
+seed.header,基因（未分析）
+seed.rank,等级{0}
 seed.more,…另有 {0} 项
 seed.trait_rank,{0}（等级 {1}）
+seed.innate_lowered,固有({0}→{1})
+seed.innate_removed,已移除
 storage.contains,内含：
 storage.more_kinds," 等 {0} 类"
 storage.ratio,压缩率：{0}（{1}/{2} 格）
@@ -123,6 +128,7 @@ value.perfect_range," ｜ 完美 {0}–{1}"
 value.total_line,总价：{0}
 water.mismatch,（与标签不符）
 water.trace_count,（另 {0} 项低于显示阈值）
+water.fold_inactive,按 Ctrl 展开非活性成分
 chem.effects,药效：{0}
 chem.lethal,致死（{0} 倍致死量）
 chem.toxic,有毒
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,成分表里的杂质按种类各用一种颜
 config.liquid_analysis.off,关闭
 config.liquid_analysis.scanner,有扫描器时开启
 config.liquid_analysis.always,总是开启
+config.water_advice,净化建议
+config.water_advice.tip,在含水容器上列出各种净化手段（滤水器、机器等）能把纯度提高多少。液体组分分析开或关都会显示；仅当分析设为「有扫描器时开启」时，建议也需要扫描器。默认值跟随液体组分分析。
 config.scratcher,刮刮乐预知
 config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多少以及已刮进度。按游戏同一套规则只读推算，不会替你刮开。
 config.sealed_box,带锁容器透视

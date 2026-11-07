@@ -276,13 +276,6 @@ internal static class MachineAdapters
     /// <summary>去掉拼接用的前导标点与空格（「，1 件无效果」→「1 件无效果」）。</summary>
     internal static string TrimLead(string text) => text.TrimStart(',', '，', '、', ';', '；', ' ');
 
-    /// <summary>二级信息行缩进到第二列（与一级行的数值对齐）；已有渲染写法或带条的行不动。</summary>
-    internal static TooltipLine Indented(TooltipLine line)
-    {
-        if (line.Render != null || line.HasBar || line.Text.Length == 0) return line;
-        return line.WithRender(ModuleEffectAnnotation.Pos(ModuleEffectAnnotation.ColumnEm()) + line.Text.TrimStart());
-    }
-
     // ---------------- 净水器：今晚还能净化多少、净化到哪一档 ----------------
 
     /// <summary>

@@ -78,6 +78,8 @@ lottery.matched_prize,Treffer {0}/6 -> Gewinn {1}
 lottery.not_drawn,Ziehung {0}: noch offen (samstags früh)
 lottery.winning,Gewinnzahlen: {0}
 market.line,Markt: {0}
+faucet.header,Leitungswasser: {0}
+calendar.today_events,Heutige Ereignisse
 module.power,{0} Energie/Tag
 module.speed,{0} Tempo
 price.buy,"Einkauf: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Jahr {0} nicht in 425-429 / 432-438
 scratcher.no_prize,Rubbellos: kein Gewinn
 scratcher.progress_part,", gerubbelt {0}/3"
 scratcher.win,Rubbellos: gewinnt {0} ({1} Treffer)
-seed.line,Merkmale (unanalysiert): {0}
+seed.header,Gene (nicht analysiert)
+seed.rank,Rang {0}
 seed.more,... und {0} weitere
 seed.trait_rank,{0} (Rang {1})
+seed.innate_lowered,Angeboren ({0}→{1})
+seed.innate_removed,Entfernt
 storage.contains,"Enthält: "
 storage.more_kinds," ... insgesamt {0} {0|Sorte|Sorten}"
 storage.ratio,Kompressionsrate: {0} ({1}/{2} {2|Feld|Felder})
@@ -123,6 +128,7 @@ value.perfect_range," | perfekt {0}-{1}"
 value.total_line,Gesamt: {0}
 water.mismatch," (Etikett passt nicht)"
 water.trace_count,(+{0} weitere unter der Anzeigeschwelle)
+water.fold_inactive,Strg: inaktive Bestandteile anzeigen
 chem.effects,Wirkung: {0}
 chem.lethal,tödlich ({0}-fache tödliche Dosis)
 chem.toxic,giftig
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Färbt jede Verunreinigungsart in der Zusamm
 config.liquid_analysis.off,Aus
 config.liquid_analysis.scanner,Mit Scanner
 config.liquid_analysis.always,Immer
+config.water_advice,Reinigungsempfehlung
+config.water_advice.tip,"Zeigt bei Wasserbehältern, um wie viel jede Reinigungsmethode (Filter, Maschinen) die Reinheit erhöhen würde. Unabhängig davon, ob die Flüssigkeitsanalyse an oder aus ist; nur bei „Mit Scanner“ ist auch der Scanner nötig. Standardwert folgt der Analyse-Einstellung."
 config.scratcher,Rubbellos-Vorschau
 config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewinnt und wie weit es freigerubbelt ist. Nur Auslesen nach den Spielregeln; es wird nie für dich gerubbelt."
 config.sealed_box,Röntgenblick für verschlossene Behälter

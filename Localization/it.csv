@@ -78,6 +78,8 @@ lottery.matched_prize,Azzeccati {0}/6 -> premio {1}
 lottery.not_drawn,Estrazione {0}: in attesa (sab. mattina)
 lottery.winning,Numeri vincenti: {0}
 market.line,Mercato: {0}
+faucet.header,Acqua del rubinetto: {0}
+calendar.today_events,Eventi di oggi
 module.power,{0} energia/giorno
 module.speed,{0} velocità
 price.buy,"Acquisto: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Anno {0} fuori da 425-429 / 432-438
 scratcher.no_prize,Gratta e vinci: nessun premio
 scratcher.progress_part,", grattato {0}/3"
 scratcher.win,Gratta e vinci: vince {0} ({1} uguali)
-seed.line,Tratti (non analizzati): {0}
+seed.header,Geni (non analizzati)
+seed.rank,Rango {0}
 seed.more,... e altri {0}
 seed.trait_rank,{0} (rango {1})
+seed.innate_lowered,Innato ({0}→{1})
+seed.innate_removed,Rimosso
 storage.contains,"Contiene: "
 storage.more_kinds," ... {0} {0|tipo|tipi} in totale"
 storage.ratio,Compressione: {0} ({1}/{2} {2|cella|celle})
@@ -123,6 +128,7 @@ value.perfect_range," | perfetto {0}-{1}"
 value.total_line,Totale: {0}
 water.mismatch," (etichetta non corrispondente)"
 water.trace_count,(+{0} altri sotto la soglia di visualizzazione)
+water.fold_inactive,Ctrl per espandere i componenti inattivi
 chem.effects,Effetti: {0}
 chem.lethal,letale ({0}x dose letale)
 chem.toxic,tossico
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Assegna a ogni tipo di impurità della tabel
 config.liquid_analysis.off,Disattivato
 config.liquid_analysis.scanner,Con scanner
 config.liquid_analysis.always,Sempre
+config.water_advice,Consigli di purificazione
+config.water_advice.tip,"Su un contenitore d'acqua, mostra di quanto ogni metodo di purificazione (filtri, macchine) aumenterebbe la purezza. Visibile con l'analisi dei liquidi attiva o no; solo con «Con scanner» serve anche lo scanner. Il valore predefinito segue l'analisi."
 config.scratcher,Anteprima gratta e vinci
 config.scratcher.tip,"Prima di grattare, mostra se un gratta e vinci è vincente, quanto vale e quanto è già stato grattato. Sola lettura con le regole del gioco; non gratta mai al posto tuo."
 config.sealed_box,Raggi X per contenitori chiusi

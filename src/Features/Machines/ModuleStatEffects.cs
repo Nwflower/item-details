@@ -216,7 +216,13 @@ internal static class ModuleStatEffects
         var power = PowerModel(machine, profile);
         var now = Take(machine, profile, power);
         if (now == null) return;
-        if (power != null && !Reproduces(machine, now)) power = null;
+        if (power != null && !Reproduces(machine, now))
+        {
+            // 耗电与速度的注释因此整体消失；同一台机器时有时无，就是这里的结论随真实标签变了。
+            // 每种读数只记一次，把探针与真实值都写出来，下次出现时能直接对上是哪一项不一致。
+            LogMismatch(machine, now);
+            power = null;
+        }
 
         int perfBonus = GameRead.TagInt(machine, PerfTag) ?? 0;
         int powerBonus = GameRead.TagInt(machine, PowerTag) ?? 0;
@@ -309,6 +315,24 @@ internal static class ModuleStatEffects
             && now.Speed != GameRead.TagInt(machine, SpeedTag))
             return false;
         return true;
+    }
+
+    private static readonly HashSet<string> LoggedMismatch = new();
+
+    private static void LogMismatch(GameItem machine, Sample now)
+    {
+        try
+        {
+            string line = string.Join(" ", machine.identifier,
+                "drawn(real/probe)=" + GameRead.TagInt(machine, DrawnTag) + "/" + now.Drawn,
+                "speed(real/probe)=" + GameRead.TagInt(machine, SpeedTag) + "/" + now.Speed,
+                "base=" + GameRead.TagInt(machine, "BASE_PROCESSING_SPEED_TAG") + "/" + GameRead.TagInt(machine, "MACHINERY_DRAWN_POWER_BASE"),
+                "bonus(p/e/q)=" + GameRead.TagInt(machine, PerfTag) + "/" + GameRead.TagInt(machine, PowerTag) + "/" + GameRead.TagInt(machine, QualityTag),
+                "state=" + GameRead.TagString(machine, "MACHINE_STATE_TAG"));
+            if (LoggedMismatch.Count < 64 && LoggedMismatch.Add(line))
+                Log.Warn("ModuleStatEffects.Reproduces", line);
+        }
+        catch { }
     }
 
     /// <summary>正在加工的进度型机器：去掉性能后要多花几天。<paramref name="speed0"/> 是性能清零后的速度。</summary>
@@ -482,6 +506,8 @@ internal static class ModuleStatEffects
                 state.SetInt(value);
             }
 
+            // 壳被游戏或别的模组销毁后不能再写：丢掉重建，否则模型在死壳上跑不出结果，注释整段消失
+            if (_probe != null && ProbeDestroyGuard.IsDestroyed(_probe)) _probe = null;
             _probe ??= ItemDirectory.CreateEmptyItem("itemdetails_stat_probe");
             _probe.modifiedState = tags;
             _probe.state = tags;

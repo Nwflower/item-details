@@ -96,7 +96,10 @@ internal static class LiquidQueries
 
     internal static Advice? GetAdvice(GameItem item)
     {
-        if (item == null || !LiquidGate.Allows(item)) return null;
+        // 净化建议有自己的开关：液体组分分析开或关都照常显示；
+        // 只有分析选「有扫描器时开启」时，建议才一起跟随扫描器（同一套按物品判定）。
+        if (item == null || !ModSettings.WaterAdvice) return null;
+        if (ModSettings.LiquidAnalysis == ModSettings.LiquidMode.WithScanner && !LiquidGate.Allows(item)) return null;
         bool cache = ReferenceEquals(item, TooltipPipeline.Current);
         if (cache && simulated) return currentAdvice;
         var methods = WaterAdvice.SimulateMethodsOnHover(item, out bool available);

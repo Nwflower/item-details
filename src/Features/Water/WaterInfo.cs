@@ -137,7 +137,8 @@ internal static class WaterInfo
                 {
                     if (SafeIsTag(item, "WINE_CONTAINER_TAG"))
                     {
-                        r.Label = WaterFeatureHelper.GetCurrentWaterDisplay(item) ?? "";
+                        // 酒瓶打不了水质标签：GetCurrentWaterDisplay 给的是果酿状态（「空瓶」「果酿」……），
+                        // 拿它和实测水质档比只会得出「与标签不符」，所以酒瓶没有标签口径，Label 留空。
                     }
                     else
                     {
@@ -231,7 +232,7 @@ internal static class WaterInfo
     /// 「No translation found for 'liquid_microbe'」这类提示串而不是空值，直接显示出去就成了
     /// Translation Error。因此先查别名表，再用 <see cref="Lookup"/> 校验结果。
     /// </summary>
-    private static string DisplayName(Liquid liquid)
+    internal static string DisplayName(Liquid liquid)
     {
         try
         {

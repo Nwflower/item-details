@@ -164,7 +164,6 @@ internal static class MachineInterior
             var built = new List<TooltipLine>();
             bool clean = true;
             if (adapters && ctx.IsMachine) clean &= Stage(key, "Adapters", () => MachineAdapters.Run(ctx, built));
-            int adapterLines = built.Count;
             // 滤芯先认领自己的物品，后面的液体、工具与通用清单才不会重复列出它们。
             if (filters) clean &= Stage(key, "Filters", () => SummarizeFilters(ctx, built, hiddenTruth));
             if (listing)
@@ -176,7 +175,6 @@ internal static class MachineInterior
             if (batteries) clean &= Stage(key, "Batteries", () => SummarizeBatteries(ctx, built));
             if (listing && listContents) clean &= Stage(key, "List", () => ListRemaining(ctx, built));
 
-            IndentContent(ctx, built, adapterLines);
             Store(item, locale, flags, now, all, state, built, entry);
             lines.AddRange(built);
             // 只有整次构建没有任何一步失败才清零：否则某步每次都坏、其它步照常输出，
@@ -192,23 +190,6 @@ internal static class MachineInterior
             Fail(key, "Collect", ex);
         }
         return lines;
-    }
-
-    /// <summary>
-    /// 二级信息：适配器那几行（一级，色块）之后的库存与内容物缩进到第二列，不再和一级行并排。
-    /// 只在适配器自己写出了色块行时才缩进，否则保持原样顶格。
-    /// </summary>
-    private static void IndentContent(Context ctx, List<TooltipLine> built, int from)
-    {
-        if (!ctx.IsMachine || from >= built.Count) return;
-        if (!ModSettings.ModuleEffects) return;
-        // 只认紧挨着的适配器色块行：模组效果的色块行和这里之间常隔着原版的普通行（如「状态：就绪」），
-        // 那时缩进的内容没有上一级可挂，反而显得错位。
-        bool chips = false;
-        for (int i = 0; !chips && i < from; i++)
-            chips = built[i].Render != null && built[i].Render!.Contains("<pos=", StringComparison.Ordinal);
-        if (!chips) return;
-        for (int i = from; i < built.Count; i++) built[i] = MachineAdapters.Indented(built[i]);
     }
 
     // ---------------- 第一层：结构读取 ----------------

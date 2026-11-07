@@ -78,6 +78,8 @@ lottery.matched_prize,Acertos {0}/6 -> prêmio {1}
 lottery.not_drawn,Sorteio {0}: pendente (sábado de manhã)
 lottery.winning,Números sorteados: {0}
 market.line,Mercado: {0}
+faucet.header,Água da torneira: {0}
+calendar.today_events,Eventos de hoje
 module.power,{0} energia/dia
 module.speed,{0} velocidade
 price.buy,"Compra: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Ano {0} fora de 425-429 / 432-438
 scratcher.no_prize,Raspadinha: sem prêmio
 scratcher.progress_part,", raspado {0}/3"
 scratcher.win,Raspadinha: ganha {0} ({1} iguais)
-seed.line,Características (não analisadas): {0}
+seed.header,Genes (não analisados)
+seed.rank,Nível {0}
 seed.more,... e mais {0}
 seed.trait_rank,{0} (nível {1})
+seed.innate_lowered,Inata ({0}→{1})
+seed.innate_removed,Removida
 storage.contains,"Contém: "
 storage.more_kinds," ... {0} {0|tipo|tipos} no total"
 storage.ratio,Compressão: {0} ({1}/{2} {2|célula|células})
@@ -123,6 +128,7 @@ value.perfect_range," | perfeito {0}-{1}"
 value.total_line,Total: {0}
 water.mismatch," (rótulo não confere)"
 water.trace_count,(+{0} mais abaixo do limite de exibição)
+water.fold_inactive,Ctrl expande componentes inativos
 chem.effects,Efeitos: {0}
 chem.lethal,letal ({0}x a dose letal)
 chem.toxic,tóxico
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Dá a cada tipo de impureza da tabela de com
 config.liquid_analysis.off,Desativado
 config.liquid_analysis.scanner,Com scanner
 config.liquid_analysis.always,Sempre
+config.water_advice,Sugestões de purificação
+config.water_advice.tip,"Em um recipiente com água, lista quanto cada método de purificação (filtros, máquinas) aumentaria a pureza. Aparece com a análise de líquidos ligada ou desligada; só no modo «Com scanner» o scanner também é necessário. O padrão acompanha a análise."
 config.scratcher,Prévia da raspadinha
 config.scratcher.tip,"Antes de raspar, mostra se a raspadinha é premiada, quanto paga e quanto já foi raspado. Somente leitura com as regras do jogo; nunca raspa por você."
 config.sealed_box,Raio-X de contêineres trancados

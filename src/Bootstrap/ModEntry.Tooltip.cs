@@ -302,7 +302,11 @@ public sealed partial class ModEntry
         {
             // 液体容器：表头只画「体积条 + 2000/2000mL 档位」，下面每种成分一行；
             // 单元格按全角空格分隔，原版窗口构建时换成 TMP 的 <pos> 三列（见 WaterColumns）。
-            var table = WaterColumns.Build(r, visible: visible);
+            // 净化建议开着时先量出它的右端，成分表的百分比列据此对齐（建议结果按 tooltip 缓存，不会算两遍）
+            float adviceEdge = 0f;
+            if (ModSettings.WaterAdvice && LiquidQueries.GetAdvice(item) is { Count: > 0 } advice)
+                adviceEdge = WaterColumns.AdviceRightEdge(DedupeByGain(advice));
+            var table = WaterColumns.Build(r, visible: visible, adviceRightEdge: adviceEdge);
             PublishWaterRows(builder, visible);
             // 折行预算按本表实际最宽的一行算：原版 40（中文折算 26）通常够用，
             // 只有名称特别长的行才放宽，且只放宽到够用。以前一律放到 64，
@@ -314,10 +318,12 @@ public sealed partial class ModEntry
         else
         {
             // 固体化学品：没有容器与体积，所以不画条；成分与液体容器共用同一份行数据。
-            // 只有带化学纯度体系的固体才画表，判断见 ShowSolidTable。
-            if (ShowSolidTable(item))
+            // 带化学纯度体系的固体，或含药物活性成分的作物才画表，判断见 ShowSolidTable。
+            if (ShowSolidTable(item, r))
             {
-                var table = WaterColumns.BuildSolid(r, visible);
+                // 作物只留活性成分，按 Ctrl 展开其余；化学品（药片、粉末）仍全部列出
+                var table = WaterColumns.BuildSolid(r, visible,
+                    foldInactive: !GameRead.IsTag(item, "CHEMICAL_PRODUCT_PURITY_TAG"));
                 PublishWaterRows(builder, visible);
                 // 低于阈值那一行不是成分行，单发一个字段，读取方才能把它归到液体里。
                 string? trace = WaterColumns.TraceLine(r);
@@ -339,13 +345,20 @@ public sealed partial class ModEntry
     }
 
     /// <summary>
-    /// 固体物品是否画成分表：只给带化学纯度体系的化学品，即游戏用
-    /// <c>ChemicalProductHelper.GradeProduct</c> 写入 CHEMICAL_PRODUCT_PURITY_TAG 的物品
-    /// （药片、粉末、诺莫注射器）。营养果、咖啡豆、菌菇、粪便、净水片这些没有纯度可言，
-    /// 成分表读到的只是内部随机数，画出来既不解释价格也帮不上玩家，只留药效结论。
+    /// 固体物品是否画成分表，满足任一条：
+    /// 一、带化学纯度体系的化学品，即游戏用 <c>ChemicalProductHelper.GradeProduct</c>
+    /// 写入 CHEMICAL_PRODUCT_PURITY_TAG 的物品（药片、粉末、诺莫注射器）；
+    /// 二、成分里有药物活性成分（被植物性状注入成分的营养果等作物）：玩家要看的就是活性成分的量。
+    /// 没有活性成分的作物、菌菇、粪便、净水片这些，成分表读到的只是内部随机数，
+    /// 画出来既不解释价格也帮不上玩家，只留药效结论。
     /// </summary>
-    private static bool ShowSolidTable(GameItem item)
-        => GameRead.IsTag(item, "CHEMICAL_PRODUCT_PURITY_TAG");
+    private static bool ShowSolidTable(GameItem item, LiquidAnalysis analysis)
+    {
+        if (GameRead.IsTag(item, "CHEMICAL_PRODUCT_PURITY_TAG")) return true;
+        foreach (var component in analysis.Components)
+            if (component.Role == "active") return true;
+        return false;
+    }
 
     /// <summary>
     /// 成分表需要多宽的折行预算：取表里最长一行的可见字符数（跳过富文本标签），
@@ -413,23 +426,61 @@ public sealed partial class ModEntry
         var lines = SeedInfo.Collect(item);
         if (lines.Count == 0) return false;
 
-        // 性状逐项一行太占版面，接在表头后写成一行
-        if (builder.Capturing)
+        var traits = new List<(string Id, string Name, int Rank)>();
+        foreach (var line in lines)
+            if (line.Data is ValueTuple<string, string, int> trait) traits.Add(trait);
+        if (builder.Capturing) builder.Field("traits", traits.AsReadOnly());
+
+        // 表头 + 每个性状一行：名称靠左，等级靠右（与已分析的基因读数同一风格，只是没有效果说明）。
+        // 规范文本里名称与等级用全角空格隔开，<pos> 只在原版窗口构建时换入。
+        var color = RenderHandler.ColorPalette.LightTurquoise;
+        var rows = new List<TooltipLine>(lines.Count + 1)
         {
-            var traits = new List<(string Id, string Name, int Rank)>();
-            foreach (var line in lines)
-                if (line.Data is ValueTuple<string, string, int> trait) traits.Add(trait);
-            builder.Field("traits", traits.AsReadOnly());
+            new TooltipLine(Loc.T("seed.header", "Genes (unanalyzed)"), color),
+        };
+        float nameEm = 0f, rankEm = 0f;
+        var ranks = new string[traits.Count];
+        for (int i = 0; i < traits.Count; i++)
+        {
+            ranks[i] = traits[i].Rank > 1 ? Loc.T("seed.rank", "Rank {0}", traits[i].Rank) : "";
+            nameEm = Math.Max(nameEm, WaterColumns.TextEm(traits[i].Name));
+            rankEm = Math.Max(rankEm, WaterColumns.TextEm(ranks[i]));
         }
-        var texts = lines.ConvertAll(l => l.Text);
-        builder.AddLine(Loc.T("seed.line", "Traits (unanalyzed): {0}", string.Join(Loc.T("list.sep", ", "), texts)),
-            RenderHandler.ColorPalette.LightTurquoise);
-        return true;
+        float rightEdge = nameEm + 0.9f + rankEm;
+        for (int i = 0; i < traits.Count; i++)
+        {
+            string text = ranks[i].Length > 0 ? traits[i].Name + '　' + ranks[i] : traits[i].Name;
+            var row = new TooltipLine(text, color);
+            if (ranks[i].Length > 0)
+                row = row.WithRender(traits[i].Name
+                    + ModuleEffectAnnotation.Pos(rightEdge - WaterColumns.TextEm(ranks[i])) + ranks[i]);
+            rows.Add(row);
+        }
+        foreach (var line in lines)
+            if (line.Data is not ValueTuple<string, string, int>) rows.Add(line);   // 「…另有 N 项」
+        return AppendLines(builder, rows);
+    }
+
+    // ---------------- 水龙头：出水水质 ----------------
+    private bool TryAppendFaucet(TooltipSections.Writer builder, GameItem item)
+    {
+        if (!FaucetInfo.IsFaucet(item) || !LiquidGate.Enabled) return false;
+        var analysis = FaucetInfo.Analyze(item);
+        if (analysis == null) return false;
+        builder.Field("analysis", analysis.Data);
+        var lines = new List<TooltipLine>
+        {
+            new(Loc.T("faucet.header", "Tap water: {0}", analysis.Tier), RenderHandler.ColorPalette.LightCyan),
+        };
+        lines.AddRange(WaterColumns.BuildPercentOnly(analysis));
+        RequireTableWidth(builder, lines);
+        return AppendLines(builder, lines);
     }
 
     // ---------------- 含水容器：净化收益（探测版） ----------------
     private bool TryAppendWaterAdvice(TooltipSections.Writer builder, GameItem item)
     {
+        if (!ModSettings.WaterAdvice) return false;
         var methods = LiquidQueries.GetAdvice(item);
         if (methods == null) return false;
         // 过滤结果完全相同的手段只留第一个：滤水器与高级滤水器在这瓶水上收益一样时，

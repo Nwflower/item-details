@@ -78,6 +78,8 @@ lottery.matched_prize,Trafiono {0}/6 -> nagroda {1}
 lottery.not_drawn,Losowanie {0}: oczekuje (soboty rano)
 lottery.winning,Wylosowane liczby: {0}
 market.line,Rynek: {0}
+faucet.header,Woda z kranu: {0}
+calendar.today_events,Dzisiejsze wydarzenia
 module.power,{0} energii/dzień
 module.speed,{0} szybkości
 price.buy,"Kupno: "
@@ -106,9 +108,12 @@ ribwich.reason_year_range,Rok {0} poza 425-429 / 432-438
 scratcher.no_prize,Zdrapka: bez nagrody
 scratcher.progress_part,", zdrapano {0}/3"
 scratcher.win,Zdrapka: wygrana {0} ({1} zgodnych)
-seed.line,Cechy (niezbadane): {0}
+seed.header,Geny (niezbadane)
+seed.rank,Rząd {0}
 seed.more,... i jeszcze {0}
 seed.trait_rank,{0} (ranga {1})
+seed.innate_lowered,Wrodzona ({0}→{1})
+seed.innate_removed,Usunięta
 storage.contains,"Zawiera: "
 storage.more_kinds," ... łącznie rodzajów: {0}"
 storage.ratio,Kompresja: {0} ({1}/{2} {2|kratka|kratki|kratek})
@@ -123,6 +128,7 @@ value.perfect_range," | idealnie {0}-{1}"
 value.total_line,Razem: {0}
 water.mismatch," (niezgodność etykiety)"
 water.trace_count,(+{0} więcej poniżej progu wyświetlania)
+water.fold_inactive,Ctrl rozwija składniki nieaktywne
 chem.effects,Działanie: {0}
 chem.lethal,śmiertelne ({0}x dawka śmiertelna)
 chem.toxic,toksyczne
@@ -193,6 +199,8 @@ config.color_liquid_components.tip,"Nadaje każdemu rodzajowi zanieczyszczeń w 
 config.liquid_analysis.off,Wyłączone
 config.liquid_analysis.scanner,Ze skanerem
 config.liquid_analysis.always,Zawsze
+config.water_advice,Porady dotyczące oczyszczania
+config.water_advice.tip,"Na pojemniku z wodą pokazuje, o ile każda metoda oczyszczania (filtry, maszyny) podniosłaby czystość. Widoczne niezależnie od analizy cieczy; tylko przy trybie „Ze skanerem” wymaga też skanera. Wartość domyślna wynika z ustawienia analizy."
 config.scratcher,Podgląd zdrapek
 config.scratcher.tip,"Przed zdrapaniem pokazuje, czy zdrapka wygrywa, ile i jak daleko jest już zdrapana. Tylko odczyt według zasad gry; nigdy nie zdrapuje za ciebie."
 config.sealed_box,Prześwietlanie zamkniętych pojemników

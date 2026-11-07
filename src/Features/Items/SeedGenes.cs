@@ -30,20 +30,64 @@ internal static class SeedGenes
     {
         internal string Canonical = "", Label = "", Effect = "", Note = "";
         internal bool Negative;
+        /// <summary>固有性状已被完全移除（现有 0 级）：整行灰色加删除线，没有效果列。</summary>
+        internal bool Removed;
     }
 
-    /// <summary>原版给种子基因读数的框宽是固定 60，右边常空一大截；改成按最宽的一行算。</summary>
+    /// <summary>基因读数的框宽上限：原版固定 60。效果文字再长也不撑过它，超出的在效果列内折行。</summary>
+    private const int CapWidth = 60;
+
+    /// <summary>原版给种子基因读数的框宽是固定 60，右边常空一大截；改成按最宽的一行算，但不超过上限。</summary>
     private static void WidthPostfix(GameItem item, int defaultWidth, ref int __result)
     {
         try
         {
             if (!Applies(item) || __result <= defaultWidth) return;
             Read(item, out string header, out var rows, out _);
-            int widest = ProgressBarStyle.VisibleLength(header);
-            foreach (var row in rows) widest = Math.Max(widest, ProgressBarStyle.VisibleLength(row.Canonical));
-            __result = Math.Max(defaultWidth, ProgressBarStyle.WidthForLine(widest) + 4);
+            var plan = MakePlan(rows);
+            int widest = Math.Max(ProgressBarStyle.VisibleLength(header), plan.LineChars);
+            __result = Math.Max(defaultWidth, Math.Min(__result, ProgressBarStyle.WidthForLine(widest) + 4));
         }
         catch (Exception ex) { Log.Warn("SeedGenes.Width", ex); }
+    }
+
+    /// <summary>每行效果文字折成几段，以及整行（标签 + 效果 + 注记）最多占多少个可见字符。</summary>
+    private sealed class Plan
+    {
+        internal readonly List<string[]> Segments = new();
+        internal int LineChars;
+    }
+
+    /// <summary>
+    /// 效果文字按框宽上限折行：多年生这类性状的效果是一整段话加三个百分比，不折行会把框撑出屏幕。
+    /// 折行口径与原版 Build 一致（中日韩一个字符算 1，预算是 maxCharWidth×0.66），
+    /// 效果列可用的字符数 = 预算 − 最长的标签 − 最长的注记 − 列间距。
+    /// </summary>
+    private static Plan MakePlan(List<Row> rows)
+    {
+        var plan = new Plan();
+        float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
+        int limit = scale > 1f ? Math.Max(8, (int)(CapWidth * 0.66f)) : CapWidth;
+        int maxLabel = 0, maxNote = 0;
+        foreach (var row in rows)
+        {
+            maxLabel = Math.Max(maxLabel, ProgressBarStyle.VisibleLength(row.Label));
+            maxNote = Math.Max(maxNote, ProgressBarStyle.VisibleLength(row.Note));
+        }
+        int segLimit = Math.Max(8, limit - maxLabel - maxNote - 2);
+        int maxSeg = 0;
+        foreach (var row in rows)
+        {
+            string effect = row.Effect;
+            // 效果文字带富文本标签时不折（按原始字符数切会把标签切断），保持一段
+            bool plain = effect.IndexOf('<') < 0;
+            string wrapped = plain && effect.Length > segLimit ? TextWrap.WrapPhrases(effect, segLimit) : effect;
+            var segs = wrapped.Split('\n');
+            plan.Segments.Add(segs);
+            foreach (var s in segs) maxSeg = Math.Max(maxSeg, ProgressBarStyle.VisibleLength(s));
+        }
+        plan.LineChars = maxLabel + maxSeg + maxNote + 2;
+        return plan;
     }
 
     private static bool Applies(GameItem? item)
@@ -61,7 +105,11 @@ internal static class SeedGenes
             rows = new List<Row>();
             foreach (var (trait, rank) in traits)
             {
-                bool innate = plant.GetInnateRank(trait.id) >= rank;
+                int innateRank = plant.GetInnateRank(trait.id);
+                bool innate = innateRank >= rank;
+                // 固有 2 级、现在只剩 1 级：原版仍标「固有」，另起一行写「已移除」，读起来像又在又不在。
+                // 这里在这一行的注记里直接写「固有2，降到 1」，那条「已移除」不再单列。
+                bool lowered = !trait.locked && innateRank > rank && rank > 0;
                 bool usable = PlantGeneticsHelper.IsTraitUsable(item, trait, out _);
                 string name = trait.maxRank > 1 ? WithRank(trait.displayName, rank) : trait.displayName;
                 string effect = PlantGeneticsHelper.DescribeEffect(trait, rank);
@@ -74,6 +122,7 @@ internal static class SeedGenes
 
                 var notes = new List<string>();
                 if (trait.locked) notes.Add(Tag(PlantGeneticsText.OriginLocked));
+                else if (lowered) notes.Add(Loc.T("seed.innate_lowered", "Innate ({0}→{1})", innateRank, rank));
                 else if (innate) notes.Add(Tag(PlantGeneticsText.OriginInnate));
                 if (!usable) notes.Add(Tag(PlantGeneticsText.NoEffectSuffix));
 
@@ -87,12 +136,26 @@ internal static class SeedGenes
                 });
             }
 
+            // 原版的「已移除」行：现有等级低于固有等级就列。完全移除（0 级）的在这里补成一行，
+            // 画成删除线；只是降级的已写进上面那一行的注记，除非有第三方在读规范文本，才照原版保留。
             removed = new List<string>();
             foreach (var innateTrait in plant.innateTraits)
             {
                 var plantTrait = PlantTraitRegistry.Get(innateTrait.Key);
-                if (plantTrait != null && PlantGeneticsHelper.GetTraitRank(item, plantTrait.id) < innateTrait.Value)
-                    removed.Add(PlantGeneticsText.ReadoutInnateRemoved(plantTrait.displayName));
+                if (plantTrait == null) continue;
+                int current = PlantGeneticsHelper.GetTraitRank(item, plantTrait.id);
+                if (current >= innateTrait.Value) continue;
+                string vanilla = PlantGeneticsText.ReadoutInnateRemoved(plantTrait.displayName);
+                if (current <= 0)
+                    rows.Add(new Row
+                    {
+                        Canonical = vanilla,
+                        Label = plantTrait.displayName,
+                        Note = Loc.T("seed.innate_removed", "Removed"),
+                        Removed = true,
+                    });
+                else if (TooltipSections.HasListeners)
+                    removed.Add(vanilla);
             }
     }
 
@@ -104,12 +167,13 @@ internal static class SeedGenes
             Read(item, out string header, out var rows, out var removed);
 
             // ---- 以下才动笔 ----
+            var plan = MakePlan(rows);
             float labelEm = 0f, effectEm = 0f, noteEm = 0f;
-            foreach (var row in rows)
+            for (int i = 0; i < rows.Count; i++)
             {
-                labelEm = Math.Max(labelEm, WaterColumns.TextEm(row.Label));
-                effectEm = Math.Max(effectEm, WaterColumns.TextEm(row.Effect));
-                noteEm = Math.Max(noteEm, WaterColumns.TextEm(row.Note));
+                labelEm = Math.Max(labelEm, WaterColumns.TextEm(rows[i].Label));
+                foreach (var seg in plan.Segments[i]) effectEm = Math.Max(effectEm, WaterColumns.TextEm(seg));
+                noteEm = Math.Max(noteEm, WaterColumns.TextEm(rows[i].Note));
             }
             float col2 = labelEm + 0.7f;
             float col3 = col2 + effectEm + 0.7f;
@@ -122,15 +186,42 @@ internal static class SeedGenes
 
             if (rows.Count == 0)
                 output.AddLine(PlantGeneticsText.ReadoutNoTraits(), RenderHandler.ColorPalette.Gray);
-            foreach (var row in rows)
+            // 整块按折行后的最宽一行留框宽；规范文本仍是原版一行，不参与宽度
+            if (rows.Count > 0) output.RequireWidth(ProgressBarStyle.WidthForLine(plan.LineChars) + 4);
+            for (int i = 0; i < rows.Count; i++)
             {
+                var row = rows[i];
+                var segs = plan.Segments[i];
+                if (row.Removed)
+                {
+                    // 整行（含列间空隙）一条灰色删除线。TMP 的 <s> 画在字体自带的高度，对中文偏低；
+                    // 这里改成回到行首、用「─」（字高正中）铺满整行宽度压在字上。
+                    string gone = RenderHandler.ApplyRichTextColorTag(row.Label, RenderHandler.ColorPalette.Gray)
+                        + ModuleEffectAnnotation.Pos(noteEnd - WaterColumns.TextEm(row.Note))
+                        + RenderHandler.ApplyRichTextColorTag(row.Note, RenderHandler.ColorPalette.Gray);
+                    float dash = WaterColumns.TextEm("\u2500");
+                    if (dash >= 0.3f)
+                    {
+                        int n = Math.Max(1, (int)Math.Round(noteEnd / dash));   // 取整不进位：进位会让线越过右端
+                        gone += ModuleEffectAnnotation.Pos(0f)
+                            + RenderHandler.ApplyRichTextColorTag(new string('\u2500', n), RenderHandler.ColorPalette.Gray);
+                        // 画线的字符也算折行预算，不放宽会在行中间断开
+                        output.RequireWidth(ProgressBarStyle.WidthForLine(
+                            ProgressBarStyle.VisibleLength(row.Label) + ProgressBarStyle.VisibleLength(row.Note) + n) + 4);
+                    }
+                    else gone = "<s>" + gone + "</s>";
+                    output.AddLine(row.Canonical, RenderHandler.ColorPalette.Gray, gone);
+                    continue;
+                }
                 string fore = row.Negative ? ColumnLayout.NegativeText : ColumnLayout.PositiveText;
+                // 首行：标签 + 效果第一段 + 注记；效果折出来的后续段各占一行，对齐到效果列
                 string render = "<color=" + fore + ">" + row.Label + "</color>"
                     + ModuleEffectAnnotation.Pos(col2)
-                    + "<color=" + fore + ">" + row.Effect + "</color>";
+                    + "<color=" + fore + ">" + segs[0] + "</color>";
                 if (row.Note.Length > 0)
                     render += ModuleEffectAnnotation.Pos(noteEnd - WaterColumns.TextEm(row.Note)) + RenderHandler.ApplyRichTextColorTag(row.Note, RenderHandler.ColorPalette.Gray);
-                output.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(row.Canonical)) + 4);
+                for (int s = 1; s < segs.Length; s++)
+                    render += "\n" + ModuleEffectAnnotation.Pos(col2) + "<color=" + fore + ">" + segs[s] + "</color>";
                 output.AddLine(row.Canonical, row.Negative ? RenderHandler.ColorPalette.LightRed : RenderHandler.ColorPalette.LightGreen, render);
             }
             foreach (string text in removed)

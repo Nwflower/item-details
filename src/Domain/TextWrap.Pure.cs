@@ -46,6 +46,54 @@ internal static class TextWrap
         return string.Join("\n", lines);
     }
 
+    /// <summary>
+    /// 按短语折行，给「说明 + 若干百分比」这类行用（多年生：一句话后面跟三项「收获数量 -25%, …」）：
+    /// 先在句末（。！？或「. 」）分段，每段再在逗号处尽量塞满一行，
+    /// 不在「收获数/量」这种词中间断开；某个短语本身就超长时才退回 <see cref="Wrap"/> 的断法。
+    /// </summary>
+    internal static string WrapPhrases(string text, int limit)
+    {
+        if (string.IsNullOrEmpty(text) || limit < 2 || text.Length <= limit) return text;
+
+        var lines = new List<string>();
+        foreach (string sentence in SplitSentences(text))
+        {
+            string rest = sentence;
+            while (rest.Length > limit)
+            {
+                int cut = -1;
+                for (int k = limit; k >= Math.Max(2, limit / 3); k--)
+                    if (PhraseEnders.IndexOf(rest[k - 1]) >= 0) { cut = k; break; }
+                if (cut < 0) cut = BreakAt(rest, limit);
+                lines.Add(rest.Substring(0, cut).Trim(' '));
+                rest = rest.Substring(cut).TrimStart(' ');
+            }
+            if (rest.Length > 0) lines.Add(rest);
+        }
+        return string.Join("\n", lines);
+    }
+
+    private const string PhraseEnders = "，、；,;";
+
+    /// <summary>在句末标点（。！？，或半角「. 」）之后切开；标点留在上一句。</summary>
+    private static List<string> SplitSentences(string text)
+    {
+        var parts = new List<string>();
+        int start = 0;
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            bool end = "。！？!?".IndexOf(c) >= 0 || (c == '.' && i + 1 < text.Length && text[i + 1] == ' ');
+            if (!end || i + 1 >= text.Length) continue;
+            string part = text.Substring(start, i + 1 - start).Trim(' ');
+            if (part.Length > 0) parts.Add(part);
+            start = i + 1;
+        }
+        string tail = text.Substring(start).Trim(' ');
+        if (tail.Length > 0) parts.Add(tail);
+        return parts;
+    }
+
     private static List<string> WrapSegment(string segment, int limit)
     {
         var lines = new List<string>();

@@ -12,5 +12,6 @@
     <Compile Include="../../src/Domain/WaterLayout.Pure.cs" Link="WaterLayout.Pure.cs" />
     <Compile Include="../../src/Domain/WaterTable.Pure.cs" Link="WaterTable.Pure.cs" />
     <Compile Include="../../src/Domain/ProgressFill.Pure.cs" Link="ProgressFill.Pure.cs" />
+    <Compile Include="../../src/Domain/TextWrap.Pure.cs" Link="TextWrap.Pure.cs" />
   </ItemGroup>
 </Project>

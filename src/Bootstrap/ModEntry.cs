@@ -94,6 +94,7 @@ public sealed partial class ModEntry : IMod
         new("contraband", ItemDetailsTooltipSection.Contraband, TooltipGroupIds.Price, (m, b, i) => m.TryAppendContraband(b, i)),
         new("lottery", ItemDetailsTooltipSection.Lottery, TooltipGroupIds.Lottery, (m, b, i) => m.TryAppendLottery(b, i)),
         new("water", ItemDetailsTooltipSection.LiquidAnalysis, TooltipGroupIds.Liquid, (m, b, i) => m.TryAppendWater(b, i)),
+        new("faucet", ItemDetailsTooltipSection.LiquidAnalysis, TooltipGroupIds.Liquid, (m, b, i) => m.TryAppendFaucet(b, i)),
         new("sealed-box", ItemDetailsTooltipSection.Contents, TooltipGroupIds.Contents, (m, b, i) => m.TryAppendSealedBox(b, i)),
         new("scratcher", ItemDetailsTooltipSection.Scratcher, TooltipGroupIds.Lottery, (m, b, i) => m.TryAppendScratcher(b, i)),
         new("seed", ItemDetailsTooltipSection.Seed, TooltipGroupIds.Plant, (m, b, i) => m.TryAppendSeed(b, i)),
@@ -190,6 +191,8 @@ public sealed partial class ModEntry : IMod
         Patch("TooltipWidthFix", TooltipWidthFix.Install);
         Patch("ManufacturerInline", ManufacturerInline.Install);
         Patch("ItemNameLabel", ItemNameLabel.Install);
+        Patch("FaucetInfo", FaucetInfo.Install);
+        Patch("CalendarEvents", CalendarEvents.Install);
         // 兜底：别的模组（实测 Pen_mod_QoL_Tweaks / BrewingExpansion）可能在 Awake 阶段
         // Patch 了会 JIT 到 WaterFeatureHelper / ItemConditionList 的方法，把水质档位名
         // 冻成英文。装配完毕后统一按当前语言重写这两张静态表，确保品相与出售判定正确。
