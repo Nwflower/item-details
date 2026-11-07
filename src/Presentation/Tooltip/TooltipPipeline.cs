@@ -219,15 +219,21 @@ internal static class TooltipPipeline
             // 自学习强化机：说明讲的效率、质量、概率都已写进色块第三列，整段不再显示
             if (SelfLearningMachine.ShouldHideFlavor(__0, cur)) return false;
             // 模块的特殊效果（原版 CreateModuleEffectTooltip 在写）：名字行换成色块两列，说明行按物品描述的灰色小字
+            bool isEffectName = false;
             if (ModuleItemRows.EffectNameRender(__0) is string effectName)
             {
+                isEffectName = true;
                 __2 = RenderHandler.ColorPalette.LightBlue;
                 Swap(effectName);
             }
             else if (ModuleItemRows.EffectPhase) __2 = RenderHandler.ColorPalette.Gray;
             bool isDescription = NoteDescription(__0, cur);
             if (isDescription) _lineWrap = true;
-            if (__2 != originalColor || __0 != originalDescription)
+            if (isEffectName)
+                // 特殊效果名属于「模块」组：与上面的性能/效率/质量行、下面的学习进度同组，
+                // 第三方按组归并时才不会在中间被切成三段（它是描述色，原先被归成 description）
+                TooltipSections.ObserveText(__instance, cur, "module-effect", __0, __2, TooltipGroupIds.Module);
+            else if (__2 != originalColor || __0 != originalDescription)
                 TooltipSections.ObserveText(__instance, cur, "description", __0, __2, TooltipGroupIds.Description);
 
             // 价格：合并价格行写进正文（可认领），只有「购买价格→进价」这种换词挂注解
