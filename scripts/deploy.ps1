@@ -67,7 +67,10 @@ if (Test-Path -LiteralPath $modDir) {
 }
 New-Item -ItemType Directory -Force (Join-Path $modDir 'Localization') | Out-Null
 Copy-Item -LiteralPath $dll -Destination $modDir -Force
-Copy-Item -LiteralPath (Join-Path $repo 'manifest.xml') -Destination $modDir -Force
+# 与发布包同一组文件：清单、预览图（模组列表要用）、说明与许可
+foreach ($name in @('manifest.xml', 'README.md', 'CONTRIBUTING.md', 'LICENSE', 'preview.png')) {
+    Copy-Item -LiteralPath (Join-Path $repo $name) -Destination $modDir -Force
+}
 Copy-Item -Path (Join-Path $repo 'Localization/*.csv') -Destination (Join-Path $modDir 'Localization') -Force
 
 $deployed = Get-Item -LiteralPath (Join-Path $modDir 'ItemDetails.dll')
