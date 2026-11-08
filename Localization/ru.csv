@@ -314,6 +314,8 @@ config.info_manufacturer_inline,Название компании справа
 config.info_manufacturer_inline.tip,Переносит название компании вправо в строку с названием предмета.
 config.info_container_units,Единицы объёма контейнеров
 config.info_container_units.tip,Показывает объёмы жидкости свыше 3 л в литрах. До 3 л сохраняет мл. Независимо от оформления текста подсказок.
+config.info_gene_roman,Римские цифры уровней генов
+config.info_gene_roman.tip,"Показывает уровни признаков семян римскими цифрами (I, II, III...), как в оригинальной игре. Если выключено, уровни выводятся арабскими цифрами."
 list.zone_sep,; 
 module.special_label,Особое
 module.learn_chance,{0}% шанс за ночь получить «Самообучающийся»

@@ -314,6 +314,8 @@ config.info_manufacturer_inline,公司名称后置
 config.info_manufacturer_inline.tip,将生产公司名并到物品名称行右侧。
 config.info_container_units,容器单位优化
 config.info_container_units.tip,大于 3 L 的液体改用 L 显示，3 L 及以下仍用 ml；独立于提示框文字优化。
+config.info_gene_roman,基因等级用罗马数字
+config.info_gene_roman.tip,种子基因读数里的性状等级改回游戏原本的罗马数字（I、II、III……）；关闭时用阿拉伯数字。
 list.zone_sep,；
 module.special_label,特殊
 module.learn_chance,每晚{0}%概率赋予模组自学习
