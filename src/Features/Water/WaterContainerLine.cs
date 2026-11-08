@@ -47,6 +47,8 @@ internal static class WaterContainerLine
         {
             if (__0 == null || __1 == null) return true;
             if (!__1.IsTag("LIQUID_CONTAINER_TAG") || __1.IsTag("WINE_CONTAINER_TAG")) return true;
+            // 让出液体分析后没有成分表来重画体积条：这时必须保留原版体积行，否则体积信息整段消失。
+            if (NeonUndertow.SuppressesLiquidAnalysis(__1)) return true;
             return LiquidQueries.Analyze(__1) == null;
         }
         catch (Exception ex)
