@@ -89,12 +89,19 @@ try {
     $mod.Manifest = [ModManifest]::new()
     $mod.Manifest.ID = 'amres.sectioned_tooltips'
     $mod.Manifest.ModVersion = '1.6.4'
-    [ModLoader]::Mods.Add($mod)
+    # ModLoader.Mods 是只读快照时，Add 只会写进副本；伪造的 mod 要落到加载器自己的列表。
+    # 反射读静态字段不会跑 cctor，先碰一次 Mods 让加载器的列表真正建好；也不能用 if 表达式接收列表（空列表会被枚举成 $null）。
+    $liveMods = [ModLoader]::Mods
+    $modsField = [ModLoader].GetField('mods', $flags)
+    if ($modsField) { $fakeMods = $modsField.GetValue($null) } else { $fakeMods = $liveMods }
+    if ($null -eq $fakeMods) { $fakeMods = $liveMods }
+    if ($null -eq $fakeMods) { $fakeMods = [Collections.Generic.List[LoadedMod]]::new() }
+    $fakeMods.Add($mod)
     # 新版按显式声明；已承诺的旧版兼容由 test_legacy_compat.ps1 单独验证。
     Check (!$flow.Invoke($null,@($item))) 'a loaded layout mod without a declaration changes nothing'
     $mod.IsEnabled = $true
     Check (!$flow.Invoke($null,@($item))) 'enabling that mod still changes nothing without a declaration'
-    $null = [ModLoader]::Mods.Remove($mod)
+    $null = $fakeMods.Remove($mod)
 
     $custom = $client::Layout($item)
     $tp = $provider.GetType('ItemDetails.TooltipPipeline')

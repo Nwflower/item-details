@@ -48,7 +48,15 @@ $mod = [LoadedMod]::new()
 $mod.Manifest = [ModManifest]::new()
 $mod.Manifest.ID = 'amres.sectioned_tooltips'
 $mod.Manifest.ModVersion = '1.6.2'
-[ModLoader]::Mods.Add($mod)
+# 0.46D 的补丁起 ModLoader.Mods 是只读快照（`=> new List<LoadedMod>(mods)`），
+# 往它上面 Add 只会写进一个临时副本；伪造的 mod 必须落到加载器自己的列表里。
+$liveMods = [ModLoader]::Mods   # 先触发静态构造：反射读静态字段不会跑 cctor，未初始化时读到 null
+$modsField = [ModLoader].GetField('mods', $flags)
+# 不要写成 `$fakeMods = if (...) { ... }`：if 会把空列表枚举成 $null。
+if ($modsField) { $fakeMods = $modsField.GetValue($null) } else { $fakeMods = $liveMods }
+if ($null -eq $fakeMods) { $fakeMods = $liveMods }
+if ($null -eq $fakeMods) { $fakeMods = [Collections.Generic.List[LoadedMod]]::new() }
+$fakeMods.Add($mod)
 $configs = [ModConfig].GetField('configs', $flags).GetValue($null)
 $config = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([ModConfig])
 $entries = [Collections.Generic.List[ConfigEntry]]::new()
@@ -108,7 +116,7 @@ try {
 }
 finally {
     [void]$configs.Remove('amres.sectioned_tooltips')
-    [void][ModLoader]::Mods.Remove($mod)
+    $null = $fakeMods.Remove($mod)
 }
 Check (!$legacy.Invoke($null, @($false))) 'removing the old mod restores our grid'
 
