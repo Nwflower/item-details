@@ -51,4 +51,11 @@ if ($scan.Refused -or $scan.Error -or $scan.Capabilities.Count -gt 0) {
     $scan | Format-List *
     throw 'The Release mod failed the expected capability-free scan.'
 }
+# 12-10 起会被拒的写法规避（Pending / DeprecatedCapabilities 今天只警告，不算 Capabilities）：
+# 例如在别人的 MonoBehaviour 上调 StartCoroutine（threads）、打向游戏外的反射（reflection-external）。
+if ($scan.Pending.Count -gt 0 -or $scan.DeprecatedCapabilities.Count -gt 0) {
+    $scan | Format-List *
+    $scan.Pending | ForEach-Object { Write-Output "PENDING $($_.ToString())" }
+    throw 'The Release mod uses an API the next game update refuses.'
+}
 Write-Output 'PASS build variants, release layout, translations, DLL identity and native capability scan.'

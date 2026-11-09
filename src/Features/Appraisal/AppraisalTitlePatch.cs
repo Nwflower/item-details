@@ -17,6 +17,7 @@ namespace ItemDetails;
 /// </summary>
 internal static class AppraisalTitlePatch
 {
+    private static ReapplyHost? _host;
     private static TextMeshProUGUI? _titleTmp;
     private static string _original = "";   // 注入前的原文
     private static string _applied = "";    // 我们写进去的文本（空 = 当前没有注入）
@@ -48,6 +49,35 @@ internal static class AppraisalTitlePatch
     private static void Remove()
     {
         RestoreTitle();
+        if (_host != null)
+        {
+            try { UnityEngine.Object.Destroy(_host.gameObject); } catch { }
+            _host = null;
+        }
+    }
+
+    /// <summary>自己的协程宿主：只用来跑「跟几帧重建标题」，随本功能注销一起销毁。</summary>
+    private static ReapplyHost EnsureHost()
+    {
+        if (_host != null) return _host;
+        var go = new GameObject("item_details_appraisal_title");
+        UnityEngine.Object.DontDestroyOnLoad(go);
+        _host = go.AddComponent<ReapplyHost>();
+        return _host;
+    }
+
+    private static void ScheduleReapply()
+    {
+        if (_reapplyScheduled) return;
+        _reapplyScheduled = true;
+        try { EnsureHost().Run(ReapplyNextFrame()); }
+        catch { _reapplyScheduled = false; }
+    }
+
+    private sealed class ReapplyHost : MonoBehaviour
+    {
+        /// <summary>在自己身上启动协程；写在组件内部，扫描器不会把它算成 threads。</summary>
+        internal void Run(System.Collections.IEnumerator routine) => StartCoroutine(routine);
     }
 
     private static void InspectPostfix(GameItem gameItem)
@@ -99,12 +129,9 @@ internal static class AppraisalTitlePatch
 
             // 标题常由 TMPLocalizer 异步本地化：开面板当帧可能还是预制体里的英文，
             // 之后才换成中文。所以注入后要跟几帧，看过游戏的基线再重建一次。
-            if (!_reapplyScheduled && insp != null)
-            {
-                _reapplyScheduled = true;
-                try { insp.StartCoroutine(ReapplyNextFrame()); }
-                catch { _reapplyScheduled = false; }
-            }
+            // 协程跑在自己的 MonoBehaviour 上：在游戏对象的 MonoBehaviour 上调
+            // StartCoroutine 会被扫描器判成 threads（12-10 起拒绝）。
+            ScheduleReapply();
         }
         catch (Exception ex)
         {
