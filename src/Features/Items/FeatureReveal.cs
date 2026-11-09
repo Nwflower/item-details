@@ -98,14 +98,13 @@ internal static class FeatureReveal
         }
     }
 
-    /// <summary>与 ConditionEffects 同一写法：转换型条件按点数，其余按百分比；0 不写。</summary>
+    /// <summary>与 ConditionEffects 同一写法：按百分比显示；0 不写。</summary>
     private static string RealSigned(ItemFeature f, int realMod)
     {
         var cond = f.realCondition;
         int amount = cond != null ? ConditionEffects.DisplayAmount(cond) : realMod;
         if (amount == 0) return "";
-        string suffix = cond != null ? ConditionEffects.Suffix(cond) : "%";
-        return amount > 0 ? $"+{amount}{suffix}" : $"{amount}{suffix}";
+        return amount > 0 ? $"+{amount}%" : $"{amount}%";
     }
 
     private static string SafeCall(Func<string> fn)

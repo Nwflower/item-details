@@ -146,7 +146,6 @@ internal static class LabelImpact
             if (cond != null)
             {
                 mod = ConditionEffects.DisplayAmount(cond);
-                suffix = ConditionEffects.Suffix(cond);
             }
             else
             {

@@ -14,7 +14,9 @@ namespace ItemDetails;
 ///   **单位是百分比**：ItemFeature.GetFormattedActualModifier() 返回
 ///      " (" + GetActualValueModifier() + "%)"，而 GetActualValueModifier()
 ///      在 useCondition 时正是返回 realCondition.modValue。
-///   例外：isTransformative 的条件走 GetModValueFormated()，输出不带 %，按点数显示。
+///   isTransformative 的条件只写 modValueDisplay，单位同样是百分比：过期注射器 -50 对应单价
+///      160→80，赝品香烟 -50 对应 100→50。GetModValueFormated() 不带 % 是原版所有条件的写法，
+///      不能用来区分单位。
 ///   ItemCondition.display   —— 已本地化的显示名（如「凹陷」）
 ///   ItemFeature.realCondition —— 条件挂载点；水质/锭纯度/装备状况/化学品纯度均走此路径
 ///
@@ -64,9 +66,6 @@ internal static class ConditionEffects
     internal static int DisplayAmount(ItemCondition cond)
         => cond.modValueDisplay != 0 ? cond.modValueDisplay : cond.modValue;
 
-    /// <summary>转换型条件按点数显示（无 %），其余按百分比显示。</summary>
-    internal static string Suffix(ItemCondition cond) => cond.isTransformative ? "" : "%";
-
     private static void TryOne(ItemFeature f, List<TooltipLine> lines, HashSet<string> seen)
     {
         try
@@ -94,8 +93,7 @@ internal static class ConditionEffects
             // 同一条件可能被多个特性引用，去重
             if (!seen.Add(display)) return;
 
-            // isTransformative 走点数，其余走百分比（与游戏 GetFormattedActualModifier 一致）
-            string suffix = Suffix(cond);
+            const string suffix = "%";
             string signed = amount > 0 ? $"+{amount}{suffix}" : $"{amount}{suffix}";
             string text = Loc.T("condition.line", "Condition: {0} {1}", display, signed);
 
