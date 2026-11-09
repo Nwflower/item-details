@@ -188,7 +188,7 @@ internal static class DoubleClickInspect
             if (!EmporiumOption.SingleClickInteract && VanillaOpensContentWindow(item)) return false;
             if (GameRead.IsTag(item, "APPRAISAL_ITEM")) return true;
             if (GameRead.IsTag(item, "INSPECTABLE_TAG")) return true;
-            return Authenticity.DetectKind(item) != Authenticity.ItemKind.None;
+            return Authenticity.ProfileOf(item) != null;
         }
         catch { return false; }
     }

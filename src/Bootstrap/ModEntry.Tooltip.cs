@@ -19,16 +19,19 @@ public sealed partial class ModEntry
         var r = Authenticity.Analyze(item);
         if (!r.HasData) return false;
 
-        if (r.Faults > 0 || r.IsGenuine)
+        if (r.Verdict != AuthVerdict.Genuine || r.IsGenuine)
         {
-            builder.Field("genuine", r.IsGenuine && r.Faults == 0);
+            builder.Field("genuine", r.IsGenuine);
             if (builder.Capturing) builder.Field("faults", r.FaultNames.AsReadOnly());
         }
-        if (r.Faults > 0)
+        if (r.Verdict != AuthVerdict.Genuine)
         {
+            string verdict = Authenticity.VerdictName(r);
             string names = string.Join(Loc.T("list.sep", ", "), r.FaultNames);
-            builder.AddLine(Loc.T("auth.counterfeit", "× Counterfeit ({0})", names),
-                RenderHandler.ColorPalette.LightRed);
+            string line = r.Faults == 0 ? "× " + verdict
+                : r.Verdict == AuthVerdict.Counterfeit ? Loc.T("auth.counterfeit", "× Counterfeit ({0})", names)
+                : Loc.T("auth.defect", "× {0} ({1})", verdict, names);
+            builder.AddLine(line, RenderHandler.ColorPalette.LightRed);
         }
         else if (r.IsGenuine)
         {

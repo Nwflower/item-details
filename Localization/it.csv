@@ -49,6 +49,7 @@ appraisal.seal_republic,Bonus Requisizione Navale della Repubblica
 appraisal.seal_zhonghua,Bonus Cantieri ZhongHua
 appraisal.worn,Usura
 auth.counterfeit,× Falso ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Autentico
 berry.dried,Secca
 berry.line,Qualità di {0}: {1}

@@ -49,6 +49,7 @@ appraisal.seal_republic,Bônus Requisição Naval da República
 appraisal.seal_zhonghua,Bônus Estaleiro ZhongHua
 appraisal.worn,Desgaste
 auth.counterfeit,× Falsificação ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Autêntico
 berry.dried,Seca
 berry.line,Qualidade de {0}: {1}

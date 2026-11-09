@@ -829,7 +829,7 @@ internal static partial class SelfTest
             injector = TryCreate("food_stamp");
             if (injector == null) return "double click inspect: 无法创建真伪样本";
             InsStampHelper.Init(injector);
-            if (Authenticity.DetectKind(injector) == Authenticity.ItemKind.None)
+            if (Authenticity.ProfileOf(injector) == null)
                 return "double click inspect: 粮票样本不是真伪鉴定类型";
 
             var handler = ItemMouseDoubleClickHandler.current;

@@ -49,6 +49,7 @@ appraisal.seal_republic,Bono: Requisición Naval de la República
 appraisal.seal_zhonghua,Bono: Construcciones Navales ZhongHua
 appraisal.worn,Marcas de uso
 auth.counterfeit,× Falsificación ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Auténtico
 berry.dried,Seca
 berry.line,Calidad de {0}: {1}

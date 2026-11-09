@@ -49,6 +49,7 @@ appraisal.seal_republic,Бонус Republic Naval Requisition
 appraisal.seal_zhonghua,Бонус ZhongHua Shipbuilding
 appraisal.worn,Износ
 auth.counterfeit,× Подделка ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Оригинал
 berry.dried,Высушенная
 berry.line,{0} — качество: {1}

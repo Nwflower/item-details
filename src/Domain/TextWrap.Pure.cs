@@ -18,8 +18,8 @@ namespace ItemDetails;
 internal static class TextWrap
 {
     private const string SentenceEnders = "。！？；!?;";
-    private const string Closing = "，。、；：！？）」』】》〉”’…·%,.;:!?)]}";
-    private const string Opening = "（「『【《〈“‘([{";
+    internal const string Closing = "，。、；：！？）」』】》〉”’…·%,.;:!?)]}";
+    internal const string Opening = "（「『【《〈“‘([{";
 
     internal static string Wrap(string text, int limit)
     {
@@ -138,7 +138,7 @@ internal static class TextWrap
     }
 
     /// <summary>以空格分词的文字：拉丁字母、数字、韩文等；汉字和假名可以任意断开。</summary>
-    private static bool IsWordChar(char c)
+    internal static bool IsWordChar(char c)
     {
         if (c == '%' || c == '\'' || c == '-' || c == '.') return true;
         if (!char.IsLetterOrDigit(c)) return false;

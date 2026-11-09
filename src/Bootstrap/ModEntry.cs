@@ -188,6 +188,7 @@ public sealed partial class ModEntry : IMod
         Patch("SeedBaseDelta", SeedBaseDelta.Install);
         Patch("ProgressBarStyle", ProgressBarStyle.Install);
         Patch("RenderSlices", RenderSlices.Install);
+        Patch("TooltipLineWrap", TooltipLineWrap.Install);
         Patch("TooltipWidthFix", TooltipWidthFix.Install);
         Patch("ManufacturerInline", ManufacturerInline.Install);
         Patch("ItemNameLabel", ItemNameLabel.Install);

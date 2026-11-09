@@ -49,6 +49,7 @@ appraisal.seal_republic,Premia Republic Naval Requisition
 appraisal.seal_zhonghua,Premia ZhongHua Shipbuilding
 appraisal.worn,Zużycie
 auth.counterfeit,× Podróbka ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Oryginał
 berry.dried,Wysuszona
 berry.line,{0} — jakość: {1}

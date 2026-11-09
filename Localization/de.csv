@@ -49,6 +49,7 @@ appraisal.seal_republic,Bonus: Republikanische Flottenrequirierung
 appraisal.seal_zhonghua,Bonus: ZhongHua Schiffsbau
 appraisal.worn,Abnutzung
 auth.counterfeit,× Fälschung ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Echt
 berry.dried,Getrocknet
 berry.line,{0}-Qualität: {1}

@@ -49,6 +49,7 @@ appraisal.seal_republic,Bonus Réquisition Navale Républicaine
 appraisal.seal_zhonghua,Bonus ZhongHua Aéronautique
 appraisal.worn,État usé
 auth.counterfeit,× Contrefaçon ({0})
+auth.defect,× {0} ({1})
 auth.genuine,√ Authentique
 berry.dried,Desséchée
 berry.line,Qualité de {0} : {1}

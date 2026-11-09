@@ -13,5 +13,7 @@
     <Compile Include="../../src/Domain/WaterTable.Pure.cs" Link="WaterTable.Pure.cs" />
     <Compile Include="../../src/Domain/ProgressFill.Pure.cs" Link="ProgressFill.Pure.cs" />
     <Compile Include="../../src/Domain/TextWrap.Pure.cs" Link="TextWrap.Pure.cs" />
+    <Compile Include="../../src/Domain/AuthenticityRules.Pure.cs" Link="AuthenticityRules.Pure.cs" />
+    <Compile Include="../../src/Domain/TooltipLineBreak.Pure.cs" Link="TooltipLineBreak.Pure.cs" />
   </ItemGroup>
 </Project>

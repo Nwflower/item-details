@@ -1,0 +1,106 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using HarmonyLib;
+
+namespace ItemDetails;
+
+/// <summary>
+/// 中文、日文物品 tooltip 的断点选择，规则见 <see cref="TooltipLineBreak"/>。
+/// 只在 <c>GameItemElement.GetTooltip</c> / <c>GetTooltipAdvanced</c> 期间生效：它们内部调用
+/// <c>Build</c>，别处（对话、面板、按钮说明）走原版折行。折行预算和框宽都不变。
+///
+/// 原版 <c>Build</c> 会吞掉 <c>FindBestSlice</c> 返回位置上的字符，所以它只返回空格断点；
+/// 其余断点让它返回 (-1,-1)，交给不吞字的 <c>FindCharBreak</c> 返回。
+/// </summary>
+internal static class TooltipLineWrap
+{
+    private static int _depth;
+    private static FieldInfo? _text, _newLine, _noBreak;
+
+    internal static void Install(PatchScope scope)
+    {
+        // 片段类型是私有嵌套类，写不了 typeof。类型名要写成字面量：模组扫描靠它确认反射目标在游戏程序集内，
+        // AccessTools.Inner 算出来的类型会被判成 reflection-external。
+        _text = AccessTools.Field(AccessTools.TypeByName("RichTextBuilder+TextSlice"), "text");
+        _newLine = AccessTools.Field(AccessTools.TypeByName("RichTextBuilder+TextSlice"), "isNewLine");
+        _noBreak = AccessTools.Field(AccessTools.TypeByName("RichTextBuilder+TextSlice"), "noBreak");
+        var best = AccessTools.Method(typeof(RichTextBuilder), "FindBestSlice");
+        var charBreak = AccessTools.Method(typeof(RichTextBuilder), "FindCharBreak");
+        var tooltip = AccessTools.Method(typeof(GameItemElement), "GetTooltip", Type.EmptyTypes);
+        var advanced = AccessTools.Method(typeof(GameItemElement), "GetTooltipAdvanced", Type.EmptyTypes);
+        if (_text == null || _newLine == null || _noBreak == null
+            || best == null || charBreak == null || tooltip == null || advanced == null)
+        {
+            Log.Warn("TooltipLineWrap", "未找到折行方法或片段字段，折行保持原版");
+            return;
+        }
+
+        scope.Patch(best, prefix: new HarmonyMethod(typeof(TooltipLineWrap), nameof(BeforeBest)));
+        scope.Patch(charBreak, prefix: new HarmonyMethod(typeof(TooltipLineWrap), nameof(BeforeCharBreak)));
+        foreach (var method in new[] { tooltip, advanced })
+            scope.Patch(method,
+                prefix: new HarmonyMethod(typeof(TooltipLineWrap), nameof(Enter)),
+                finalizer: new HarmonyMethod(typeof(TooltipLineWrap), nameof(Exit)));
+        scope.OnDispose(() => _depth = 0);
+    }
+
+    private static void Enter(out bool __state)
+    {
+        _depth++;
+        __state = true;
+    }
+
+    private static void Exit(bool __state)
+    {
+        if (__state) _depth--;
+    }
+
+    // 片段类型是私有嵌套类，参数只能写成 object
+    private static bool BeforeBest(object slices, int beginIndex, int endIndex, int maxLength, ref (int, int) __result)
+    {
+        if (!TryFind(slices, beginIndex, endIndex, maxLength, out var point)) return true;
+        __result = point.IsSpace ? (point.Slice, point.Index) : (-1, -1);
+        return false;
+    }
+
+    private static bool BeforeCharBreak(object slices, int beginIndex, int endIndex, int maxLength, ref (int, int) __result)
+    {
+        if (!TryFind(slices, beginIndex, endIndex, maxLength, out var point) || point.IsSpace) return true;
+        __result = (point.Slice, point.Index);
+        return false;
+    }
+
+    private static bool TryFind(object slices, int begin, int end, int budget, out BreakPoint point)
+    {
+        point = default;
+        if (_depth <= 0 || !ModSettings.TooltipFormatting || !BreaksAnywhere(Loc.Code)) return false;
+        try
+        {
+            if (!(slices is IList list)) return false;
+            int first = Math.Max(0, begin);
+            int last = Math.Min(end, list.Count - 1);
+            var range = new List<BreakSlice>(Math.Max(0, last - first + 1));
+            for (int i = first; i <= last; i++)
+            {
+                object slice = list[i];
+                range.Add(new BreakSlice((string)_text!.GetValue(slice),
+                    (bool)_newLine!.GetValue(slice), (bool)_noBreak!.GetValue(slice)));
+            }
+            if (!TooltipLineBreak.Find(range, budget, out var found)) return false;
+            point = new BreakPoint(found.Slice + first, found.Index, found.IsSpace);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("TooltipLineWrap", ex);
+            return false;
+        }
+    }
+
+    /// <summary>韩文虽然也按双倍字宽算，但靠空格分词，不属于这一类。</summary>
+    internal static bool BreaksAnywhere(string? code)
+        => code != null && (code.StartsWith("zh", StringComparison.OrdinalIgnoreCase)
+                            || code.StartsWith("ja", StringComparison.OrdinalIgnoreCase));
+}

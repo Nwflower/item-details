@@ -113,6 +113,79 @@ Check("phrase wrap breaks at sentence ends and commas, never inside a stat", () 
     string hard = TextWrap.WrapPhrases(new string('字', 60), 26);
     foreach (var line in hard.Split('\n')) Require(line.Length <= 26, "unbroken text still hard-wraps within the limit");
 });
+Check("authenticity verdict follows the real condition before the issue tags", () =>
+{
+    Require(AuthenticityRules.Decide(null, 0) == AuthVerdict.Genuine, "no feature, no tags");
+    Require(AuthenticityRules.Decide(null, 1) == AuthVerdict.Counterfeit, "no feature, tagged");
+    Require(AuthenticityRules.Decide("genuineCigarette", 0) == AuthVerdict.Genuine, "real genuine");
+    Require(AuthenticityRules.Decide("genuineStamp", 2) == AuthVerdict.Counterfeit, "the confront panel trusts tags");
+    Require(AuthenticityRules.Decide("counterfeitCigarette", 0) == AuthVerdict.Counterfeit, "counterfeit without tags");
+    Require(AuthenticityRules.Decide("expiredInjector", 1) == AuthVerdict.Expired, "expired is not counterfeit");
+    Require(AuthenticityRules.Decide("unusableInjector", 1) == AuthVerdict.Unusable, "unusable is not counterfeit");
+    Require(AuthenticityRules.Decide("somethingNew", 0, -30) == AuthVerdict.Other, "unknown condition that lowers value");
+    Require(AuthenticityRules.Decide("authenticWatch", 0, 0) == AuthVerdict.Genuine, "an unfamiliar name alone is not a fault");
+    Require(AuthenticityRules.Decide("authenticWatch", 1, 0) == AuthVerdict.Counterfeit, "unknown condition with an issue tag");
+});
+Check("authenticity sniffing relies on the game's naming conventions, not on any mention of issue", () =>
+{
+    Require(AuthenticityRules.IsAuthCategory("CATEGORY_GENUINE_WATCH"), "third-party category");
+    Require(!AuthenticityRules.IsAuthCategory("CATEGORY_GENUINE_"), "prefix alone");
+    Require(!AuthenticityRules.IsAuthCategory("CATEGORY_REPLICA"), "other categories");
+    Require(!AuthenticityRules.IsAuthCategory(null), "null category");
+    Require(AuthenticityRules.IsIssueTag("ISSUE_SERIAL") && AuthenticityRules.IsIssueTag("WATCH_DIAL_ISSUE"), "both shapes");
+    Require(!AuthenticityRules.IsIssueTag("TISSUE_PAPER") && !AuthenticityRules.IsIssueTag("TISSUE"), "words containing issue");
+    Require(!AuthenticityRules.IsIssueTag("MAGAZINE_ISSUE_NUMBER"), "issue in the middle");
+    Require(AuthenticityRules.IssueStem("CIGARETTE_WAX_SEAL_ISSUE", "CATEGORY_GENUINE_CIGARETTE") == "WAX_SEAL", "subject prefix removed");
+    Require(AuthenticityRules.IssueStem("ISSUE_SERIAL", "CATEGORY_GENUINE_INJECTOR") == "SERIAL", "leading form");
+    Require(AuthenticityRules.IssueStem("WATCH_ISSUE", "CATEGORY_GENUINE_WATCH") == "WATCH", "the stem is never emptied");
+    Require(AuthenticityRules.Humanize("WAX_SEAL") == "Wax Seal", "readable fallback");
+});
+Check("tooltip line breaks in zh and ja fill the line instead of stopping at the first space", () =>
+{
+    string[] Wrap(int budget, params string[] parts)
+    {
+        var slices = new List<BreakSlice>();
+        foreach (string part in parts) slices.Add(new BreakSlice(part, false, false));
+        var lines = new List<string>();
+        while (true)
+        {
+            int total = 0;
+            foreach (var s in slices)
+                total += System.Text.RegularExpressions.Regex.Replace(s.Text, "<[^>]*>", "").Length;
+            if (total <= budget || !TooltipLineBreak.Find(slices, budget, out var p))
+            {
+                lines.Add(string.Concat(slices.ConvertAll(s => s.Text)));
+                return lines.ToArray();
+            }
+            string line = "";
+            for (int i = 0; i < p.Slice; i++) line += slices[i].Text;
+            string text = slices[p.Slice].Text;
+            lines.Add(line + text.Substring(0, p.Index));
+            string rest = text.Substring(p.IsSpace ? p.Index + 1 : p.Index);
+            slices.RemoveRange(0, p.Slice + 1);
+            slices.Insert(0, new BreakSlice(rest, false, false));
+        }
+    }
+    void Same(string[] actual, params string[] expected)
+        => Require(string.Join("|", actual) == string.Join("|", expected), "got " + string.Join("|", actual));
+
+    Same(Wrap(26, "[标签] ", "受营养果种子短缺影响，食物的市场价格发生了变动 (+33%)"),
+        "[标签] 受营养果种子短缺影响，", "食物的市场价格发生了变动 (+33%)");
+    Same(Wrap(26, "× 赝品（字母印刷问题、颜色问题、防伪标问题、商标问题、包装盒问题）"),
+        "× 赝品（字母印刷问题、颜色问题、防伪标问题、", "商标问题、包装盒问题）");
+    Same(Wrap(26, "一二三四五六七八九十一二三四五六七八九十一二三四五，六七八（九十）一二三。"),
+        "一二三四五六七八九十一二三四五六七八九十一二三四五，", "六七八（九十）一二三。");
+    Same(Wrap(26, "<size=88%>一种美味零食按法律分类属于人工香料调味冷冻乳制品不知为何即使不冷藏也不会融化</size>"),
+        "<size=88%>一种美味零食按法律分类属于人工香料调味冷冻乳制品不知", "为何即使不冷藏也不会融化</size>");
+    Same(Wrap(12, "价格上涨 1,000,000,000 元"), "价格上涨", "1,000,000,000 元");
+    Require(!TooltipLineBreak.Find(new[] { new BreakSlice(new string('a', 40), false, false) }, 26, out _),
+        "an unbreakable run goes back to the game's own logic");
+    Require(!TooltipLineBreak.Find(new[] { new BreakSlice("[==== ====== ==== ======== ========]", false, true) }, 26, out _),
+        "never breaks inside a no-break slice");
+    var bar = new[] { new BreakSlice("甲乙丙丁戊己庚辛壬癸", false, false), new BreakSlice("[=====]", false, true) };
+    Require(TooltipLineBreak.Find(bar, 12, out var before) && before.Slice == 1 && before.Index == 0 && !before.IsSpace,
+        "a no-break slice moves to the next line whole");
+});
 Check("no hint at all when nothing is folded", () =>
 {
     var table = WaterTable.Build(BigComponents(), 1_908_000, expanded: false,

@@ -79,8 +79,8 @@ internal static class ResultPrefill
 
     private static void FillCounterfeitIssues(GameItem item)
     {
-        var kind = Authenticity.DetectKind(item);
-        if (kind == Authenticity.ItemKind.None) return;
+        var profile = Authenticity.ProfileOf(item);
+        if (profile == null) return;
 
         var insp = InspectionUIManager.Instance;
         if (insp == null || insp.confrontPanel == null || !insp.confrontPanel.activeSelf) return;
@@ -89,7 +89,7 @@ internal static class ResultPrefill
         // 只有多个问题项都被激活时，才按真实问题标签勾选。
         if (insp.toggle2 == null || !insp.toggle2.gameObject.activeSelf) return;
 
-        var checks = Authenticity.ChecksFor(kind);
+        var checks = profile.Checks;
         if (checks.Length != 5) return;
 
         for (int i = 0; i < 5; i++)
