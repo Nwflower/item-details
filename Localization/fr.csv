@@ -277,9 +277,10 @@ module.harvest,{0} % de récolte
 module.water_next,+{0} % pour produire : {1}
 module.water_top,produit : {0}
 module.purifier_next,+{0} % pour purifier jusqu'à : {1}
-module.purifier_top,purifie jusqu'à : {0}
+module.purifier_full,+{0} % pour 100 % de pureté
+module.purifier_top,purifie jusqu'à 100 %
 module.furnace_gain,Pureté {0}
-module.furnace_next,(encore +{0}% pour le palier suivant)
+module.furnace_step,+{0} % pour pureté {1}
 module.furnace_result,lingot ×{0} : {1}/10
 module.furnace_cap,pureté maximale
 module.furnace_basic,flux ordinaire consommé

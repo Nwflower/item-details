@@ -113,6 +113,35 @@ Check("phrase wrap breaks at sentence ends and commas, never inside a stat", () 
     string hard = TextWrap.WrapPhrases(new string('字', 60), 26);
     foreach (var line in hard.Split('\n')) Require(line.Length <= 26, "unbroken text still hard-wraps within the limit");
 });
+Check("description wrap avoids a stray last line by breaking at punctuation first", () =>
+{
+    void Same(string text, int limit, string expected)
+    {
+        string actual = TextWrap.Wrap(text, limit).Replace("\n", " | ");
+        Require(actual == expected, "got " + actual);
+    }
+    Same("放入容器后即可产出水。需要能量。夜间运行。\n同时运行多台水分收集器时，每台的产量都会下降。", 22,
+        "放入容器后即可产出水。需要能量。夜间运行。 | 同时运行多台水分收集器时， | 每台的产量都会下降。");
+    Same("aaaa bbbb, cccc dddd e", 20, "aaaa bbbb, | cccc dddd e");
+    // 没有标点时仍收窄重排；数字里的逗号不算标点
+    Same(" 一种用于从空间站潮湿环境空气中提取水分的机器。", 22, " 一种用于从空间站潮湿环境空 | 气中提取水分的机器。");
+    Same("一二三1,000四五六七八九十一二三四五六七八九十", 22, "一二三1,000四五六七八九十 | 一二三四五六七八九十");
+    // 标点太靠前会留下过短的行首，不用它
+    Same("一二，三四五六七八九十一二三四五六七八九十一二", 22, "一二，三四五六七八九十一二三 | 四五六七八九十一二");
+});
+Check("description wrap keeps a whole word even when it starts before the half-line floor", () =>
+{
+    void Same(string text, int limit, string expected)
+    {
+        string actual = TextWrap.Wrap(text, limit).Replace("\n", " | ");
+        Require(actual == expected, "got " + actual);
+    }
+    Same(" Handheld customer-analysis unit. Scans posture, speech, and spending tells to generate a real-time negotiation script.", 26,
+        " Handheld | customer-analysis unit. | Scans posture, speech, and | spending tells to generate | a real-time negotiation | script.");
+    // 单词本身比一行还长才硬断；行首只有空白时退回去也没有意义
+    Same("ab aaaaaaaaaaaaaaaa", 10, "ab aaaaaaa | aaaaaaaaa");
+    Same(" aaaaaaaaaaaaaaaa", 10, " aaaaaaaaa | aaaaaaa");
+});
 Check("authenticity verdict follows the real condition before the issue tags", () =>
 {
     Require(AuthenticityRules.Decide(null, 0) == AuthVerdict.Genuine, "no feature, no tags");

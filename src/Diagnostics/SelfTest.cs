@@ -389,7 +389,7 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
         {
-            string line = CheckAppraisalDisabledPrice(out bool ok);
+            string line = WithoutSectionedTooltips(CheckAppraisalDisabledPrice, out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -403,7 +403,7 @@ internal static partial class SelfTest
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
         }
         {
-            string line = CheckNativeCalorieOrigin(out bool ok);
+            string line = WithoutSectionedTooltips(CheckNativeCalorieOrigin, out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);
@@ -459,7 +459,7 @@ internal static partial class SelfTest
 
         // 额外验证：机器内部按结构通用列出，第三方面板顺序不导致电池误报，耗尽滤芯有提示
         {
-            string line = CheckMachineInterior(out bool ok);
+            string line = WithoutSectionedTooltips(CheckMachineInterior, out bool ok);
             if (ok) pass++; else fail++;
             Log.Msg($"[SelfTest] {(ok ? "PASS" : "FAIL")} {line}");
             report.AppendLine((ok ? "PASS " : "FAIL ") + line);

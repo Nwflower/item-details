@@ -1235,7 +1235,7 @@ internal static partial class SelfTest
     private static string CheckModuleStatEffects(out bool ok)
     {
         ok = false;
-        GameItem? projector = null, purifier = null;
+        GameItem? projector = null, purifier = null, farm = null, printer = null, tank = null;
         IDisposable? injection = null;
         try
         {
@@ -1266,16 +1266,53 @@ internal static partial class SelfTest
             // 注释是「再加 N% 可产出纯水」：这里逐档线性找 N，与实现里的二分查找互相印证
             int pure = WaterFeatureHelper.WATER_PURITIES[0];
             string pureName = LocHelper.GetLocalizedMechanic("mech_condition_pure_water");
-            string expectPurifier;
-            if (MachinePurifier.GetMaxPurityCap(60) >= pure)
-                expectPurifier = Loc.T("module.purifier_top", "can purify to {0}", pureName);
-            else
-            {
-                int step = 1;
-                while (step < 1000 && MachinePurifier.GetMaxPurityCap(60 + step) < pure) step++;
-                expectPurifier = Loc.T("module.purifier_next", "+{0}% to purify to {1}", step, pureName);
-            }
+            int step = 1;
+            while (step < 1000 && MachinePurifier.GetMaxPurityCap(60 + step) < pure) step++;
+            string expectPurifier = Loc.T("module.purifier_next", "+{0}% to purify to {1}", step, pureName);
             bool residualOk = pq == expectPurifier;
+
+            // 进入纯水档后的目标是 100%（质量 200）；到顶后写结论，不再写差值
+            string PurifierAt(int quality)
+            {
+                purifier!.ModifyTag("TOTAL_PERCENTAGE_QUALITY_BONUS_INT", st => st.Enable().SetInt(quality));
+                ModuleStatEffects.Stop();
+                return ModuleStatEffects.Note('q', purifier);
+            }
+            string atPure = PurifierAt(150), atFull = PurifierAt(200);
+            bool purifierFull = atPure == Loc.T("module.purifier_full", "+{0}% for 100% purity", 50)
+                && atFull == Loc.T("module.purifier_top", "purity cap at 100%");
+
+            // 作业速度只属于有进度的机器：集水器有性能注释但不写速度，打印机写速度
+            farm = TryCreate("moisture_farm");
+            printer = TryCreate("printer");
+            if (farm == null || printer == null) return "module stat effects: 无法创建集水器或打印机";
+            string PerfNote(GameItem machine)
+            {
+                machine.ModifyTag("TOTAL_PERCENTAGE_PERFORMANCE_BONUS_INT", st => st.Enable().SetInt(50));
+                ModuleHelper.ApplyBasicModuleEffect(null!, null!, machine);
+                ModuleStatEffects.Stop();
+                return ModuleStatEffects.Note('p', machine);
+            }
+            string speedWord = Loc.T("module.speed", "{0} speed", "");
+            string farmPerf = PerfNote(farm), printerPerf = PerfNote(printer);
+            bool speedScoped = farmPerf.Length > 0 && !farmPerf.Contains(speedWord, StringComparison.Ordinal)
+                && printerPerf.Contains(speedWord, StringComparison.Ordinal);
+
+            // 净水器的性能：容器里有脏水时写今晚多净化多少，且模拟不动真实的水。
+            // 样本要让当晚预算不够清完杂质，否则性能确实不起作用，会写 +0。
+            tank = TryCreate("water_tank");
+            var slot = MachineHelper.GetBodyStorage(purifier, 2);
+            if (tank == null || slot == null) return "module stat effects: 无法创建净水样本";
+            tank.ModifyTag(Liquid.GetCurrentPartFromId("water"), st => st.Enable().SetInt(9800000));
+            tank.ModifyTag(Liquid.GetCurrentPartFromId("heavy_metal"), st => st.Enable().SetInt(200000));
+            OwnAll(purifier, tank);
+            int tankLeft = GraphUtils.TryAcceptAll(slot, tank);
+            int purityBefore = WaterAdvice.SafePurity(tank);
+            string purifierPerf = PerfNote(purifier);
+            bool purifierRate = tankLeft == 0 && purifierPerf.StartsWith("+", StringComparison.Ordinal)
+                && !purifierPerf.StartsWith("+0", StringComparison.Ordinal)
+                && !purifierPerf.Contains(speedWord, StringComparison.Ordinal)
+                && WaterAdvice.SafePurity(tank) == purityBefore;
 
             // 模拟涡轮增压等外部改动：耗电不再符合原版公式，效率注释应消失
             projector.ModifyTag("machinery_drawn_power", st => st.SetInt(drawnBefore + 7));
@@ -1298,10 +1335,11 @@ internal static partial class SelfTest
             bool restored = ModuleStatEffects.Note('q', projector).Length > 0;
 
             ok = attractOk && effOk && untouched && residualOk && mismatchSilent
-                && unregisteredSilent && injected && restored;
+                && unregisteredSilent && injected && restored && purifierFull && speedScoped && purifierRate;
             return $"module stat effects: q='{q}' e='{e}' purifier='{pq}' attract={attractOk} eff={effOk} " +
                    $"untouched={untouched} residual={residualOk}(期望'{expectPurifier}') mismatchSilent={mismatchSilent} " +
-                   $"unregisteredSilent={unregisteredSilent} injected={injected} restored={restored}";
+                   $"unregisteredSilent={unregisteredSilent} injected={injected} restored={restored} " +
+                   $"purifierFull={purifierFull}('{atPure}'/'{atFull}') speedScoped={speedScoped}('{farmPerf}'/'{printerPerf}') purifierRate={purifierRate}('{purifierPerf}')";
         }
         catch (Exception ex)
         {
@@ -1311,7 +1349,7 @@ internal static partial class SelfTest
         {
             injection?.Dispose();
             ModuleStatEffects.Stop();
-            foreach (var it in new[] { projector, purifier })
+            foreach (var it in new[] { projector, purifier, farm, printer, tank })
                 if (it != null) { try { it.Destroy(); } catch { } }
         }
     }

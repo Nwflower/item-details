@@ -12,8 +12,9 @@ namespace ItemDetails;
 ///   - 原有换行保留，逐段处理；
 ///   - 不拆英文单词、数字和以空格分词的文字（韩文）：断点落在词中就退到词首；
 ///   - 避头尾：收尾标点不放行首，开头标点不放行尾；
-///   - 退让不超过半行，退不动就在 limit 处硬断，保证每行都不超过 limit；
-///   - 末行只剩一两个字时，把各行收窄重排（行数不变），避免孤字。
+///   - 退让一般不超过半行；空格分隔的完整单词放得进一行时不受此限，与原版只在空格处断的结果一致；
+///   - 退不动就在 limit 处硬断，保证每行都不超过 limit；
+///   - 末行只剩一两个字时，优先把末两行改断在上一行的标点后；没有合适的标点才把各行收窄重排（行数不变）。
 /// </summary>
 internal static class TextWrap
 {
@@ -31,10 +32,12 @@ internal static class TextWrap
             List<string> one = WrapSegment(segment, limit);
             // 末行只剩一两个字（孤字）：把各行收窄一点重排，行数不变、末行变长
             // 上一行已经断在句末（。！？；）就是干净的断法，不再为了末行长短去拆句子
-            if (one.Count > 1 && one[one.Count - 1].Length < Math.Max(4, limit / 4))
+            int shortLine = Math.Max(4, limit / 4);
+            if (one.Count > 1 && one[one.Count - 1].Length < shortLine)
             {
                 string prev = one[one.Count - 2];
-                if (prev.Length > 0 && SentenceEnders.IndexOf(prev[prev.Length - 1]) < 0)
+                if (prev.Length > 0 && SentenceEnders.IndexOf(prev[prev.Length - 1]) < 0
+                    && !TryBreakAtClause(one, segment, limit, shortLine))
                 {
                     int balanced = (segment.Length + one.Count - 1) / one.Count + 2;
                     if (balanced < limit)
@@ -48,6 +51,30 @@ internal static class TextWrap
         }
         return string.Join("\n", lines);
     }
+
+    /// <summary>把末两行改断在上一行靠右的标点后；断开后任一行过短或末行超宽就不算合适。</summary>
+    private static bool TryBreakAtClause(List<string> lines, string segment, int limit, int shortLine)
+    {
+        int last = lines.Count - 1;
+        int tailStart = segment.Length - lines[last].Length;
+        int prevStart = tailStart > 0 ? segment.LastIndexOf(lines[last - 1], tailStart - 1, StringComparison.Ordinal) : -1;
+        if (prevStart < 0) return false;
+
+        for (int k = tailStart - 1; k >= prevStart + shortLine; k--)
+        {
+            if (!EndsClause(segment[k - 1], segment[k]) || Closing.IndexOf(segment[k]) >= 0) continue;
+            string tail = segment.Substring(k).TrimStart(' ');
+            if (tail.Length < shortLine || tail.Length > limit) continue;
+            lines[last - 1] = segment.Substring(prevStart, k - prevStart).TrimEnd(' ');
+            lines[last] = tail;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>半角标点后面必须跟空格，否则可能是「1,000」这样的数字。</summary>
+    private static bool EndsClause(char c, char next)
+        => ClauseEnders.IndexOf(c) >= 0 && (c >= 128 || next == ' ');
 
     /// <summary>
     /// 按短语折行，给「说明 + 若干百分比」这类行用（多年生：一句话后面跟三项「收获数量 -25%, …」）：
@@ -77,6 +104,7 @@ internal static class TextWrap
     }
 
     private const string PhraseEnders = "，、；,;";
+    private const string ClauseEnders = SentenceEnders + PhraseEnders + "：:";
 
     /// <summary>在句末标点（。！？，或半角「. 」）之后切开；标点留在上一句。</summary>
     private static List<string> SplitSentences(string text)
@@ -124,7 +152,11 @@ internal static class TextWrap
         {
             int start = cut;
             while (start > 0 && IsWordChar(s[start - 1])) start--;
-            if (start >= floor) cut = start;
+            int end = cut;
+            while (end < s.Length && IsWordChar(s[end])) end++;
+            bool wholeWord = start > 0 && s[start - 1] == ' ' && end - start <= limit
+                             && s.Substring(0, start).Trim(' ').Length > 0;
+            if (start >= floor || wholeWord) cut = start;
         }
 
         // 优先断在句末：靠近行尾（后 40% 内）有句号等就断在它后面，不把一句话拆开

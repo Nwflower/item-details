@@ -22,8 +22,11 @@ internal static class SealedBoxInfo
     private const int MaxEntries = 16;
     private const float CacheSeconds = 5f;
     private const float ChildCacheSeconds = 10f;
-    /// <summary>探针箱内容（当前幸运下的开锁预览）缓存时长与上限。</summary>
-    private const float ProbeCacheSeconds = 3f;
+    /// <summary>探针箱的重算最小间隔（一次重算约 50–100 ms）与保留上限。</summary>
+    private const float ProbeMinIntervalSeconds = 1f;
+    /// <summary>悬停满这么久才允许模拟，鼠标划过不触发；超过间隔没再构建 tooltip 视为已移开。</summary>
+    private const float ProbeHoverDelaySeconds = 0.2f;
+    private const float HoverGapSeconds = 0.5f;
     private const int MaxProbes = 4;
 
     private sealed class ChildValue
@@ -49,14 +52,16 @@ internal static class SealedBoxInfo
     /// <summary>
     /// 当前幸运下的“开锁后内容”模拟预览。物资箱在开锁时会按更高幸运重填，
     /// 未开锁前真实 <c>childItems</c> 还是旧的；这里用探针箱提前算出重填结果。
-    /// 探针会临时创建 GameItem，按 (真实箱子, 幸运) 缓存复用，换幸运/超时/停用时销毁。
+    /// 探针会临时创建 GameItem，按真实箱子缓存复用；只有全局随机状态或幸运变了才需要重算，
+    /// 且同一只箱子两次重算至少间隔 <see cref="ProbeMinIntervalSeconds"/>。超出上限或停用时销毁。
     /// </summary>
     private sealed class Probe
     {
         internal GameItem Target = null!;   // 真实箱子，仅用于匹配，不读取其内容
         internal string CrateId = "";
         internal int Luck;
-        internal float At;
+        internal UnityEngine.Random.State Rng;  // 生成这份样本时的全局随机状态
+        internal float At;                  // 上次重算时间
         internal GameItem? Crate;           // 探针箱，用来保活子物品的图标与价值
         internal List<GameItem> Items = new();
         internal string Estimate = "";
@@ -64,9 +69,13 @@ internal static class SealedBoxInfo
 
     private static readonly List<Entry> Entries = new();
     private static readonly List<Probe> Probes = new();
+    private static GameItem? _hoverItem;
+    private static float _hoverSince;
+    private static float _hoverSeen;
 
     internal static void Stop()
     {
+        _hoverItem = null;
         Entries.Clear();
         foreach (var probe in Probes) DestroyProbe(probe);
         Probes.Clear();
@@ -102,8 +111,11 @@ internal static class SealedBoxInfo
 
             string estimate;
             List<GameItem> previewItems = items;
-            if (TryGetLuckPreview(item, items, out var probeItems, out var probeEstimate))
+            bool settled = HoverSettled(item, UnityEngine.Time.unscaledTime);
+            if (TryGetLuckPreview(item, items, out var probeItems, out var probeEstimate, settled))
             {
+                // 还没有样本（等待悬停）时不显示旧内容，否则会先闪一下与预览不符的物品。
+                if (probeItems.Count == 0) return lines;
                 previewItems = probeItems;
                 estimate = probeEstimate;
             }
@@ -224,9 +236,11 @@ internal static class SealedBoxInfo
     /// 就用探针箱模拟重填后的内容与估价。生成随机数前快照 <c>UnityEngine.Random.state</c>、
     /// 生成后立即还原，因此预览不会推进真实掉落的随机序列。
     /// 只在「物资箱 + 未扫描 + 当前幸运 &gt; 生成幸运」时成立；其余情况返回 false 走真实内容。
+    /// 样本只反映当前随机状态：开箱前游戏再抽随机数，结果就可能不同，所以它是预览而不是保证。
     /// </summary>
+    /// <param name="settled">false 时不做模拟：有样本就沿用，没有就返回 true 和空列表。</param>
     internal static bool TryGetLuckPreview(GameItem item, List<GameItem> realItems,
-                                           out List<GameItem> items, out string estimate)    {
+                                           out List<GameItem> items, out string estimate, bool settled = true)    {
         items = realItems;
         estimate = "";
         try
@@ -242,19 +256,27 @@ internal static class SealedBoxInfo
             if (!PreBuiltItemHelper.preBuiltItems.TryGetValue(crateId, out var factory) || factory == null) return false;
 
             float now = UnityEngine.Time.unscaledTime;
-            Probe? probe = FindProbe(item, crateId, luck);
-            if (probe != null && now - probe.At <= ProbeCacheSeconds && probe.Items.Count > 0)
+            var rng = UnityEngine.Random.state;
+            Probe? probe = FindProbe(item, crateId);
+            if (probe?.Crate != null
+                && ((probe.Luck == luck && probe.Rng.Equals(rng))
+                    || !settled
+                    || now - probe.At < ProbeMinIntervalSeconds))
             {
-                // 滑动 TTL：持续悬停时沿用同一份样本，避免每 3 秒重新随机导致预览跳动。
-                probe.At = now;
+                // 状态没变时样本仍然有效；变了但未满悬停或间隔时先沿用，限制重算造成的卡顿。
                 items = probe.Items;
                 estimate = probe.Estimate;
+                return true;
+            }
+            if (!settled)
+            {
+                items = new List<GameItem>();
                 return true;
             }
 
             if (probe == null)
             {
-                probe = new Probe { Target = item, CrateId = crateId, Luck = luck };
+                probe = new Probe { Target = item, CrateId = crateId };
                 Probes.Add(probe);
             }
             else
@@ -265,7 +287,6 @@ internal static class SealedBoxInfo
             }
 
             GameItem? crate = null;
-            var rng = UnityEngine.Random.state;
             // DirectoryMaster.Item 每建一个物品都会推进 PlayerStore.currentUniqueId，
             // 而它是 [ES3Serializable]（会写进存档）。探针物品不参与存档，这里用完即还原，
             // 并把探针子树改成本地负数 ID，避免与之后真实分配的 ID 冲突。
@@ -296,10 +317,12 @@ internal static class SealedBoxInfo
             }
 
             probe.Crate = crate;
+            probe.Luck = luck;
+            probe.Rng = rng;
             probe.Items = children;
             probe.Estimate = EstimateChildren(children);
             probe.At = now;
-            PruneProbes(item, crateId, luck);
+            PruneProbes();
             items = probe.Items;
             estimate = probe.Estimate;
             return true;
@@ -342,34 +365,45 @@ internal static class SealedBoxInfo
         return sum + (skipped ? "+" : "");
     }
 
-    private static Probe? FindProbe(GameItem target, string crateId, int luck)
+    /// <summary>tooltip 每帧重建，据此判断鼠标是否已在同一件物品上停留够久。</summary>
+    internal static bool HoverSettled(GameItem item, float now)
+    {
+        if (!ReferenceEquals(_hoverItem, item) || now - _hoverSeen > HoverGapSeconds)
+        {
+            _hoverItem = item;
+            _hoverSince = now;
+        }
+        _hoverSeen = now;
+        return now - _hoverSince >= ProbeHoverDelaySeconds;
+    }
+
+    private static Probe? FindProbe(GameItem target, string crateId)
     {
         for (int i = Probes.Count - 1; i >= 0; i--)
         {
             var probe = Probes[i];
-            if (ReferenceEquals(probe.Target, target) && probe.CrateId == crateId && probe.Luck == luck) return probe;
+            if (ReferenceEquals(probe.Target, target) && probe.CrateId == crateId) return probe;
         }
         return null;
     }
 
-    /// <summary>同一只箱子只保留当前幸运对应的探针；再按 LRU 限制总数。</summary>
-    private static void PruneProbes(GameItem target, string crateId, int luck)
+    /// <summary>限制探针总数，先销毁最早建立的。</summary>
+    private static void PruneProbes()
     {
-        for (int i = Probes.Count - 1; i >= 0; i--)
-        {
-            var probe = Probes[i];
-            if (ReferenceEquals(probe.Target, target) && (probe.CrateId != crateId || probe.Luck != luck))
-            {
-                DestroyProbe(probe);
-                Probes.RemoveAt(i);
-            }
-        }
         while (Probes.Count > MaxProbes)
         {
             DestroyProbe(Probes[0]);
             Probes.RemoveAt(0);
         }
     }
+
+#if ITEMDETAILS_SELFTEST
+    /// <summary>自检用：让探针视作已过重算间隔，不必真的等待。</summary>
+    internal static void ExpireProbeIntervals()
+    {
+        foreach (var probe in Probes) probe.At = float.NegativeInfinity;
+    }
+#endif
 
     private static void DestroyProbe(Probe probe)
     {

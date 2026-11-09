@@ -57,7 +57,7 @@ internal static class MachineAdapters
     /// </summary>
     private static void Furnace(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
-        // 出锭预测始终独立成一行；质量行（色块模式）的第三列只放「纯度+N」（ModuleEffectAnnotation）。
+        // 出锭预测始终独立成一行；质量行（色块模式）的第三列只放纯度档位（ModuleEffectAnnotation）。
         // 没有色块模式时质量行没有第三列，纯度变化并回这一行
         bool qualityRow = GameRead.TagBool(ctx.Machine, "IS_RECEIVING_BONUS_FROM_MODULE_BOOL")
             && (GameRead.TagInt(ctx.Machine, "TOTAL_PERCENTAGE_QUALITY_BONUS_INT") ?? 0) != 0;

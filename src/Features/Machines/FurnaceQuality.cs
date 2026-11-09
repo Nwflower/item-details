@@ -63,20 +63,20 @@ internal static class FurnaceQuality
 
             int difference = current - baseline;
             var parts = new List<string>();
-            // 现在加了多少纯度（+0 也写出来），后面补「再 +X% 到下一档」
+            // 纯度是分档量：写还差多少到下一档；到顶后写现在加了多少
             int? nextBonus = null;
+            int nextLevel = current;
             for (int extra = 1; extra <= 400; extra++)
             {
                 int next = Level(q + extra);
-                if (next != int.MinValue && next > current) { nextBonus = extra; break; }
+                if (next != int.MinValue && next > current) { nextBonus = extra; nextLevel = next; break; }
             }
             if (part != Part.Rest)
             {
-                string change = difference >= 0 ? "+" + difference : difference.ToString();
-                string gain = Loc.T("module.furnace_gain", "purity {0}", change);
-                if (nextBonus is int more)
-                    gain += " " + Loc.T("module.furnace_next", "(+{0}% more for next tier)", more);
-                parts.Add(gain);
+                string Signed(int v) => v >= 0 ? "+" + v : v.ToString();
+                parts.Add(nextBonus is int more
+                    ? Loc.T("module.furnace_step", "+{0}% for purity {1}", more, Signed(nextLevel - baseline))
+                    : Loc.T("module.furnace_gain", "purity {0}", Signed(difference)));
             }
 
             if (part != Part.Gain && contents.CanSmelt)

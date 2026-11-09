@@ -17,6 +17,26 @@ internal static partial class SelfTest
         return builder.Build()?.nakedText ?? "";
     }
 
+    private delegate string Check(out bool ok);
+
+    /// <summary>
+    /// 这几项断言原版文本或 Item Details 自己的清单，而 SectionedTooltips 会重排 GetTooltipBasic 的结果、
+    /// 接管内容物，两者同在时断言必然落空（清单为空时「接管后隐藏」也会空过）。
+    /// 所以只在这几项运行期间临时关掉它的总开关；ApplyBoxed 只改内存，不写配置文件。其他检查仍与它共存。
+    /// </summary>
+    private static string WithoutSectionedTooltips(Check check, out bool ok)
+    {
+        var setting = ModConfig.Find("amres.sectioned_tooltips")?.Get("Enabled");
+        object? previous = setting?.BoxedValue;
+        var apply = AccessTools.Method(typeof(ConfigEntry), "ApplyBoxed");
+        if (setting != null && apply != null) apply.Invoke(setting, new object[] { false });
+        try { return check(out ok); }
+        finally
+        {
+            if (setting != null && apply != null && previous != null) apply.Invoke(setting, new[] { previous });
+        }
+    }
+
     private static string CheckAppraisalDisabledPrice(out bool ok)
     {
         ok = false;
@@ -557,6 +577,46 @@ internal static partial class SelfTest
             bool idsRestored = idAfter == idBefore;
             bool rngRestored = rngBefore.Equals(rngAfter);
 
+            // 缓存规则：状态不变一直沿用；状态或幸运变了，未到间隔沿用，到了间隔才重算。
+            int previewLuck = spawnLuck + 100;
+            health.luck = previewLuck;
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var sameState, out _);
+            SealedBoxInfo.ExpireProbeIntervals();
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var idleExpired, out _);
+            bool keepsWhenIdle = ReferenceEquals(preview, sameState) && ReferenceEquals(preview, idleExpired);
+
+            _ = UnityEngine.Random.value;
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var afterDraw, out _);
+            bool recomputesOnDraw = !ReferenceEquals(preview, afterDraw);
+
+            _ = UnityEngine.Random.value;
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var throttled, out _);
+            bool throttles = ReferenceEquals(afterDraw, throttled);
+
+            // 先按当前随机状态重算一次，下面只有幸运在变。
+            SealedBoxInfo.ExpireProbeIntervals();
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var settled, out _);
+            health.luck = previewLuck + 1;
+            SealedBoxInfo.ExpireProbeIntervals();
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var afterLuck, out _);
+            bool recomputesOnLuck = !ReferenceEquals(settled, afterLuck);
+
+            // 悬停未满：已有样本即使过期也沿用；没有样本时不模拟。
+            _ = UnityEngine.Random.value;
+            SealedBoxInfo.ExpireProbeIntervals();
+            SealedBoxInfo.TryGetLuckPreview(crate, real, out var staleUnsettled, out _, settled: false);
+            SealedBoxInfo.Stop();
+            int idBeforeWaiting = PlayerStore.Instance!.currentUniqueId;
+            bool waitingUsed = SealedBoxInfo.TryGetLuckPreview(crate, real, out var waiting, out _, settled: false);
+            bool waitsForHover = ReferenceEquals(afterLuck, staleUnsettled) && waitingUsed && waiting.Count == 0
+                                 && PlayerStore.Instance!.currentUniqueId == idBeforeWaiting;
+            bool hoverTimer = !SealedBoxInfo.HoverSettled(crate, 100f)
+                              && !SealedBoxInfo.HoverSettled(crate, 100.1f)
+                              && SealedBoxInfo.HoverSettled(crate, 100.25f)
+                              && !SealedBoxInfo.HoverSettled(crate, 101f);
+            health.luck = oldLuck;
+            UnityEngine.Random.state = rngBefore;
+
             SaveManager.Save();
             string after = StoreFingerprint();
             bool saveUnchanged = string.Equals(before, after, StringComparison.Ordinal);
@@ -564,10 +624,15 @@ internal static partial class SelfTest
             SealedBoxInfo.Stop();
             bool ownedUnchanged = EmporiumEntry.Instance.GetAllOwnedItems().Count == ownedBefore;
 
-            ok = differs && idsNegative && noLeak && idsRestored && rngRestored && saveUnchanged && ownedUnchanged;
+            ok = differs && idsNegative && noLeak && idsRestored && rngRestored && saveUnchanged && ownedUnchanged
+                 && keepsWhenIdle && recomputesOnDraw && throttles && recomputesOnLuck
+                 && waitsForHover && hoverTimer;
             return $"locked crate luck preview: used={used} differs={differs} probeIdsNegative={idsNegative} " +
                    $"noLeak={noLeak} idsRestored={idsRestored} rngRestored={rngRestored} " +
                    $"saveUnchanged={saveUnchanged} ownedUnchanged={ownedUnchanged} " +
+                   $"keepsWhenIdle={keepsWhenIdle} recomputesOnDraw={recomputesOnDraw} " +
+                   $"throttles={throttles} recomputesOnLuck={recomputesOnLuck} " +
+                   $"waitsForHover={waitsForHover} hoverTimer={hoverTimer} " +
                    $"real={real.Count} preview={preview.Count} est={estimate} (期望全部 True)";
         }
         catch (Exception ex) { return "locked crate luck preview: " + ex; }

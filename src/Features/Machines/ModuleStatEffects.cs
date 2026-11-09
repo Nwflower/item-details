@@ -7,6 +7,12 @@ namespace ItemDetails;
 /// 机器「模组效果」三项加成的实际影响：在探针上用游戏自己的函数各算一次
 /// 「当前加成」与「这一项清零」，差值就是这一项的贡献。
 ///
+/// 第三列的规则，按这项加成对结果的影响方式决定：
+///   · 连续量（加成稍有变化，结果就跟着变）：写这项加成现在带来的变化，如 +14作业速度、+2000毫升/天、-10能量/天。
+///   · 分档量（要跨过门槛才变，一档通常差几十个百分点）：写还差多少到下一档，如 +50%后产出优质水、+125%后+1陈化速度。
+///     到顶后写当前结论。净水器进入纯水档后，下一个目标是纯度上限 100%。
+/// 机器不具备的指标不写：作业速度只属于有进度的机器（BASE_PROCESSING_SPEED_TAG &gt; 0）。
+///
 /// 为什么用差分而不是照抄公式：
 ///   · 性能、效率、质量在每台机器上含义不同（集水器是出水量、投影仪是吸引力、净水器是纯度上限……），
 ///     数值全交给游戏函数算，其它模组用 Harmony 改了这些函数，显示自动跟上；
@@ -106,7 +112,7 @@ internal static class ModuleStatEffects
             GameRead.TagInt(machine, PerfTag), GameRead.TagInt(machine, PowerTag),
             GameRead.TagInt(machine, QualityTag), GameRead.TagInt(machine, DrawnTag),
             GameRead.TagInt(machine, SpeedTag), GameRead.TagInt(machine, "MACHINE_PROGRESS_CURRENT_TAG"),
-            GameRead.TagString(machine, "MACHINE_STATE_TAG"));
+            GameRead.TagString(machine, "MACHINE_STATE_TAG"), PurifierWaterKey(machine));
 
     // ---------------- 原版机器能力表 ----------------
 
@@ -124,6 +130,8 @@ internal static class ModuleStatEffects
         internal string QualityKey = "";
         internal string QualityEn = "";
         internal QualityNote? CustomQuality;
+        /// <summary>性能的影响要结合机器内容才算得出；返回显示文字与数值差，算不出返回 null。</summary>
+        internal Func<GameItem, (string Metric, string Text, double Delta)?>? CustomPerformance;
         internal bool UseDealMakerPower;
     }
 
@@ -175,7 +183,7 @@ internal static class ModuleStatEffects
         ["wine_rack"] = new() { CustomQuality = WineNextAging },
         // 酿酒拓展（工坊 3829730904）的流年：AgeWell() 改 ID，耗电与陈化都走原版函数
         ["be_liunian_ager"] = new() { CustomQuality = WineNextAging },
-        ["water_purifier"] = new() { CustomQuality = PurifierPureWater },
+        ["water_purifier"] = new() { CustomPerformance = PurifierRemoved, CustomQuality = PurifierPureWater },
         ["printer"] = new()
         {
             Quality = ModuleHelper.GetAjustedQuality,
@@ -243,8 +251,10 @@ internal static class ModuleStatEffects
             : null;
         if (power != null && noPerf != null)
         {
-            // 速度差为 0 也写出来（+0 速度）：性能加成被原版整数取整吃掉时，玩家能看到「加了但没用」
-            if (Diff(now.Speed, noPerf.Speed) is int sp)
+            // 没有进度的机器（集水器、净水器……）游戏也会写速度标签，但这个指标对它们没有意义，不写。
+            // 有进度的机器速度差为 0 也写出来（+0 速度）：性能加成被原版整数取整吃掉时，玩家能看到「加了但没用」
+            if ((GameRead.TagInt(machine, "BASE_PROCESSING_SPEED_TAG") ?? 0) > 0
+                && Diff(now.Speed, noPerf.Speed) is int sp)
             {
                 deltas.Add(("module.speed", sp));
                 string text = Loc.T("module.speed", "{0} speed", Plus(sp));
@@ -267,6 +277,12 @@ internal static class ModuleStatEffects
             var amount = delta / profile.PerformanceDivisor;
             perf.Add(Loc.T(profile.PerformanceKey, profile.PerformanceEn, profile.PerformancePlain ? amount.ToString() : Plus(amount)));
             deltas.Add((profile.PerformanceKey, amount));
+        }
+
+        if (profile.CustomPerformance != null && perfBonus != 0 && profile.CustomPerformance(machine) is { } custom)
+        {
+            perf.Add(custom.Text);
+            deltas.Add((custom.Metric, custom.Delta));
         }
 
         string? quality = null;
@@ -459,7 +475,7 @@ internal static class ModuleStatEffects
     }
 
     /// <summary>
-    /// 净水器：原版已写「纯度上限」，这里只补再加多少质量上限能到纯水。
+    /// 净水器：原版已写「纯度上限」，这里补再加多少质量能到纯水；已到纯水再补还差多少到 100%。
     /// 上限与纯水线都取游戏的（GetMaxPurityCap、WATER_PURITIES[0]），按原始质量算，不除比率。
     /// </summary>
     private static string? PurifierPureWater(GameItem machine, out int? nextBonus)
@@ -470,22 +486,71 @@ internal static class ModuleStatEffects
             int q = GameRead.TagInt(machine, QualityTag) ?? 0;
             int pure = WaterFeatureHelper.WATER_PURITIES[0];
             string name = LocHelper.GetLocalizedMechanic("mech_condition_pure_water");
-            if (MachinePurifier.GetMaxPurityCap(q) >= pure)
-                return Loc.T("module.purifier_top", "can purify to {0}", name);
+            int cap = MachinePurifier.GetMaxPurityCap(q);
+            if (cap >= WaterInfo.PurityFull) return Loc.T("module.purifier_top", "purity cap at 100%");
+
+            bool toFull = cap >= pure;
+            int target = toFull ? WaterInfo.PurityFull : pure;
 
             // 纯函数，直接按质量值试探，不需要探针
-            if (MachinePurifier.GetMaxPurityCap(q + StepSearchLimit) < pure) return null;
+            if (MachinePurifier.GetMaxPurityCap(q + StepSearchLimit) < target) return null;
             int lo = 1, hi = StepSearchLimit;
             while (lo < hi)
             {
                 int mid = (lo + hi) / 2;
-                if (MachinePurifier.GetMaxPurityCap(q + mid) < pure) lo = mid + 1;
+                if (MachinePurifier.GetMaxPurityCap(q + mid) < target) lo = mid + 1;
                 else hi = mid;
             }
             nextBonus = lo;
-            return Loc.T("module.purifier_next", "+{0}% to purify to {1}", lo, name);
+            return toFull
+                ? Loc.T("module.purifier_full", "+{0}% for 100% purity", lo)
+                : Loc.T("module.purifier_next", "+{0}% to purify to {1}", lo, name);
         }
         catch { return null; }
+    }
+
+    /// <summary>净水器容器里的水；没有容器、不是液体或已空时为 null。</summary>
+    private static GameItem? PurifierWater(GameItem machine)
+    {
+        var tank = MachineInterior.ReadContext(machine)?.FindPanel("container");
+        if (tank == null || tank.Items.Count == 0) return null;
+        var water = tank.Items[0];
+        return GameRead.IsTag(water, "LIQUID_CONTAINER_TAG") && !WaterHelper.IsEmpty(water) ? water : null;
+    }
+
+    /// <summary>今晚能净化多少取决于容器里的水，水变了要重算；其他机器不产生额外开销。</summary>
+    private static string PurifierWaterKey(GameItem machine)
+    {
+        if (!string.Equals(machine.identifier, "water_purifier", StringComparison.Ordinal)) return "";
+        var water = PurifierWater(machine);
+        return water == null ? "" : WaterAdvice.SafePurity(water) + "/"
+            + GameRead.TagInt(water, Liquid.GetCurrentPartFromId("water"));
+    }
+
+    /// <summary>净水器的性能决定今晚能净化多少：在探针上各模拟一次「当前」与「性能清零」，差值就是贡献。</summary>
+    private static (string Metric, string Text, double Delta)? PurifierRemoved(GameItem machine)
+    {
+        var water = PurifierWater(machine);
+        if (water == null) return null;
+
+        // 模拟用的壳按物品 ID 复用：先用真机器建好，探针再借同一个 ID 进去，不会克隆空物品
+        var (removed, _) = WaterAdvice.SimulateMachineRemoval(machine, water);
+        if (removed < 0) return null;
+        var probe = Probe(machine, (PerfTag, 0));
+        if (probe == null) return null;
+        string probeId = probe.identifier;
+        int zero;
+        try
+        {
+            probe.identifier = machine.identifier;
+            (zero, _) = WaterAdvice.SimulateMachineRemoval(probe, water);
+        }
+        finally { probe.identifier = probeId; }
+        if (zero < 0) return null;
+
+        int delta = removed - zero;
+        string amount = (delta < 0 ? "-" : "+") + WaterInfo.Ml(Math.Abs(delta));
+        return ("purifier.rate", Loc.T("purifier.rate", "{0}mL/tonight", amount), delta / 1000.0);
     }
 
     // ---------------- 探针 ----------------

@@ -277,9 +277,10 @@ module.harvest,{0}% 수확량
 module.water_next,+{0}% 더하면 {1} 생산
 module.water_top,{0} 생산 중
 module.purifier_next,+{0}% 더하면 {1}까지 정화 가능
-module.purifier_top,{0}까지 정화 가능
+module.purifier_full,+{0}% 더하면 순도 상한 100%
+module.purifier_top,순도 상한 100% 달성
 module.furnace_gain,순도{0}
-module.furnace_next,(다음 단계까지 +{0}%)
+module.furnace_step,+{0}% 더하면 순도{1}
 module.furnace_result,금속괴×{0}: {1}/10
 module.furnace_cap,최고 순도
 module.furnace_basic,일반 융제 소모

@@ -277,9 +277,10 @@ module.harvest,{0}%収穫量
 module.water_next,あと+{0}%で{1}を生産
 module.water_top,{0}を生産中
 module.purifier_next,あと+{0}%で{1}まで浄化可能
-module.purifier_top,{0}まで浄化可能
+module.purifier_full,あと+{0}%で純度上限100%
+module.purifier_top,純度上限100%に到達
 module.furnace_gain,純度{0}
-module.furnace_next,(あと+{0}%で次の段階)
+module.furnace_step,あと+{0}%で純度{1}
 module.furnace_result,インゴット×{0}：{1}/10
 module.furnace_cap,最高純度
 module.furnace_basic,通常融剤を消費

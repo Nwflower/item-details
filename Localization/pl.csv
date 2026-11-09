@@ -277,9 +277,10 @@ module.harvest,{0}% plonu
 module.water_next,+{0}% do: {1}
 module.water_top,produkuje: {0}
 module.purifier_next,+{0}% do oczyszczania do: {1}
-module.purifier_top,oczyszcza do: {0}
+module.purifier_full,+{0}% do czystości 100%
+module.purifier_top,oczyszcza do 100%
 module.furnace_gain,Czystość {0}
-module.furnace_next,(jeszcze +{0}% do następnego poziomu)
+module.furnace_step,+{0}% do czystości {1}
 module.furnace_result,sztabka ×{0}: {1}/10
 module.furnace_cap,maksymalna czystość
 module.furnace_basic,zwykły topnik zostanie zużyty

@@ -277,9 +277,10 @@ module.harvest,{0}% урожая
 module.water_next,ещё +{0}% — будет {1}
 module.water_top,производит: {0}
 module.purifier_next,ещё +{0}% — очистка до: {1}
-module.purifier_top,очистка до: {0}
+module.purifier_full,ещё +{0}% — чистота 100%
+module.purifier_top,очистка до 100%
 module.furnace_gain,Чистота {0}
-module.furnace_next,(ещё +{0}% до следующего уровня)
+module.furnace_step,ещё +{0}% — чистота {1}
 module.furnace_result,слиток ×{0}: {1}/10
 module.furnace_cap,предел чистоты
 module.furnace_basic,обычный флюс расходуется

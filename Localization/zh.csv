@@ -277,9 +277,10 @@ module.harvest,{0}%收获数量
 module.water_next,+{0}%后产出{1}
 module.water_top,已产出{0}
 module.purifier_next,+{0}%后可产出{1}
-module.purifier_top,已可产出{0}
+module.purifier_full,+{0}%后纯度上限达100%
+module.purifier_top,纯度上限已达100%
 module.furnace_gain,纯度{0}
-module.furnace_next,(再+{0}%下一档)
+module.furnace_step,+{0}%后纯度{1}
 module.furnace_result,金属锭×{0}：{1}/10
 module.furnace_cap,已达最高纯度
 module.furnace_basic,消耗普通助熔剂

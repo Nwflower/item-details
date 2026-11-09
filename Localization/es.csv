@@ -277,9 +277,10 @@ module.harvest,{0}% de cosecha
 module.water_next,+{0}% para producir {1}
 module.water_top,produce {0}
 module.purifier_next,+{0}% para purificar hasta {1}
-module.purifier_top,purifica hasta {0}
+module.purifier_full,+{0}% para 100% de pureza
+module.purifier_top,purifica hasta 100%
 module.furnace_gain,Pureza {0}
-module.furnace_next,(+{0}% más para el siguiente nivel)
+module.furnace_step,+{0}% para pureza {1}
 module.furnace_result,lingote ×{0}: {1}/10
 module.furnace_cap,pureza máxima
 module.furnace_basic,se consume fundente normal
