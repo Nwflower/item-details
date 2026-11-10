@@ -123,7 +123,7 @@ internal static class SeedGenes
                 // 规范文本：原版同一行（标签带「（固有）」等后缀）；降级的用合并注记代替「（固有）」后缀
                 string label = name;
                 if (trait.locked) label = PlantGeneticsText.OriginLocked(label);
-                else if (lowered) label += " " + loweredNote;
+                else if (lowered) label += GroupNote(loweredNote!);
                 else if (innate) label = PlantGeneticsText.OriginInnate(label);
                 if (!usable) label = PlantGeneticsText.NoEffectSuffix(label);
 
@@ -255,6 +255,23 @@ internal static class SeedGenes
         }
         catch { return rank.ToString(); }
     }
+
+    /// <summary>
+    /// 降级注记写成「括号尾组」。美化只把行尾那一组括号右对齐成一列（原版「（固有）」走的就是这条路），
+    /// 注记散在名称中间会被它整条并进标签。本地化模板自带的括号去掉只留一组：
+    /// 中文用全角括号并紧贴名称，西文用半角括号并隔一格。
+    /// </summary>
+    private static string GroupNote(string note)
+    {
+        string text = note.Replace("(", " ").Replace(")", " ").Replace("（", " ").Replace("）", " ");
+        text = string.Join(" ", text.Split(new[] { ' ', CellSeparator }, StringSplitOptions.RemoveEmptyEntries));
+        bool wide = false;
+        foreach (char ch in text) if (ch >= '\u2E80') { wide = true; break; }
+        return (wide ? "（" : " (") + text + (wide ? "）" : ")");
+    }
+
+    /// <summary>规范文本的格分隔符：全角空格。</summary>
+    private const char CellSeparator = '\u3000';
 
     /// <summary>从「X（固有）」「X (Innate)」这类本地化包装里取出括号里的词：用探针字符定位 X。</summary>
     private static string Tag(Func<string, string> wrap)
