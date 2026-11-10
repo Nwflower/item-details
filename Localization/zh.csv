@@ -323,3 +323,20 @@ list.zone_sep,；
 module.special_label,特殊
 module.learn_chance,每晚{0}%概率赋予模组自学习
 module.learn_extra,每日{0}次额外学习
+animal.next_stage,下一阶段：{0}（日龄还差 {1} 天）
+exchange.tonight,今晚预计换到：{0}
+exchange.reputation,黑市声望
+exchange.module,小概率：{0}，否则无回礼
+exchange.keycards,随机抽取两张：{0}
+exchange.low_purity,无回礼（梦尘纯度不足）
+exchange.unknown,回礼以夜间结算为准
+exchange.candidates,随机候选：{0}
+exchange.module_candidates,{0}（小概率：{1}）
+animal.genes_trait,性状
+animal.genes_expression,表达值
+animal.genes_alleles,等位基因
+animal.genes_grade,评级
+luck.current,当前幸运：{0}
+luck.base,基础幸运：{0}
+luck.coin,随身硬币：{0}
+luck.liquid,{0}：{1}（剩余 {2} 天）

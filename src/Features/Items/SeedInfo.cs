@@ -58,6 +58,7 @@ internal static class SeedInfo
                 try { name = trait.displayName ?? ""; } catch { }
                 if (string.IsNullOrEmpty(name)) name = trait.englishName ?? trait.id ?? "?";
                 if (string.IsNullOrEmpty(name)) continue;
+                name = LocalizeInfusion(trait, name);
 
                 // 标题已写明“性状”，条目只列名称，避免每条重复“性状：”。
                 string text = rank > 1
@@ -81,5 +82,18 @@ internal static class SeedInfo
             Log.Warn("SeedInfo", ex);
         }
         return lines;
+    }
+
+    /// <summary>产出性状使用 Liquid 初始化时缓存的名字，按当前语言替换该成分名。</summary>
+    internal static string LocalizeInfusion(PlantTrait trait, string text)
+    {
+        if (string.IsNullOrEmpty(trait.infusionLiquid) || string.IsNullOrEmpty(text)
+            || !Liquid.LiquidDict.TryGetValue(trait.infusionLiquid, out var liquid))
+            return text;
+        string? cached = liquid?.displayName;
+        if (liquid == null || string.IsNullOrEmpty(cached) || !text.Contains(cached, StringComparison.Ordinal))
+            return text;
+        string localized = WaterInfo.DisplayName(liquid);
+        return localized == "?" || localized == cached ? text : text.Replace(cached, localized, StringComparison.Ordinal);
     }
 }

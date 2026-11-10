@@ -3,7 +3,8 @@ param([Parameter(Mandatory)][string]$GameDir, [switch]$Update)
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $managed = Join-Path $GameDir 'Probably Stolen_Data/Managed'
-$refs = @('Assembly-CSharp.dll', 'UnityEngine.CoreModule.dll', 'UnityEngine.UI.dll', '0Harmony.dll') | ForEach-Object {
+$refs = @('Assembly-CSharp.dll', 'UnityEngine.CoreModule.dll', 'UnityEngine.UI.dll', 'Unity.TextMeshPro.dll',
+    'Unity.ResourceManager.dll', 'Unity.Localization.dll', '0Harmony.dll') | ForEach-Object {
     $path = Join-Path $managed $_
     [void][Reflection.Assembly]::LoadFrom($path)
     $path
@@ -110,6 +111,16 @@ function Render-All([int]$build) {
     return $b
 }
 
+function Render-Stage([GameItem]$animal) {
+    $builder = [RichTextBuilder]::new(40)
+    $writer = [Activator]::CreateInstance($writerType,$rw,$null,@($builder,$animal,'stage-progress','condition'),$null)
+    $append = $provider.GetType('ItemDetails.AnimalStageProgress').GetMethod('Append',$flags)
+    if ($append.Invoke($null,@($writer,$animal))) {
+        [void]$writerType.GetMethod('Finish',$rw).Invoke($writer,@($false))
+    }
+    return $builder
+}
+
 $sectionApi.GetMethod('Enable',$flags).Invoke($null,@())
 $watch = $probe::Watch()
 $claim = $probe::ClaimAll()
@@ -123,9 +134,135 @@ try {
     Check ($probe::Runs($first).Contains('basePerDay=6') -and $probe::Runs($first).Contains('currentPerDay=8')) 'machine speed fields survive into the snapshot'
     Check ($probe::Runs($first).Contains('total=500')) 'appraisal total survives into the snapshot'
 
+    $animal = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([GameItemElement])
+    $animal.modifiedState = [TagSystem]::new()
+    $marker = [TagState]::new('ANIMAL_ITEM_TAG','ANIMAL_ITEM_TAG')
+    $marker.valueEnabled = $true
+    $animal.modifiedState.dict.Add($marker.identifier,$marker)
+    $species = [TagState]::new('ANIMAL_SPECIES_TAG','ANIMAL_SPECIES_TAG')
+    $species.valueEnabled = $true
+    $species.valueString = [AnimalSpecies]::Rat.speciesID
+    $animal.modifiedState.dict.Add($species.identifier,$species)
+    $stage = Render-Stage $animal
+    $stageSnapshot = $probe::Canonical($stage)
+    Check ($stageSnapshot.Contains('nextStage=Juvenile;remainingAgeDays=1;')) 'newborn rat uses day zero'
+    Check ($animal.modifiedState.dict.Count -eq 2) 'stage progress does not insert age or status tags'
+
+    $animalGenes = $provider.GetType('ItemDetails.AnimalGenes')
+    $nativeTooltip = [HusbandryHelper].GetMethod('CreateItemTooltip', [type[]]@([RichTextBuilder], [GameItem]))
+    $generator = $null
+    $original = [HarmonyLib.PatchProcessor]::GetOriginalInstructions($nativeTooltip, [ref]$generator)
+    $rewritten = @($animalGenes.GetMethod('ReplaceStatBlock',$flags).Invoke($null,[object[]](,$original)))
+    Check ($rewritten.Count -eq $original.Count + 3) 'animal genes reuse the branch around the native stat block'
+    $branch = $rewritten | Where-Object { $_.opcode -eq [Reflection.Emit.OpCodes]::Call -and $_.operand.Name -eq 'ShowVanillaStats' }
+    Check ($branch.Count -eq 1) 'animal tooltip has exactly one gene table entry point'
+
+    $rank = $animalGenes.GetMethod('Grade',$flags)
+    foreach ($case in @(
+        @(1.277,$true,'S'), @(1.276,$true,'A'), @(1.113,$true,'A'), @(1.112,$true,'B'),
+        @(0.948,$true,'B'), @(0.947,$true,'C'), @(0.723,$false,'S'), @(0.724,$false,'A'),
+        @(0.887,$false,'A'), @(0.888,$false,'B'), @(1.052,$false,'B'), @(1.053,$false,'C')
+    )) {
+        $actual = $rank.Invoke($null,@([single]($case[0]),[single]1,$case[1]))
+        Check ($actual -eq $case[2]) "allele grade near spawn percentile cutoff: $($case[0]), higher=$($case[1])"
+    }
+    foreach ($id in [AnimalSpecies]::Rat.geneticTraitIDs) {
+        $base = [AnimalSpecies]::Rat.geneticBaseValues[$id]
+        foreach ($side in @('A','B')) {
+            $key = $id + '_ALLELE_' + $side
+            $allele = [TagState]::new($key,$key)
+            $allele.valueEnabled = $true
+            $allele.valueFloat = if ($id -eq 'ANIMAL_IMMUNITY_TAG') {
+                if ($side -eq 'A') { $base * [single]1.05 } else { $base * [single]0.95 }
+            } elseif ($id -eq 'ANIMAL_HUNGER_RATE_TAG' -and $side -eq 'B') {
+                $base * 0.70
+            } elseif ($side -eq 'A') { $base * 1.25 } else { $base * 0.75 }
+            $animal.modifiedState.dict.Add($key,$allele)
+        }
+    }
+    $storeField = [PlayerStore].GetField('instance',$flags)
+    $previousStore = $storeField.GetValue($null)
+    $store = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([PlayerStore])
+    $storeField.SetValue($null,$store)
+    $genesBuilder = [RichTextBuilder]::new(40)
+    $writeGenes = $animalGenes.GetMethod('TryWrite',$flags)
+    try {
+        Check (!$writeGenes.Invoke($null,@($genesBuilder,$animal,[AnimalSpecies]::Rat))) 'scanner off retains native animal readout'
+        $store.isGeneScannerScanning = $true
+        Check ($writeGenes.Invoke($null,@($genesBuilder,$animal,[AnimalSpecies]::Rat))) 'scanner on emits the complete animal gene table'
+        $genesSnapshot = $probe::Canonical($genesBuilder)
+        Check ($genesSnapshot.Contains('　A:LightGreen') -and $genesSnapshot.Contains('　C:LightRed')) 'each allele grade has its own color'
+        Check ($genesSnapshot.Contains('Hunger rate:LightCyan') -and $genesSnapshot.Contains('text:S:13938487')) 'lower hunger rate gets the better grade'
+        Check ($genesSnapshot.Contains('text:　1.25:Green') -and $genesSnapshot.Contains('text:0.75:LightRed') -and
+            $genesSnapshot.Contains('text:　81.25:LightRed') -and $genesSnapshot.Contains('text:45.5:Green')) 'allele values follow vanilla colors in both stat directions'
+        Check ($genesSnapshot.Contains('text:　31.5:LightCyan') -and $genesSnapshot.Contains('text:28.5:LightCyan')) 'alleles on the vanilla five-percent boundaries remain cyan'
+        Check ($animal.modifiedState.dict.Count -eq 16) 'animal gene preview does not write tags'
+
+        $coin = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([GameItemElement])
+        $coin.identifier = 'gamblers_coin'
+        $health = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([HealthData])
+        $health.luck = 15
+        $health.liquidLuckDaysLeft = 2
+        $store.healthData = $health
+        $luck = $provider.GetType('ItemDetails.CoinLuck')
+        $readLuck = $luck.GetMethod('Read',$flags)
+        $effect = $readLuck.Invoke($null,@($health,[single]4))
+        Check ($effect.Item1 -eq [HealthData]::GetLuck() -and $effect.Item4 -eq 75) 'coin shows the game total and active Liquid Luck bonus'
+
+        $luckBuilder = [RichTextBuilder]::new(40)
+        $luckWriter = [Activator]::CreateInstance($writerType,$rw,$null,@($luckBuilder,$coin,'coin-luck','lottery'),$null)
+        $luck.GetMethod('Write',$flags).Invoke($null,@($luckWriter,$effect))
+        [void]$writerType.GetMethod('Finish',$rw).Invoke($luckWriter,@($false))
+        $coinSnapshot = $probe::Canonical($luckBuilder)
+        Check ($coinSnapshot.Contains('Current luck: +90') -and $coinSnapshot.Contains('Liquid Luck: +75 (2 days left)') -and
+            !$coinSnapshot.Contains('Carried coin:')) 'coin tooltip lists active sources and the remaining duration'
+
+        $health.liquidLuckDaysLeft = 0
+        $expired = $readLuck.Invoke($null,@($health,[single]4))
+        Check ($expired.Item1 -eq 15 -and $expired.Item4 -eq 0) 'expiring Liquid Luck refreshes before the cache interval'
+    }
+    finally { $storeField.SetValue($null,$previousStore) }
+
+    $age = [TagState]::new('ANIMAL_AGE_TAG','ANIMAL_AGE_TAG')
+    $age.valueEnabled = $true
+    $age.valueInt = 1
+    $animal.modifiedState.dict.Add($age.identifier,$age)
+    Check ($probe::Canonical((Render-Stage $animal)).Contains('nextStage=Adolescent;remainingAgeDays=2;')) 'threshold equality advances the rat to its next stage'
+    $age.valueInt = 11
+    Check ($probe::Ids((Render-Stage $animal)) -eq '') 'elder rat has no countdown to the old-age mortality check'
+
+    $custom = [AnimalSpecies]::new()
+    $custom.speciesID = 'item_details_stage_probe'
+    $custom.growthStages = [int[]]@(0,1,3,7,12,16)
+    $species.valueString = $custom.speciesID
+    $age.valueInt = 3
+    Check ($probe::Ids((Render-Stage $animal)) -eq '') 'unknown species does not infer a stage from an age tag'
+    [AnimalSpecies]::All.Add($custom.speciesID,$custom)
+    try {
+        Check ($probe::Canonical((Render-Stage $animal)).Contains('nextStage=Adult;remainingAgeDays=4;')) 'third-party animal uses the registered thresholds'
+        $custom.growthStages[3] = 9
+        Check ($probe::Canonical((Render-Stage $animal)).Contains('nextStage=Adult;remainingAgeDays=6;')) 'live threshold changes apply immediately'
+        $custom.growthStages[4] = 9
+        Check ($probe::Canonical((Render-Stage $animal)).Contains('nextStage=Elder;remainingAgeDays=6;')) 'equal thresholds skip the intermediate stage'
+        $custom.growthStages[4] = 8
+        Check ($probe::Ids((Render-Stage $animal)) -eq '') 'malformed thresholds suppress the countdown'
+        $custom.growthStages[4] = 12
+        $dead = [TagState]::new('ANIMAL_IS_DEAD_TAG','ANIMAL_IS_DEAD_TAG')
+        $dead.valueEnabled = $true
+        $animal.modifiedState.dict.Add($dead.identifier,$dead)
+        Check ($probe::Ids((Render-Stage $animal)) -eq '') 'dead animal has no countdown'
+        $dead.valueEnabled = $false
+        $marker.valueEnabled = $false
+        $fish = [TagState]::new('FISH_ITEM_TAG','FISH_ITEM_TAG')
+        $fish.valueEnabled = $true
+        $animal.modifiedState.dict.Add($fish.identifier,$fish)
+        Check ($probe::Ids((Render-Stage $animal)) -eq '') 'fish do not get an additional countdown'
+    }
+    finally { [void][AnimalSpecies]::All.Remove($custom.speciesID) }
+
     # 契约样例：固定物品的快照逐字比对，双方共用同一份文件测归类。
     $fixture = Join-Path $repo 'tests/fixtures/sections/contract.txt'
-    $canonical = $probe::Canonical($first)
+    $canonical = $probe::Canonical($first) + $stageSnapshot + $genesSnapshot + $coinSnapshot
     if ($Update) {
         New-Item -ItemType Directory -Force -Path (Split-Path -Parent $fixture) | Out-Null
         [IO.File]::WriteAllText($fixture, $canonical.Replace("`r`n", "`n"), [Text.UTF8Encoding]::new($false))

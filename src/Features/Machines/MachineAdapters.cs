@@ -236,8 +236,9 @@ internal static class MachineAdapters
 
         var tone = days == 0 ? Bad : days < 3 ? Warn : Info;
         string note = days == 0 ? Loc.T("hydro.left_short", "<1 day") : Loc.T("hydro.left", "{0} {0|day|days}", days);
-        lines.Add(ChipLine(text, Loc.T("hydro.label", "Water"),
-                Loc.T("hydro.value", "{0}{1} ({2}{1}/day)", currentAmount, unit, rateAmount), note, tone)
+        string quality = ctx.ShowWaterPurity && ml > 0 ? MachineInterior.WaterQualitySuffix(WaterInfo.Analyze(water)) : "";
+        lines.Add(ChipLine(text + quality, Loc.T("hydro.label", "Water"),
+                Loc.T("hydro.value", "{0}{1} ({2}{1}/day)", currentAmount, unit, rateAmount), note + quality, tone)
             .WithData("waterSupply", (ml, perNight, days)));
     }
 

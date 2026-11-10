@@ -91,8 +91,11 @@ public sealed partial class ModEntry : IMod
         new("machine-interior", ItemDetailsTooltipSection.MachineInterior, TooltipGroupIds.Machine, (m, b, i) => m.TryAppendMachineInterior(b, i)),
         new("module-learning", ItemDetailsTooltipSection.ModuleLearning, TooltipGroupIds.Module, (m, b, i) => m.TryAppendModuleLearning(b, i)),
         new("conditions", ItemDetailsTooltipSection.ConditionEffects, TooltipGroupIds.Condition, (m, b, i) => m.TryAppendConditions(b, i)),
+        new("stage-progress", ItemDetailsTooltipSection.None, TooltipGroupIds.Condition, (_, b, i) => AnimalStageProgress.Append(b, i)),
+        new("exchange-preview", ItemDetailsTooltipSection.None, TooltipGroupIds.Condition, (_, b, i) => TrashExchangePreview.Append(b, i)),
         new("contraband", ItemDetailsTooltipSection.Contraband, TooltipGroupIds.Price, (m, b, i) => m.TryAppendContraband(b, i)),
         new("lottery", ItemDetailsTooltipSection.Lottery, TooltipGroupIds.Lottery, (m, b, i) => m.TryAppendLottery(b, i)),
+        new("coin-luck", ItemDetailsTooltipSection.None, TooltipGroupIds.Lottery, (_, b, i) => CoinLuck.Append(b, i)),
         new("water", ItemDetailsTooltipSection.LiquidAnalysis, TooltipGroupIds.Liquid, (m, b, i) => m.TryAppendWater(b, i)),
         new("faucet", ItemDetailsTooltipSection.LiquidAnalysis, TooltipGroupIds.Liquid, (m, b, i) => m.TryAppendFaucet(b, i)),
         new("sealed-box", ItemDetailsTooltipSection.Contents, TooltipGroupIds.Contents, (m, b, i) => m.TryAppendSealedBox(b, i)),
@@ -195,6 +198,7 @@ public sealed partial class ModEntry : IMod
         Patch("ContentsGrid", ContentsGrid.Install);
         Patch("ModuleItemRows", ModuleItemRows.Install);
         Patch("SeedGenes", SeedGenes.Install);
+        Patch("AnimalGenes", AnimalGenes.Install);
         Patch("SeedBaseDelta", SeedBaseDelta.Install);
         Patch("ProgressBarStyle", ProgressBarStyle.Install);
         Patch("RenderSlices", RenderSlices.Install);
@@ -231,6 +235,8 @@ public sealed partial class ModEntry : IMod
         Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
         Quiet(SealedBoxInfo.Stop);
+        Quiet(TrashExchangePreview.Reset);
+        Quiet(CoinLuck.Reset);
         Quiet(MachineInterior.Stop);
         Quiet(ModuleStatEffects.Stop);
         Quiet(ScannerInventory.Stop);

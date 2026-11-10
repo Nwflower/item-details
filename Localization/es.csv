@@ -323,3 +323,20 @@ list.zone_sep,;
 module.special_label,Especial
 module.learn_chance,{0} % de probabilidad por noche de «Algoritmo de aprendizaje»
 module.learn_extra,{0} pasos de aprendizaje extra al día
+animal.next_stage,Siguiente etapa: {0} (+{1} {1|día de edad|días de edad})
+exchange.tonight,Previsto para esta noche: {0}
+exchange.reputation,Reputación del mercado negro
+exchange.module,"Raro: {0}; de lo contrario, sin recompensa"
+exchange.keycards,Dos al azar entre: {0}
+exchange.low_purity,Sin recompensa (polvo onírico de baja pureza)
+exchange.unknown,La recompensa se determina al liquidar el intercambio
+exchange.candidates,Al azar entre: {0}
+exchange.module_candidates,{0}; raro: {1}
+animal.genes_trait,Rasgo
+animal.genes_expression,Expresión
+animal.genes_alleles,Alelos
+animal.genes_grade,Grado
+luck.current,Suerte actual: {0}
+luck.base,Suerte base: {0}
+luck.coin,Moneda en posesión: {0}
+luck.liquid,{0}: {1} (quedan {2} {2|día|días})

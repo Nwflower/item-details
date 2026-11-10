@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 if (-not $GameDir) { throw 'Pass -GameDir or set PS_GAME_DIR to the installed game directory.' }
 $managed = Join-Path $GameDir 'Probably Stolen_Data/Managed'
-foreach ($file in @('UnityEngine.CoreModule.dll', 'Assembly-CSharp.dll')) {
+foreach ($file in @('UnityEngine.CoreModule.dll', 'Unity.ResourceManager.dll', 'Unity.Localization.dll', '0Harmony.dll', 'Assembly-CSharp.dll')) {
     [System.Reflection.Assembly]::LoadFrom((Join-Path $managed $file)) | Out-Null
 }
 $candidate = [System.Reflection.Assembly]::LoadFrom((Resolve-Path -LiteralPath $CandidateDll).Path)
@@ -82,6 +82,78 @@ $replacement.name = $item.name
 $replacement.modifiedState.dict.Add('DURABILITY_TAG', $tag)
 $items[0] = $replacement
 Assert-True (-not [bool]$matches.Invoke($null, @($snapshot, $items))) 'same-count replacement invalidates container signature'
+
+# Nightly exchange previews use the game's conditions without invoking any settlement callbacks.
+$preview = $candidate.GetType('ItemDetails.TrashExchangePreview', $true).GetMethod('Preview', $static)
+$exchange = [Runtime.CompilerServices.RuntimeHelpers]::GetUninitializedObject([ExchangeManager])
+$exchange.activeBarter = [System.Collections.Generic.List[ExchangeBarter]]::new()
+$exchange.promotionalBarter = [System.Collections.Generic.List[ExchangeBarter]]::new()
+$exchange.activePromotionalBarterIds = [System.Collections.Generic.List[string]]::new()
+$filter = [ExchangeList]::FilterBarter()
+$exchange.activeBarter.Add($filter)
+$dust = [ExchangeList]::DreamDustBarter()
+$exchange.activeBarter.Add($dust)
+$promo = [ExchangeList]::ImprovedDreamDustBarter()
+$exchange.promotionalBarter.Add($promo)
+$stock = [System.Collections.Generic.List[GameItem]]::new()
+
+function Add-ExchangeItem([string]$Id, [int]$Count, [int]$Purity = -1) {
+    $sample = New-ProbeItem
+    $sample.identifier = $Id
+    $sample.unitCount = $Count
+    if ($Purity -ge 0) {
+        $purityTag = [TagState]::new('CHEMICAL_PRODUCT_PURITY_TAG','Purity')
+        $purityTag.valueEnabled = $true
+        $purityTag.valueDouble = $Purity
+        $sample.modifiedState.dict.Add($purityTag.identifier, $purityTag)
+    }
+    $stock.Add($sample)
+}
+function Get-ExchangePreview { $preview.Invoke($null, @($exchange, $stock)) }
+
+Add-ExchangeItem 'water_filter' 3
+Assert-True (@(Get-ExchangePreview).Count -eq 0) 'a stack cannot satisfy multiple exchange requirements'
+Add-ExchangeItem 'water_filter' 1
+Add-ExchangeItem 'water_filter' 1
+Assert-True ((@(Get-ExchangePreview) -join '|') -eq 'Water filter') 'fixed exchange reward previews before nightly counters reset'
+Assert-True ($stock.Count -eq 3 -and $stock[0].unitCount -eq 3 -and $filter.currentBarterCounter -eq 0) 'preview preserves stock and nightly counters'
+$nativeFilter = $filter.onAccept
+$replacementCallback = [Action[System.Collections.Generic.List[GameItem]]]{ throw 'Preview ran the settlement callback' }
+$filter.onAccept = $replacementCallback
+Assert-True (@(Get-ExchangePreview).Count -eq 0) 'a replacement callback with the vanilla ID hides the reward without running it'
+$filter.onAccept = $nativeFilter
+1..4 | ForEach-Object { Add-ExchangeItem 'dream_dust' 1 29 }
+Assert-True ((@(Get-ExchangePreview) -join '|') -eq 'No reward (Dream Dust purity too low)|Water filter') 'inactive promotions do not override the base trade'
+$exchange.activePromotionalBarterIds.Add($promo.identifier)
+Assert-True ((@(Get-ExchangePreview) -join '|') -eq 'Bandage ×2|Water filter') 'higher-priority promotion reserves shared inputs'
+$nativePromo = $promo.onAccept
+$promo.onAccept = $replacementCallback
+Assert-True ((@(Get-ExchangePreview) -join '|') -eq 'Water filter') 'hidden promotion still reserves its inputs and leaves unrelated previews visible'
+$promo.onAccept = $nativePromo
+$promo.barterCounterPerNight = 0
+Assert-True ((@(Get-ExchangePreview) -join '|') -eq 'No reward (Dream Dust purity too low)|Water filter') 'zero nightly quota skips the offer'
+
+$exchange.activeBarter.Add([ExchangeList]::CommandKeycardBarter())
+Add-ExchangeItem 'cmd_keycard' 1
+Assert-True ((Get-ExchangePreview) -contains 'Two draws from: Security keycard / Engineering keycard / Medical keycard') 'random keycards list all concrete candidates'
+$exchange.activeBarter.Add([ExchangeList]::ModuleBarter())
+foreach ($id in @('system_module_performance', 'system_module_quality')) {
+    Add-ExchangeItem $id 1
+    $moduleTag = [TagState]::new('MODULE','MODULE')
+    $moduleTag.valueEnabled = $true
+    $stock[$stock.Count - 1].modifiedState.dict.Add('MODULE',$moduleTag)
+}
+[ExchangeList]::modulePool.Add('probe_modded_module')
+[ExchangeList]::modulePoolOdd.Add(15)
+try {
+    $moduleReward = (Get-ExchangePreview) | Where-Object { $_.Contains('Capped neural core') }
+    Assert-True ($moduleReward.Contains('probe_modded_module')) 'module candidates read the live modded reward pool'
+    Assert-True (!$moduleReward.Contains('Performance module') -and !$moduleReward.Contains('Quality module')) 'submitted modules are excluded from the candidates'
+}
+finally {
+    [ExchangeList]::modulePool.RemoveAt([ExchangeList]::modulePool.Count - 1)
+    [ExchangeList]::modulePoolOdd.RemoveAt([ExchangeList]::modulePoolOdd.Count - 1)
+}
 
 # An exhausted installed filter must not hide changes to replacement-filter candidates.
 $waterAdvice = $candidate.GetType('ItemDetails.WaterAdvice', $true)

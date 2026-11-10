@@ -323,3 +323,20 @@ list.zone_sep,;
 module.special_label,Особое
 module.learn_chance,{0}% шанс за ночь получить «Самообучающийся»
 module.learn_extra,{0} доп. шагов обучения в день
+animal.next_stage,Следующая стадия: {0} (осталось {1} дн. роста)
+exchange.tonight,Ожидается этой ночью: {0}
+exchange.reputation,Репутация на чёрном рынке
+exchange.module,"Редко: {0}, иначе без награды"
+exchange.keycards,Два случайных выбора из: {0}
+exchange.low_purity,Без награды (низкая чистота пыли грёз)
+exchange.unknown,Награда определяется при обмене
+exchange.candidates,Случайно из: {0}
+exchange.module_candidates,{0}; редко: {1}
+animal.genes_trait,Признак
+animal.genes_expression,Экспрессия
+animal.genes_alleles,Аллели
+animal.genes_grade,Оценка
+luck.current,Текущая удача: {0}
+luck.base,Базовая удача: {0}
+luck.coin,Монета при себе: {0}
+luck.liquid,{0}: {1} (осталось {2} дн.)

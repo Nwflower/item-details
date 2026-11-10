@@ -323,3 +323,20 @@ list.zone_sep,;
 module.special_label,Specjalne
 module.learn_chance,{0}% szans na noc na „Algorytm uczący się”
 module.learn_extra,{0} dodatkowych kroków nauki dziennie
+animal.next_stage,Następny etap: {0} (pozostało {1} dni wzrostu)
+exchange.tonight,Przewidywana wymiana tej nocy: {0}
+exchange.reputation,Reputacja na czarnym rynku
+exchange.module,"Rzadko: {0}, w przeciwnym razie bez nagrody"
+exchange.keycards,Dwa losowania spośród: {0}
+exchange.low_purity,Brak nagrody (zbyt niska czystość sennego pyłu)
+exchange.unknown,Nagroda zostanie ustalona przy rozliczeniu
+exchange.candidates,Losowo spośród: {0}
+exchange.module_candidates,{0}; rzadko: {1}
+animal.genes_trait,Cecha
+animal.genes_expression,Ekspresja
+animal.genes_alleles,Allele
+animal.genes_grade,Ocena
+luck.current,Aktualne szczęście: {0}
+luck.base,Bazowe szczęście: {0}
+luck.coin,Noszona moneta: {0}
+luck.liquid,{0}: {1} (pozostało {2} dni)

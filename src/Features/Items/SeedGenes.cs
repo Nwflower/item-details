@@ -117,8 +117,9 @@ internal static class SeedGenes
                 string? loweredNote = lowered
                     ? Loc.T("seed.innate_lowered", "Innate ({0}→{1})", RankText(innateRank), RankText(rank)) : null;
                 bool usable = PlantGeneticsHelper.IsTraitUsable(item, trait, out _);
-                string name = trait.maxRank > 1 ? trait.displayName + " " + RankText(rank) : trait.displayName;
-                string effect = PlantGeneticsHelper.DescribeEffect(trait, rank);
+                string name = SeedInfo.LocalizeInfusion(trait, trait.displayName);
+                if (trait.maxRank > 1) name += " " + RankText(rank);
+                string effect = SeedInfo.LocalizeInfusion(trait, PlantGeneticsHelper.DescribeEffect(trait, rank));
 
                 // 规范文本：原版同一行（标签带「（固有）」等后缀）；降级的用合并注记代替「（固有）」后缀
                 string label = name;
@@ -152,10 +153,11 @@ internal static class SeedGenes
                 if (plantTrait == null) continue;
                 int current = PlantGeneticsHelper.GetTraitRank(item, plantTrait.id);
                 if (current >= innateTrait.Value || current > 0) continue;
+                string name = SeedInfo.LocalizeInfusion(plantTrait, plantTrait.displayName);
                 rows.Add(new Row
                 {
-                    Canonical = PlantGeneticsText.ReadoutInnateRemoved(plantTrait.displayName),
-                    Label = plantTrait.displayName,
+                    Canonical = PlantGeneticsText.ReadoutInnateRemoved(name),
+                    Label = name,
                     Note = Loc.T("seed.innate_removed", "Removed"),
                     Removed = true,
                 });

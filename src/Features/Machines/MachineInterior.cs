@@ -72,6 +72,7 @@ internal static class MachineInterior
         internal readonly List<GameItem> Modules = new();
         /// <summary>已被第二层汇总过的物品，通用列表不再重复。</summary>
         internal readonly HashSet<GameItem> Summarized = new();
+        internal bool ShowWaterPurity;
         /// <summary>水培适配器算出的"水还够几天"；进度适配器据此补充提示。-1 表示不适用。</summary>
         internal int WaterDays = -1;
 
@@ -164,6 +165,7 @@ internal static class MachineInterior
 
             var built = new List<TooltipLine>();
             bool clean = true;
+            ctx.ShowWaterPurity = purity;
             if (adapters && ctx.IsMachine) clean &= Stage(key, "Adapters", () => MachineAdapters.Run(ctx, built));
             // 滤芯先认领自己的物品，后面的液体、工具与通用清单才不会重复列出它们。
             if (filters) clean &= Stage(key, "Filters", () => SummarizeFilters(ctx, built, hiddenTruth));
@@ -395,11 +397,11 @@ internal static class MachineInterior
                 if (purity)
                 {
                     var r = WaterInfo.Analyze(it);
-                    if (r.HasData && r.WaterParts > 0)
+                    string quality = WaterQualitySuffix(r);
+                    if (quality.Length > 0)
                     {
                         measuredPurity = r.Purity;
-                        state += Loc.T("inner.liquid_purity", ", {0}% {1}",
-                            (r.Purity / 100.0).ToString("0.00", Loc.Culture), r.Tier);
+                        state += quality;
                     }
                 }
             }
@@ -411,6 +413,11 @@ internal static class MachineInterior
             shown++;
         }
     }
+
+    internal static string WaterQualitySuffix(WaterInfo.Result water)
+        => water.HasData && water.WaterParts > 0
+            ? Loc.T("inner.liquid_purity", ", {0}% {1}", (water.Purity / 100.0).ToString("0.00", Loc.Culture), water.Tier)
+            : "";
 
     /// <summary>计次工具：一件时写剩余次数，多件时写最少的那件和已用完几件。</summary>
     private static void SummarizeTools(Context ctx, List<TooltipLine> lines)

@@ -72,7 +72,7 @@ internal static class GameRead
     /// 未填充占位符——打印机芯片一类物品的名字按创建时的数量格式化
     /// （「3D Printer Chip (x{0} Box Cutter)」），显示时拿不到那个数量。
     /// </summary>
-    private static string LookupItemName(string identifier)
+    internal static string LookupItemName(string identifier)
     {
         string key = "item_" + identifier + "_name";
         try

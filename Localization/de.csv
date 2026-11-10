@@ -323,3 +323,20 @@ list.zone_sep,;
 module.special_label,Spezial
 module.learn_chance,{0} % Chance pro Nacht auf „Lernender Algorithmus“
 module.learn_extra,{0} zusätzliche Lernschritte pro Tag
+animal.next_stage,Nächste Stufe: {0} (+{1} {1|Lebenstag|Lebenstage})
+exchange.tonight,Heute Nacht voraussichtlich: {0}
+exchange.reputation,Schwarzmarktruf
+exchange.module,"Selten: {0}, sonst keine Belohnung"
+exchange.keycards,Zweimal zufällig aus: {0}
+exchange.low_purity,Keine Belohnung (Traumstaub zu unrein)
+exchange.unknown,Belohnung wird bei der Abrechnung ermittelt
+exchange.candidates,Zufällig aus: {0}
+exchange.module_candidates,{0}; selten: {1}
+animal.genes_trait,Merkmal
+animal.genes_expression,Ausprägung
+animal.genes_alleles,Allele
+animal.genes_grade,Rang
+luck.current,Aktuelles Glück: {0}
+luck.base,Grundglück: {0}
+luck.coin,Mitgeführte Münze: {0}
+luck.liquid,{0}: {1} (noch {2} {2|Tag|Tage})

@@ -323,3 +323,20 @@ list.zone_sep,／
 module.special_label,特殊
 module.learn_chance,毎晩{0}%の確率で学習アルゴリズムを付与
 module.learn_extra,毎日{0}回の追加学習
+animal.next_stage,次の成長段階：{0}（日齢 +{1} 日）
+exchange.tonight,今夜の交換見込み：{0}
+exchange.reputation,闇市場の評判
+exchange.module,低確率で{0}、それ以外は報酬なし
+exchange.keycards,次からランダムに2枚：{0}
+exchange.low_purity,報酬なし（ドリームダストの純度不足）
+exchange.unknown,交換時に報酬が確定
+exchange.candidates,候補からランダム：{0}
+exchange.module_candidates,{0}（低確率：{1}）
+animal.genes_trait,形質
+animal.genes_expression,発現値
+animal.genes_alleles,対立遺伝子
+animal.genes_grade,評価
+luck.current,現在の幸運：{0}
+luck.base,基本の幸運：{0}
+luck.coin,所持中のコイン：{0}
+luck.liquid,{0}：{1}（残り {2} 日）

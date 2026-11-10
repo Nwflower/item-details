@@ -198,9 +198,12 @@ try {
     Check (!$client::HasSections($claimed)) 'disabling the producer withdraws the snapshot endpoint'
     $raw = [Activator]::CreateInstance($provider.GetType('ItemDetails.WaterInfo+Result'))
     $inst = [Reflection.BindingFlags]'NonPublic,Instance'
-    foreach ($entry in @{TotalParts=2000000;WaterParts=1925000;WaterName='水';Tier='实测';Label='标签';Toxic=$true}.GetEnumerator()) {
+    $quality = $provider.GetType('ItemDetails.MachineInterior').GetMethod('WaterQualitySuffix',$flags)
+    Check ($quality.Invoke($null,@($raw)) -eq '') 'machine water quality omitted when there is no measured water'
+    foreach ($entry in @{HasData=$true;Purity=9625;TotalParts=2000000;WaterParts=1925000;WaterName='水';Tier='实测';Label='标签';Toxic=$true}.GetEnumerator()) {
         $raw.GetType().GetField($entry.Key,$inst).SetValue($raw,$entry.Value)
     }
+    Check ($quality.Invoke($null,@($raw)).Contains('96.25% 实测')) 'shared machine water quality suffix includes purity and tier'
     $impurities = $raw.GetType().GetField('Impurities',$inst).GetValue($raw)
     $impurities.Add([ValueTuple[string,int,string]]::new('酸',74999,'acid'))
     $impurities.Add([ValueTuple[string,int,string]]::new('微量',1,'trace'))

@@ -323,3 +323,20 @@ list.zone_sep, ;
 module.special_label,Spécial
 module.learn_chance,{0} % de chance par nuit d'obtenir « Algorithme d'apprentissage »
 module.learn_extra,{0} étapes d'apprentissage en plus par jour
+animal.next_stage,Stade suivant : {0} (+{1} {1|jour d’âge|jours d’âge})
+exchange.tonight,Prévu cette nuit : {0}
+exchange.reputation,Réputation du marché noir
+exchange.module,"Rare : {0}, sinon aucune récompense"
+exchange.keycards,Deux tirages parmi : {0}
+exchange.low_purity,Aucune récompense (poussière de rêve trop impure)
+exchange.unknown,Récompense déterminée lors de l’échange
+exchange.candidates,Tirage parmi : {0}
+exchange.module_candidates,{0} (rare : {1})
+animal.genes_trait,Caractère
+animal.genes_expression,Expression
+animal.genes_alleles,Allèles
+animal.genes_grade,Note
+luck.current,Chance actuelle : {0}
+luck.base,Chance de base : {0}
+luck.coin,Pièce portée : {0}
+luck.liquid,{0} : {1} (encore {2} {2|jour|jours})

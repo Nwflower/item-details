@@ -323,3 +323,20 @@ list.zone_sep,;
 module.special_label,특수
 module.learn_chance,매일 밤 {0}% 확률로 학습 알고리즘 부여
 module.learn_extra,매일 추가 학습 {0}회
+animal.next_stage,다음 성장 단계: {0} (성장일 {1}일 남음)
+exchange.tonight,오늘 밤 예상 교환품: {0}
+exchange.reputation,암시장 평판
+exchange.module,"낮은 확률로 {0}, 그 외에는 보상 없음"
+exchange.keycards,다음 중 무작위 2장: {0}
+exchange.low_purity,보상 없음 (꿈가루 순도 부족)
+exchange.unknown,정산 시 보상 확정
+exchange.candidates,다음 중 무작위: {0}
+exchange.module_candidates,{0} (희귀: {1})
+animal.genes_trait,형질
+animal.genes_expression,발현값
+animal.genes_alleles,대립유전자
+animal.genes_grade,등급
+luck.current,현재 행운: {0}
+luck.base,기본 행운: {0}
+luck.coin,소지 중인 동전: {0}
+luck.liquid,{0}: {1} ({2}일 남음)
