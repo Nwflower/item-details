@@ -7,9 +7,11 @@ namespace ItemDetails;
 
 /// <summary>
 /// 种子的基因读数：与机器加成行同样的三段式——
-///   营养丰富1   热量 +25%   固有
+///   营养丰富 1   热量 +25%   固有
 /// 原版 <c>PlantGeneticsHelper.CreateSeedGeneticsTooltip</c> 一口气写完这一块（表头、性状行、被移除的固有性状），
-/// 这里整体换成两列写法：性状名（带阿拉伯数字等级）、效果、来源/状态。
+/// 这里整体换成两列写法：性状名（带等级）、效果、来源/状态。
+/// 等级默认写阿拉伯数字，设置里打开「基因等级用罗马数字」就改用原版
+/// <c>PlantGeneticsHelper.RankLabel</c>（I、II、III…）。
 /// 规范文本逐行等于原版文字，只有一处合并：固有降级的性状，原版会另起一行写「X（已移除）」，
 /// 这里并进本行的「固有(2→1)」，既不再出现「又在又不在」的两行，也不用把这段信息只挂在渲染层。
 /// 列位置只在渲染层；出错时让原方法照常运行。
@@ -113,9 +115,9 @@ internal static class SeedGenes
                 // 读起来像又在又不在。这里把两者合并成注记「固有(2→1)」，并写进规范文本。
                 bool lowered = !trait.locked && innateRank > rank && rank > 0;
                 string? loweredNote = lowered
-                    ? Loc.T("seed.innate_lowered", "Innate ({0}→{1})", innateRank, rank) : null;
+                    ? Loc.T("seed.innate_lowered", "Innate ({0}→{1})", RankText(innateRank), RankText(rank)) : null;
                 bool usable = PlantGeneticsHelper.IsTraitUsable(item, trait, out _);
-                string name = trait.maxRank > 1 ? WithRank(trait.displayName, rank) : trait.displayName;
+                string name = trait.maxRank > 1 ? trait.displayName + " " + RankText(rank) : trait.displayName;
                 string effect = PlantGeneticsHelper.DescribeEffect(trait, rank);
 
                 // 规范文本：原版同一行（标签带「（固有）」等后缀）；降级的用合并注记代替「（固有）」后缀
@@ -236,12 +238,22 @@ internal static class SeedGenes
         }
     }
 
-    /// <summary>性状名 + 阿拉伯数字等级；名字以字母或数字结尾（西文）时隔一格，中日韩直接相连。</summary>
-    private static string WithRank(string name, int rank)
+    /// <summary>
+    /// 等级文字：默认阿拉伯数字，打开设置后改用原版
+    /// <see cref="PlantGeneticsHelper.RankLabel"/> 的罗马数字（I、II、III…）。
+    /// 罗马数字由 ASCII 的 I/V/X/L/C/D/M 拼成，不涉及字体缺字；
+    /// 取不到或为空时仍回落阿拉伯数字，不让等级整格消失。
+    /// </summary>
+    private static string RankText(int rank)
     {
-        string number = Math.Max(1, rank).ToString();
-        char last = name.Length > 0 ? name[name.Length - 1] : ' ';
-        return last < 128 && char.IsLetterOrDigit(last) ? name + " " + number : name + number;
+        rank = Math.Max(1, rank);
+        if (!ModSettings.GeneRankRoman) return rank.ToString();
+        try
+        {
+            string roman = PlantGeneticsHelper.RankLabel(rank);
+            return string.IsNullOrEmpty(roman) ? rank.ToString() : roman;
+        }
+        catch { return rank.ToString(); }
     }
 
     /// <summary>从「X（固有）」「X (Innate)」这类本地化包装里取出括号里的词：用探针字符定位 X。</summary>

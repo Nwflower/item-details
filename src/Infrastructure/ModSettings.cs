@@ -91,6 +91,7 @@ internal static class ModSettings
     private static readonly Toggle BatteryToggle = new(true);
     private static readonly Toggle ProgressBarToggle = new(true);
     private static readonly Toggle ContainerUnitsToggle = new(true);
+    private static readonly Toggle GeneRomanToggle = new(false);         // 基因等级用罗马数字（恢复原版）
     private static readonly Toggle ManufacturerToggle = new(true);
 
     // ---- 操作优化 ----
@@ -292,6 +293,13 @@ internal static class ModSettings
             ContainerUnitsToggle.Define(_cfg, "info_container_units", SecInfoKey, SecInfoEn,
                 Text("config.info_container_units", "Container Volume Units"),
                 Text("config.info_container_units.tip", "Displays liquid volumes above 3 L in liters. At 3 L or below, keeps ml. Independent of Tooltip Text Formatting."));
+            // 这一项必须排在 info_manufacturer_inline 之前：RefreshInfoVisibility 把
+            // 「首项标题行 → info_manufacturer_inline」这段整段隐藏，排在它后面的条目
+            // 会落在区间外，总开关关闭时仍然可见。
+            GeneRomanToggle.Define(_cfg, "info_gene_roman", SecInfoKey, SecInfoEn,
+                Text("config.info_gene_roman", "Roman Numeral Gene Ranks"),
+                Text("config.info_gene_roman.tip", "Shows seed trait ranks in Roman numerals (I, II, III...), " +
+                     "as the vanilla game does. Off, ranks are Arabic digits."));
             ManufacturerToggle.Define(_cfg, "info_manufacturer_inline", SecInfoKey, SecInfoEn,
                 Text("config.info_manufacturer_inline", "Inline Company Name"),
                 Text("config.info_manufacturer_inline.tip", "Moves the company name to the right of the item name."));
@@ -566,6 +574,7 @@ internal static class ModSettings
     internal static bool ContentsGrid => Container || SealedBox;
     internal static bool TooltipFormatting => InfoEnhance && TooltipFormattingToggle.Value;
     internal static bool ContainerUnits => InfoEnhance && ContainerUnitsToggle.Value;
+    internal static bool GeneRankRoman => InfoEnhance && GeneRomanToggle.Value;
 
     internal static bool Machines => InfoEnhance && MachineToggle.Value;
     internal static bool ModuleEffects => Machines;

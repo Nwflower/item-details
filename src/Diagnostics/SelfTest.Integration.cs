@@ -351,7 +351,8 @@ internal static partial class SelfTest
             string[] infoKeys =
             {
                 "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat",
-                "info_machines", "info_batteries", "info_progress_bar", "info_container_units", "info_manufacturer_inline",
+                "info_machines", "info_batteries", "info_progress_bar", "info_container_units",
+                "info_gene_roman", "info_manufacturer_inline",
             };
             bool grouped = true;
             foreach (string key in infoKeys)
@@ -387,7 +388,8 @@ internal static partial class SelfTest
                 && !LiquidGate.Enabled
                 && !ModSettings.PriceImpact && !ModSettings.Contraband && !ModSettings.Lottery
                 && !ModSettings.Wine && !ModSettings.Meat && !ModSettings.Machines && !ModSettings.ModuleEffects
-                && !ModSettings.MachineBattery && !ModSettings.BlockProgressBar && !ModSettings.ManufacturerInline;
+                && !ModSettings.MachineBattery && !ModSettings.BlockProgressBar && !ModSettings.ManufacturerInline
+                && !ModSettings.GeneRankRoman;
             item = TryCreate("plasma_fuel");
             if (item == null) return "settings layout/disable: cannot create tooltip sample";
             PlasmaHelper.InitPlasmaItem(item);

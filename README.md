@@ -86,7 +86,7 @@
 
 在游戏「模组」菜单里打开本模组设置，点「应用」生效。
 
-「信息增强」是总开关，开启后出现十个细项：价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位、公司名称后置。默认全开，各自独立。
+「信息增强」是总开关，开启后出现下列细项：价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位、基因等级用罗马数字、公司名称后置。除「基因等级用罗马数字」外默认全开，各自独立。
 
 ## 原则
 
@@ -170,7 +170,7 @@ These make the game noticeably easier. Authenticity Check, Appraisal Calculator,
 
 ### Settings
 
-Open the mod's settings from the Mods menu and click Apply. Extra Item Info is the master switch for ten independent options, all on by default.
+Open the mod's settings from the Mods menu and click Apply. Extra Item Info is the master switch for the options below, each independent and on by default except the Roman numeral gene ranks.
 
 ### Principles
 

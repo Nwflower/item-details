@@ -317,6 +317,8 @@ config.info_manufacturer_inline,Azienda a destra
 config.info_manufacturer_inline.tip,Sposta il nome dell’azienda a destra sulla riga del nome dell’oggetto.
 config.info_container_units,Unità di volume dei contenitori
 config.info_container_units.tip,Mostra in litri i volumi di liquido superiori a 3 L. Fino a 3 L mantiene ml. Indipendente dalla formattazione del testo.
+config.info_gene_roman,Livelli in numeri romani
+config.info_gene_roman.tip,"Mostra di nuovo i livelli dei tratti dei semi in numeri romani (I, II, III...), come nel gioco originale. Disattivato, i livelli usano cifre arabe."
 list.zone_sep,; 
 module.special_label,Speciale
 module.learn_chance,{0}% di probabilità a notte di «Algoritmo di apprendimento»

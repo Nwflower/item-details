@@ -317,6 +317,8 @@ config.info_manufacturer_inline,Nazwa firmy po prawej
 config.info_manufacturer_inline.tip,Przenosi nazwę firmy na prawą stronę wiersza z nazwą przedmiotu.
 config.info_container_units,Jednostki objętości pojemników
 config.info_container_units.tip,Pokazuje objętość płynu powyżej 3 L w litrach. Do 3 L zachowuje ml. Niezależnie od formatowania tekstu.
+config.info_gene_roman,Poziomy cyframi rzymskimi
+config.info_gene_roman.tip,"Pokazuje poziomy cech nasion cyframi rzymskimi (I, II, III...), tak jak w oryginalnej grze. Wyłączone — poziomy są arabskie."
 list.zone_sep,; 
 module.special_label,Specjalne
 module.learn_chance,{0}% szans na noc na „Algorytm uczący się”
