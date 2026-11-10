@@ -20,11 +20,14 @@ internal static class ItemValueCache
     {
         internal readonly long Sell;
         internal readonly long List;
+        /// <summary>这组值的估值时刻（unscaledTime）；预热记忆化时按它算剩余的 TTL。</summary>
+        internal readonly float At;
 
-        internal Snapshot(long sell, long list)
+        internal Snapshot(long sell, long list, float at)
         {
             Sell = sell;
             List = list;
+            At = at;
         }
     }
 
@@ -68,13 +71,30 @@ internal static class ItemValueCache
         var value = new Snapshot(
             item.GetCurrentValue(useRetailMarkup: false, withChild: true,
                                  includeEvents: true, forceMarkup: false),
-            item.GetBaseValue());
+            item.GetBaseValue(), now);
         Entries.Add(new Entry { Item = item, Value = value, At = now });
         if (Entries.Count > MaxEntries) Entries.RemoveAt(0);
 #if ITEMDETAILS_DIAG
         Track(hit: false, now);
 #endif
         return value;
+    }
+
+    /// <summary>只读已有快照，不触发估值；供 tooltip 构建开始时预热。</summary>
+    internal static bool TryPeek(GameItem item, out Snapshot value)
+    {
+        value = default;
+        if (item == null) return false;
+        float now = UnityEngine.Time.unscaledTime;
+        for (int i = Entries.Count - 1; i >= 0; i--)
+        {
+            var entry = Entries[i];
+            if (now - entry.At > CacheSeconds) continue;
+            if (!ReferenceEquals(entry.Item, item)) continue;
+            value = entry.Value;
+            return true;
+        }
+        return false;
     }
 
     internal static void Reset()

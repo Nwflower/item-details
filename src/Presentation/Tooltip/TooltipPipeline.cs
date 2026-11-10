@@ -71,13 +71,37 @@ internal static class TooltipPipeline
         scope.Patch(AccessTools.Method(typeof(RichTextBuilder), "AddEmptyLine"),
             prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddEmptyLinePrefix)));
 
+        // 原版 tooltip 对同一件物品反复做全量递归估值（见 TooltipValueMemo）。
+        // 只在构建期间、只对悬停物品本身、只对原版那组参数生效。
+        var currentValue = AccessTools.Method(typeof(GameItem), "GetCurrentValue",
+            new[] { typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(long) });
+        var baseValue = AccessTools.Method(typeof(GameItem), "GetBaseValue", Type.EmptyTypes);
+        bool memoPatched = false;
+        if (currentValue != null)
+        {
+            memoPatched |= scope.Patch(currentValue,
+                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(ValuePrefix)),
+                postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(ValuePostfix)));
+        }
+        if (baseValue != null)
+        {
+            memoPatched |= scope.Patch(baseValue,
+                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasePrefix)),
+                postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasePostfix)));
+        }
+        if (!memoPatched) Log.Warn("TooltipPipeline.Memo", "未找到 GetCurrentValue/GetBaseValue，tooltip 估值记忆化停用");
+
         scope.OnDispose(ResetHost);
+
         Log.Msg("TooltipPipeline: patched GetTooltipBasic + AddLine + AddEmptyLine");
     }
 
     private static void ResetHost()
     {
         Reset();
+        TooltipValueMemo.Reset();
+        _valueServed = false;
+        _baseServed = false;
         _depth = 0;
         _estimatePrefix = null;
         _estimateLocale = null;
@@ -93,6 +117,8 @@ internal static class TooltipPipeline
         Reset();
         _current = __instance;
         _buildId++;
+        // 用上一帧的价值快照预热：原版构建里会反复问同一件物品的价值。
+        TooltipValueMemo.Seed(_current);
 
         // 分类必须在任何 Add 之前记录：原版 CreateItemTypeTooltip 在构建早期就把
         // " [类型]" 加进正文，记晚了既抑制不到，也会让浮窗用到上一件物品的残留。
@@ -146,6 +172,71 @@ internal static class TooltipPipeline
             return ValueBreakdown.Analyze(item) != null;
         }
         catch { return false; }
+    }
+
+    // ---------------- 估值记忆化 ----------------
+
+    // 原版 GetCurrentValue 的参数：(useRetailMarkup, withChild, includeEvents, forceMarkup, extraMarketMod)。
+    // 只认 tooltip 与「当前悬停物品」这一组，其余调用（子物品 withChild:false、交易、第三方查询）原样放行。
+    private static bool IsTooltipValueCall(GameItem item, bool __0, bool __1, bool __2, bool __3, long __4)
+        => IsBuilding && ReferenceEquals(item, _current)
+           && !__0 && __1 && __2 && !__3 && __4 == 0;
+
+    // 本次调用是否直接命中了记忆值。命中时后缀不能再写回时间戳，否则连续悬停会把
+    // TTL 一直刷新、价值永远不更新。
+    private static bool _valueServed;
+    private static bool _baseServed;
+
+    private static bool ValuePrefix(GameItem __instance, ref long __result,
+        bool __0, bool __1, bool __2, bool __3, long __4)
+    {
+        _valueServed = false;
+        try
+        {
+            if (!IsTooltipValueCall(__instance, __0, __1, __2, __3, __4)) return true;
+            if (!TooltipValueMemo.TrySell(__instance, out long value)) return true;
+            __result = value;
+            _valueServed = true;
+            return false;
+        }
+        catch { return true; }
+    }
+
+    private static void ValuePostfix(GameItem __instance, long __result,
+        bool __0, bool __1, bool __2, bool __3, long __4)
+    {
+        try
+        {
+            if (_valueServed) { _valueServed = false; return; }
+            if (!IsTooltipValueCall(__instance, __0, __1, __2, __3, __4)) return;
+            TooltipValueMemo.SetSell(__instance, __result);
+        }
+        catch { }
+    }
+
+    private static bool BasePrefix(GameItem __instance, ref long __result)
+    {
+        _baseServed = false;
+        try
+        {
+            if (!IsBuilding || !ReferenceEquals(__instance, _current)) return true;
+            if (!TooltipValueMemo.TryBase(__instance, out long value)) return true;
+            __result = value;
+            _baseServed = true;
+            return false;
+        }
+        catch { return true; }
+    }
+
+    private static void BasePostfix(GameItem __instance, long __result)
+    {
+        try
+        {
+            if (_baseServed) { _baseServed = false; return; }
+            if (!IsBuilding || !ReferenceEquals(__instance, _current)) return;
+            TooltipValueMemo.SetBase(__instance, __result);
+        }
+        catch { }
     }
 
     // ---------------- 行改写 ----------------
@@ -396,6 +487,8 @@ internal static class TooltipPipeline
         try
         {
             var value = ItemValueCache.Get(item);
+            // 这次估值同时得到售价与标价，立刻给原版接下来那几次 GetCurrentValue/GetBaseValue 用。
+            TooltipValueMemo.Seed(item);
             long sell = value.Sell;
             long list = value.List;
             return sell > 0 || list > 0;

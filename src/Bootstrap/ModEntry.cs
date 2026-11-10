@@ -227,6 +227,7 @@ public sealed partial class ModEntry : IMod
     {
         Quiet(WaterAdvice.Stop);
         Quiet(ItemValueCache.Reset);
+        Quiet(TooltipValueMemo.Reset);
         Quiet(ValueEnhance.Stop);
         Quiet(StorageInfo.Stop);
         Quiet(SealedBoxInfo.Stop);

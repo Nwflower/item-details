@@ -21,6 +21,10 @@ namespace ItemDetails;
 /// 避免与原价格行重复，也避免嵌套容器/估价失败造成另一个口径的“合计价值”。
 /// 只读；仅对带网格内部库存的容器显示；槽位型容器（无宽高）跳过。
 /// 内容物只交给 <see cref="ContentsGrid"/> 画成图标格；图标格不可用时也没有文字回退。
+///
+/// 性能：tooltip 每帧重建。内容物按 <see cref="ContentsRefresh.IntervalSeconds"/> 刷新一次快照
+/// （<see cref="ContainerContents"/>），两次刷新之间每帧只做一次引用比较；
+/// 旧实现每帧都复制一次 childItems 并跑一次全量签名比对，2500 格容器会拖慢整帧。
 /// </summary>
 internal static class StorageInfo
 {
@@ -29,6 +33,8 @@ internal static class StorageInfo
     // 多槽缓存覆盖箱子来回切换；签名发现变化立即重建，TTL 只作漏检兜底。
     private const int MaxEntries = 16;
     private const float CacheSeconds = 5f;
+    /// <summary>读取失败时旧快照最多再沿用这么久，避免一次异常就让图标格闪没。</summary>
+    private const float SnapshotStaleSeconds = 1f;
 
     private sealed class Entry
     {
@@ -39,7 +45,10 @@ internal static class StorageInfo
         internal bool IncludeRatio;
         internal bool IncludeContents;
         internal float At;
-        internal List<ContainerItemSignature>? Items;
+        internal ContainerContents? Contents;
+        internal float ScannedAt = float.MinValue;
+        /// <summary>构建 <see cref="Lines"/> 时快照的 Revision；内容物变了就要重建行。</summary>
+        internal int LinesRevision = -1;
         internal List<TooltipLine> Lines = new();
     }
 
@@ -78,20 +87,43 @@ internal static class StorageInfo
             float now = UnityEngine.Time.unscaledTime;
             string locale = Loc.Code;
 
-            List<GameItem>? items = null;
-            if (includeContents)
-            {
-                try { items = ChildItems(grids); }
-                catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); }
-            }
-
-            // 没有文字回退：图标格不可用时，本次就不显示内容物。
-            _ = allowGrid && items != null && items.Count > 0 && ContentsGrid.Claim(item, items, sealedBox: false, builder: builder);
             Entry? entry = Find(item, grid, grids.Count, locale, includeRatio, includeContents);
 
+            // 内容物：隔 RecheckSeconds 才重新读库存；中间每帧复用同一个快照（O(1)）。
+            if (includeContents && allowGrid)
+            {
+                if (entry == null || entry.Contents == null || ContentsRefresh.Due(now, entry.ScannedAt))
+                {
+                    List<GameItem>? current = null;
+                    try { current = ChildItems(grids); }
+                    catch (Exception ex) { Log.Warn("StorageInfo.ChildItems", ex); }
+
+                    if (current != null)
+                    {
+                        if (entry == null)
+                        {
+                            entry = NewEntry(item, grid, grids.Count, locale, includeRatio, includeContents);
+                            Entries.Add(entry);
+                        }
+                        var snapshot = ContainerContents.Refresh(entry.Contents, current, sealedBox: false);
+                        if (!ReferenceEquals(snapshot, entry.Contents))
+                        {
+                            entry.Contents = snapshot;
+                            entry.LinesRevision = -1;
+                        }
+                        entry.ScannedAt = now;
+                    }
+                }
+
+                if (entry?.Contents != null && now - entry.ScannedAt <= SnapshotStaleSeconds)
+                {
+                    // 没有文字回退：图标格不可用时，本次就不显示内容物。
+                    _ = ContentsGrid.Claim(item, entry.Contents, sealedBox: false, builder: builder);
+                }
+            }
+
             if (entry != null && now - entry.At <= CacheSeconds
-                && (!includeContents || items != null
-                    && ContainerItemSignature.Matches(entry.Items!, items)))
+                && (!includeContents || entry.Contents != null && entry.LinesRevision == entry.Contents.Revision))
             {
                 Touch(entry);
                 lines.AddRange(entry.Lines);
@@ -102,11 +134,19 @@ internal static class StorageInfo
             var built = new List<TooltipLine>();
             if (includeRatio) AddRatio(item, grids, built);
 
-            // 内容物读取失败时只保留本次压缩率，不写缓存，下次允许立即重试。
-            if (!includeContents || items != null)
+            if (entry == null)
             {
-                Store(item, grid, grids.Count, locale, includeRatio, includeContents, now, items, built, entry);
+                entry = NewEntry(item, grid, grids.Count, locale, includeRatio, includeContents);
+                Entries.Add(entry);
             }
+            else
+            {
+                Touch(entry);
+            }
+            entry.At = now;
+            entry.Lines = built;
+            entry.LinesRevision = entry.Contents?.Revision ?? -1;
+            while (Entries.Count > MaxEntries) Entries.RemoveAt(0);
 
             lines.AddRange(built);
             if (lines.Count > 0) Log.MarkOk("StorageInfo");
@@ -150,6 +190,18 @@ internal static class StorageInfo
         return all;
     }
 
+    private static Entry NewEntry(GameItem item, GameGridInventory grid, int gridCount, string locale,
+                                  bool includeRatio, bool includeContents)
+        => new()
+        {
+            Item = item,
+            Grid = grid,
+            GridCount = gridCount,
+            Locale = locale,
+            IncludeRatio = includeRatio,
+            IncludeContents = includeContents,
+        };
+
     private static Entry? Find(GameItem item, GameGridInventory grid, int gridCount, string locale,
                                bool includeRatio, bool includeContents)
     {
@@ -173,34 +225,6 @@ internal static class StorageInfo
         if (index < 0 || index == Entries.Count - 1) return;
         Entries.RemoveAt(index);
         Entries.Add(entry);
-    }
-
-    private static void Store(GameItem item, GameGridInventory grid, int gridCount, string locale,
-                              bool includeRatio, bool includeContents, float now,
-                              List<GameItem>? items, List<TooltipLine> lines, Entry? entry)
-    {
-        if (entry == null)
-        {
-            entry = new Entry
-            {
-                Item = item,
-                Grid = grid,
-                GridCount = gridCount,
-                Locale = locale,
-                IncludeRatio = includeRatio,
-                IncludeContents = includeContents,
-            };
-            Entries.Add(entry);
-        }
-        else
-        {
-            Touch(entry);
-        }
-
-        entry.At = now;
-        entry.Items = items == null ? null : ContainerItemSignature.Capture(items);
-        entry.Lines = lines;
-        while (Entries.Count > MaxEntries) Entries.RemoveAt(0);
     }
 
     private static void AddRatio(GameItem item, List<GameGridInventory> grids, List<TooltipLine> lines)

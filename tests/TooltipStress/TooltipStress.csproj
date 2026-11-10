@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>TooltipStress</AssemblyName>
+    <RootNamespace>ItemDetails.Stress</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- 直接编译发布版里的纯逻辑，压测的就是随包发布的同一份实现 -->
+    <Compile Include="../../src/Domain/ContentsRollup.Pure.cs" Link="ContentsRollup.Pure.cs" />
+    <Compile Include="../../src/Domain/ContentsRefresh.Pure.cs" Link="ContentsRefresh.Pure.cs" />
+  </ItemGroup>
+</Project>

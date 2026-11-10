@@ -9,6 +9,9 @@ Push-Location -LiteralPath $repo
 try {
     & dotnet run --project tests/FormulaTests/FormulaTests.csproj -c Release
     if ($LASTEXITCODE -ne 0) { throw 'Formula regressions failed.' }
+    # tooltip 热路径的极限规模回归：1024 容器 × 2500 件，纯逻辑不启动游戏。
+    & dotnet run --project tests/TooltipStress/TooltipStress.csproj -c Release
+    if ($LASTEXITCODE -ne 0) { throw 'Tooltip stress regressions failed.' }
     & python -B -m unittest discover -s tests -p test_check_localization.py
     if ($LASTEXITCODE -ne 0) { throw 'Localization validator regressions failed.' }
     & python -B tools/check_localization.py --strict-placeholders

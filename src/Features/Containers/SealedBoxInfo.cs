@@ -45,6 +45,11 @@ internal static class SealedBoxInfo
         internal float At;
         internal List<ContainerItemSignature> Items = new();
         internal string Estimate = "";
+        /// <summary>内容物快照；两次刷新之间每帧只比引用。</summary>
+        internal ContainerContents? Contents;
+        internal float ScannedAt = float.MinValue;
+        internal float EstimateAt = float.MinValue;
+        internal int EstimateRevision = -1;
         internal readonly Dictionary<GameItem, ChildValue> Values =
             new(ReferenceIdentityComparer<GameItem>.Instance);
     }
@@ -99,32 +104,65 @@ internal static class SealedBoxInfo
             catch (Exception ex) { Log.Warn("SealedBox.Window", ex); return lines; }
             if (grid == null) return lines;
 
-            List<GameItem>? items = null;
-            try { items = grid.childItems; }
-            catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
-            if (items == null || items.Count == 0) return lines;
-            if (items.Count > MaxChildren)
+            float now = UnityEngine.Time.unscaledTime;
+            Entry? entry = Find(item, grid);
+            ContainerContents? contents = entry?.Contents;
+
+            // 每帧重建 tooltip，但内容物通常不变：隔 RecheckSeconds 才重新读库存，
+            // 中间每帧复用同一个快照（O(1)）。
+            if (contents == null || ContentsRefresh.Due(now, entry!.ScannedAt))
             {
-                Log.Warn("SealedBox.Items", $"内容物 {items.Count} 件，超过上限 {MaxChildren}，跳过");
+                List<GameItem>? current = null;
+                try { current = grid.childItems; }
+                catch (Exception ex) { Log.Warn("SealedBox.Items", ex); }
+
+                if (current != null)
+                {
+                    if (entry == null)
+                    {
+                        entry = new Entry { Item = item, Grid = grid };
+                        Entries.Add(entry);
+                    }
+                    var refreshed = ContainerContents.Refresh(entry.Contents, current, sealedBox: true);
+                    if (!ReferenceEquals(refreshed, entry.Contents))
+                    {
+                        entry.Contents = refreshed;
+                        entry.EstimateRevision = -1;
+                        entry.At = float.MinValue;   // 估价缓存作废；逐件价值按指纹与 PruneChildren 自行复用
+                    }
+                    entry.ScannedAt = now;
+                    contents = entry.Contents;
+                }
+            }
+
+            if (contents == null || contents.Items.Count == 0) return lines;
+            if (contents.Items.Count > MaxChildren)
+            {
+                Log.Warn("SealedBox.Items", $"内容物 {contents.Items.Count} 件，超过上限 {MaxChildren}，跳过");
                 return lines;
             }
 
+            List<GameItem> items = contents.Items;
             string estimate;
-            List<GameItem> previewItems = items;
-            bool settled = HoverSettled(item, UnityEngine.Time.unscaledTime);
+            bool settled = HoverSettled(item, now);
             if (TryGetLuckPreview(item, items, out var probeItems, out var probeEstimate, settled))
             {
                 // 还没有样本（等待悬停）时不显示旧内容，否则会先闪一下与预览不符的物品。
                 if (probeItems.Count == 0) return lines;
-                previewItems = probeItems;
-                estimate = probeEstimate;
+                // 探针列表是稳定实例，ContentsGrid 按实例缓存快照，不会每帧重建。
+                _ = ContentsGrid.Claim(item, probeItems, sealedBox: true, sealedEstimate: probeEstimate, builder: builder);
+                return lines;
             }
-            else
+
+            if (entry!.EstimateRevision != contents.Revision || now - entry.EstimateAt > CacheSeconds)
             {
-                estimate = EstimateTitleValue(item, grid, items);
+                entry.Estimate = EstimateTitleValue(item, grid, items);
+                entry.EstimateAt = now;
+                entry.EstimateRevision = contents.Revision;
             }
+            estimate = entry.Estimate;
             // 没有文字回退：图标格不可用时，本次就不显示内容物与估价。
-            _ = ContentsGrid.Claim(item, previewItems, sealedBox: true, sealedEstimate: estimate, builder: builder);
+            _ = ContentsGrid.Claim(item, contents, sealedBox: true, sealedEstimate: estimate, builder: builder);
         }
         catch (Exception ex)
         {

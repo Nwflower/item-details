@@ -39,13 +39,6 @@ internal static class ContentsGrid
     private const int MaxCells = 15;
     private const float CountScale = 0.65f;
 
-    private sealed class Cell
-    {
-        internal string Name = "";
-        internal GameItem Item = null!;
-        internal int Count;
-    }
-
     private struct FramePart
     {
         internal Image Source;
@@ -58,13 +51,13 @@ internal static class ContentsGrid
     private static bool _broken;
 
     private static GameItem? _pendingItem;
-    private static List<GameItem>? _pendingItems;
+    private static ContainerContents? _pendingContents;
     private static bool _pendingSealed;
     private static string? _pendingSealedEstimate;
     private static float _pendingAt = float.MinValue;
 
-    // 已画好的内容；签名相同就只重新定位
-    private static List<ContainerItemSignature>? _builtItems;
+    // 已画好的内容；快照引用相同就只重新定位（O(1)，不比对内容物）
+    private static ContainerContents? _builtContents;
     private static GameItem? _builtItem;
     private static bool _builtSealed;
     private static string? _builtSealedEstimate;
@@ -74,6 +67,10 @@ internal static class ContentsGrid
     private static Vector2 _builtSize;
     private static RectTransform? _box;
     private static int _boxTextHash;
+
+    // 兼容旧调用方（传 List 而不是快照）：同一份列表实例只建一次快照。
+    private static List<GameItem>? _listSnapshotKey;
+    private static ContainerContents? _listSnapshotValue;
 
     /// <summary>当前 tooltip 用的字体；供水质成分表按实际字宽补位。还没显示过 tooltip 时为 null。</summary>
     internal static TMP_FontAsset? TemplateFont
@@ -122,21 +119,23 @@ internal static class ContentsGrid
         _template = null;
         _broken = false;
         _pendingItem = null;
-        _pendingItems = null;
+        _pendingContents = null;
         _pendingSealedEstimate = null;
         _builtSealedEstimate = null;
-        _builtItems = null;
+        _builtContents = null;
         _builtItem = null;
         _builtParent = null;
         _builtLocale = "";
         _box = null;
+        _listSnapshotKey = null;
+        _listSnapshotValue = null;
     }
 
     /// <summary>由 GetTooltipBasic 前缀调用：新一次构建开始，清掉上一件物品的认领。</summary>
     internal static void Begin()
     {
         _pendingItem = null;
-        _pendingItems = null;
+        _pendingContents = null;
         _pendingSealedEstimate = null;
     }
 
@@ -146,15 +145,35 @@ internal static class ContentsGrid
     internal static bool Claim(GameItem item, List<GameItem> items, bool sealedBox,
         string? sealedEstimate = null, RichTextBuilder? builder = null)
     {
+        if (items == null) return false;
+        // 旧调用方（自检等）传的是稳定列表；同一实例只建一次快照，避免每帧重建。
+        if (!ReferenceEquals(_listSnapshotKey, items) || _listSnapshotValue == null
+            || _listSnapshotValue.Sealed != sealedBox)
+        {
+            _listSnapshotKey = items;
+            _listSnapshotValue = ContainerContents.Capture(items, sealedBox);
+        }
+        return Claim(item, _listSnapshotValue, sealedBox, sealedEstimate, builder);
+    }
+
+    /// <summary>
+    /// 内容物快照由 <see cref="StorageInfo"/> / <see cref="SealedBoxInfo"/> 按短间隔刷新；
+    /// 这里只存引用，AfterShow 每帧用引用判断是否需要重绘。
+    /// </summary>
+    internal static bool Claim(GameItem item, ContainerContents contents, bool sealedBox,
+        string? sealedEstimate = null, RichTextBuilder? builder = null)
+    {
         try
         {
+            if (contents == null || contents.Items.Count == 0) return false;
             if (!ModSettings.ContentsGrid) return false;
             if (builder != null)
             {
                 var output = new TooltipSections.Writer(builder, item, sealedBox ? "sealed-contents" : "contents", TooltipGroupIds.Contents);
                 if (output.Capturing)
                 {
-                    output.Field("items", Array.AsReadOnly(items.ToArray()));
+                    // 快照自带只读视图，不每帧 ToArray。
+                    output.Field("items", contents.ItemsView);
                     if (sealedEstimate != null) output.Field("estimateText", sealedEstimate);
                     if (output.Finish()) return true;
                 }
@@ -164,7 +183,7 @@ internal static class ContentsGrid
             if (!TooltipPipeline.IsBuilding) return false;
             if (_template == null) return false;              // tooltip 还没显示过，画不出来
             _pendingItem = item;
-            _pendingItems = items;
+            _pendingContents = contents;
             _pendingSealed = sealedBox;
             _pendingSealedEstimate = sealedBox ? sealedEstimate : null;
             _pendingAt = UnityEngine.Time.unscaledTime;
@@ -187,8 +206,8 @@ internal static class ContentsGrid
             if (_template == null) _template = tooltipRect.GetComponentInChildren<TMP_Text>(true);
 
             var item = _pendingItem;
-            var items = _pendingItems;
-            if (item == null || items == null || items.Count == 0 || _broken || !ModSettings.ContentsGrid
+            var contents = _pendingContents;
+            if (item == null || contents == null || contents.Items.Count == 0 || _broken || !ModSettings.ContentsGrid
                 || UnityEngine.Time.unscaledTime - _pendingAt > StaleSeconds || _template == null)
             {
                 Hide();
@@ -211,18 +230,18 @@ internal static class ContentsGrid
             if (_panel == null || _panel.transform.parent != parent || !ReferenceEquals(_builtParent, parent)
                 || !ReferenceEquals(_builtItem, item) || _builtSealed != _pendingSealed
                 || !string.Equals(_builtSealedEstimate, _pendingSealedEstimate, StringComparison.Ordinal)
-                || _builtItems == null || !ContainerItemSignature.Matches(_builtItems, items)
+                || !ReferenceEquals(_builtContents, contents)
                 || !string.Equals(_builtLocale, locale, StringComparison.Ordinal))
             {
-                var cells = Group(items, out int total);
-                if (cells.Count == 0) { Hide(); return; }
-                Build(tooltipRect, _box, parent, cells, total, _pendingSealed, _pendingSealedEstimate);
+                var rollup = RollupOf(contents);
+                if (rollup.Groups.Count == 0) { Hide(); return; }
+                Build(tooltipRect, _box, parent, contents, rollup, _pendingSealed, _pendingSealedEstimate);
                 _builtItem = item;
                 _builtSealed = _pendingSealed;
                 _builtSealedEstimate = _pendingSealedEstimate;
                 _builtParent = parent;
                 _builtLocale = locale;
-                _builtItems = ContainerItemSignature.Capture(items);
+                _builtContents = contents;
             }
 
             if (_panel == null) return;
@@ -254,35 +273,21 @@ internal static class ContentsGrid
 
     // ---------------- 数据 ----------------
 
-    private static List<Cell> Group(List<GameItem> items, out int total)
+    /// <summary>归组只做一次（快照内容不变就一直复用）；换语言时按新语言重建名字。</summary>
+    private static ContentsRollup RollupOf(ContainerContents contents)
     {
-        total = 0;
-        var cells = new List<Cell>();
-        var byName = new Dictionary<string, Cell>(StringComparer.Ordinal);
-        foreach (var child in items)
-        {
-            if (child == null) continue;
-            // 按当前语言取名：item.name 是创建/读档时固化的，见 GameRead.ItemDisplayName
-            string name = GameRead.ItemDisplayName(child);
-            int stack = Math.Max(1, ContainerItemSignature.ReadStack(child));
-            if (!byName.TryGetValue(name, out var cell))
-            {
-                cell = new Cell { Name = name, Item = child };
-                byName[name] = cell;
-                cells.Add(cell);
-            }
-            cell.Count += stack;
-            total += stack;
-        }
-        return cells;
+        contents.RebindLocale(Loc.Code);
+        return contents.Rollup ??= ContentsRollup.Build(contents.Facts, MaxCells);
     }
 
     // ---------------- 构建 ----------------
 
-    private static void Build(RectTransform tooltipRect, RectTransform box, Transform parent, List<Cell> cells,
-        int total, bool sealedBox, string? sealedEstimate)
+    private static void Build(RectTransform tooltipRect, RectTransform box, Transform parent,
+        ContainerContents contents, ContentsRollup rollup, bool sealedBox, string? sealedEstimate)
     {
         var tmp = _template!;
+        var items = contents.Items;
+        int total = rollup.Total;
 
         if (_panel == null)
         {
@@ -314,9 +319,8 @@ internal static class ContentsGrid
         float gap = Mathf.Max(2f, Mathf.Round(font * 0.25f));
         float pad = Mathf.Max(4f, Mathf.Round(font * 0.6f));
 
-        int shown = cells.Count <= MaxCells ? cells.Count : MaxCells - 1;
-        int overflow = 0;
-        for (int i = shown; i < cells.Count; i++) overflow += cells[i].Count;
+        int shown = rollup.ShownCount;
+        int overflow = rollup.Overflow;
         int slots = shown + (overflow > 0 ? 1 : 0);
         int cols = Math.Min(MaxColumns, slots);
         int rows = (slots + cols - 1) / cols;
@@ -362,7 +366,8 @@ internal static class ContentsGrid
                 continue;
             }
 
-            var sprite = IconOf(cells[i].Item);
+            var group = rollup.Groups[i];
+            var sprite = IconOf(items[group.FirstIndex]);
             if (sprite != null)
             {
                 Fit(sprite, cellSize - 4f, cellSize - 4f, out float w, out float h);
@@ -375,9 +380,9 @@ internal static class ContentsGrid
                 }
             }
 
-            if (cells[i].Count > 1)
+            if (group.Count > 1)
             {
-                string count = cells[i].Count.ToString();
+                string count = group.Count.ToString();
                 float size = font * CountScale;
                 var shadow = NewText(panel, count, size, new Color(0f, 0f, 0f, 0.9f), TextAlignmentOptions.BottomRight);
                 PlaceRect(shadow.rectTransform, x + 1f, y + 1f, cellSize - 2f, cellSize - 1f);
