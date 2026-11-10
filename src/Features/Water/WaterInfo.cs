@@ -10,7 +10,7 @@ namespace ItemDetails;
 /// 带 CHEM_ITEM_TAG 的固体化学品。固体没有「水质」可言，水只作为一种成分按占比列出。
 /// 但固体的成分表只画一部分：只有带 CHEMICAL_PRODUCT_PURITY_TAG 的化学品（药片、粉末）才列，
 /// 其余固体（作物、菌菇、粪便、片剂、被植物性状注入成分的收获物）只用这份分析取药效结论，
-/// 见 <see cref="ModEntry.ShowSolidTable"/>。
+/// 见 <see cref="WaterSections.ShowSolidTable"/>。
 /// 溶质只有试剂、既没有水也没有药物活性成分的容器（碱性/酸性溶液瓶是典型）同样列成分：
 /// 扫描仪本身就会把容器里的每一种液体列出来。带 CHEMICAL_PRODUCT_TAG 的化学品除外，
 /// 它们另有自己的纯度体系（见 HiddenInfo），避免两套「纯度」并排出现。

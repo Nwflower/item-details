@@ -7,7 +7,7 @@ namespace ItemDetails;
 /// 接管液体容器的体积行：原版 WaterHelper.CreateWaterContainerTooltip 会把
 /// `体积条 + 2000 ml / 2000 ml` 画在物品名与价格下面（[标签] 行之前），
 /// 且条长 10 格、没有档位。液体组分分析开启时整段跳过原版行，
-/// 由 <see cref="ModEntry.TryAppendWater"/> 在成分表顶端重画：
+/// 由 <see cref="WaterSections.AppendAnalysis"/> 在成分表顶端重画：
 ///
 ///     ██████ 2000/2000mL 优质水
 ///
@@ -39,7 +39,7 @@ internal static class WaterContainerLine
 
     /// <summary>
     /// 与原版同一套前置条件：带 LIQUID_CONTAINER_TAG、不是酒容器。
-    /// 满足时返回 false 跳过原版体积行，交给 <see cref="ModEntry.TryAppendWater"/> 重画。
+    /// 满足时返回 false 跳过原版体积行，交给 <see cref="WaterSections.AppendAnalysis"/> 重画。
     /// </summary>
     private static bool Skip(RichTextBuilder __0, GameItem __1)
     {

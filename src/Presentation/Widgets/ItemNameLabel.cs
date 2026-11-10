@@ -123,7 +123,13 @@ internal static class ItemNameLabel
             _timer += Time.unscaledDeltaTime;
             if (_timer < Interval) return;
             _timer = 0f;
+#if ITEMDETAILS_DIAG
+            long diagStarted = HotPathPerf.Start();
+#endif
             try { ReapplyAll(); } catch { }
+#if ITEMDETAILS_DIAG
+            HotPathPerf.Stop(HotPathPerf.Slot.NameLabel, diagStarted);
+#endif
         }
     }
 
@@ -162,43 +168,21 @@ internal static class ItemNameLabel
     {
         if (element == null) return;
 
-        string mode = ModSettings.ItemNameMode;
-        if (mode.StartsWith("无", StringComparison.Ordinal) || mode.StartsWith("Off", StringComparison.OrdinalIgnoreCase))
+        if (!ModSettings.ContainerNames)
         {
             Hide(element);
             return;
         }
 
-        bool renamedOnly = mode.StartsWith("仅", StringComparison.Ordinal)
-                        || mode.StartsWith("Renamed", StringComparison.OrdinalIgnoreCase);
-
         string name = "";
-        bool want = false;
-
-        if (renamedOnly)
+        bool want = ShouldShowContainer(element);
+        if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
+        if (want)
         {
-            // 只认「用标签打印机改过名」的物品，显示改后的名字
-            try
-            {
-                if (GeneralHelper.HasCustomName(element))
-                {
-                    want = true;
-                    name = GeneralHelper.GetCustomName(element) ?? "";
-                }
-            }
-            catch (Exception ex) { Log.Warn("NameLabel.CustomName", ex); }
-        }
-        else
-        {
-            want = ShouldShowContainer(element);
-            if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
-            if (want)
-            {
-                // preferCustomName：改过名的容器优先显示改后的名字。
-                // 用无参版本会走回 name 字段，标签打印机改的名字被忽略（「我的保险箱」又变回「保险箱」）。
-                try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
-                catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
-            }
+            // preferCustomName：改过名的容器优先显示改后的名字。
+            // 用无参版本会走回 name 字段，标签打印机改的名字被忽略（「我的保险箱」又变回「保险箱」）。
+            try { name = element.GetDisplayName(preferCustomName: true) ?? ""; }
+            catch (Exception ex) { Log.Warn("NameLabel.DisplayName", ex); }
         }
 
         if (!want || name.Length == 0)
@@ -442,16 +426,6 @@ internal static class ItemNameLabel
         text.raycastTarget = false;
     }
 
-    /// <summary>上/中/下三档位置：按设置把标签放在外接框的对应一侧（屏幕像素）。</summary>
-    private static float RowY(string mode, float minY, float maxY, float height)
-    {
-        if (mode.StartsWith("顶", StringComparison.Ordinal) || mode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
-            return maxY - height - LabelBottomInset;
-        if (mode.StartsWith("中", StringComparison.Ordinal) || mode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
-            return (minY + maxY) * 0.5f - height * 0.5f;
-        return minY + LabelBottomInset;   // 默认底部
-    }
-
     private static void Place(GameItemElement element, Label label)
     {
         try
@@ -504,14 +478,8 @@ internal static class ItemNameLabel
             Vector3 e1 = corners[(bottomEdge + 1) % 4];
             float centerX = (e0.x + e1.x) * 0.5f;
 
-            float y;
-            var posMode = ModSettings.ItemNamePosition;
-            if (posMode.StartsWith("顶", StringComparison.Ordinal) || posMode.StartsWith("Top", StringComparison.OrdinalIgnoreCase))
-                y = maxY - height - LabelBottomInset;
-            else if (posMode.StartsWith("中", StringComparison.Ordinal) || posMode.StartsWith("Middle", StringComparison.OrdinalIgnoreCase))
-                y = (minY + maxY) * 0.5f - height * 0.5f;
-            else
-                y = bottomMidY + LabelBottomInset;
+            // 标签贴在物品底边上方
+            float y = bottomMidY + LabelBottomInset;
 
             // 必须先应用最终字号再测宽；否则水罐这类短名字会按旧的 12 号字测宽，
             // 随后以更大的字号写进同一个窄框，被 Truncate 截成一个字。

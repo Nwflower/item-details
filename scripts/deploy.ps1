@@ -1,7 +1,10 @@
 #Requires -Version 7.4
 <#
 .SYNOPSIS
-  构建 Release 并部署到游戏的 Mods 目录（旧版先备份）。游戏在运行时直接退出，不覆盖。
+  构建并部署到游戏的 Mods 目录（旧版先备份）。游戏在运行时直接退出，不覆盖。
+.PARAMETER Variant
+  部署哪种构建：Release（默认）、Diag（带 [perf] 等诊断日志）或 SelfTest。
+  本地 Mods 下的同 ID 副本会顶掉工坊订阅的版本；测完想回到工坊版本，删掉 Mods/<ID> 文件夹即可。
 .PARAMETER GameDir
   游戏安装目录；缺省读环境变量 PS_GAME_DIR。
 .PARAMETER Audit
@@ -10,6 +13,8 @@
 #>
 param(
     [string]$GameDir = $env:PS_GAME_DIR,
+    [ValidateSet('Release', 'Diag', 'SelfTest')]
+    [string]$Variant = 'Release',
     [switch]$Audit,
     [switch]$SkipBuild
 )
@@ -52,10 +57,10 @@ if (Get-Process -Name 'Probably Stolen' -ErrorAction SilentlyContinue) {
 }
 
 if (-not $SkipBuild) {
-    & (Join-Path $PSScriptRoot 'build.ps1') -GameDir $game
+    & (Join-Path $PSScriptRoot 'build.ps1') -GameDir $game -Variant $Variant
     if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) { throw "构建失败，退出码 $LASTEXITCODE。" }
 }
-$dll = Join-Path $repo 'bin/Release/netstandard2.1/ItemDetails.dll'
+$dll = Join-Path $repo "bin/$Variant/netstandard2.1/ItemDetails.dll"
 if (-not (Test-Path -LiteralPath $dll)) { throw "没有构建产物：$dll" }
 
 $modDir = Join-Path $game "Mods/$id"
@@ -74,7 +79,7 @@ foreach ($name in @('manifest.xml', 'README.md', 'CONTRIBUTING.md', 'LICENSE', '
 Copy-Item -Path (Join-Path $repo 'Localization/*.csv') -Destination (Join-Path $modDir 'Localization') -Force
 
 $deployed = Get-Item -LiteralPath (Join-Path $modDir 'ItemDetails.dll')
-Write-Output ("已部署 {0} v{1} -> {2}" -f $id, $version, $modDir)
+Write-Output ("已部署 {0} v{1}（{3}） -> {2}" -f $id, $version, $modDir, $Variant)
 Write-Output ("DLL {0:N0} 字节，修改于 {1:yyyy-MM-dd HH:mm:ss}；声明的 Capabilities：{2}" -f
     $deployed.Length, $deployed.LastWriteTime, ($(if ($declared.Count) { $declared -join ', ' } else { '（空）' })))
 Write-Output '下一步：启动游戏激活后，F8 执行 mod-scan item_details；退出后可运行 scripts/deploy.ps1 -Audit 对照日志。'

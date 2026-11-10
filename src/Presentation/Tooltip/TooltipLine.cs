@@ -64,13 +64,22 @@ internal readonly struct TooltipLine
     /// </summary>
     internal readonly string? Render;
 
-    private TooltipLine(TooltipLine source, string render)
+    /// <summary>
+    /// 带条行尾注的呈现写法（如充能行里灰色的「+N」、学习条名字后面的「当前/上限」）；null 表示照 <see cref="Tail"/> 显示。
+    /// 与 <see cref="Render"/> 一样只在原版窗口构建时换入，规范文本仍是 <see cref="Tail"/>。
+    /// </summary>
+    internal readonly string? TailRender;
+
+    private TooltipLine(TooltipLine source, string? render, string? tailRender)
     {
         this = source;
         Render = render;
+        TailRender = tailRender;
     }
 
-    internal TooltipLine WithRender(string render) => new TooltipLine(this, render);
+    internal TooltipLine WithRender(string render) => new TooltipLine(this, render, TailRender);
+
+    internal TooltipLine WithTailRender(string? tailRender) => new TooltipLine(this, Render, tailRender);
 
     private TooltipLine(TooltipLine source, int barLength)
     {
@@ -86,7 +95,7 @@ internal readonly struct TooltipLine
     {
         string tail = Tail ?? "";
         var plain = new TooltipLine(Text + tail, Color);
-        plain = plain.WithRender((Render ?? Text) + (MachineAdapters.RechargeTailRender(this) ?? tail));
+        plain = plain.WithRender((Render ?? Text) + (TailRender ?? tail));
         return DataKind != null && Data != null ? plain.WithData(DataKind, Data) : plain;
     }
 

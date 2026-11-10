@@ -52,7 +52,7 @@ internal static class TooltipLineWrap
             scope.Patch(method,
                 prefix: new HarmonyMethod(typeof(TooltipLineWrap), nameof(Enter)),
                 finalizer: new HarmonyMethod(typeof(TooltipLineWrap), nameof(Exit)));
-        scope.OnDispose(() => _depth = 0);
+        scope.OnDispose(() => { _depth = 0; _memoSlices = null; });
     }
 
     private static void Enter(out bool __state)
@@ -64,19 +64,44 @@ internal static class TooltipLineWrap
     private static void Exit(bool __state)
     {
         if (__state) _depth--;
+        _memoSlices = null;   // 不让上一次构建的片段表活过这次 tooltip
     }
+
+    // 原版在 FindBestSlice 返回 (-1,-1) 后紧接着用同一组参数调 FindCharBreak（见 RichTextBuilder.Build），
+    // 中间不改片段表。两个前缀要的是同一个断点，所以前者算完留给后者，用一次就作废，不重复读片段。
+    private static object? _memoSlices;
+    private static int _memoBegin, _memoEnd, _memoBudget;
+    private static bool _memoFound;
+    private static BreakPoint _memoPoint;
 
     // 片段类型是私有嵌套类，参数只能写成 object
     private static bool BeforeBest(object slices, int beginIndex, int endIndex, int maxLength, ref (int, int) __result)
     {
-        if (!TryFind(slices, beginIndex, endIndex, maxLength, out var point)) return true;
+        bool found = TryFind(slices, beginIndex, endIndex, maxLength, out var point);
+        _memoSlices = slices;
+        _memoBegin = beginIndex;
+        _memoEnd = endIndex;
+        _memoBudget = maxLength;
+        _memoFound = found;
+        _memoPoint = point;
+        if (!found) return true;
         __result = point.IsSpace ? (point.Slice, point.Index) : (-1, -1);
         return false;
     }
 
     private static bool BeforeCharBreak(object slices, int beginIndex, int endIndex, int maxLength, ref (int, int) __result)
     {
-        if (!TryFind(slices, beginIndex, endIndex, maxLength, out var point) || point.IsSpace) return true;
+        bool found;
+        BreakPoint point;
+        if (ReferenceEquals(_memoSlices, slices) && _memoBegin == beginIndex && _memoEnd == endIndex
+            && _memoBudget == maxLength)
+        {
+            found = _memoFound;
+            point = _memoPoint;
+        }
+        else found = TryFind(slices, beginIndex, endIndex, maxLength, out point);
+        _memoSlices = null;
+        if (!found || point.IsSpace) return true;
         __result = (point.Slice, point.Index);
         return false;
     }
@@ -85,6 +110,9 @@ internal static class TooltipLineWrap
     {
         point = default;
         if (_depth <= 0 || !ModSettings.TooltipFormatting || !BreaksAnywhere(Loc.Code)) return false;
+#if ITEMDETAILS_DIAG
+        long diagStarted = HotPathPerf.Start();
+#endif
         try
         {
             if (!(slices is IList list)) return false;
@@ -106,6 +134,9 @@ internal static class TooltipLineWrap
             Log.Warn("TooltipLineWrap", ex);
             return false;
         }
+#if ITEMDETAILS_DIAG
+        finally { HotPathPerf.Stop(HotPathPerf.Slot.Wrap, diagStarted); }
+#endif
     }
 
     /// <summary>韩文虽然也按双倍字宽算，但靠空格分词，不属于这一类。</summary>

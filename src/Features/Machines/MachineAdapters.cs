@@ -74,16 +74,9 @@ internal static class MachineAdapters
     private const int RechargerBar = 6;
 
     /// <summary>
-    /// 充能行尾注的呈现写法：今晚充入的「+N」画成灰色，规范文本不变；不是充能行或没有「+N」时返回 null。
+    /// 充能行尾注的呈现写法：今晚充入的「+N」画成灰色，规范文本不变；没有「+N」时返回 null。
     /// </summary>
-    internal static string? RechargeTailRender(TooltipLine ln)
-        => ln.DataKind == "recharge" && ln.Data is ValueTuple<string, int, int, int> d
-            ? RechargeTailRender(ln.Tail ?? "", d.Item3) : null;
-
-    /// <summary>行首呈现里「\u0006充入量」标记的字符：条行经 Writer 重建后拿不到 Data，用它把充入量带到 AddBarLine。</summary>
-    internal const char GainMark = '\u0006';
-
-    internal static string? RechargeTailRender(string tail, int gainPoints)
+    private static string? RechargeTailRender(string tail, int gainPoints)
     {
         if (gainPoints <= 0) return null;
         string gain = "+" + gainPoints + "/";
@@ -144,7 +137,7 @@ internal static class MachineAdapters
                 string head = bars.Count == 0
                     ? ModuleEffectAnnotation.ChipMarkup(label, 'c', ColumnLayout.CyanText) + ModuleEffectAnnotation.Pos(c)
                     : ModuleEffectAnnotation.Pos(c);
-                line = line.WithRender(gain > 0 ? head + GainMark + gain : head);
+                line = line.WithRender(head).WithTailRender(RechargeTailRender(name + " " + amount, gain));
             }
             bars.Add(line);
         }
@@ -528,11 +521,12 @@ internal static class MachineAdapters
     {
         var line = new TooltipLine(" ", ratio, LearningBar, tail, color, dark);
         if (LearningColumn() is not float col) return line;
-        string render = ModuleEffectAnnotation.Pos(col);
-        // 标记后面依次是：还差点数;当前合计;上限合计;是否估算天数（1/0）
-        if (remainingPoints > 0)
-            render += SelfLearningMachine.RemainingMark.ToString() + remainingPoints + ";" + progress + ";" + progressMax + ";" + (estimateDays ? "1" : "0");
-        return line.WithRender(render);
+        line = line.WithRender(ModuleEffectAnnotation.Pos(col));
+        // 名字后面补「当前合计/上限合计」；要估天数的再留一个「还需 N 晚」占位，构建时按当晚训练次数换算
+        if (remainingPoints > 0 && tail.Length > 0)
+            line = line.WithTailRender(tail + "  " + progress + "/" + progressMax
+                + (estimateDays ? " " + SelfLearningMachine.NightsStart + remainingPoints + SelfLearningMachine.NightsEnd : ""));
+        return line;
     }
 
     /// <summary>表头里「自学习」那个词；取不出冒号分隔的标签时为空。</summary>

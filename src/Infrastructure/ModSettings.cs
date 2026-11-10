@@ -629,8 +629,7 @@ internal static class ModSettings
     internal static bool TypeBadgeMuted => TypeBadgeMutedToggle.Value;
     internal static bool BlockProgressBar => InfoEnhance && ProgressBarToggle.Value;
     internal static bool ManufacturerInline => InfoEnhance && ManufacturerToggle.Value;
-    internal static string ItemNameMode => InfoEnhance && ContainerNameToggle.Value ? "容器名 (Containers)" : "无 (Off)";
-    internal static string ItemNamePosition => "底部 (Bottom)";
+    internal static bool ContainerNames => InfoEnhance && ContainerNameToggle.Value;
     internal static bool ItemNameBackground => NameBgOpacity > 0;
     internal static float ItemNameBackgroundAlpha => NameBgOpacity / 100f;
     private static int NameBgOpacity => Math.Max(0, Math.Min(100, _nameBgOpacity?.Value ?? DefaultNameBgOpacity));

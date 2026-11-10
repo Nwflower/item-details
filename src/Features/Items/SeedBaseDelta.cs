@@ -45,7 +45,7 @@ internal static class SeedBaseDelta
             if (current == baseValue)
             {
                 // 与基础值相同：只写当前值
-                ModEntry.AddLine(builder, effectiveText, color);
+                LineOutput.AddLine(builder, effectiveText, color);
                 return false;
             }
 

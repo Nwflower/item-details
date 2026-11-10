@@ -206,6 +206,10 @@ public sealed partial class ModEntry : IMod
         Patch("CalendarEvents", CalendarEvents.Install);
         // 第三方兼容：Neon Undertow 自己画风味饮料成分，按逐件接管让出重复的液体分析区块。
         Patch("NeonUndertowCompat", NeonUndertow.Install);
+#if ITEMDETAILS_DIAG
+        // 悬停热路径分段计时：只进诊断构建
+        Patch("HotPathPerf", HotPathPerf.Install);
+#endif
         // F8 控制台的西文字体没有中文字形；把游戏自带中文字体登记成 TMP 全局回退，
         // 避免中文日志每行都触发 “character not found” 警告并显示成空框。
         Patch("ChineseFontFallback", scope =>

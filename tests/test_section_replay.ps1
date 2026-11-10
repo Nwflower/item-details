@@ -180,7 +180,7 @@ foreach ($w in 1..2000) {
     if ($got -ne $want -or $n -gt $w) { throw "FAIL narrow width=$w narrowed=$n budget=$got want=$want" }
 }
 Check $true 'narrowed width restores the 0.66 budget exactly for widths 1..2000'
-$writerSource = Get-Content (Join-Path $repo 'src/Bootstrap/ModEntry.Tooltip.cs') -Raw
+$writerSource = Get-Content (Join-Path $repo 'src/Presentation/Tooltip/LineOutput.cs') -Raw
 $marks = [regex]::Matches($writerSource, 'builder\.AddProgressBar\([^;]*\);\s*ProgressBarStyle\.MarkOwnBar\(builder\);').Count
 $calls = [regex]::Matches($writerSource, 'builder\.AddProgressBar\(').Count
 Check ($calls -gt 0 -and $marks -eq $calls) "every own AddProgressBar call is counted as ours ($marks/$calls)"

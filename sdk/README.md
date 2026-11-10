@@ -107,4 +107,4 @@ private static void ReadWaterRows(IReadOnlyDictionary<string, object> fields)
 - **液体**：`TryGetLiquidAnalysis` / `TryGetWaterAdvice` 与通用区块独立。净化收益单位是**百分点**；空列表是有效结果（当前无可列手段）。0.9.0 起两者各受一个开关控制：液体组分分析关闭时 `TryGetLiquidAnalysis` 返回空，`TryGetWaterAdvice` 仍照常返回；只有分析设为「有扫描器时开启」时，净化建议才一起要求扫描器。见[兼容契约](../COMPATIBILITY.md)的「显隐变更」。
 - **线程与清理**：全部在游戏主线程；每帧悬停可能重建。逐件暂存随本次构建清理，句柄在 `OnDisable` 释放。
 
-字段与区块清单见 [CONTRIBUTING.md](../CONTRIBUTING.md)。
+字段与区块清单见 [INTEGRATION.md](INTEGRATION.md)。

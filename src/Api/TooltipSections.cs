@@ -118,16 +118,17 @@ internal static class TooltipSections
         // 规范文本进 runs，第三方读到的是它；render 只在原样回放到原版 builder 时挂成渲染注解。
         internal void AddLine(string text, Color color, string render) => Write(("line", text, color, 0, 0, default, ""), render);
         internal void NextLine() => Write(("break", "", default, 0, 0, default, ""));
-        internal void Bar(TooltipLine line) => Write(("bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""), line.Render);
+        internal void Bar(TooltipLine line) => Write(("bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""), line.Render, line.TailRender);
         internal void InlineBar(TooltipLine line) => Write(("inline-bar", line.Text, line.Color, line.Bar, line.BarLength, line.BarDark, line.Tail ?? ""));
 
-        private void Write(Run run, string? render = null)
+        private void Write(Run run, string? render = null, string? tailRender = null)
         {
-            if (buffer == null) Replay(Native, run, render);
+            if (buffer == null) Replay(Native, run, render, tailRender);
             else
             {
                 (buffer.Runs ??= new List<Run>()).Add(run);
                 if (render != null) (buffer.Renders ??= new Dictionary<int, string>())[buffer.Runs.Count - 1] = render;
+                if (tailRender != null) (buffer.TailRenders ??= new Dictionary<int, string>())[buffer.Runs.Count - 1] = tailRender;
             }
         }
 
@@ -194,11 +195,13 @@ internal static class TooltipSections
             if (claimed) return true;
             if (buffer.Width > 0) Native.maxCharWidth = Math.Max(buffer.Width, Native.maxCharWidth);
             for (int i = 0; i < runs.Count; i++)
-                Replay(Native, runs[i], buffer.Renders != null && buffer.Renders.TryGetValue(i, out var render) ? render : null);
+                Replay(Native, runs[i],
+                    buffer.Renders != null && buffer.Renders.TryGetValue(i, out var render) ? render : null,
+                    buffer.TailRenders != null && buffer.TailRenders.TryGetValue(i, out var tailRender) ? tailRender : null);
             return false;
         }
 
-        private static void Replay(RichTextBuilder builder, Run run, string? render = null)
+        private static void Replay(RichTextBuilder builder, Run run, string? render = null, string? tailRender = null)
         {
             switch (run.Kind)
             {
@@ -214,16 +217,18 @@ internal static class TooltipSections
                     break;
                 case "line":
                     if (render != null) RenderSlices.AddLine(builder, run.Text, run.Color, render);
-                    else ModEntry.AddLine(builder, run.Text, run.Color);
+                    else LineOutput.AddLine(builder, run.Text, run.Color);
                     break;
                 case "break": builder.NextLine(); break;
                 case "bar":
                 {
                     var barLine = new TooltipLine(run.Text, run.Ratio, run.Length, run.Tail, run.Color, run.Background);
-                    ModEntry.AddBarLine(builder, render != null ? barLine.WithRender(render) : barLine);
+                    if (render != null) barLine = barLine.WithRender(render);
+                    if (tailRender != null) barLine = barLine.WithTailRender(tailRender);
+                    LineOutput.AddBarLine(builder, barLine);
                     break;
                 }
-                case "inline-bar": ModEntry.AddInlineBarLine(builder, new TooltipLine(run.Text, run.Ratio, run.Length,
+                case "inline-bar": LineOutput.AddInlineBarLine(builder, new TooltipLine(run.Text, run.Ratio, run.Length,
                     run.Tail, run.Color, run.Background)); break;
             }
         }
@@ -239,6 +244,8 @@ internal static class TooltipSections
         internal List<Run>? Runs;
         /// <summary>按 run 下标记的呈现写法；只给回放用，不进快照。</summary>
         internal Dictionary<int, string>? Renders;
+        /// <summary>带条行尾注的呈现写法，键同 <see cref="Renders"/>。</summary>
+        internal Dictionary<int, string>? TailRenders;
         internal Dictionary<string, object>? Fields;
 
         internal Buffer(GameItem item, string id, Display? displays, bool watch)

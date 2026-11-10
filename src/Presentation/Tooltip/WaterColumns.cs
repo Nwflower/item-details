@@ -267,7 +267,7 @@ internal static class WaterColumns
 
     /// <summary>
     /// 液体容器的成分表：体积条表头 + 每种成分一行。
-    /// 成分一律全部列出，不折叠；净化建议另起一行（见 ModEntry.TryAppendWaterAdvice）。
+    /// 成分一律全部列出，不折叠；净化建议另起一行（见 WaterSections.AppendAdvice）。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
     /// <param name="adviceRightEdge">净化建议要求的百分比列右端（见 <see cref="AdviceRightEdge"/>），0 表示没有建议行。</param>

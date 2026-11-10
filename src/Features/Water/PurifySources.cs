@@ -87,7 +87,13 @@ internal static class PurifySources
             if (_cached != null && UnityEngine.Time.unscaledTime - _cachedAt <= CacheSeconds)
                 return _cached;
 
+#if ITEMDETAILS_DIAG
+            long diagStarted = HotPathPerf.Start();
+#endif
             _cached = CountOwned();
+#if ITEMDETAILS_DIAG
+            HotPathPerf.Stop(HotPathPerf.Slot.OwnedScan, diagStarted);
+#endif
             _cachedAt = UnityEngine.Time.unscaledTime;
             return _cached;
         }

@@ -121,7 +121,7 @@ internal static class RenderSlices
     internal static void AddLine(RichTextBuilder builder, string text, RenderHandler.ColorPalette color, string render)
     {
         int before = Count(builder);
-        ModEntry.AddLine(builder, text, color);
+        LineOutput.AddLine(builder, text, color);
         if (before >= 0 && !string.Equals(text, render, StringComparison.Ordinal))
             Annotate(builder, before, text, new Style(color), render);
     }

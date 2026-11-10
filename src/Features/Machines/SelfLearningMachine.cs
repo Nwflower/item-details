@@ -59,8 +59,6 @@ internal static class SelfLearningMachine
     /// <summary>「还需 N 晚」占位：<c>\u0004剩余点数\u0005</c>，构建时用 Pen 的当晚训练次数换算。</summary>
     internal const char NightsStart = '\u0004';
     internal const char NightsEnd = '\u0005';
-    /// <summary>学习条行首呈现里标记「后面跟剩余点数」的分隔符（只在渲染写法里用，不进规范文本）。</summary>
-    internal const char RemainingMark = '\u0007';
 
     private const string PenModId = "Pen_mod_selflearning";
     private const string TrainingKey = "training_preview";
