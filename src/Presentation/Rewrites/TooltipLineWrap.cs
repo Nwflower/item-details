@@ -21,11 +21,20 @@ internal static class TooltipLineWrap
 
     internal static void Install(PatchScope scope)
     {
-        // 片段类型是私有嵌套类，写不了 typeof。类型名要写成字面量：模组扫描靠它确认反射目标在游戏程序集内，
-        // AccessTools.Inner 算出来的类型会被判成 reflection-external。
-        _text = AccessTools.Field(AccessTools.TypeByName("RichTextBuilder+TextSlice"), "text");
-        _newLine = AccessTools.Field(AccessTools.TypeByName("RichTextBuilder+TextSlice"), "isNewLine");
-        _noBreak = AccessTools.Field(AccessTools.TypeByName("RichTextBuilder+TextSlice"), "noBreak");
+        // 片段类型是私有嵌套类，写不了 typeof。类型名要写成程序集限定的字面量并直接接 GetField：
+        // 旧版扫描器（scanner version 3，游戏 100-Rev12 及更早）只认 Type.GetType("字面量") 这一种写法，
+        // AccessTools.TypeByName / Inner 都会被判成 AccessTools.Field on a computed type（reflection-external）。
+        try
+        {
+            const BindingFlags any = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            _text = Type.GetType("RichTextBuilder+TextSlice, Assembly-CSharp").GetField("text", any);
+            _newLine = Type.GetType("RichTextBuilder+TextSlice, Assembly-CSharp").GetField("isNewLine", any);
+            _noBreak = Type.GetType("RichTextBuilder+TextSlice, Assembly-CSharp").GetField("noBreak", any);
+        }
+        catch (NullReferenceException)
+        {
+            _text = _newLine = _noBreak = null;
+        }
         var best = AccessTools.Method(typeof(RichTextBuilder), "FindBestSlice");
         var charBreak = AccessTools.Method(typeof(RichTextBuilder), "FindCharBreak");
         var tooltip = AccessTools.Method(typeof(GameItemElement), "GetTooltip", Type.EmptyTypes);
