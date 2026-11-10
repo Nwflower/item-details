@@ -314,6 +314,8 @@ config.info_manufacturer_inline,회사명을 오른쪽에 표시
 config.info_manufacturer_inline.tip,회사명을 아이템 이름과 같은 줄의 오른쪽으로 옮깁니다.
 config.info_container_units,용기 부피 단위
 config.info_container_units.tip,3 L를 초과하는 액체는 L로 표시합니다. 3 L 이하는 ml를 유지하며 툴팁 텍스트 서식과 독립적입니다.
+config.info_gene_roman,유전자 등급 로마 숫자 표시
+config.info_gene_roman.tip,"씨앗 유전자 표시의 형질 등급을 게임 원래의 로마 숫자(I, II, III…)로 되돌립니다. 끄면 아라비아 숫자로 표시됩니다."
 list.zone_sep,; 
 module.special_label,특수
 module.learn_chance,매일 밤 {0}% 확률로 학습 알고리즘 부여

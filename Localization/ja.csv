@@ -314,6 +314,8 @@ config.info_manufacturer_inline,会社名を右に表示
 config.info_manufacturer_inline.tip,会社名をアイテム名と同じ行の右側に表示します。
 config.info_container_units,容器の体積単位
 config.info_container_units.tip,3 L を超える液量を L で表示します。3 L 以下は ml のままです。ツールチップの文字設定とは独立しています。
+config.info_gene_roman,遺伝子レベルのローマ数字表記
+config.info_gene_roman.tip,種子の遺伝子表示で、形質のレベルをゲーム本来のローマ数字（I、II、III…）に戻します。オフのときはアラビア数字です。
 list.zone_sep,／
 module.special_label,特殊
 module.learn_chance,毎晩{0}%の確率で学習アルゴリズムを付与

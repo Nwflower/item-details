@@ -314,6 +314,8 @@ config.info_manufacturer_inline,Empresa a la derecha
 config.info_manufacturer_inline.tip,Mueve el nombre de la empresa a la derecha en la línea del nombre del objeto.
 config.info_container_units,Unidades de volumen de recipientes
 config.info_container_units.tip,Muestra en litros los volúmenes de líquido superiores a 3 L. Hasta 3 L conserva ml. Independiente del formato de texto.
+config.info_gene_roman,Niveles en números romanos
+config.info_gene_roman.tip,"Vuelve a mostrar los niveles de los rasgos de las semillas en números romanos (I, II, III...), como en el juego original. Desactivado, los niveles usan cifras árabes."
 list.zone_sep,; 
 module.special_label,Especial
 module.learn_chance,{0} % de probabilidad por noche de «Algoritmo de aprendizaje»

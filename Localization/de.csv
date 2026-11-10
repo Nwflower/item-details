@@ -314,6 +314,8 @@ config.info_manufacturer_inline,Firmenname rechts
 config.info_manufacturer_inline.tip,Verschiebt den Firmennamen nach rechts in die Zeile des Gegenstandsnamens.
 config.info_container_units,Volumeneinheiten für Behälter
 config.info_container_units.tip,Zeigt Flüssigkeitsmengen über 3 L in Litern an. Bis 3 L bleibt ml erhalten. Unabhängig von der Tooltip-Textformatierung.
+config.info_gene_roman,Genetik-Stufen als römische Zahlen
+config.info_gene_roman.tip,"Zeigt die Stufen der Samen-Merkmale wieder als römische Zahlen (I, II, III ...) wie im Originalspiel. Ausgeschaltet stehen arabische Ziffern."
 list.zone_sep,; 
 module.special_label,Spezial
 module.learn_chance,{0} % Chance pro Nacht auf „Lernender Algorithmus“

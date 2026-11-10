@@ -314,6 +314,8 @@ config.info_manufacturer_inline,Empresa à direita
 config.info_manufacturer_inline.tip,Move o nome da empresa para a direita na linha do nome do item.
 config.info_container_units,Unidades de volume dos recipientes
 config.info_container_units.tip,Mostra em litros os volumes de líquido acima de 3 L. Até 3 L mantém ml. Independente da formatação do texto.
+config.info_gene_roman,Níveis em algarismos romanos
+config.info_gene_roman.tip,"Volta a mostrar os níveis das características das sementes em algarismos romanos (I, II, III...), como no jogo original. Desativado, os níveis usam algarismos arábicos."
 list.zone_sep,; 
 module.special_label,Especial
 module.learn_chance,{0}% de chance por noite de receber «Algoritmo de aprendizado»
