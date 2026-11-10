@@ -12,6 +12,8 @@ internal static class AnimalGenes
 {
     private const string AlleleSeparator = " / ";
     private static readonly Func<string, float, float, Palette>? StatColor = BindStatColor();
+    // 旧版模组扫描器会把 OpCode 的比较运算符误判为动态代码。
+    private static readonly EqualityComparer<OpCode> OpcodeComparer = EqualityComparer<OpCode>.Default;
 
     // 原版初始等位基因是两次 U(0.5, 1.5) 的均值。按对称三角分布取第 90、70、40 百分位。
     private static readonly double GradeS = 0.5 - Math.Sqrt(0.10 / 2);
@@ -54,12 +56,12 @@ internal static class AnimalGenes
         int length = (Traits.Length - 1) * instructionsPerStat;
         for (int start = 2; start + length < body.Count; start++)
         {
-            if (body[start].opcode != OpCodes.Ldstr || !Equals(body[start].operand, Traits[1].Key)) continue;
+            if (!OpcodeComparer.Equals(body[start].opcode, OpCodes.Ldstr) || !Equals(body[start].operand, Traits[1].Key)) continue;
             var loadSpecies = body[start - 2];
             var skip = body[start - 1];
-            if (loadSpecies.opcode != OpCodes.Ldfld || loadSpecies.operand is not FieldInfo field
+            if (!OpcodeComparer.Equals(loadSpecies.opcode, OpCodes.Ldfld) || loadSpecies.operand is not FieldInfo field
                 || field.FieldType != typeof(AnimalSpecies) || skip.blocks.Count != 0
-                || (skip.opcode != OpCodes.Brfalse && skip.opcode != OpCodes.Brfalse_S))
+                || (!OpcodeComparer.Equals(skip.opcode, OpCodes.Brfalse) && !OpcodeComparer.Equals(skip.opcode, OpCodes.Brfalse_S)))
                 continue;
             if (!MatchesStats(body, start, instructionsPerStat)) continue;
 
@@ -83,10 +85,10 @@ internal static class AnimalGenes
             int pos = start + (i - 1) * stride;
             var closure = body[pos + 2];
             var call = body[pos + 3];
-            if (body[pos].opcode != OpCodes.Ldstr || !Equals(body[pos].operand, Traits[i].Key)
-                || body[pos + 1].opcode != OpCodes.Ldstr || !Equals(body[pos + 1].operand, Traits[i].Id)
-                || (closure.opcode != OpCodes.Ldloca && closure.opcode != OpCodes.Ldloca_S)
-                || call.opcode != OpCodes.Call || call.operand is not MethodInfo method
+            if (!OpcodeComparer.Equals(body[pos].opcode, OpCodes.Ldstr) || !Equals(body[pos].operand, Traits[i].Key)
+                || !OpcodeComparer.Equals(body[pos + 1].opcode, OpCodes.Ldstr) || !Equals(body[pos + 1].operand, Traits[i].Id)
+                || (!OpcodeComparer.Equals(closure.opcode, OpCodes.Ldloca) && !OpcodeComparer.Equals(closure.opcode, OpCodes.Ldloca_S))
+                || !OpcodeComparer.Equals(call.opcode, OpCodes.Call) || call.operand is not MethodInfo method
                 || method.DeclaringType != typeof(HusbandryHelper)
                 || !method.Name.StartsWith("<CreateItemTooltip>g__AddStatLine|", StringComparison.Ordinal))
                 return false;
