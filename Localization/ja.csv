@@ -123,6 +123,7 @@ grid.title_sealed,中身 {0}
 grid.title_sealed_value,中身 {0}（推定価値 {1}）
 title.appraisal_suffix,{0} 定価{1}、最良提示{2}
 value.from,出所：
+value.part,{0}{1}
 value.cost_perf,コスパ：{0}
 value.cost_perf_detail,（{0}/{1} マス）
 value.perfect_range," ｜ 完璧 {0}–{1}"

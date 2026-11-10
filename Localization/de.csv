@@ -123,6 +123,7 @@ grid.title_sealed,Inhalt {0}
 grid.title_sealed_value,Inhalt {0} (Schätzwert {1})
 title.appraisal_suffix,"{0} Preis {1}, bestes Angebot {2}"
 value.from,"Quelle: "
+value.part,{0} {1}
 value.cost_perf,Wert pro Feld: {0}
 value.cost_perf_detail," ({0}/{1} {1|Feld|Felder})"
 value.perfect_range," | perfekt {0}-{1}"

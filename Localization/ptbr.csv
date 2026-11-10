@@ -123,6 +123,7 @@ grid.title_sealed,Conteúdo {0}
 grid.title_sealed_value,Conteúdo {0} (estim. {1})
 title.appraisal_suffix,"{0} Preço pedido {1}, melhor oferta {2}"
 value.from,"Origem: "
+value.part,{0} {1}
 value.cost_perf,Valor por célula: {0}
 value.cost_perf_detail," ({0}/{1} {1|célula|células})"
 value.perfect_range," | perfeito {0}-{1}"

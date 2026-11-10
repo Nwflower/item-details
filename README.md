@@ -27,7 +27,8 @@
 **真实价值**
 仿生机械手、肋明治、等离子燃料匣，显示总价，并逐项拆开：
 
-> 基础 100　+ 碳复合材料 50　+ EMG+ 接口 45　+ 刀刃 80　= **275**
+> 总价：275 ｜ 完美 261–288
+> 来源：基础100+碳复合材料50+EMG+ 接口45+刀刃80
 
 **鉴定服务标题**
 面板标题附上标价与最优报价。
@@ -134,7 +135,8 @@ No extra window, no change to the vanilla layout.
 
 **True value** — Cybernetic Hands, Ribwiches and Plasma Cartridges show the total, broken down line by line:
 
-> Base 100　+ Carbon composite 50　+ EMG+ interface 45　+ Blade add-on 80　= **275**
+> Total: 275 | perfect 261-288
+> From: Base 100+Carbon composite 50+EMG+ interface 45+Blade add-on 80
 
 **Appraisal Service title** — list price and best offer.
 

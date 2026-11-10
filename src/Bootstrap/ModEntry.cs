@@ -159,9 +159,19 @@ public sealed partial class ModEntry : IMod
     /// <summary>语言就绪后一次性装配全部补丁与后台组件。</summary>
     private void ApplyPatches()
     {
+        // 会话级缓存：没有自己补丁的那些模块，清理动作在这里登记一次，停用时随作用域逆序执行。
+        // 它第一个装配，所以逆序 Dispose 时最后跑——仍是「先撤全部补丁，再清缓存」。
+        // 装配与拆卸不再分两张表：新增缓存只改 ResetSessionCaches。
+        Patch("SessionCaches", scope => scope.OnDispose(ResetSessionCaches));
+
         Patch("AppraisalTitlePatch", AppraisalTitlePatch.Install);
         Patch("ResultPrefill", ResultPrefill.Install);
-        Try("CustomerAlertTicker", CustomerAlertTicker.Install);
+        // ticker 不是补丁，但同样要有人负责清理：失败时作用域也 Dispose，不留残留节点。
+        Patch("CustomerAlertTicker", scope =>
+        {
+            scope.OnDispose(CustomerAlertTicker.Stop);
+            CustomerAlertTicker.Install();
+        });
         Patch("CustomerHistory", CustomerHistory.Install);
         Patch("LabelImpact", LabelImpact.Install);
         Patch("DoubleClickInspect", DoubleClickInspect.InstallPatches);
@@ -198,7 +208,27 @@ public sealed partial class ModEntry : IMod
         Patch("NeonUndertowCompat", NeonUndertow.Install);
         // F8 控制台的西文字体没有中文字形；把游戏自带中文字体登记成 TMP 全局回退，
         // 避免中文日志每行都触发 “character not found” 警告并显示成空框。
-        Try("ChineseFontFallback", ChineseFontFallback.Apply);
+        Patch("ChineseFontFallback", scope =>
+        {
+            scope.OnDispose(ChineseFontFallback.Remove);
+            ChineseFontFallback.Apply();
+        });
+    }
+
+    /// <summary>
+    /// 会话级缓存清空：补丁全部撤销之后执行一次，停用后不残留探针、壳与价值快照。
+    /// 各模块的 <c>Stop</c> 都是幂等的，早停用（作用域还没建起来）时重复调用也无害。
+    /// </summary>
+    private static void ResetSessionCaches()
+    {
+        Quiet(WaterAdvice.Stop);
+        Quiet(ItemValueCache.Reset);
+        Quiet(ValueEnhance.Stop);
+        Quiet(StorageInfo.Stop);
+        Quiet(SealedBoxInfo.Stop);
+        Quiet(MachineInterior.Stop);
+        Quiet(ModuleStatEffects.Stop);
+        Quiet(ScannerInventory.Stop);
     }
 
     public void OnDisable()
@@ -218,19 +248,11 @@ public sealed partial class ModEntry : IMod
 
         // 先撤销全部补丁与各功能的清理动作（逆序，与装配对称），再清业务缓存：
         // 都在同一主线程且中间不跑游戏代码，顺序本身无关，但先撤补丁可保证清理期间没有回调进来。
+        // 缓存清理登记在最先装配的 SessionCaches 作用域里，这一轮最后执行；
+        // 只有语言还没就绪就被停用（作用域从未建起来）时才需要在这里补一次。
+        if (_scopes.Count == 0) Quiet(ResetSessionCaches);
         for (int i = _scopes.Count - 1; i >= 0; i--) Quiet(_scopes[i].Dispose);
         _scopes.Clear();
-
-        Quiet(CustomerAlertTicker.Stop);
-        Quiet(WaterAdvice.Stop);
-        Quiet(ItemValueCache.Reset);
-        Quiet(ValueEnhance.Stop);
-        Quiet(StorageInfo.Stop);
-        Quiet(SealedBoxInfo.Stop);
-        Quiet(MachineInterior.Stop);
-        Quiet(ModuleStatEffects.Stop);
-        Quiet(ScannerInventory.Stop);
-        Quiet(ChineseFontFallback.Remove);
 
         Array.Clear(_rendererFailures, 0, _rendererFailures.Length);
         Quiet(Loc.ResetCache);   // 下次启用重新读盘：玩家可能换了语言，或更新了 Localization/*.csv

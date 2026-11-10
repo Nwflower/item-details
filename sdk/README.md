@@ -1,6 +1,6 @@
 # ItemDetailsClient 快速上手
 
-`ItemDetailsClient.cs` 是给第三方 Mod 的**复制即用**客户端（C# 12+）。只支持旧语言版本的工程用 `sdk/csharp5/ItemDetailsClient5.cs`：同一份协议，`LangVersion 5` 可编译，由 `tests/CSharp5Client` 在测试里校验：把文件放进你的工程（C# 12+，引用游戏程序集即可，不引用 ItemDetails.dll）。所有类型在 `ItemDetails.Integration` 命名空间内是 `internal` 的，不会污染你的公共 API。物品详情没装、没启用或版本不符时，每个入口都安静地返回 false，你照常走原版显示。
+`ItemDetailsClient.cs` 是给第三方 Mod 的**复制即用**客户端（C# 12+）：把文件放进你的工程，引用游戏程序集即可，不必引用 ItemDetails.dll。只支持旧语言版本的工程改用 `sdk/csharp5/ItemDetailsClient5.cs`——同一份协议，`LangVersion 5` 可编译，由 `tests/CSharp5Client` 在测试里校验。所有类型在 `ItemDetails.Integration` 命名空间内是 `internal` 的，不会污染你的公共 API。物品详情没装、没启用或版本不符时，每个入口都安静地返回 false，你照常走原版显示。
 
 ## 生命周期
 

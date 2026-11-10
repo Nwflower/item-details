@@ -123,6 +123,7 @@ grid.title_sealed,내용물 {0}
 grid.title_sealed_value,내용물 {0} (추정 가치 {1})
 title.appraisal_suffix,"{0} 정가{1}, 최고 제시가{2}"
 value.from,"출처: "
+value.part,{0}{1}
 value.cost_perf,칸당 가치: {0}
 value.cost_perf_detail," ({0}/{1} 칸)"
 value.perfect_range," | 완벽 {0}–{1}"

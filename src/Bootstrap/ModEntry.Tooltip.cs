@@ -90,19 +90,29 @@ public sealed partial class ModEntry
 
             if (p.IsBase)
             {
-                builder.Add($"{label}{p.Amount}", RenderHandler.ColorPalette.White);
+                builder.Add(Part(label, p.Amount), RenderHandler.ColorPalette.White);
                 continue;
             }
 
+            // 符号紧跟标签，标签与数字之间的间隔交给词条：西文要空格，中日韩不要
             if (p.Amount < 0)
-                builder.Add($"-{label}{-p.Amount}", RenderHandler.ColorPalette.LightRed);
+                builder.Add("-" + Part(label, -p.Amount), RenderHandler.ColorPalette.LightRed);
             else
-                builder.Add($"+{label}{p.Amount}", RenderHandler.ColorPalette.White);
+                builder.Add("+" + Part(label, p.Amount), RenderHandler.ColorPalette.White);
         }
 
         if (parts != null) builder.Field("parts", parts.AsReadOnly());
         builder.NextLine();
     }
+
+    /// <summary>
+    /// 一项来源的写法：标签 + 数值。西文标签与数字之间要空格（<c>Base 100</c>），
+    /// 中日韩不要（<c>基础100</c>），所以间隔写在词条 <c>value.part</c> 里
+    /// （英文 <c>{0} {1}</c>、中日韩 <c>{0}{1}</c>），不在代码里按语言分支。
+    /// 第三方注入的分解（<see cref="TryAppendInjectedValue"/>）走同一个词条，两条路径写法一致。
+    /// </summary>
+    private static string Part(string label, object amount)
+        => Loc.T("value.part", "{0} {1}", label, amount);
 
     // ---------------- 赝品肋明治：具体原因 ----------------
     private bool TryAppendRibwichReasons(TooltipSections.Writer builder, GameItem item)
@@ -142,7 +152,7 @@ public sealed partial class ModEntry
             if (string.IsNullOrWhiteSpace(p.Label)) continue;
             fields?.Add((p.Label, p.Amount, p.IsBase));
             string amount = p.IsBase || p.Amount < 0 ? p.Amount.ToString() : "+" + p.Amount;
-            parts.Add($"{p.Label} {amount}");
+            parts.Add(Part(p.Label, amount));
         }
         if (fields != null) builder.Field("parts", fields.AsReadOnly());
         if (parts.Count > 0)

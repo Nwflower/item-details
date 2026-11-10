@@ -34,17 +34,6 @@ internal readonly struct TooltipLine
         Tail = null;
     }
 
-    /// <summary>纯文本行（进度条已由表头那一行画，这里只要文字）。</summary>
-    internal TooltipLine(string text, RenderHandler.ColorPalette color, bool noBar)
-    {
-        Text = text;
-        Color = color;
-        Bar = 0f;
-        BarLength = 0;
-        BarDark = RenderHandler.ColorPalette.None;
-        Tail = null;
-    }
-
     /// <param name="length">进度条格数；原版各处 AddProgressBar 都用 10。</param>
     internal TooltipLine(string text, float bar, int length, string tail,
         RenderHandler.ColorPalette color, RenderHandler.ColorPalette barDark)

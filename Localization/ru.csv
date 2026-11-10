@@ -123,6 +123,7 @@ grid.title_sealed,Внутри {0}
 grid.title_sealed_value,Внутри {0} (оценка {1})
 title.appraisal_suffix,"{0} цена {1}, лучшее предложение {2}"
 value.from,"Источник: "
+value.part,{0} {1}
 value.cost_perf,Стоимость за клетку: {0}
 value.cost_perf_detail," ({0}/{1} {1|клетка|клетки|клеток})"
 value.perfect_range," | идеально {0}-{1}"

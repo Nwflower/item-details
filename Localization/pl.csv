@@ -123,6 +123,7 @@ grid.title_sealed,W środku {0}
 grid.title_sealed_value,W środku {0} (szac. {1})
 title.appraisal_suffix,"{0} cena {1}, najlepsza oferta {2}"
 value.from,"Źródło: "
+value.part,{0} {1}
 value.cost_perf,Wartość na kratkę: {0}
 value.cost_perf_detail," ({0}/{1} {1|kratka|kratki|kratek})"
 value.perfect_range," | idealnie {0}-{1}"

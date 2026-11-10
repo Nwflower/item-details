@@ -123,6 +123,7 @@ grid.title_sealed,箱内 {0}
 grid.title_sealed_value,箱内 {0}（估价 {1}）
 title.appraisal_suffix,{0} 标价{1}，最优报价{2}
 value.from,来源：
+value.part,{0}{1}
 value.cost_perf,性价比：{0}
 value.cost_perf_detail,（{0}/{1}格）
 value.perfect_range," ｜ 完美 {0}–{1}"
