@@ -20,6 +20,7 @@ internal static class SealedBoxInfo
     /// <summary>异常数据上限：超过就不显示内容物。</summary>
     private const int MaxChildren = 512;
     private const int MaxEntries = 16;
+    private const float SnapshotStaleSeconds = 1f;
     private const float CacheSeconds = 5f;
     private const float ChildCacheSeconds = 10f;
     /// <summary>探针箱的重算最小间隔（一次重算约 50–100 ms）与保留上限。</summary>
@@ -121,7 +122,7 @@ internal static class SealedBoxInfo
                     if (entry == null)
                     {
                         entry = new Entry { Item = item, Grid = grid };
-                        Entries.Add(entry);
+                        Remember(entry);
                     }
                     var refreshed = ContainerContents.Refresh(entry.Contents, current, sealedBox: true);
                     if (!ReferenceEquals(refreshed, entry.Contents))
@@ -135,7 +136,7 @@ internal static class SealedBoxInfo
                 }
             }
 
-            if (contents == null || contents.Items.Count == 0) return lines;
+            if (contents == null || now - entry!.ScannedAt > SnapshotStaleSeconds || contents.Items.Count == 0) return lines;
             if (contents.Items.Count > MaxChildren)
             {
                 Log.Warn("SealedBox.Items", $"内容物 {contents.Items.Count} 件，超过上限 {MaxChildren}，跳过");
@@ -182,7 +183,7 @@ internal static class SealedBoxInfo
         if (entry == null)
         {
             entry = new Entry { Item = item, Grid = grid };
-            Entries.Add(entry);
+            Remember(entry);
         }
 
         long sum = 0;
@@ -207,7 +208,6 @@ internal static class SealedBoxInfo
         entry.Items = ContainerItemSignature.Capture(items);
         entry.Estimate = sum + (skipped ? "+" : "");
         PruneChildren(entry, items);
-        while (Entries.Count > MaxEntries) Entries.RemoveAt(0);
         return entry.Estimate;
     }
 
@@ -241,6 +241,12 @@ internal static class SealedBoxInfo
             Read = read,
         };
         return unit;
+    }
+
+    private static void Remember(Entry entry)
+    {
+        Entries.Add(entry);
+        if (Entries.Count > MaxEntries) Entries.RemoveAt(0);
     }
 
     private static Entry? Find(GameItem item, GameGridInventory grid)

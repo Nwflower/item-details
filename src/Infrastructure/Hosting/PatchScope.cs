@@ -42,18 +42,19 @@ internal sealed class PatchScope : IDisposable
     /// 也不要据此跳过自己的兜底路径（见 <see cref="ProbeDestroyGuard"/>、双击判定的 ticker）。
     /// </summary>
     internal bool Patch(MethodBase? target, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null,
-        HarmonyMethod? finalizer = null)
+        HarmonyMethod? finalizer = null, HarmonyMethod? transpiler = null)
     {
         if (_disposed || target == null) return false;
 
         var prefixMethod = prefix?.method;
         var postfixMethod = postfix?.method;
         var finalizerMethod = finalizer?.method;
-        if (prefixMethod == null && postfixMethod == null && finalizerMethod == null) return false;
+        var transpilerMethod = transpiler?.method;
+        if (prefixMethod == null && postfixMethod == null && finalizerMethod == null && transpilerMethod == null) return false;
 
         try
         {
-            Shared.Patch(target, prefix: prefix, postfix: postfix, finalizer: finalizer);
+            Shared.Patch(target, prefix: prefix, postfix: postfix, transpiler: transpiler, finalizer: finalizer);
         }
         catch (Exception ex)
         {
@@ -63,12 +64,14 @@ internal sealed class PatchScope : IDisposable
             TryUnpatch(target, prefixMethod);
             TryUnpatch(target, postfixMethod);
             TryUnpatch(target, finalizerMethod);
+            TryUnpatch(target, transpilerMethod);
             return false;
         }
 
         if (prefixMethod != null) _patches.Add((target, prefixMethod));
         if (postfixMethod != null) _patches.Add((target, postfixMethod));
         if (finalizerMethod != null) _patches.Add((target, finalizerMethod));
+        if (transpilerMethod != null) _patches.Add((target, transpilerMethod));
         return true;
     }
 

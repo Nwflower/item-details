@@ -71,6 +71,8 @@ internal sealed class ContainerContents
     internal bool SameAs(List<GameItem> current)
     {
         if (current == null || Facts.Length != current.Count) return false;
+        for (int i = 0; i < current.Count; i++)
+            if (!ReferenceEquals(Items[i], current[i])) return false;
         return ContentsSignature.Matches(Facts, FactsOf(current));
     }
 

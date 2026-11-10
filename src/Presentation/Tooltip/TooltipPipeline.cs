@@ -1,6 +1,7 @@
 using System;
 using ItemDetails.Integration;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using HarmonyLib;
@@ -71,25 +72,9 @@ internal static class TooltipPipeline
         scope.Patch(AccessTools.Method(typeof(RichTextBuilder), "AddEmptyLine"),
             prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(AddEmptyLinePrefix)));
 
-        // 原版 tooltip 对同一件物品反复做全量递归估值（见 TooltipValueMemo）。
-        // 只在构建期间、只对悬停物品本身、只对原版那组参数生效。
-        var currentValue = AccessTools.Method(typeof(GameItem), "GetCurrentValue",
-            new[] { typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(long) });
-        var baseValue = AccessTools.Method(typeof(GameItem), "GetBaseValue", Type.EmptyTypes);
-        bool memoPatched = false;
-        if (currentValue != null)
-        {
-            memoPatched |= scope.Patch(currentValue,
-                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(ValuePrefix)),
-                postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(ValuePostfix)));
-        }
-        if (baseValue != null)
-        {
-            memoPatched |= scope.Patch(baseValue,
-                prefix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasePrefix)),
-                postfix: new HarmonyMethod(typeof(TooltipPipeline), nameof(BasePostfix)));
-        }
-        if (!memoPatched) Log.Warn("TooltipPipeline.Memo", "未找到 GetCurrentValue/GetBaseValue，tooltip 估值记忆化停用");
+        // 只改原版提示框的调用点，估值方法及第三方补丁走原有调用链。
+        scope.Patch(basic,
+            transpiler: new HarmonyMethod(typeof(TooltipPipeline), nameof(MemoizeNativeValues)));
 
         scope.OnDispose(ResetHost);
 
@@ -100,8 +85,6 @@ internal static class TooltipPipeline
     {
         Reset();
         TooltipValueMemo.Reset();
-        _valueServed = false;
-        _baseServed = false;
         _depth = 0;
         _estimatePrefix = null;
         _estimateLocale = null;
@@ -176,67 +159,55 @@ internal static class TooltipPipeline
 
     // ---------------- 估值记忆化 ----------------
 
-    // 原版 GetCurrentValue 的参数：(useRetailMarkup, withChild, includeEvents, forceMarkup, extraMarketMod)。
-    // 只认 tooltip 与「当前悬停物品」这一组，其余调用（子物品 withChild:false、交易、第三方查询）原样放行。
-    private static bool IsTooltipValueCall(GameItem item, bool __0, bool __1, bool __2, bool __3, long __4)
-        => IsBuilding && ReferenceEquals(item, _current)
-           && !__0 && __1 && __2 && !__3 && __4 == 0;
-
-    // 本次调用是否直接命中了记忆值。命中时后缀不能再写回时间戳，否则连续悬停会把
-    // TTL 一直刷新、价值永远不更新。
-    private static bool _valueServed;
-    private static bool _baseServed;
-
-    private static bool ValuePrefix(GameItem __instance, ref long __result,
-        bool __0, bool __1, bool __2, bool __3, long __4)
+    private static IEnumerable<CodeInstruction> MemoizeNativeValues(IEnumerable<CodeInstruction> instructions)
     {
-        _valueServed = false;
-        try
+        var currentValue = AccessTools.Method(typeof(GameItem), nameof(GameItem.GetCurrentValue),
+            new[] { typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(long) });
+        var baseValue = AccessTools.Method(typeof(GameItem), nameof(GameItem.GetBaseValue), Type.EmptyTypes);
+        var sell = AccessTools.Method(typeof(TooltipPipeline), nameof(ReadNativeSell));
+        var list = AccessTools.Method(typeof(TooltipPipeline), nameof(ReadNativeList));
+        bool foundSell = false;
+        bool foundList = false;
+        foreach (var instruction in instructions)
         {
-            if (!IsTooltipValueCall(__instance, __0, __1, __2, __3, __4)) return true;
-            if (!TooltipValueMemo.TrySell(__instance, out long value)) return true;
-            __result = value;
-            _valueServed = true;
-            return false;
+            if (currentValue != null && instruction.Calls(currentValue))
+            {
+                instruction.opcode = OpCodes.Call;
+                instruction.operand = sell;
+                foundSell = true;
+            }
+            else if (baseValue != null && instruction.Calls(baseValue))
+            {
+                instruction.opcode = OpCodes.Call;
+                instruction.operand = list;
+                foundList = true;
+            }
+            yield return instruction;
         }
-        catch { return true; }
+        if (!foundSell || !foundList) Log.Warn("TooltipPipeline.Memo", "原版 tooltip 估值调用点有变化，缺少的调用点跳过缓存");
     }
 
-    private static void ValuePostfix(GameItem __instance, long __result,
-        bool __0, bool __1, bool __2, bool __3, long __4)
+    private static long ReadNativeSell(GameItem item, bool useRetailMarkup, bool withChild,
+        bool includeEvents, bool forceMarkup, long extraMarketMod)
     {
-        try
-        {
-            if (_valueServed) { _valueServed = false; return; }
-            if (!IsTooltipValueCall(__instance, __0, __1, __2, __3, __4)) return;
-            TooltipValueMemo.SetSell(__instance, __result);
-        }
-        catch { }
+        if (!ReferenceEquals(item, _current) || item == null || useRetailMarkup || !withChild
+            || !includeEvents || forceMarkup || extraMarketMod != 0)
+            return item!.GetCurrentValue(useRetailMarkup, withChild, includeEvents, forceMarkup, extraMarketMod);
+        if (TooltipValueMemo.TrySell(item, out long value)) return value;
+
+        value = item.GetCurrentValue(useRetailMarkup, withChild, includeEvents, forceMarkup, extraMarketMod);
+        TooltipValueMemo.SetSell(item, value);
+        return value;
     }
 
-    private static bool BasePrefix(GameItem __instance, ref long __result)
+    private static long ReadNativeList(GameItem item)
     {
-        _baseServed = false;
-        try
-        {
-            if (!IsBuilding || !ReferenceEquals(__instance, _current)) return true;
-            if (!TooltipValueMemo.TryBase(__instance, out long value)) return true;
-            __result = value;
-            _baseServed = true;
-            return false;
-        }
-        catch { return true; }
-    }
+        if (!ReferenceEquals(item, _current) || item == null) return item!.GetBaseValue();
+        if (TooltipValueMemo.TryBase(item, out long value)) return value;
 
-    private static void BasePostfix(GameItem __instance, long __result)
-    {
-        try
-        {
-            if (_baseServed) { _baseServed = false; return; }
-            if (!IsBuilding || !ReferenceEquals(__instance, _current)) return;
-            TooltipValueMemo.SetBase(__instance, __result);
-        }
-        catch { }
+        value = item.GetBaseValue();
+        TooltipValueMemo.SetBase(item, value);
+        return value;
     }
 
     // ---------------- 行改写 ----------------

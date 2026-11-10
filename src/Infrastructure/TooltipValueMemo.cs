@@ -11,12 +11,12 @@ namespace ItemDetails;
 /// 每次都会 <c>FindAllChildItems()</c> 展开整棵内容物树再逐件估值。容器越大越慢，
 /// 而 tooltip 每帧重建 —— 2500 格容器相当于每帧 4 次全量递归估值。
 ///
-/// 这里只拦截「悬停物品自己、且参数与原版一致」的调用：
+/// 只在原版 tooltip 中替换「悬停物品自己、且参数与原版一致」的估值调用：
 ///   - 同一次构建里后续调用直接命中；
 ///   - 相邻构建在 <see cref="TtlSeconds"/> 内复用，市场/内容变化最迟这么久后刷新；
 ///   - 子物品估值（withChild:false）与其它参数组合一律放行，不改变结算口径。
 ///
-/// 只在 tooltip 构建期间生效（<see cref="TooltipPipeline.IsBuilding"/>），
+/// 只作用于 <c>GetTooltipBasic</c> 中的估值调用，
 /// 交易、寄存、顾客报价等非 tooltip 路径完全不受影响。
 /// </summary>
 internal static class TooltipValueMemo

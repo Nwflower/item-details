@@ -123,7 +123,7 @@ internal static class StorageInfo
             }
 
             if (entry != null && now - entry.At <= CacheSeconds
-                && (!includeContents || entry.Contents != null && entry.LinesRevision == entry.Contents.Revision))
+                && (!includeContents || !allowGrid || entry.Contents != null && entry.LinesRevision == entry.Contents.Revision))
             {
                 Touch(entry);
                 lines.AddRange(entry.Lines);
