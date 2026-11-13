@@ -3,6 +3,7 @@ bin/
 obj/
 out/
 dist/
+tests/ScannerV3Replay/sources/
 
 # IDE / 用户配置
 *.user

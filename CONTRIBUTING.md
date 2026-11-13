@@ -70,6 +70,10 @@ pwsh -NoProfile -File scripts/test.ps1 -GameDir "<游戏目录>"
 带游戏目录的检查会编译自检构建；游戏内用例仍需按下文启动参数运行。
 单个回归检查保留在 `tests/` 中，可按需单独运行。
 
+`tests/test_mod_scan.ps1` 对发布包同时跑两版模组扫描器：v3 用 `tests/ScannerV3Replay/` 的回放夹具
+（反编译源码不入库，来源与重建方式见该目录 README），v4 用游戏目录自带的扫描器。两版都必须无能力、
+无硬拒，v4 另外不允许 `Pending`／`DeprecatedCapabilities`。
+
 ## 游戏内自检
 
 自检会调用真实售水等行为，先创建可丢弃的专用测试存档。用 `save_<id>.es3` 文件中的内部编号选择槽位，

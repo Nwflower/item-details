@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="GameBindings.cs" />
+    <Compile Include="sources/ModScanner.cs;sources/ModScanResult.cs;sources/ModScanFinding.cs;sources/ModSteamRules.cs;sources/ModSteamUse.cs" />
+    <Reference Include="Assembly-CSharp" HintPath="$(ManagedDir)/Assembly-CSharp.dll" Aliases="game" Private="false" />
+    <Reference Include="DseCecil" HintPath="$(ManagedDir)/DseCecil.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(ManagedDir)/0Harmony.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)/UnityEngine.CoreModule.dll" Private="false" />
+  </ItemGroup>
+</Project>
