@@ -139,6 +139,7 @@ internal static class ModSettings
         {
             _cfg = ModConfig.For(modId);
             Sections.Clear();
+            _fileValues = null;
 
             // ================= 显示优化 =================
             CustomerHistoryToggle.Define(_cfg, "show_customer_history", SecDisplayKey, SecDisplayEn,
@@ -470,14 +471,21 @@ internal static class ModSettings
         }
     }
 
+    /// <summary>迁移开始前配置文件内容的副本，见 <see cref="RawValues"/>。每次 Init 重新取。</summary>
+    private static Dictionary<string, string>? _fileValues;
+
     /// <summary>
     /// 配置文件里的原始键值（含未注册的旧键）。公开 API 只按已注册的键取值，
     /// 读旧键只能走 <see cref="ModConfig"/> 的私有 <c>rawValues</c>；取不到就当没配过，不猜。
+    ///
+    /// 返回第一次读取时的副本：<c>ConfigEntry.Set</c> 改了值会立刻 <c>Save</c>，而 <c>Save</c> 把全部已注册键
+    /// 写进 <c>rawValues</c>。直接读活字典的话，前一个迁移一改值，后面的迁移就会以为新键早已在文件里。
     /// </summary>
     private static Dictionary<string, string>? RawValues()
     {
+        if (_fileValues != null) return _fileValues;
         if (AccessTools.Field(typeof(ModConfig), "rawValues")?.GetValue(_cfg) is Dictionary<string, string> raw)
-            return raw;
+            return _fileValues = new Dictionary<string, string>(raw);
         Log.Warn("ModSettings.Migrate", "读不到 ModConfig.rawValues，旧设置不迁移");
         return null;
     }
@@ -665,7 +673,7 @@ internal static class ModSettings
 
         internal bool Value => _entry?.Value ?? _default;
 
-        /// <summary>迁移旧设置用；不单独保存，由 Init 末尾统一 Save。</summary>
+        /// <summary>迁移旧设置用。值变了 ConfigEntry.Set 会立即保存，所以迁移读旧值要走 <see cref="RawValues"/> 的副本。</summary>
         internal void Set(bool value) => _entry?.Set(value);
     }
 
