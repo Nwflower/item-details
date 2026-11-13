@@ -48,7 +48,7 @@ internal static class WaterSections
             // 带化学纯度体系的固体，或含药物活性成分的作物才画表，判断见 ShowSolidTable。
             if (ShowSolidTable(item, r))
             {
-                // 作物只留活性成分，按 Ctrl 展开其余；化学品（药片、粉末）仍全部列出
+                // 作物只留活性成分，按展开键展开其余；化学品（药片、粉末）仍全部列出
                 var table = WaterColumns.BuildSolid(r, visible,
                     foldInactive: !GameRead.IsTag(item, "CHEMICAL_PRODUCT_PURITY_TAG"));
                 PublishWaterRows(builder, visible);
@@ -134,7 +134,7 @@ internal static class WaterSections
         if (shown.Count == 0) return builder.Capturing;
 
         // 建议行不参与「折叠水质成分」：那条折叠只收 1% 以下的小成分，
-        // 建议本身是玩家操作水时的依据，始终画出来，不再要求按 Ctrl。
+        // 建议本身是玩家操作水时的依据，始终画出来，不再要求按展开键。
         // 一种手段一行，增益右对齐到成分表的百分比列
         // 折行预算按最长的一行留：名称里常有空格，预算不够时原版会在名称中间折行，右对齐随之错位
         foreach (var m in shown)

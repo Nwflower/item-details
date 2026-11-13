@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ItemDetails;
 
-/// <summary>成分表里的一行是哪种行：真实成分，还是「按 Ctrl 展开」的折叠提示。</summary>
+/// <summary>成分表里的一行是哪种行：真实成分，还是「按展开键展开」的折叠提示。</summary>
 internal enum WaterRowKind
 {
     Component,
@@ -64,7 +64,7 @@ internal static class WaterTable
 
     /// <param name="components">按含量降序的成分；下标用于回查颜色。</param>
     /// <param name="totalParts">占比的分母，含低于显示阈值的微量成分。</param>
-    /// <param name="expanded">按住 Ctrl：全部列出，不画提示行。</param>
+    /// <param name="expanded">按住展开键：全部列出，不画提示行。</param>
     /// <param name="hint">折叠提示的文案，已本地化。</param>
     /// <param name="amountOf">用量格的格式化：液体用容器体积单位，固体用扫描仪的量。</param>
     /// <param name="foldable">哪些成分在未展开时折起（按 <paramref name="components"/> 下标）；
@@ -93,7 +93,7 @@ internal static class WaterTable
                 amountOf(component.Parts), Percent(component.Parts, totalParts, culture)));
         }
 
-        // 只有真的折起了成分才提示：净化建议始终显示，不再藏在 Ctrl 后面。
+        // 只有真的折起了成分才提示：净化建议始终显示，不再藏在展开键后面。
         if (!expanded && foldedCount > 0)
         {
             rows.Add(new WaterRow(WaterRowKind.FoldHint, -1, hint, "",

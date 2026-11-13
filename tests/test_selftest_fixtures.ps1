@@ -37,6 +37,12 @@ namespace TEST_NAMESPACE {
   internal static string LiquidChoiceValue(LiquidMode mode) => new[] {
    LiquidOffChoice, "有扫描器时开启 (With scanner)", LiquidAlwaysChoice
   }[(int)mode];
+  internal enum PlantMode { Off, WithAnalyser, Always }
+  internal const string PlantOffChoice = "关闭 (Off)";
+  internal const string PlantAlwaysChoice = "总是开启 (Always)";
+  internal static string PlantChoiceValue(PlantMode mode) => new[] {
+   PlantOffChoice, "有植物分析仪时开启 (With plant analyser)", PlantAlwaysChoice
+  }[(int)mode];
  }
  public static class Smoke {
   public static string Parse(string[] args, string? trigger) => SelfTest.ParseTest(args, trigger);
@@ -54,6 +60,7 @@ namespace TEST_NAMESPACE {
    foreach (string key in new[] { "show_authenticity", "show_valuation", "show_info_enhance", "show_cost_performance", "show_container_contents", "tooltip_text_formatting", "show_type_badge", "show_container_name_display", "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat", "info_machines", "info_batteries", "info_progress_bar", "info_container_units", "info_manufacturer_inline", "double_click_inspect", "double_click_scan", "context_menu_scan" })
     entries.Add(key, new ConfigEntry { Value = key == "double_click_scan" });
    entries.Add("liquid_analysis", new ConfigEntry { Value = ModSettings.LiquidOffChoice, ValueType = typeof(string) });
+   entries.Add("plant_analysis", new ConfigEntry { Value = ModSettings.PlantOffChoice, ValueType = typeof(string) });
    // Fail after double_click_scan has been modified, so rollback of that toggle is covered too.
    if (missingEntry) entries.Remove("context_menu_scan");
    bool applied = false, threw = false;
@@ -61,12 +68,16 @@ namespace TEST_NAMESPACE {
     using (new TestSettings()) {
      applied = System.Linq.Enumerable.All(entries, pair => pair.Key == "liquid_analysis"
        ? object.Equals(pair.Value.Value, ModSettings.LiquidAlwaysChoice)
+       : pair.Key == "plant_analysis"
+       ? object.Equals(pair.Value.Value, ModSettings.PlantAlwaysChoice)
        : object.Equals(pair.Value.Value, pair.Key != "double_click_scan"));
      if (throwInside) throw new System.InvalidOperationException("test failure");
     }
    } catch (System.InvalidOperationException) { threw = true; }
    bool restored = System.Linq.Enumerable.All(entries, pair => pair.Key == "liquid_analysis"
      ? object.Equals(pair.Value.Value, ModSettings.LiquidOffChoice)
+     : pair.Key == "plant_analysis"
+     ? object.Equals(pair.Value.Value, ModSettings.PlantOffChoice)
      : object.Equals(pair.Value.Value, pair.Key == "double_click_scan"));
    return restored && ConfigEntry.Saves == 0 && (missingEntry ? threw : applied && threw == throwInside);
   }

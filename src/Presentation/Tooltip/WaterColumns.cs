@@ -220,14 +220,15 @@ internal static class WaterColumns
     /// 没有容器与体积，所以这里不写表头，直接从第一行成分开始；末尾补一行低于显示阈值的数量。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
-    /// <param name="foldInactive">只列活性成分，其余折成一行提示，按住 Ctrl 全部展开（作物用）；化学品全部列出。</param>
+    /// <param name="foldInactive">只列活性成分，其余折成一行提示，按住展开键全部展开（作物用）；化学品全部列出。</param>
     internal static List<TooltipLine> BuildSolid(LiquidAnalysis analysis, List<WaterRow>? visible = null,
         bool foldInactive = false)
     {
         var comps = Components(analysis, waterMismatch: false);
         var components = analysis.Components;
         var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: !foldInactive || Expanded(),
-            Loc.T("water.fold_inactive", "Ctrl to expand inactive components"), WaterInfo.Amount, Loc.Culture,
+            Loc.T("water.fold_inactive", "{0} to expand inactive components", ModSettings.ExpandKeyName),
+            WaterInfo.Amount, Loc.Culture,
             foldInactive ? i => components[i].Role != "active" : null);
         visible?.AddRange(plan.Rows);
 
@@ -247,10 +248,18 @@ internal static class WaterColumns
         return RowLines(plan.Rows, comps);
     }
 
-    /// <summary>按住左右 Ctrl 时展开被折叠的成分；读不到输入设备时按未按住处理。</summary>
+    /// <summary>按住设置里选的展开键（左右两侧都认）时展开被折叠的成分；读不到输入设备时按未按住处理。</summary>
     internal static bool Expanded()
     {
-        try { return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl); }
+        try
+        {
+            switch (ModSettings.ExpandKey)
+            {
+                case ModSettings.ExpandKeyMode.Shift: return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                case ModSettings.ExpandKeyMode.Alt: return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+                default: return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            }
+        }
         catch { return false; }
     }
 

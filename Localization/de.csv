@@ -130,7 +130,7 @@ value.perfect_range," | perfekt {0}-{1}"
 value.total_line,Gesamt: {0}
 water.mismatch," (Etikett passt nicht)"
 water.trace_count,(+{0} weitere unter der Anzeigeschwelle)
-water.fold_inactive,Strg: inaktive Bestandteile anzeigen
+water.fold_inactive,{0}: inaktive Bestandteile anzeigen
 chem.effects,Wirkung: {0}
 chem.lethal,tödlich ({0}-fache tödliche Dosis)
 chem.toxic,giftig
@@ -160,7 +160,12 @@ machine.energy_battery," {0}/{1} kJ, noch {2} {2|Tag|Tage}"
 machine.energy_left," {0} kJ, {1} {1|Tag|Tage}"
 config.section.display,Anzeige
 config.authenticity,Echtheitsprüfung
-config.authenticity.tip,"Unterscheidet echt von gefälscht, nennt Mängel und Fälschungsgründe und zeigt Blühbeerenqualität sowie unanalysierte Samenmerkmale."
+config.authenticity.tip,Unterscheidet echt von gefälscht und nennt Mängel und Fälschungsgründe.
+config.plant_analysis,Pflanzenanalyse
+config.plant_analysis.tip,"Zeigt Blühbeerenqualität und unanalysierte Samenmerkmale. „Mit Analysator“ zeigt Samenmerkmale nur, solange Sie einen Pflanzenanalysator besitzen; die Blühbeerenqualität erscheint in beiden Modi."
+config.plant_analysis.off,Aus
+config.plant_analysis.analyser,Mit Analysator
+config.plant_analysis.always,Immer
 config.valuation,Gutachtenrechner
 config.valuation.tip,Zeigt die Aufschlüsselung des wahren Werts und den perfekten Preisbereich von Gutachtenobjekten sowie Listenpreis und bestes Angebot im Titel des Gutachtendienstes.
 config.cost_performance,Wert pro Feld
@@ -191,6 +196,11 @@ config.double_click_scan,Doppelklick zum Scannen
 config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein Doppelklick auf einen Gegenstand die Scanansicht: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen. Ohne Gerät bleibt der ursprüngliche Doppelklick."
 config.context_menu_scan,Scannen zum Kontextmenü hinzufügen
 config.context_menu_scan.tip,"Wenn Sie das passende Gerät besitzen, enthält das Rechtsklickmenü eines Gegenstands den Eintrag „Scannen“, der die Scanansicht öffnet: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen."
+config.expand_key,Taste zum Aufklappen
+config.expand_key.tip,"Halten Sie diese Taste, um die eingeklappten inaktiven Bestandteile in Zusammensetzungstabellen von Pflanzen anzuzeigen. Better Item Tooltips klappt standardmäßig mit Umschalt auf; wählen Sie Umschalt, um für beide dieselbe Taste zu nutzen."
+config.expand_key.ctrl,Strg
+config.expand_key.shift,Umschalt
+config.expand_key.alt,Alt
 config.section.reveal,Einblick
 config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."

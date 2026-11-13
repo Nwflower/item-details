@@ -130,7 +130,7 @@ value.perfect_range," | perfetto {0}-{1}"
 value.total_line,Totale: {0}
 water.mismatch," (etichetta non corrispondente)"
 water.trace_count,(+{0} altri sotto la soglia di visualizzazione)
-water.fold_inactive,Ctrl per espandere i componenti inattivi
+water.fold_inactive,{0} per espandere i componenti inattivi
 chem.effects,Effetti: {0}
 chem.lethal,letale ({0}x dose letale)
 chem.toxic,tossico
@@ -160,7 +160,12 @@ machine.energy_battery," {0}/{1} kJ, per {2} {2|giorno|giorni}"
 machine.energy_left," {0} kJ, per {1} {1|giorno|giorni}"
 config.section.display,Visualizzazione
 config.authenticity,Verifica di autenticità
-config.authenticity.tip,"Distingue l'originale dal falso, indica difetti e motivi del falso e mostra la qualità della bacca e i tratti non analizzati dei semi."
+config.authenticity.tip,Distingue l'originale dal falso e indica difetti e motivi del falso.
+config.plant_analysis,Analisi delle piante
+config.plant_analysis.tip,Mostra la qualità della bacca e i tratti non analizzati dei semi. «Con analizzatore» mostra i tratti dei semi solo se possiedi un analizzatore di piante; la qualità della bacca appare in entrambe le modalità.
+config.plant_analysis.off,Disattivato
+config.plant_analysis.analyser,Con analizzatore
+config.plant_analysis.always,Sempre
 config.valuation,Calcolo della perizia
 config.valuation.tip,"Mostra la ripartizione del valore reale e la fascia di prezzo perfetta degli oggetti da periziare, oltre al prezzo e alla migliore offerta nel titolo del servizio di perizia."
 config.cost_performance,Valore per cella
@@ -191,6 +196,11 @@ config.double_click_scan,Doppio clic per analizzare
 config.double_click_scan.tip,"Se possiedi il dispositivo corrispondente, un doppio clic su un oggetto apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi. Senza il dispositivo resta il doppio clic originale."
 config.context_menu_scan,Aggiungi scansione al menu contestuale
 config.context_menu_scan.tip,"Se possiedi il dispositivo corrispondente, il menu del clic destro di un oggetto mostra «Scansiona», che apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi."
+config.expand_key,Tasto di espansione
+config.expand_key.tip,Tieni premuto questo tasto per espandere i componenti inattivi compressi nelle tabelle di composizione delle colture. Better Item Tooltips usa Maiusc per impostazione predefinita; scegli Maiusc per usare lo stesso tasto in entrambe.
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Maiusc
+config.expand_key.alt,Alt
 config.section.reveal,Rivelazione
 config.hidden_truth,Rivela travestimenti e valori reali
 config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."

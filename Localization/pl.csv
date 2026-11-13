@@ -130,7 +130,7 @@ value.perfect_range," | idealnie {0}-{1}"
 value.total_line,Razem: {0}
 water.mismatch," (niezgodność etykiety)"
 water.trace_count,(+{0} więcej poniżej progu wyświetlania)
-water.fold_inactive,Ctrl rozwija składniki nieaktywne
+water.fold_inactive,{0} rozwija składniki nieaktywne
 chem.effects,Działanie: {0}
 chem.lethal,śmiertelne ({0}x dawka śmiertelna)
 chem.toxic,toksyczne
@@ -160,7 +160,12 @@ machine.energy_battery," {0}/{1} kJ, starczy na {2} {2|dzień|dni|dni}"
 machine.energy_left," {0} kJ, starczy na {1} {1|dzień|dni|dni}"
 config.section.display,Wyświetlanie
 config.authenticity,Sprawdzanie autentyczności
-config.authenticity.tip,"Odróżnia oryginał od podróbki, wymienia wady i powody podróbki, pokazuje jakość KwiatoGody i niezbadane cechy nasion."
+config.authenticity.tip,"Odróżnia oryginał od podróbki, wymienia wady i powody podróbki."
+config.plant_analysis,Analiza roślin
+config.plant_analysis.tip,"Pokazuje jakość KwiatoGody i niezbadane cechy nasion. „Z analizatorem” pokazuje cechy nasion tylko, gdy masz analizator roślin; jakość KwiatoGody widać w obu trybach."
+config.plant_analysis.off,Wyłączone
+config.plant_analysis.analyser,Z analizatorem
+config.plant_analysis.always,Zawsze
 config.valuation,Kalkulator wyceny
 config.valuation.tip,Pokazuje rozbicie prawdziwej wartości i idealny przedział ceny przedmiotów do wyceny oraz cenę i najlepszą ofertę w tytule usługi wyceny.
 config.cost_performance,Wartość na kratkę
@@ -191,6 +196,11 @@ config.double_click_scan,Skanowanie dwuklikiem
 config.double_click_scan.tip,"Jeśli masz odpowiednie urządzenie, dwuklik na przedmiocie otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion. Bez urządzenia działa oryginalny dwuklik."
 config.context_menu_scan,Dodaj skanowanie do menu kontekstowego
 config.context_menu_scan.tip,"Jeśli masz odpowiednie urządzenie, w menu prawego przycisku myszy przedmiotu pojawia się pozycja „Zeskanuj”, która otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion."
+config.expand_key,Klawisz rozwijania
+config.expand_key.tip,"Przytrzymaj ten klawisz, aby rozwinąć zwinięte składniki nieaktywne w tabelach składu upraw. Better Item Tooltips domyślnie używa klawisza Shift; wybierz Shift, aby oba mody miały ten sam klawisz."
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Shift
+config.expand_key.alt,Alt
 config.section.reveal,Ujawnianie
 config.hidden_truth,Ujawniaj maskowanie i prawdziwe wartości
 config.hidden_truth.tip,"Pokazuje, co kryją zamaskowane cechy, rzeczywistą trwałość oraz rzeczywistą czystość sztabek i chemikaliów. Od razu zdradza podróbki i znacznie ułatwia wycenę."

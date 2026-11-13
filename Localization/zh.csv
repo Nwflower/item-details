@@ -130,7 +130,7 @@ value.perfect_range," ｜ 完美 {0}–{1}"
 value.total_line,总价：{0}
 water.mismatch,（与标签不符）
 water.trace_count,（另 {0} 项低于显示阈值）
-water.fold_inactive,按 Ctrl 展开非活性成分
+water.fold_inactive,按 {0} 展开非活性成分
 chem.effects,药效：{0}
 chem.lethal,致死（{0} 倍致死量）
 chem.toxic,有毒
@@ -160,7 +160,12 @@ machine.energy_battery, {0}/{1}kJ（{2}天）
 machine.energy_left, {0}kJ（{1}天）
 config.section.display,显示优化
 config.authenticity,真伪鉴定
-config.authenticity.tip,判定真品或赝品并列出瑕疵与赝品原因，显示荧光莓品质和未分析的种子性状。
+config.authenticity.tip,判定真品或赝品，列出瑕疵与赝品原因。
+config.plant_analysis,植物分析
+config.plant_analysis.tip,显示荧光莓品质和未分析的种子性状。「有植物分析仪时开启」只在拥有植物分析仪时显示种子性状，荧光莓品质两档都显示。
+config.plant_analysis.off,关闭
+config.plant_analysis.analyser,有植物分析仪时开启
+config.plant_analysis.always,总是开启
 config.valuation,估价计算
 config.valuation.tip,显示待鉴定物品的真实价值构成与完美报价区间，并在鉴定服务标题显示标价与最优报价。
 config.cost_performance,性价比
@@ -191,6 +196,11 @@ config.double_click_scan,双击扫描
 config.double_click_scan.tip,拥有对应设备时，双击物品直接打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。没有设备时保持原版双击。
 config.context_menu_scan,右键菜单添加扫描
 config.context_menu_scan.tip,拥有对应设备时，物品右键菜单里多出「扫描」，点击即打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。
+config.expand_key,展开键
+config.expand_key.tip,按住此键展开作物成分表里折叠的非活性成分。「物品详情美化」的展开键默认是 Shift，选 Shift 可让两者一致。
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Shift
+config.expand_key.alt,Alt
 config.section.reveal,透视
 config.hidden_truth,揭示伪装与真实属性
 config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。

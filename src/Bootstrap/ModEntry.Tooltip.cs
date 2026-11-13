@@ -166,13 +166,13 @@ public sealed partial class ModEntry
     // ---------------- 果实品质（BERRY_*） ----------------
     private bool TryAppendBerry(TooltipSections.Writer builder, GameItem item)
     {
-        if (!ModSettings.Plant && !ModSettings.Wine) return false;
+        if (!PlantGate.Berry && !ModSettings.Wine) return false;
 
         var q = GameRead.ClassifyBerry(item);
         if (q == BerryQuality.NotBerry) return false;
 
         string? name = BerryQualityClassifier.DisplayName(q);
-        bool showQuality = ModSettings.Plant && name != null;
+        bool showQuality = PlantGate.Berry && name != null;
         if (!showQuality && !ModSettings.Wine) return false;
 
         // 主体取物品自己的名字：BERRY_TAG 不是荧光莓专属，第三方果实只要沿用原版的

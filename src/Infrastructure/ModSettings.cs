@@ -100,7 +100,7 @@ internal static class ModSettings
     private static readonly Toggle ContextMenuScanToggle = new(true);   // 右键菜单添加扫描（独立开关）
 
     // ---- 透视 ----
-    private static readonly Toggle AuthenticityToggle = new(true);       // 真伪结论 + 赝品原因 + 植物品质
+    private static readonly Toggle AuthenticityToggle = new(true);       // 真伪结论 + 赝品原因
     private static readonly Toggle ValuationToggle = new(true);          // 价值构成 + 完美区间 + 鉴定标题报价
     private static readonly Toggle CustomerAlertToggle = new(true);      // 顾客到店提示
     private static readonly Toggle HiddenTruthToggle = new(true);        // 揭示伪装与真实属性
@@ -118,6 +118,26 @@ internal static class ModSettings
             Text("config.liquid_analysis.off", "Off"),
             Text("config.liquid_analysis.scanner", "With scanner"),
             Text("config.liquid_analysis.always", "Always"),
+        });
+
+    /// <summary>植物分析：三档，序号即 <see cref="PlantMode"/>。默认「总是开启」，老配置见 <see cref="MigratePlantAnalysis"/>。</summary>
+    private static readonly Choice PlantChoice = new((int)PlantMode.Always,
+        new[] { "关闭 (Off)", "有植物分析仪时开启 (With plant analyser)", "总是开启 (Always)" },
+        new[]
+        {
+            Text("config.plant_analysis.off", "Off"),
+            Text("config.plant_analysis.analyser", "With plant analyser"),
+            Text("config.plant_analysis.always", "Always"),
+        });
+
+    /// <summary>折叠成分表的展开键：序号即 <see cref="ExpandKeyMode"/>。默认 Ctrl，与加这一项之前一致。</summary>
+    private static readonly Choice ExpandKeyChoice = new((int)ExpandKeyMode.Ctrl,
+        new[] { "Ctrl", "Shift", "Alt" },
+        new[]
+        {
+            Text("config.expand_key.ctrl", "Ctrl"),
+            Text("config.expand_key.shift", "Shift"),
+            Text("config.expand_key.alt", "Alt"),
         });
 
     /// <summary>「鉴定结果预填」下面那项：预填哪种价格。0 = 真实估价，1 = 最优报价。</summary>
@@ -168,11 +188,23 @@ internal static class ModSettings
                      "gains a Scan entry that opens its scan panel: water or chem scanner for liquids and chemicals, " +
                      "X-ray scanner for locked supply crates, plant analyser for seeds."));
 
+            ExpandKeyChoice.Define(_cfg, "expand_key", SecInteractionEn,
+                Text("config.expand_key", "Expand Key"),
+                Text("config.expand_key.tip", "Hold this key to list the inactive components folded away in crop " +
+                     "composition tables. Better Item Tooltips expands with Shift by default; choose Shift to use " +
+                     "the same key for both."));
+
             // ================= 透视 =================
             AuthenticityToggle.Define(_cfg, "show_authenticity", SecRevealKey, SecRevealEn,
                 Text("config.authenticity", "Authenticity Check"),
-                Text("config.authenticity.tip", "Tells genuine from counterfeit and names the flaws, explains why a " +
-                     "ribwich is counterfeit, and shows bloomberry quality and unanalyzed seed traits."));
+                Text("config.authenticity.tip", "Tells genuine from counterfeit, names the flaws and explains why a " +
+                     "ribwich is counterfeit."));
+
+            PlantChoice.Define(_cfg, "plant_analysis", SecRevealEn,
+                Text("config.plant_analysis", "Plant Analysis"),
+                Text("config.plant_analysis.tip", "Shows bloomberry quality and the traits of unanalyzed seeds. " +
+                     "\"With plant analyser\" shows seed traits only while you own a plant analyser; berry quality " +
+                     "shows in both modes."));
 
             ValuationToggle.Define(_cfg, "show_valuation", SecRevealKey, SecRevealEn,
                 Text("config.valuation", "Appraisal Calculator"),
@@ -306,6 +338,7 @@ internal static class ModSettings
                 Text("config.info_manufacturer_inline.tip", "Moves the company name to the right of the item name."));
 
             MigrateLegacyAppraisalToggle();
+            MigratePlantAnalysis();
             MigrateLegacyNameBgToggle();
             MigrateLegacyWaterToggle();
             MigrateWaterAdviceDefault();
@@ -435,6 +468,29 @@ internal static class ModSettings
                 toggle.Set(on);
                 Log.Msg($"ModSettings: 旧设置 show_item_appraisal={stored} → {key}={on}");
             }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("ModSettings.Migrate", ex);
+        }
+    }
+
+    /// <summary>
+    /// 莓果品质与未分析种子性状原先挂在「真伪鉴定」下，现拆成三档 <c>plant_analysis</c>：
+    /// 文件里还没有新键时，<c>show_authenticity</c> 为关 → 关闭，否则保持默认「总是开启」，升级后显示不变。
+    /// 必须在 <see cref="MigrateLegacyAppraisalToggle"/> 之后执行：更老的配置只有 <c>show_item_appraisal</c>，
+    /// 真伪鉴定的取值要先从它迁过来。旧键不删，理由同 <see cref="MigrateLegacyWaterToggle"/>。
+    /// </summary>
+    private static void MigratePlantAnalysis()
+    {
+        if (_cfg == null || !PlantChoice.Defined) return;
+        try
+        {
+            var raw = RawValues();
+            if (raw == null || raw.ContainsKey("plant_analysis") || AuthenticityToggle.Value) return;
+
+            PlantChoice.Select((int)PlantMode.Off);
+            Log.Msg($"ModSettings: 旧设置 show_authenticity=false → plant_analysis={PlantAnalysis}");
         }
         catch (Exception ex)
         {
@@ -575,7 +631,6 @@ internal static class ModSettings
 
     internal static bool Auth => AuthenticityToggle.Value;
     internal static bool Value => ValuationToggle.Value;
-    internal static bool Plant => AuthenticityToggle.Value;
     internal static bool InfoEnhance => InfoEnhanceToggle.Value;
     internal static bool ValueEnhance => InfoEnhance && CostPerformanceToggle.Value;
     internal static bool Container => InfoEnhance && ContainerContentsToggle.Value;
@@ -606,7 +661,8 @@ internal static class ModSettings
     /// <summary>是否还有任何玩家功能生效；全部关闭时渲染器与后台能力按未启用处理。</summary>
     internal static bool AnyEnabled => InfoEnhance || CustomerHistory || DoubleClickInspect || DoubleClickScan
         || ContextMenuScan || AuthenticityToggle.Value || ValuationToggle.Value || CustomerAlert
-        || HiddenTruth || Scratcher || SealedBox || ResultPrefill || WaterAdviceToggle.Value || LiquidChoice.Index != (int)LiquidMode.Off;
+        || HiddenTruth || Scratcher || SealedBox || ResultPrefill || WaterAdviceToggle.Value || LiquidChoice.Index != (int)LiquidMode.Off
+        || PlantChoice.Index != (int)PlantMode.Off;
 
     /// <summary>液体组分分析的三档。显示与否还要过 <see cref="LiquidGate"/>（“有扫描器”要查拥有关系）。</summary>
     internal enum LiquidMode
@@ -621,6 +677,32 @@ internal static class ModSettings
     /// <summary>自检用：当前选项列表里对应档位的那串文字（面板打开过时是当前语言的）。</summary>
     internal static string LiquidChoiceValue(LiquidMode mode) => LiquidChoice.ValueAt((int)mode);
 
+    /// <summary>植物分析的三档。显示与否还要过 <see cref="PlantGate"/>（“有植物分析仪”要查拥有关系）。</summary>
+    internal enum PlantMode
+    {
+        Off,
+        WithAnalyser,
+        Always,
+    }
+
+    internal static PlantMode PlantAnalysis => (PlantMode)PlantChoice.Index;
+
+    /// <summary>自检用：当前选项列表里对应档位的那串文字。</summary>
+    internal static string PlantChoiceValue(PlantMode mode) => PlantChoice.ValueAt((int)mode);
+
+    /// <summary>展开键：左右两侧的键都认。</summary>
+    internal enum ExpandKeyMode
+    {
+        Ctrl,
+        Shift,
+        Alt,
+    }
+
+    internal static ExpandKeyMode ExpandKey => (ExpandKeyMode)ExpandKeyChoice.Index;
+
+    /// <summary>当前展开键在当前语言下的名称（德语 Strg 等），供提示行使用。</summary>
+    internal static string ExpandKeyName => ExpandKeyChoice.LabelAt((int)ExpandKey);
+
     /// <summary>预填价格用「最优报价」；为 false 时用真实估价。</summary>
     internal static bool PrefillBestOffer => PrefillChoice.Index == 1;
 
@@ -628,6 +710,8 @@ internal static class ModSettings
     internal static void LocalizeChoices()
     {
         LiquidChoice.Localize();
+        PlantChoice.Localize();
+        ExpandKeyChoice.Localize();
         PrefillChoice.Localize();
     }
 
@@ -636,6 +720,8 @@ internal static class ModSettings
     {
         if (!ReferenceEquals(config, _cfg)) return;
         LiquidChoice.Restore();
+        PlantChoice.Restore();
+        ExpandKeyChoice.Restore();
         PrefillChoice.Restore();
     }
 
@@ -729,6 +815,9 @@ internal static class ModSettings
 
         /// <summary>迁移旧设置用：按序号选中，Set 会顺带保存。</summary>
         internal void Select(int index) => _entry?.Set(ValueAt(index));
+
+        /// <summary>该档位在当前语言下的显示名（不依赖面板是否打开过）。</summary>
+        internal string LabelAt(int index) => _labels[index]();
 
         internal void Localize()
         {

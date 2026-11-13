@@ -130,7 +130,7 @@ value.perfect_range," ｜ 完璧 {0}–{1}"
 value.total_line,総額：{0}
 water.mismatch,（ラベルと不一致）
 water.trace_count,（ほか {0} 種が表示閾値未満）
-water.fold_inactive,Ctrl で非活性成分を表示
+water.fold_inactive,{0} で非活性成分を表示
 chem.effects,効果：{0}
 chem.lethal,致死（致死量の {0} 倍）
 chem.toxic,有毒
@@ -160,7 +160,12 @@ machine.energy_battery, {0}/{1}kJ、{2}日分
 machine.energy_left, {0}kJ、{1}日分
 config.section.display,表示
 config.authenticity,真偽鑑定
-config.authenticity.tip,本物か偽物かを判定し、欠陥と偽物の理由、ブルームベリーの品質、未分析の種の形質を表示します。
+config.authenticity.tip,本物か偽物かを判定し、欠陥と偽物の理由を表示します。
+config.plant_analysis,植物分析
+config.plant_analysis.tip,ブルームベリーの品質と未分析の種の形質を表示します。「分析器所持時」では、植物分析器を持っている間だけ種の形質を表示します。ブルームベリーの品質はどちらでも表示されます。
+config.plant_analysis.off,オフ
+config.plant_analysis.analyser,分析器所持時
+config.plant_analysis.always,常に表示
 config.valuation,査定計算
 config.valuation.tip,鑑定アイテムの真の価値の内訳と完璧な価格帯を表示し、鑑定サービスのタイトルに定価と最良の提示額を表示します。
 config.cost_performance,マス単価
@@ -191,6 +196,11 @@ config.double_click_scan,ダブルクリックでスキャン
 config.double_click_scan.tip,対応する装置を持っていると、アイテムをダブルクリックしてスキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。装置がない場合は元のダブルクリック動作になります。
 config.context_menu_scan,右クリックメニューにスキャンを追加
 config.context_menu_scan.tip,対応する装置を持っていると、アイテムの右クリックメニューに「スキャン」が追加され、スキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。
+config.expand_key,展開キー
+config.expand_key.tip,このキーを押している間、作物の成分表で折りたたまれた非活性成分を展開します。Better Item Tooltips の展開キーは既定で Shift なので、Shift を選ぶと両方を同じキーにできます。
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Shift
+config.expand_key.alt,Alt
 config.section.reveal,透視
 config.hidden_truth,偽装と真の値を暴く
 config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。

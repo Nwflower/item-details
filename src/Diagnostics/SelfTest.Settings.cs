@@ -32,12 +32,19 @@ internal static partial class SelfTest
                     _apply.Invoke(entry, new object[] { key != "double_click_scan" });
                 }
 
-                // 液体组分分析是三档字符串：自检期间固定为「总是开启」，否则没有扫描器的
-                // 测试档位会拿到空的水质段，用例会随玩家库存时有时无。
-                var liquid = config.Get("liquid_analysis")
-                    ?? throw new InvalidOperationException("Missing self-test setting: liquid_analysis");
-                _saved.Add((liquid, liquid.BoxedValue));
-                _apply.Invoke(liquid, new object[] { ModSettings.LiquidChoiceValue(ModSettings.LiquidMode.Always) });
+                // 液体组分分析与植物分析是三档字符串：自检期间固定为「总是开启」，否则没有扫描器 / 分析仪的
+                // 测试档位会拿到空的水质段或种子性状，用例会随玩家库存时有时无。
+                foreach (var (key, always) in new[]
+                {
+                    ("liquid_analysis", ModSettings.LiquidChoiceValue(ModSettings.LiquidMode.Always)),
+                    ("plant_analysis", ModSettings.PlantChoiceValue(ModSettings.PlantMode.Always)),
+                })
+                {
+                    var choice = config.Get(key)
+                        ?? throw new InvalidOperationException("Missing self-test setting: " + key);
+                    _saved.Add((choice, choice.BoxedValue));
+                    _apply.Invoke(choice, new object[] { always });
+                }
             }
             catch
             {

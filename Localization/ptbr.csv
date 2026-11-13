@@ -130,7 +130,7 @@ value.perfect_range," | perfeito {0}-{1}"
 value.total_line,Total: {0}
 water.mismatch," (rótulo não confere)"
 water.trace_count,(+{0} mais abaixo do limite de exibição)
-water.fold_inactive,Ctrl expande componentes inativos
+water.fold_inactive,{0} expande componentes inativos
 chem.effects,Efeitos: {0}
 chem.lethal,letal ({0}x a dose letal)
 chem.toxic,tóxico
@@ -160,7 +160,12 @@ machine.energy_battery," {0}/{1} kJ, para {2} {2|dia|dias}"
 machine.energy_left," {0} kJ, para {1} {1|dia|dias}"
 config.section.display,Exibição
 config.authenticity,Verificação de autenticidade
-config.authenticity.tip,"Distingue original de falsificado, aponta defeitos e motivos da falsificação e mostra a qualidade da baga e as características não analisadas das sementes."
+config.authenticity.tip,Distingue original de falsificado e aponta defeitos e motivos da falsificação.
+config.plant_analysis,Análise de plantas
+config.plant_analysis.tip,Mostra a qualidade da baga e as características não analisadas das sementes. «Com analisador» só mostra as características das sementes enquanto você tiver um analisador de plantas; a qualidade da baga aparece nos dois modos.
+config.plant_analysis.off,Desativado
+config.plant_analysis.analyser,Com analisador
+config.plant_analysis.always,Sempre
 config.valuation,Cálculo da avaliação
 config.valuation.tip,"Mostra o detalhamento do valor real e a faixa de preço perfeita dos itens de avaliação, além do preço pedido e da melhor oferta no título do serviço de avaliação."
 config.cost_performance,Valor por célula
@@ -191,6 +196,11 @@ config.double_click_scan,Clique duplo para escanear
 config.double_click_scan.tip,"Se você tiver o dispositivo correspondente, clique duas vezes em um item para abrir o painel de escaneamento: scanner de água ou químico para líquidos e produtos químicos, scanner de raios X para caixas de suprimentos trancadas e analisador de plantas para sementes. Sem o dispositivo, o clique duplo original continua valendo."
 config.context_menu_scan,Adicionar escaneamento ao menu de contexto
 config.context_menu_scan.tip,"Se você tiver o dispositivo correspondente, o menu do clique direito do item ganha a opção ""Escanear"", que abre o painel de escaneamento: scanner de água ou químico para líquidos e produtos químicos, scanner de raios X para caixas de suprimentos trancadas e analisador de plantas para sementes."
+config.expand_key,Tecla de expansão
+config.expand_key.tip,Segure esta tecla para expandir os componentes inativos recolhidos nas tabelas de composição das plantações. O Better Item Tooltips usa Shift por padrão; escolha Shift para usar a mesma tecla nos dois.
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Shift
+config.expand_key.alt,Alt
 config.section.reveal,Revelação
 config.hidden_truth,Revelar disfarces e valores reais
 config.hidden_truth.tip,"Mostra o que as características disfarçadas escondem, a durabilidade real e a pureza real de lingotes e produtos químicos. Expõe falsificações na hora e facilita muito a avaliação."

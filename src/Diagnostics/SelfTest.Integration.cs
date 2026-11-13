@@ -379,13 +379,15 @@ internal static partial class SelfTest
                 if (entry.ValueType == typeof(bool)) apply.Invoke(entry, new object[] { false });
                 else if (ReferenceEquals(entry, config.Get("liquid_analysis")))
                     apply.Invoke(entry, new object[] { ModSettings.LiquidChoiceValue(ModSettings.LiquidMode.Off) });
+                else if (ReferenceEquals(entry, config.Get("plant_analysis")))
+                    apply.Invoke(entry, new object[] { ModSettings.PlantChoiceValue(ModSettings.PlantMode.Off) });
                 else if (entry.ValueType == typeof(int)) apply.Invoke(entry, new object[] { 0 });
             }
 
             bool gated = !ModSettings.AnyEnabled && !ModSettings.InfoEnhance
                 && !ModSettings.ValueEnhance && !ModSettings.Container && !ModSettings.TooltipFormatting && !ModSettings.ContainerUnits
                 && !ModSettings.TypeBadge && !ModSettings.ContentsGrid
-                && !LiquidGate.Enabled
+                && !LiquidGate.Enabled && !PlantGate.Berry && !PlantGate.SeedTraits
                 && !ModSettings.PriceImpact && !ModSettings.Contraband && !ModSettings.Lottery
                 && !ModSettings.Wine && !ModSettings.Meat && !ModSettings.Machines && !ModSettings.ModuleEffects
                 && !ModSettings.MachineBattery && !ModSettings.BlockProgressBar && !ModSettings.ManufacturerInline

@@ -130,7 +130,7 @@ value.perfect_range," | parfait {0}-{1}"
 value.total_line,Total : {0}
 water.mismatch," (étiquette incohérente)"
 water.trace_count,(+{0} de plus sous le seuil d'affichage)
-water.fold_inactive,Ctrl pour afficher les composants inactifs
+water.fold_inactive,{0} pour afficher les composants inactifs
 chem.effects,Effets : {0}
 chem.lethal,mortel ({0}x la dose létale)
 chem.toxic,toxique
@@ -160,7 +160,12 @@ machine.energy_battery," {0}/{1} kJ, pour {2} {2|jour|jours}"
 machine.energy_left," {0} kJ, pour {1} {1|jour|jours}"
 config.section.display,Affichage
 config.authenticity,Vérification d'authenticité
-config.authenticity.tip,"Distingue l'authentique de la contrefaçon, indique les défauts et les raisons de la contrefaçon, et affiche la qualité de la grappe et les traits non analysés des graines."
+config.authenticity.tip,Distingue l'authentique de la contrefaçon et indique les défauts et les raisons de la contrefaçon.
+config.plant_analysis,Analyse des plantes
+config.plant_analysis.tip,Affiche la qualité de la grappe et les traits non analysés des graines. « Avec analyseur » n'affiche les traits des graines que si vous possédez un analyseur de plantes ; la qualité de la grappe s'affiche dans les deux modes.
+config.plant_analysis.off,Désactivé
+config.plant_analysis.analyser,Avec analyseur
+config.plant_analysis.always,Toujours
 config.valuation,Calcul de l'estimation
 config.valuation.tip,"Affiche la décomposition de la vraie valeur et la fourchette de prix parfaite des objets à estimer, ainsi que le prix et la meilleure offre dans le titre du service d'estimation."
 config.cost_performance,Valeur par case
@@ -191,6 +196,11 @@ config.double_click_scan,Double-clic pour scanner
 config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Sans l'appareil, le double-clic d'origine s'applique."
 config.context_menu_scan,Ajouter le scan au menu contextuel
 config.context_menu_scan.tip,"Si vous possédez l'appareil correspondant, le menu du clic droit d'un objet propose « Scanner », qui ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines."
+config.expand_key,Touche pour déplier
+config.expand_key.tip,Maintenez cette touche pour afficher les composants inactifs repliés dans les tableaux de composition des cultures. Better Item Tooltips utilise Maj par défaut ; choisissez Maj pour utiliser la même touche dans les deux.
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Maj
+config.expand_key.alt,Alt
 config.section.reveal,Révélation
 config.hidden_truth,Révéler déguisements et vraies stats
 config.hidden_truth.tip,"Montre ce que cachent les caractéristiques déguisées, la vraie durabilité et la pureté réelle des lingots et produits chimiques. Démasque les faux et facilite beaucoup l'estimation."

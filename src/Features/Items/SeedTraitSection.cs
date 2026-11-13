@@ -9,7 +9,7 @@ internal static class SeedTraitSection
     // ---------------- 种子性状（透视） ----------------
     internal static bool Append(TooltipSections.Writer builder, GameItem item)
     {
-        if (!ModSettings.Plant) return false;
+        if (!PlantGate.SeedTraits) return false;
 
         var lines = SeedInfo.Collect(item);
         if (lines.Count == 0) return false;

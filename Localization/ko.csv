@@ -130,7 +130,7 @@ value.perfect_range," | 완벽 {0}–{1}"
 value.total_line,총액: {0}
 water.mismatch," (라벨과 불일치)"
 water.trace_count,(표시 임계값 미만 {0} 항목 더)
-water.fold_inactive,Ctrl: 비활성 성분 펼치기
+water.fold_inactive,{0}: 비활성 성분 펼치기
 chem.effects,효과: {0}
 chem.lethal,치명적 (치사량의 {0}배)
 chem.toxic,유독
@@ -160,7 +160,12 @@ machine.energy_battery," {0}/{1}kJ, {2}일분"
 machine.energy_left," {0}kJ, {1}일분"
 config.section.display,표시
 config.authenticity,진위 감정
-config.authenticity.tip,"진품과 위조품을 판정해 결함과 위조 사유를 보여 주고, 블룸베리 품질과 미분석 씨앗 형질을 표시합니다."
+config.authenticity.tip,진품과 위조품을 판정해 결함과 위조 사유를 보여 줍니다.
+config.plant_analysis,식물 분석
+config.plant_analysis.tip,"블룸베리 품질과 미분석 씨앗 형질을 표시합니다. '분석기 보유 시'는 식물 분석기를 보유한 동안에만 씨앗 형질을 표시하며, 블룸베리 품질은 두 모드 모두 표시합니다."
+config.plant_analysis.off,끄기
+config.plant_analysis.analyser,분석기 보유 시
+config.plant_analysis.always,항상
 config.valuation,감정가 계산
 config.valuation.tip,"감정 아이템의 실제 가치 내역과 완벽 가격 범위를 보여 주고, 감정 서비스 제목에 정가와 최고 제시가를 표시합니다."
 config.cost_performance,칸당 가치
@@ -191,6 +196,11 @@ config.double_click_scan,더블클릭으로 스캔
 config.double_click_scan.tip,"해당 장치를 보유하고 있으면 아이템을 더블클릭해 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다. 장치가 없으면 기존 더블클릭 동작이 유지됩니다."
 config.context_menu_scan,우클릭 메뉴에 스캔 추가
 config.context_menu_scan.tip,"해당 장치를 보유하고 있으면 아이템 우클릭 메뉴에 '스캔'이 추가되어 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다."
+config.expand_key,펼치기 키
+config.expand_key.tip,이 키를 누르고 있으면 작물 성분표에서 접힌 비활성 성분을 펼칩니다. Better Item Tooltips의 펼치기 키는 기본값이 Shift이므로 Shift를 고르면 두 모드의 키를 맞출 수 있습니다.
+config.expand_key.ctrl,Ctrl
+config.expand_key.shift,Shift
+config.expand_key.alt,Alt
 config.section.reveal,투시
 config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."
