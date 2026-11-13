@@ -129,8 +129,11 @@ internal static class ModSettings
     private static readonly Toggle SealedBoxToggle = new(false);         // 带锁容器透视
     private static readonly Toggle ResultPrefillToggle = new(false);     // 鉴定结果预填
 
-    /// <summary>液体组分分析：三档，序号即 <see cref="LiquidMode"/>。默认「总是开启」。</summary>
-    private static readonly Choice LiquidChoice = new((int)LiquidMode.Always,
+    /// <summary>
+    /// 液体组分分析：三档，序号即 <see cref="LiquidMode"/>。默认「有扫描器时开启」，
+    /// 老配置由 <see cref="MigrateLegacyWaterToggle"/> 迁移（旧值开 → 总是开启，升级后显示不变）。
+    /// </summary>
+    private static readonly Choice LiquidChoice = new((int)LiquidMode.WithScanner,
         new[] { "关闭 (Off)", "有扫描器时开启 (With scanner)", "总是开启 (Always)" },
         new[]
         {
@@ -139,8 +142,11 @@ internal static class ModSettings
             Text("config.liquid_analysis.always", "Always"),
         });
 
-    /// <summary>植物分析：三档，序号即 <see cref="PlantMode"/>。默认「总是开启」，老配置见 <see cref="MigratePlantAnalysis"/>。</summary>
-    private static readonly Choice PlantChoice = new((int)PlantMode.Always,
+    /// <summary>
+    /// 植物分析：三档，序号即 <see cref="PlantMode"/>。默认「有植物分析仪时开启」，
+    /// 老配置由 <see cref="MigratePlantAnalysis"/> 迁移（升级上来的玩家保持原样）。
+    /// </summary>
+    private static readonly Choice PlantChoice = new((int)PlantMode.WithAnalyser,
         new[] { "关闭 (Off)", "有植物分析仪时开启 (With plant analyser)", "总是开启 (Always)" },
         new[]
         {
@@ -239,12 +245,6 @@ internal static class ModSettings
                 Text("config.authenticity.tip", "Tells genuine from counterfeit, names the flaws and explains why a " +
                      "ribwich is counterfeit."));
 
-            PlantChoice.Define(_cfg, "plant_analysis", SecRevealEn,
-                Text("config.plant_analysis", "Plant Analysis"),
-                Text("config.plant_analysis.tip", "Shows bloomberry quality and the traits of unanalyzed seeds. " +
-                     "\"With plant analyser\" shows seed traits only while you own a plant analyser; berry quality " +
-                     "shows in both modes."));
-
             ValuationToggle.Define(_cfg, "show_valuation", SecRevealKey, SecRevealEn,
                 Text("config.valuation", "Appraisal Calculator"),
                 Text("config.valuation.tip", "Shows the true value breakdown and perfect price range of appraisal " +
@@ -259,6 +259,13 @@ internal static class ModSettings
                 Text("config.hidden_truth", "Reveal Disguises & True Stats"),
                 Text("config.hidden_truth.tip", "Shows what disguised features really are, true durability, and true " +
                      "ingot/chemical purity. Exposes fakes directly and makes appraisal much easier."));
+
+            // 两项「分析」并排放在一起：植物分析在上，液体组分分析在下，都是三档
+            PlantChoice.Define(_cfg, "plant_analysis", SecRevealEn,
+                Text("config.plant_analysis", "Plant Analysis"),
+                Text("config.plant_analysis.tip", "Shows bloomberry quality and the traits of unanalyzed seeds. " +
+                     "\"With plant analyser\" shows seed traits only while you own a plant analyser; berry quality " +
+                     "shows in both modes."));
 
             LiquidChoice.Define(_cfg, "liquid_analysis", SecRevealEn,
                 Text("config.liquid_analysis", "Liquid Composition Analysis"),
@@ -512,7 +519,9 @@ internal static class ModSettings
 
     /// <summary>
     /// 莓果品质与未分析种子性状原先挂在「真伪鉴定」下，现拆成三档 <c>plant_analysis</c>：
-    /// 文件里还没有新键时，<c>show_authenticity</c> 为关 → 关闭，否则保持默认「总是开启」，升级后显示不变。
+    /// 文件里还没有新键、但已经有别的键（从旧版升上来的玩家）时，<c>show_authenticity</c> 为关 → 关闭，
+    /// 为开 → 总是开启，升级后显示不变——新默认「有植物分析仪时开启」只给全新安装的玩家。
+    /// 全新装（文件里一个键都没有）不迁移，走新默认。
     /// 必须在 <see cref="MigrateLegacyAppraisalToggle"/> 之后执行：更老的配置只有 <c>show_item_appraisal</c>，
     /// 真伪鉴定的取值要先从它迁过来。旧键不删，理由同 <see cref="MigrateLegacyWaterToggle"/>。
     /// </summary>
@@ -522,10 +531,10 @@ internal static class ModSettings
         try
         {
             var raw = RawValues();
-            if (raw == null || raw.ContainsKey("plant_analysis") || AuthenticityToggle.Value) return;
+            if (raw == null || raw.ContainsKey("plant_analysis") || raw.Count == 0) return;
 
-            PlantChoice.Select((int)PlantMode.Off);
-            Log.Msg($"ModSettings: 旧设置 show_authenticity=false → plant_analysis={PlantAnalysis}");
+            PlantChoice.Select((int)(AuthenticityToggle.Value ? PlantMode.Always : PlantMode.Off));
+            Log.Msg($"ModSettings: 旧配置 → plant_analysis={PlantAnalysis}");
         }
         catch (Exception ex)
         {

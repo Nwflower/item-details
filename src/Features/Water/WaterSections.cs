@@ -29,14 +29,14 @@ internal static class WaterSections
         {
             // 液体容器：表头只画「体积条 + 2000/2000mL 档位」，下面每种成分一行；
             // 单元格按全角空格分隔，原版窗口构建时换成 TMP 的 <pos> 三列（见 WaterColumns）。
-            // 净化建议开着时先量出它的右端，成分表的百分比列据此对齐（建议结果按 tooltip 缓存，不会算两遍）
-            float adviceEdge = 0f;
-            if (ModSettings.WaterAdvice && LiquidQueries.GetAdvice(item) is { Count: > 0 } advice)
-                {
-                    var deduped = DedupeByGain(advice);
-                    adviceEdge = WaterColumns.AdviceRightEdge(deduped, ResultTexts(item, deduped));
-                }
-            var table = WaterColumns.Build(r, visible: visible, adviceRightEdge: adviceEdge);
+            // 净化建议开着时先量出它的三列，成分表据此把用量列与百分比列摆好，两段共用竖线
+            WaterColumns.AdviceWidths? advice = null;
+            if (ModSettings.WaterAdvice && LiquidQueries.GetAdvice(item) is { Count: > 0 } methods)
+            {
+                var deduped = DedupeByGain(methods);
+                advice = WaterColumns.MeasureAdvice(deduped, ResultTexts(item, deduped));
+            }
+            var table = WaterColumns.Build(r, visible: visible, advice: advice);
             PublishWaterRows(builder, visible);
             // 折行预算按本表实际最宽的一行算：原版 40（中文折算 26）通常够用，
             // 只有名称特别长的行才放宽，且只放宽到够用。以前一律放到 64，
@@ -138,7 +138,7 @@ internal static class WaterSections
 
         // 建议行不参与「折叠水质成分」：那条折叠只收 1% 以下的小成分，
         // 建议本身是玩家操作水时的依据，始终画出来，不再要求按展开键。
-        // 一种手段一行，增益右对齐到成分表的百分比列
+        // 一种手段一行：纯度落在成分表的用量列（灰色），增益右对齐到百分比列
         // 折行预算按最长的一行留：名称里常有空格，预算不够时原版会在名称中间折行，右对齐随之错位
         var results = ResultTexts(item, shown);
         for (int i = 0; i < shown.Count; i++)
@@ -147,7 +147,11 @@ internal static class WaterSections
         return LineOutput.AppendLines(builder, WaterColumns.AdviceLines(shown, RenderHandler.ColorPalette.LightTurquoise, results));
     }
 
-    /// <summary>净化后的纯度与档位，如「99.29%(优质水)」；纯度读不到或档位名取不到时只写百分比，读不到纯度则为空。</summary>
+    /// <summary>
+    /// 净化后的纯度，如「99.29%」；读不到纯度时为空。
+    /// 只写数字：档位名（幽灵水、优质水……）与上一行「2000/2000mL 幽灵水」重复，
+    /// 玩家读建议时看的是能涨多少、涨到多少，多三个字只会把这一列挤宽。
+    /// </summary>
     private static string[] ResultTexts(GameItem item, IReadOnlyList<(string Name, double GainPercentagePoints)> methods)
     {
         var texts = new string[methods.Count];
@@ -156,10 +160,7 @@ internal static class WaterSections
         for (int i = 0; i < texts.Length; i++)
         {
             int after = Math.Min(WaterInfo.PurityFull, purity + (int)Math.Round(methods[i].GainPercentagePoints * 100.0));
-            string pct = (after / (WaterInfo.PurityFull / 100.0)).ToString("0.00", Loc.Culture) + "%";
-            string tier = "";
-            try { tier = WaterFeatureHelper.GetWaterDisplayName(after) ?? ""; } catch { }
-            texts[i] = tier.Length > 0 ? pct + "(" + tier + ")" : pct;
+            texts[i] = (after / (WaterInfo.PurityFull / 100.0)).ToString("0.00", Loc.Culture) + "%";
         }
         return texts;
     }

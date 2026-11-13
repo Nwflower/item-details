@@ -172,8 +172,11 @@ internal static class WaterColumns
             ? row.Name + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent
             : row.Name + Pos(layout.VolumeRight - Em(row.Amount)) + row.Amount + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent;
 
-    /// <summary>按所有可见行的名称/用量算出列落点，折叠提示行也参与。</summary>
-    private static Layout Measure(IReadOnlyList<WaterRow> rows, float minRightEdge = 0f)
+    /// <summary>
+    /// 按所有可见行的名称/用量算出列落点，折叠提示行也参与。
+    /// 净化建议在场时它的三列也算进来，成分表与建议共用同一套竖线（见 <see cref="AdviceWidths"/>）。
+    /// </summary>
+    private static Layout BuildLayout(IReadOnlyList<WaterRow> rows, AdviceWidths? advice)
     {
         float nameEm = 0f;
         float volEm = 0f;
@@ -188,10 +191,17 @@ internal static class WaterColumns
             volEm = Math.Max(volEm, Em(rows[i].Amount));
         }
         float volStart = nameEm + ColumnGapEm;
+        // 建议里的纯度落在这条列上，名称比用量列还宽时整列一起右移，两者才不会叠字；
+        // 没有纯度可写（读不到这瓶水的纯度）时这条列不必为建议让位
+        float volumeRight = volStart + volEm;
+        if (advice.HasValue && advice.Value.Purity > 0f && advice.Value.VolumeRight > volumeRight)
+            volumeRight = advice.Value.VolumeRight;
         // 提示盖不住两列时，只顺延百分比列，用量列位置不变
-        float percentStart = Math.Max(volStart + volEm + ColumnGapEm, hintEm + ColumnGapEm);
-        // 净化建议要求的右端更靠右时跟着它走，两列数字落在同一条竖线上
-        return new Layout(volStart, volStart + volEm, percentStart, Math.Max(percentStart + pctEm, minRightEdge));
+        float percentStart = Math.Max(volumeRight + ColumnGapEm, hintEm + ColumnGapEm);
+        // 建议的增益落在这条列上，比成分表自己的百分比更靠右时跟着它走
+        float rightEdge = percentStart + pctEm;
+        if (advice.HasValue) rightEdge = Math.Max(rightEdge, advice.Value.RightEdge(volumeRight));
+        return new Layout(volStart, volumeRight, percentStart, rightEdge);
     }
 
     /// <summary>液体容器的一行成分用量（mL）。</summary>
@@ -283,9 +293,9 @@ internal static class WaterColumns
     /// 成分一律全部列出，不折叠；净化建议另起一行（见 WaterSections.AppendAdvice）。
     /// </summary>
     /// <param name="visible">非 null 时填入这一帧实际画出的行，供区块协议发布。</param>
-    /// <param name="adviceRightEdge">净化建议要求的百分比列右端（见 <see cref="AdviceRightEdge"/>），0 表示没有建议行。</param>
+    /// <param name="advice">净化建议的三列宽度（见 <see cref="MeasureAdvice"/>）；null 表示没有建议行。</param>
     internal static List<TooltipLine> Build(LiquidAnalysis analysis, List<WaterRow>? visible = null,
-        float adviceRightEdge = 0f)
+        AdviceWidths? advice = null)
     {
         int totalMl = analysis.TotalMicroliters / 1000;
         int capacityMl = analysis.CapacityMicroliters / 1000;
@@ -307,7 +317,7 @@ internal static class WaterColumns
             new("", ratio, 6, tail,
                 RenderHandler.ColorPalette.LightCyan, RenderHandler.ColorPalette.VeryDarkCyan),
         };
-        lines.AddRange(RowLines(plan.Rows, comps, adviceRightEdge));
+        lines.AddRange(RowLines(plan.Rows, comps, advice));
         return lines;
     }
 
@@ -316,76 +326,98 @@ internal static class WaterColumns
     /// 液体与固体都走这里，两条路径不会再各写一套。
     /// </summary>
     private static List<TooltipLine> RowLines(IReadOnlyList<WaterRow> rows,
-        List<(string Name, int Parts, RenderHandler.ColorPalette Color)> comps, float minRightEdge = 0f)
+        List<(string Name, int Parts, RenderHandler.ColorPalette Color)> comps, AdviceWidths? advice = null)
     {
         var lines = new List<TooltipLine>(rows.Count);
-        var layout = Measure(rows, minRightEdge);
+        var layout = BuildLayout(rows, advice);
         _tableFrame = Time.frameCount;
         _tableRightEdge = layout.RightEdge;
+        _tableVolumeRight = layout.VolumeRight;
         foreach (var row in rows)
             lines.Add(new TooltipLine(WaterTable.JoinCells(row, CellSeparator), ColorOf(comps, row))
                 .WithRender(Row(row, layout)));
         return lines;
     }
 
-    /// <summary>本帧成分表的百分比列起点；净水建议据此对齐。跨帧的值不可信，不使用。</summary>
+    /// <summary>本帧成分表的百分比列右端与用量列右端；净水建议据此对齐。跨帧的值不可信，不使用。</summary>
     private static int _tableFrame = -1;
     private static float _tableRightEdge;
+    private static float _tableVolumeRight;
 
     /// <summary>
-    /// 净化建议自己需要的百分比列右端：最长名称 + 列间距 + 最宽「净化后」+ 列间距 + 最宽增益。
-    /// 没有「净化后」列（<paramref name="results"/> 为空或全空）时退回名称 + 增益两列。
+    /// 净化建议的三列宽度（em）：最长名称、最宽纯度、最宽增益。
+    /// 成分表先按它把用量列与百分比列摆好，建议行随后落在同一套竖线上。
     /// </summary>
-    internal static float AdviceRightEdge(IReadOnlyList<(string Name, double GainPercentagePoints)> methods,
+    internal readonly struct AdviceWidths
+    {
+        internal readonly float Name;
+        /// <summary>最宽纯度；0 表示没有「净化后」结果。</summary>
+        internal readonly float Purity;
+        internal readonly float Gain;
+
+        internal AdviceWidths(float name, float purity, float gain)
+        {
+            Name = name;
+            Purity = purity;
+            Gain = gain;
+        }
+
+        /// <summary>纯度列右端：右对齐到用量列的右端，与用量数字落在同一条竖线上。</summary>
+        internal float VolumeRight => Name + ColumnGapEm + Purity;
+
+        /// <summary>增益列右端：有纯度列时隔一格接在它后面，没有则直接接名称。</summary>
+        internal float RightEdge(float volumeRight) => (Purity > 0f ? volumeRight : Name) + ColumnGapEm + Gain;
+    }
+
+    /// <summary>量出建议三列各要占多宽（em）；没有「净化后」结果时纯度列为 0。</summary>
+    internal static AdviceWidths MeasureAdvice(
+        IReadOnlyList<(string Name, double GainPercentagePoints)> methods,
         IReadOnlyList<string>? results = null)
     {
-        float nameEm = 0f, gainEm = 0f, resultEm = 0f;
+        float nameEm = 0f, purityEm = 0f, gainEm = 0f;
         for (int i = 0; i < methods.Count; i++)
         {
             nameEm = Math.Max(nameEm, Em(methods[i].Name));
             gainEm = Math.Max(gainEm, Em(GainText(methods[i].GainPercentagePoints)));
-            if (results != null && i < results.Count) resultEm = Math.Max(resultEm, Em(results[i]));
+            if (results != null && i < results.Count) purityEm = Math.Max(purityEm, Em(results[i]));
         }
-        return nameEm + (resultEm > 0f ? ColumnGapEm + resultEm : 0f) + ColumnGapEm + gainEm;
+        return new AdviceWidths(nameEm, purityEm, gainEm);
     }
 
     private static string GainText(double gain) => "+" + gain.ToString("0.00", Loc.Culture) + "%";
 
     /// <summary>
-    /// 净水建议：一种手段一行，三列——名称靠左、净化后的纯度(档位)居中、增益靠右。
-    /// 增益右端对齐在成分表的百分比列；本帧没有成分表（折叠/无表）时按自己的宽度另起一列，
-    /// 名称比成分表名称列还宽时顺延，避免叠字。没有「净化后」结果时只有名称与增益两列。
-    /// 文本是全角空格分隔的规范输出，渲染写法是 &lt;pos&gt;。
+    /// 净水建议：一种手段一行，三列——名称靠左、净化后的纯度落在成分表的用量列、增益落在百分比列。
+    /// 纯度只是参考值，用灰色压一档；档位名不显示，玩家看增益与纯度就够了。
+    /// 本帧没有成分表（这块没画）时，三列按建议自己的宽度另起一套。
+    /// 文本是全角空格分隔的规范输出，渲染写法是 &lt;pos&gt; 加内联灰色。
     /// </summary>
     internal static List<TooltipLine> AdviceLines(
         IReadOnlyList<(string Name, double GainPercentagePoints)> methods, RenderHandler.ColorPalette color,
         IReadOnlyList<string>? results = null)
     {
-        var gains = new string[methods.Count];
-        float nameEm = 0f;
-        float gainEm = 0f;
-        float resultEm = 0f;
-        for (int i = 0; i < methods.Count; i++)
+        var widths = MeasureAdvice(methods, results);
+        float volumeRight = widths.VolumeRight;
+        float right = widths.RightEdge(volumeRight);
+        if (_tableFrame == Time.frameCount)
         {
-            gains[i] = GainText(methods[i].GainPercentagePoints);
-            nameEm = Math.Max(nameEm, Em(methods[i].Name));
-            gainEm = Math.Max(gainEm, Em(gains[i]));
-            if (results != null && i < results.Count) resultEm = Math.Max(resultEm, Em(results[i]));
+            // 与成分表共用竖线：名字比用量列宽、增益比百分比列宽时由成分表那边已经顺延过，这里取两者的较右者
+            volumeRight = Math.Max(volumeRight, _tableVolumeRight);
+            right = Math.Max(right, _tableRightEdge);
         }
-
-        bool hasResult = resultEm > 0f;
-        float resultStart = nameEm + ColumnGapEm;
-        float right = (hasResult ? resultStart + resultEm : nameEm) + ColumnGapEm + gainEm;
-        if (_tableFrame == Time.frameCount) right = Math.Max(right, _tableRightEdge);
 
         var lines = new List<TooltipLine>(methods.Count);
         for (int i = 0; i < methods.Count; i++)
         {
             string name = methods[i].Name;
-            string result = hasResult && i < results!.Count ? results[i] : "";
-            string render = name + (hasResult ? Pos(resultStart) + result : "")
-                          + Pos(right - Em(gains[i])) + gains[i];
-            string canonical = name + CellSeparator + (hasResult ? result + CellSeparator : "") + gains[i];
+            string purity = widths.Purity > 0f && i < results!.Count ? results[i] : "";
+            string gain = GainText(methods[i].GainPercentagePoints);
+            string render = name
+                + (purity.Length > 0
+                    ? Pos(volumeRight - Em(purity)) + "<color=" + ColumnLayout.GrayText + ">" + purity + "</color>"
+                    : "")
+                + Pos(right - Em(gain)) + gain;
+            string canonical = name + CellSeparator + (purity.Length > 0 ? purity + CellSeparator : "") + gain;
             lines.Add(new TooltipLine(canonical, color).WithRender(render));
         }
         return lines;

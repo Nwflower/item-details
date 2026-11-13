@@ -20,6 +20,9 @@ internal static class ColumnLayout
     internal static readonly string BlueText = Hex(RenderHandler.ColorPalette.LightBlue);
     internal static readonly string CyanText = Hex(RenderHandler.ColorPalette.LightCyan);
 
+    /// <summary>参考值用的灰：净化建议里「净化后纯度」这类不抢主数值注意力的格子。</summary>
+    internal static readonly string GrayText = Hex(RenderHandler.ColorPalette.Gray);
+
     /// <summary>数值的正负色：与同一行的标签同色，读起来是一个整体。</summary>
     internal static readonly string ValuePositive = PositiveText;
     internal static readonly string ValueNegative = NegativeText;

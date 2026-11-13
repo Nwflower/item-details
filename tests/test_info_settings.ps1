@@ -196,7 +196,8 @@ namespace TEST_NS {
    cfg = Reinit(new() { ["show_authenticity"] = "true" });
    Check(ModSettings.PlantAnalysis == ModSettings.PlantMode.Always, "authenticity on migrates plant analysis to always");
    cfg = Reinit(new());
-   Check(ModSettings.PlantAnalysis == ModSettings.PlantMode.Always && ModSettings.Auth, "fresh config defaults to always");
+   Check(ModSettings.PlantAnalysis == ModSettings.PlantMode.WithAnalyser && ModSettings.Auth, "fresh config defaults plant analysis to with analyser");
+   Check(ModSettings.LiquidAnalysis == ModSettings.LiquidMode.WithScanner, "fresh config defaults liquid analysis to with scanner");
    cfg = Reinit(new() { ["show_authenticity"] = "false", ["plant_analysis"] = "总是开启 (Always)" });
    Check(ModSettings.PlantAnalysis == ModSettings.PlantMode.Always, "an existing plant_analysis key wins over the old toggle");
    // An earlier migration that changes a value saves at once; later migrations must still see the file as loaded.
@@ -207,9 +208,10 @@ namespace TEST_NS {
    // ---- plant gate ----
    cfg = Reinit(new());
    var plantMode = (ConfigEntry<string>)cfg.Get("plant_analysis")!;
-   int authIndex = cfg.Entries.IndexOf(cfg.Get("show_authenticity")!);
-   Check(cfg.Entries.IndexOf(plantMode) == authIndex + 1 && plantMode.Section == "Reveal", "plant analysis follows authenticity in Reveal");
-   Check(PlantGate.Berry && PlantGate.SeedTraits, "always shows berry quality and seed traits");
+   int liquidIndex = cfg.Entries.IndexOf(cfg.Get("liquid_analysis")!);
+   Check(cfg.Entries.IndexOf(plantMode) == liquidIndex - 1 && plantMode.Section == "Reveal", "plant analysis sits directly above liquid analysis in Reveal");
+   ScannerInventory.HasPlantAnalyser = false;
+   Check(PlantGate.Berry && !PlantGate.SeedTraits, "with-analyser default waits for an owned analyser");
    plantMode.Set(ModSettings.PlantChoiceValue(ModSettings.PlantMode.WithAnalyser));
    ScannerInventory.HasPlantAnalyser = false;
    Check(PlantGate.Berry && !PlantGate.SeedTraits, "berry quality needs no analyser; seed traits do");
