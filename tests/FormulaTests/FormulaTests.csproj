@@ -15,5 +15,9 @@
     <Compile Include="../../src/Domain/TextWrap.Pure.cs" Link="TextWrap.Pure.cs" />
     <Compile Include="../../src/Domain/AuthenticityRules.Pure.cs" Link="AuthenticityRules.Pure.cs" />
     <Compile Include="../../src/Domain/TooltipLineBreak.Pure.cs" Link="TooltipLineBreak.Pure.cs" />
+    <Compile Include="../../src/Domain/AppraisalRanges.Pure.cs" Link="AppraisalRanges.Pure.cs" />
+    <Compile Include="../../src/Domain/RibwichReasons.Pure.cs" Link="RibwichReasons.Pure.cs" />
+    <Compile Include="../../src/Domain/StackValue.Pure.cs" Link="StackValue.Pure.cs" />
+    <Compile Include="../../src/Domain/Plural.Pure.cs" Link="Plural.Pure.cs" />
   </ItemGroup>
 </Project>

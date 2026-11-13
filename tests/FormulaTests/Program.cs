@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ItemDetails;
 
 int failures = 0;
@@ -252,7 +253,293 @@ Check("flowing rows always keep three cells, hint included", () =>
     Require(hint[1] == WaterTable.EmptyCell, "empty amount cell holds the placeholder");
     Require(hint[2] == "0.42%", "percent stays in the last cell");
 });
+
+// ============ 价值公式、鉴定区间、赝品原因、堆叠、折行、体积、成分表数值、复数（每条用例一行 PASS）============
+// 期望值来自 Probably Stolen 0.46D 反编译的 AppHandHelper / PlasmaHelper / RibwichHelper.GetCorrectValue。
+foreach (var c in new (string Name, string Wear, string Crack, string Uncov, string Reinf, string Color, string Seal, int Exp)[]
+{
+    ("默认 LL+标准色", "NONE", "NONE", "NONE", "NONE", "STANDARD", "LL", 360),                // 300 + 60
+    ("重度磨损 无封印", "WEAR_HEAVY", "NONE", "NONE", "NONE", "STANDARD", "NONE", 210),        // 300 - 90，与实机截图一致
+    ("轻度磨损", "WEAR", "NONE", "NONE", "NONE", "STANDARD", "NONE", 255),                    // 300 - 45
+    ("点火实验室+高级颜色", "NONE", "NONE", "NONE", "NONE", "HIGH_QUALITY", "IGNITION_LAB", 1200), // 300 + 150 + 750
+    ("磨损+外露+加固", "WEAR", "NONE", "UNCOVERED", "REINFORCED", "STANDARD", "NONE", 285),   // 300 - 45 - 30 + 60
+    ("中华船舶", "NONE", "NONE", "NONE", "NONE", "STANDARD", "ZHONGHUA", 420),                // 300 + 120
+    ("共和国海军", "NONE", "NONE", "NONE", "NONE", "STANDARD", "REPUBLIC", 420),              // 300 + 120
+    ("LL 配高级颜色 无封印加成", "NONE", "NONE", "NONE", "NONE", "HIGH_QUALITY", "LL", 450),   // 只剩颜色 +150
+    ("破裂 共和国不成", "NONE", "CRACK", "NONE", "NONE", "STANDARD", "REPUBLIC", 150),         // 300 - 150
+})
+    Check("plasma/" + c.Name, () =>
+        ExpectTotal(ValueBreakdown.ComputePlasma(PlasmaTags(c.Wear, c.Crack, c.Uncov, c.Reinf, c.Color, c.Seal)), c.Exp));
+
+foreach (var c in new (string Name, string Mat, string Iface, string Cond, string Armored, string Bladed, int Exp)[]
+{
+    ("白板", "ALUMINUM_ALLOY", "EMG", "NONE", "NONE", "NONE", 100),
+    ("战术组合", "CARBON_COMPOSITE", "EMG_PLUS", "NONE", "ARMORED", "BLADED", 425),         // 100 + 50 + 45 + 50 + 80 + 100
+    ("豪华组合", "GOLD_PLATED", "NEURAL", "NONE", "NONE", "NONE", 620),                      // 100 + 200 + 120 + 200
+    ("规格不明接口 触底", "ALUMINUM_ALLOY", "UNSPECIFIED", "NONE", "NONE", "NONE", 50),      // 100 - 60 → 下限 50
+    ("受损 触底", "ALUMINUM_ALLOY", "EMG", "DAMAGE", "NONE", "NONE", 50),                    // 100 - 85 → 下限 50
+    ("镀金+刀刃", "GOLD_PLATED", "EMG", "NONE", "NONE", "BLADED", 380),                      // 100 + 200 + 80
+})
+    Check("hand/" + c.Name, () =>
+        ExpectTotal(ValueBreakdown.ComputeHand(HandTags(c.Mat, c.Iface, c.Cond, c.Armored, c.Bladed)), c.Exp));
+
+foreach (var c in new (string Name, int Wrap, int Meat, int Bun, int Pickles, int Month, int Year, int Fac, int Native, int Exp)[]
+{
+    ("已开封 wrap=1", 1, 0, 0, 0, 5, 430, 3, 40, 40),
+    ("普通", 0, 0, 0, 0, 5, 430, 3, 0, 150),
+    ("双层肉饼", 0, 1, 0, 0, 5, 430, 3, 0, 950),
+    ("豪华版", 0, 0, 1, 1, 5, 430, 3, 0, 450),
+    ("首月首批次", 0, 0, 0, 0, 1, 425, 3, 0, 280),
+    ("优质包装厂", 0, 0, 0, 0, 5, 430, 1, 0, 200),
+    ("劣质包装厂", 0, 0, 0, 0, 5, 430, 7, 0, 100),
+    ("赝品(native=40)", 0, 0, 0, 0, 5, 430, 3, 40, 40),
+})
+    Check("ribwich/" + c.Name, () =>
+    {
+        var tags = new Dictionary<string, int>
+        {
+            ["RIBWICH_WRAP_TAG"] = c.Wrap, ["RIBWICH_MEAT_TAG"] = c.Meat,
+            ["RIBWICH_BUN_TAG"] = c.Bun, ["RIBWICH_PICKLES_TAG"] = c.Pickles,
+            ["RIBWICH_PRODUCTION_MONTH_TAG"] = c.Month, ["RIBWICH_PRODUCTION_YEAR_TAG"] = c.Year,
+            ["RIBWICH_FACILITY_NUMBER_TAG"] = c.Fac,
+        };
+        ExpectTotal(ValueBreakdown.ComputeRibwich(key => tags.TryGetValue(key, out var v) ? v : (int?)null, c.Native), c.Exp);
+    });
+
+// 标签缺失或非法值必须判无效
+Check("plasma/缺标签应无效", () => Require(!ValueBreakdown.ComputePlasma(key => null).Valid, "should be invalid"));
+Check("plasma/非法颜色应无效", () => Require(!ValueBreakdown.ComputePlasma(key =>
+    key == "PLASMA_COLOR" ? "WEIRD_COLOR"
+    : key is "PLASMA_CASING_CONDITION_WEAR" or "PLASMA_CASING_CONDITION_CRACK"
+        or "PLASMA_CASING_CONDITION_UNCOVERED" or "PLASMA_CASING_CONDITION_REINFORCED" ? "NONE"
+    : key == "PLASMA_SEAL" ? "NONE" : null).Valid, "should be invalid"));
+Check("hand/缺标签应无效", () => Require(!ValueBreakdown.ComputeHand(key => null).Valid, "should be invalid"));
+Check("ribwich/缺包装标签应无效", () => Require(!ValueBreakdown.ComputeRibwich(key => null, 0).Valid, "should be invalid"));
+
+// 鉴定区间：完美档 95%–105%，与 RNG.CalculatePercentage 同为截断
+CheckRange("range/210", 210, 199, 220);   // 210*95/100=199，210*105/100=220
+CheckRange("range/300", 300, 285, 315);
+CheckRange("range/100", 100, 95, 105);
+CheckRange("range/7", 7, 6, 7);           // 小数值截断：7*95/100=6，7*105/100=7
+
+// 边界一致性：对每个真实价暴力遍历候选值，断言「档位==1」当且仅当「落在显示区间内」
+int[] corrects = { 1, 3, 7, 40, 90, 100, 150, 180, 199, 210, 275, 300, 360, 425, 620, 1200 };
+foreach (int correct in corrects)
+    Check("range/scan-" + correct, () =>
+    {
+        var (lo, hi) = AppraisalRanges.Perfect(correct);
+        Require(lo <= correct && correct <= hi, $"{lo}–{hi} 不含真实价");
+        Require(AppraisalRanges.Grade(correct, lo) == 1 && AppraisalRanges.Grade(correct, hi) == 1,
+            $"端点 {lo}/{hi} 未判为完美");
+        Require(lo <= 0 || AppraisalRanges.Grade(correct, lo - 1) != 1, $"{lo - 1} 也判完美，区间少了一格");
+        Require(AppraisalRanges.Grade(correct, hi + 1) != 1, $"{hi + 1} 也判完美，区间少了一格");
+        for (int v = 0; v <= hi + 2; v++)
+            Require((v >= lo && v <= hi) == (AppraisalRanges.Grade(correct, v) == 1),
+                $"value={v} 的档位与显示区间 {lo}–{hi} 不一致");
+    });
+Check("range/scan-total", () =>
+{
+    int scanned = 0, mismatch = 0;
+    foreach (int correct in corrects)
+    {
+        var (lo, hi) = AppraisalRanges.Perfect(correct);
+        for (int v = 0; v <= hi + 2; v++)
+        {
+            scanned++;
+            if ((v >= lo && v <= hi) != (AppraisalRanges.Grade(correct, v) == 1)) mismatch++;
+        }
+    }
+    Require(scanned > 0 && mismatch == 0, $"{mismatch}/{scanned} 处不一致");
+});
+
+// 赝品肋明治原因（与 RibwichHelper.IsCounterfeit 逐条对应）
+// 参数：月, 年, 包装厂, 达夫雷, 批次贴纸, 生产日期标记, 包装厂标记, 面包, 泡菜
+CheckReasons("ribwich/valid-second-run", 5, 432, 3, 0, 0, 0, 0, 0, 0);
+CheckReasons("ribwich/valid-first-run", 5, 427, 3, 0, -1, 0, 0, 0, 0);
+CheckReasons("ribwich/first-run-has-sticker", 5, 427, 3, 0, 0, 0, 0, 0, 0, RibwichReasons.Reason.FirstRunHasSticker);
+CheckReasons("ribwich/second-run-missing-sticker", 5, 432, 3, 0, -1, 0, 0, 0, 0, RibwichReasons.Reason.SecondRunStickerMissing);
+CheckReasons("ribwich/second-run-wrong-sticker", 5, 432, 3, 0, 1, 0, 0, 0, 0, RibwichReasons.Reason.SecondRunStickerWrong);
+CheckReasons("ribwich/month-out-of-range", 13, 432, 3, 0, 0, 0, 0, 0, 0, RibwichReasons.Reason.MonthOutOfRange);
+CheckReasons("ribwich/year-out-of-range", 5, 430, 3, 0, 0, 0, 0, 0, 0, RibwichReasons.Reason.YearOutOfRange);
+CheckReasons("ribwich/production-date-missing", 5, 432, 3, 0, 0, -1, 0, 0, 0, RibwichReasons.Reason.ProductionDateMissing);
+CheckReasons("ribwich/facility-zero", 5, 432, 0, 0, 0, 0, 0, 0, 0, RibwichReasons.Reason.FacilityOutOfRange);
+CheckReasons("ribwich/facility-36", 5, 432, 36, 0, 0, 0, 0, 0, 0, RibwichReasons.Reason.FacilityOutOfRange);
+CheckReasons("ribwich/facility-mark-missing", 5, 432, 3, 0, 0, 0, -1, 0, 0, RibwichReasons.Reason.FacilityMissing);
+CheckReasons("ribwich/davre-missing", 5, 432, 3, -1, 0, 0, 0, 0, 0, RibwichReasons.Reason.DavreMissing);
+CheckReasons("ribwich/davre-wrong", 5, 432, 3, 2, 0, 0, 0, 0, 0, RibwichReasons.Reason.DavreWrong);
+CheckReasons("ribwich/bun-without-pickles", 5, 432, 3, 0, 0, 0, 0, 1, 0, RibwichReasons.Reason.BunWithoutPickles);
+CheckReasons("ribwich/pickles-without-bun", 5, 432, 3, 0, 0, 0, 0, 0, 1, RibwichReasons.Reason.PicklesWithoutBun);
+CheckReasons("ribwich/multiple-faults", 13, 430, 40, -1, 0, -1, -1, 1, 0,
+    RibwichReasons.Reason.MonthOutOfRange, RibwichReasons.Reason.YearOutOfRange,
+    RibwichReasons.Reason.ProductionDateMissing, RibwichReasons.Reason.FacilityOutOfRange,
+    RibwichReasons.Reason.FacilityMissing, RibwichReasons.Reason.DavreMissing,
+    RibwichReasons.Reason.BunWithoutPickles);
+
+// 堆叠价值（单件当前价值 × 数量）
+CheckStack("stack/single", 100, 1, true, 100);
+CheckStack("stack/five", 100, 5, true, 500);
+CheckStack("stack/count-zero-treated-as-one", 100, 0, true, 100);
+CheckStack("stack/unit-zero", 0, 5, false, 0);
+CheckStack("stack/overflow", long.MaxValue, 2, false, 0);
+Check("stack/per-cell：500/4=125", () => Require(Math.Abs(StackValue.PerCell(500, 4) - 125.0) < 0.0001, "per cell " + StackValue.PerCell(500, 4)));
+
+// 描述预折行（TextWrap.Wrap）
+CheckWrap("wrap/zh-perfume", "使用后，与当前顾客的交易收益将提升15%。你同时只能获得一种香水效果的增益。", 26,
+    "使用后，与当前顾客的交易收益将提升15%。\n你同时只能获得一种香水效果的增益。");
+CheckWrap("wrap/zh-furnace", "将2块废金属或金属矿石提炼成金属锭。需要能量。夜间运行。", 24,
+    "将2块废金属或金属矿石提炼成金属锭。需要能量。\n夜间运行。");
+CheckWrap("wrap/short", "短描述", 26, "短描述");
+CheckWrap("wrap/keep-newline", " 第一行\n第二行", 26, " 第一行\n第二行");
+CheckWrap("wrap/en-word", "alpha beta gamma delta", 12, "alpha beta\ngamma delta");
+CheckWrap("wrap/kinsoku", "一二三四五。六七八", 5, "一二三四\n五。六七八");   // 收尾标点不放行首
+CheckWrap("wrap/number", "收益提升百分之15%", 8, "收益提升百分之\n15%");       // 数字和百分号不拆
+Check("wrap/limit", () => Require(
+    Array.TrueForAll(TextWrap.Wrap(new string('字', 100), 26).Split('\n'), l => l.Length <= 26), "100 字按 26 断开，每行 ≤ 26"));
+
+// 体积单位与进度条格数（3000 ml 换 L 的阈值见上方 Volume.UseLiters 用例）
+CheckText("volume/ml", Volume.Number(2500, false), "2500");
+CheckText("volume/liter", Volume.Number(12345, true), "12.35");
+CheckText("volume/liter-whole", Volume.Number(10000, true), "10");
+CheckFill("fill/near-full", 2999600f / 3000000f, 10, 10);   // 水罐差 0.4 ml：原版 floor 只画 9 格，这里按满画
+CheckFill("fill/full", 1f, 10, 10);
+CheckFill("fill/floor", 0.95f, 10, 9);
+CheckFill("fill/below-threshold", 0.999f, 10, 9);
+CheckFill("fill/nan", float.NaN, 10, 0);
+
+// 水质成分表的数值与容器容量
+var inv = System.Globalization.CultureInfo.InvariantCulture;
+const int WaterTotalParts = 20_000_000;   // 20000 mL × 1000 parts/mL
+CheckText("成分百分比 98.07", WaterLayout.PercentText(19_614_000, WaterTotalParts, inv), "98.07");
+CheckText("成分百分比 0.58", WaterLayout.PercentText(116_000, WaterTotalParts, inv), "0.58");
+CheckText("成分百分比 100", WaterLayout.PercentText(WaterTotalParts, WaterTotalParts, inv), "100.00");
+CheckText("体积 mL", WaterLayout.VolumeText(1_961_400, false, inv), "1961.4");
+CheckText("体积 L", WaterLayout.VolumeText(19_720_100, true, inv), "19.72");
+CheckText("容器容量 mL", WaterLayout.Capacity(20000, 20000, false, inv), "20000/20000mL");
+CheckText("容器容量 L", WaterLayout.Capacity(20000, 20000, true, inv), "20/20L");
+// 1% 折叠阈值：整数比较，0.999% 仍算低于阈值
+CheckFold("正好 1% 不折", 1000, 100000, false);
+CheckFold("0.99% 折", 990, 100000, true);
+CheckFold("0.999% 折", 999, 100000, true);
+CheckFold("1.01% 不折", 1010, 100000, false);
+CheckFold("空总量不折", 0, 0, false);
+
+// 复数形式
+const string ru = "{0} {0|модуль|модуля|модулей}";   // one/few/many：11–14 归 many，21 回到 one
+CheckPlural("plural/ru-1", ru, 1, "ru", "1 модуль");
+CheckPlural("plural/ru-2", ru, 2, "ru", "2 модуля");
+CheckPlural("plural/ru-5", ru, 5, "ru", "5 модулей");
+CheckPlural("plural/ru-11", ru, 11, "ru", "11 модулей");
+CheckPlural("plural/ru-21", ru, 21, "ru", "21 модуль");
+CheckPlural("plural/ru-22", ru, 22, "ru", "22 модуля");
+const string pl = "{0} {0|moduł|moduły|modułów}";    // 波兰语只有 1 是 one，22 是 few，12 是 many
+CheckPlural("plural/pl-1", pl, 1, "pl", "1 moduł");
+CheckPlural("plural/pl-2", pl, 2, "pl", "2 moduły");
+CheckPlural("plural/pl-5", pl, 5, "pl", "5 modułów");
+CheckPlural("plural/pl-12", pl, 12, "pl", "12 modułów");
+CheckPlural("plural/pl-21", pl, 21, "pl", "21 modułów");
+CheckPlural("plural/pl-22", pl, 22, "pl", "22 moduły");
+const string fr = "{0} {0|jour|jours}";               // 法语、葡语 0 和 1 都是单数；英语 0 是复数
+CheckPlural("plural/fr-0", fr, 0, "fr", "0 jour");
+CheckPlural("plural/fr-1", fr, 1, "fr", "1 jour");
+CheckPlural("plural/fr-2", fr, 2, "fr", "2 jours");
+CheckPlural("plural/en-0", "{0} {0|day|days}", 0, "en", "0 days");
+CheckPlural("plural/en-1", "{0} {0|day|days}", 1, "en", "1 day");
+// 词形不足时取最后一个；参数不是整数或越界时也取最后一个
+CheckPlural("plural/short-forms", "{0} {0|Tag|Tage}", 5, "ru", "5 Tage");
+CheckPlural("plural/fraction", "{0} {0|day|days}", 1.5, "en", "1.5 days");
+CheckText("plural/missing-arg", Plural.Apply("{3|day|days}", new object[] { 1 }, "en"), "days");
+CheckText("plural/no-token", Plural.Apply("{0}/{1} ml", new object[] { 1, 2 }, "en"), "{0}/{1} ml");
+
 return failures == 0 ? 0 : 1;
+
+void CheckText(string name, string actual, string expected)
+    => Check(name, () => Require(actual == expected, $"期望 {expected}，实际 {actual}"));
+
+void CheckFill(string name, float ratio, int length, int expected)
+    => Check(name, () =>
+    {
+        int actual = ProgressFill.Filled(ratio, length);
+        Require(actual == expected, $"比例 {ratio} → {actual} 格，期望 {expected}");
+    });
+
+void CheckWrap(string name, string text, int limit, string expected)
+    => Check(name, () =>
+    {
+        string actual = TextWrap.Wrap(text, limit);
+        Require(actual == expected, $"期望 {expected.Replace("\n", "⏎")}，实际 {actual.Replace("\n", "⏎")}");
+    });
+
+void CheckFold(string name, int parts, int total, bool expected)
+    => Check(name, () =>
+    {
+        bool actual = WaterLayout.BelowOnePercent(parts, total);
+        Require(actual == expected, $"期望 {expected}，实际 {actual}");
+    });
+
+void CheckPlural(string name, string template, object count, string lang, string expected)
+{
+    var args = new[] { count };
+    string actual = string.Format(System.Globalization.CultureInfo.InvariantCulture, Plural.Apply(template, args, lang), args);
+    CheckText(name, actual, expected);
+}
+
+void CheckStack(string name, long unit, int count, bool expectOk, long expectedTotal)
+    => Check(name, () =>
+    {
+        bool ok = StackValue.TryTotal(unit, count, out long total);
+        Require(ok == expectOk && total == expectedTotal,
+            $"ok={ok} total={total}，期望 ok={expectOk} total={expectedTotal}");
+    });
+
+void CheckRange(string name, int correct, int expLow, int expHigh)
+    => Check(name, () =>
+    {
+        var (lo, hi) = AppraisalRanges.Perfect(correct);
+        Require(lo == expLow && hi == expHigh, $"完美 {lo}–{hi}，期望 {expLow}–{expHigh}");
+    });
+
+// 原因用本地化键比较：失败时仍能看出是哪一条，也不会因为改译文而牵动测试
+void CheckReasons(string name, int month, int year, int facility, int davre, int logo,
+    int productionMark, int facilityMark, int bun, int pickles, params RibwichReasons.Reason[] expected)
+    => Check(name, () =>
+    {
+        var actual = new List<string>();
+        foreach (var r in RibwichReasons.Evaluate(month, year, facility, davre, logo, productionMark, facilityMark, bun, pickles))
+            actual.Add(RibwichReasons.Key(r));
+        var want = new List<string>();
+        foreach (var r in expected) want.Add(RibwichReasons.Key(r));
+        actual.Sort(StringComparer.Ordinal);
+        want.Sort(StringComparer.Ordinal);
+        Require(actual.Count == want.Count && actual.SequenceEqual(want),
+            $"实际 [{string.Join(" / ", actual)}]，期望 [{string.Join(" / ", want)}]");
+    });
+
+static void ExpectTotal(ValueBreakdown.Result result, int expected)
+{
+    if (!result.Valid) throw new Exception($"判定为无效（标签不合法），期望 {expected}");
+    if (result.Total != expected) throw new Exception($"{result.Total} != {expected}");
+}
+
+static Func<string, string?> PlasmaTags(string wear, string crack, string uncov, string reinf, string color, string seal)
+{
+    var tags = new Dictionary<string, string>
+    {
+        ["PLASMA_CASING_CONDITION_WEAR"] = wear, ["PLASMA_CASING_CONDITION_CRACK"] = crack,
+        ["PLASMA_CASING_CONDITION_UNCOVERED"] = uncov, ["PLASMA_CASING_CONDITION_REINFORCED"] = reinf,
+        ["PLASMA_COLOR"] = color, ["PLASMA_SEAL"] = seal,
+    };
+    return key => tags.GetValueOrDefault(key);
+}
+
+static Func<string, string?> HandTags(string mat, string iface, string cond, string armored, string bladed)
+{
+    var tags = new Dictionary<string, string>
+    {
+        ["HAND_MATERIAL"] = mat, ["HAND_INTERFACE"] = iface, ["HAND_CONDITION"] = cond,
+        ["HAND_ADDON_ARMORED"] = armored, ["HAND_ADDON_BLADED"] = bladed,
+    };
+    return key => tags.GetValueOrDefault(key);
+}
 
 static IReadOnlyList<(string Name, int Parts)> Components() => new List<(string Name, int Parts)>
 {
