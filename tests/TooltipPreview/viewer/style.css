@@ -1,0 +1,56 @@
+:root{--bg:#141218;--panel:#1f1b26;--tip:#16131b;--edge:#4b3f58;--fg:#d8d4dc;--muted:#8d8798;--accent:#7fa6c8}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:14px system-ui,'Segoe UI',sans-serif}
+h1{font-size:18px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 8px;border-bottom:1px solid var(--edge);padding-bottom:4px}
+h3{font-size:13px;color:var(--muted);margin:16px 0 8px;font-weight:normal}
+.meta{color:var(--muted);font-size:12px;margin-bottom:8px;line-height:1.6}
+#layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;align-items:start}
+#nav{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;background:var(--panel);
+ border:1px solid #2e2836;border-radius:6px;padding:8px}
+#nav h2{font-size:13px;margin:4px 4px 8px;color:var(--muted);border:0;padding:0}
+#cats{display:flex;flex-direction:column;gap:3px}
+#cats button{display:flex;justify-content:space-between;gap:8px;text-align:left;background:transparent;border-color:transparent;padding:4px 6px}
+#cats button:hover{border-color:var(--edge)}
+#cats button.active{background:#332b40;border-color:var(--edge);color:#fff}
+#cats .count{color:var(--muted);font-size:11px;margin-left:auto}
+#content{min-width:0}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 8px}
+#q{width:100%;max-width:460px;padding:6px 8px;background:var(--panel);color:var(--fg);border:1px solid var(--edge);border-radius:4px}
+button{background:var(--panel);color:var(--fg);border:1px solid var(--edge);border-radius:4px;padding:5px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+#status{color:var(--muted);font-size:12px}
+#empty{color:var(--muted);margin:12px 0}
+.cards{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+/* 卡片按内容宽度排版：默认不收缩、不折叠；只允许在超出视口时整体换行或横向滚动。 */
+.card{flex:0 0 auto;background:var(--panel);border:1px solid #2e2836;border-radius:6px;padding:8px;max-width:none}
+.hd{font-size:12px;color:var(--muted);margin-bottom:6px}.hd b{color:var(--fg)}.src{margin-left:8px;color:var(--accent)}
+.bad{margin-left:8px;color:#ff8a80;font-weight:bold}
+.badges{display:flex;gap:4px;margin-bottom:3px;flex-wrap:wrap}
+.chip{border:1px solid;border-radius:3px;padding:0 5px;font:12px/18px var(--tipfont);color:#fff}
+.body{display:flex;gap:6px;align-items:flex-start}
+.tip{background:var(--tip);border:2px solid var(--edge);padding:8px;font:15px/1.35 var(--tipfont);
+ white-space:pre;overflow:visible;box-sizing:content-box;max-width:none}
+.ln{position:relative;min-height:1.35em}.w{display:inline-block;width:2ch;text-align:center}
+.pos-gap{display:inline-block;height:0;vertical-align:baseline}.company{position:absolute;right:0;top:0}.sprite{color:#9ad}
+.bar{display:inline-block;height:.7em;vertical-align:middle;margin:0 .1ch}.bar>span{display:block;height:100%}
+.grid{background:var(--tip);border:2px solid var(--edge);padding:6px;font:12px var(--tipfont);max-width:280px}
+.gh{color:var(--muted);margin-bottom:4px}.cells{display:grid;grid-template-columns:repeat(5,48px);gap:3px}
+.cell{border:1px solid #3a3344;height:48px;font-size:10px;overflow:hidden;position:relative;padding:2px;word-break:break-all}
+.cell b{position:absolute;right:2px;bottom:1px;font-size:11px}
+details{margin-top:6px;font-size:12px}summary{cursor:pointer;color:var(--muted)}
+pre{white-space:pre-wrap;word-break:break-all;max-height:360px;overflow:auto;background:#100e14;padding:6px}
+table.calls{border-collapse:collapse;font-size:11px}table.calls td,table.calls th{border:1px solid #33293d;padding:2px 4px;vertical-align:top}
+/* 对比行横向滚动，三列各自保持完整宽度，绝不压窄卡片。 */
+.cols{display:flex;gap:12px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start;padding-bottom:8px}
+.cols>.card{flex:0 0 auto}
+.pair{margin-bottom:18px;max-width:100%}.ph{font-weight:bold;margin-bottom:4px}
+.old{border-color:#7a3b3b}.new{border-color:#3b7a4a}.udiff{max-height:200px}
+.variant{display:inline-block;margin-right:8px;padding:0 6px;border-radius:3px;background:#3a3148;color:#e6dff0;white-space:nowrap}
+.state{margin-left:8px;padding:0 6px;border-radius:3px;background:#27503a;color:#d6f5e3}
+.same{margin-left:10px;font-weight:normal;color:var(--muted)}.differs{margin-left:10px;font-weight:normal;color:#e0b060}
+.missing{color:var(--muted);min-width:220px}.stat{margin-top:6px;font-size:11px;color:var(--muted)}
+.note{margin:6px 0;padding:6px 8px;border-left:3px solid #e0b060;background:var(--panel);font-size:12px}
+.empty{color:var(--muted)}
+footer{margin-top:28px;color:var(--muted);font-size:12px}footer li{margin:2px 0}
+@media (max-width:900px){#layout{grid-template-columns:1fr}#nav{position:static;max-height:none}}
+@media (max-width:600px){body{padding:8px}.tip{font-size:12px}}

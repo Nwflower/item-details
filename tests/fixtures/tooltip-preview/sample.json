@@ -1,0 +1,28 @@
+{"schema":1,"meta":{"source":"handwritten","gameVersion":"sample","modVersion":"","language":"zh","settings":{"spriteBars":true}},
+"items":[
+{"id":"sample_bottle","name":"样例水瓶","source":"handwritten","maxCharWidth":40,"spriteBars":true,
+ "lines":[
+  {"segments":[{"text":"样例水瓶","len":4,"color":"#c4c4b0","colorName":"White","bold":true}]},
+  {"spacer":14,"segments":[{"text":"<size=14px> </size>","len":1},{"text":"水量 ","len":3,"color":"#42a2aa"},{"text":"[======    ]","len":12,"color":"#42a2aa","noBreak":true,"bar":{"length":10,"fill":6,"ratio":0.625,"dark":"#126961","recorded":true}}]},
+  {"segments":[{"text":"Ready in <1 day","len":9,"color":"#8a948a"}]},
+  {"segments":[{"text":"<pos=50%>右列","len":2,"color":"#c4c4b0"}]}
+ ],
+ "frame":{"recommendedWidth":16,"windowMaxChars":60,"columns":16},
+ "badges":[{"type":"WATER","text":"水","background":"#1565c0","border":"#73c0ff"}],
+ "types":["WATER"],
+ "tags":[{"k":"LIQUID_CONTAINER_TAG","on":true},{"k":"LIQUID_CONTAINER_CAPACITY","on":true,"i":2000000}],
+ "inventories":[]},
+{"id":"sample_hand","name":"Sample Hand","source":"handwritten","maxCharWidth":40,"spriteBars":true,
+ "lines":[
+  {"segments":[{"text":"Sample Hand","len":11,"color":"#c4c4b0","bold":true}]},
+  {"segments":[{"text":"Corp","len":4,"color":"#8a948a"}]},
+  {"segments":[{"text":"Total: 500 | perfect 475-525","len":28,"color":"#548200"}]}
+ ],
+ "manufacturer":{"name":"Corp","line":1,"inline":true},
+ "contentsGrid":{"sealed":false,"total":3,"overflow":0,"cells":[{"id":"bolt","name":"螺栓","count":3}]},
+ "types":[],"tags":[{"k":"APPRAISAL_ITEM","on":true,"i":1}],"inventories":[],
+ "calls":[{"seq":1,"builder":0,"method":"AddLine","args":{"text":"Sample Hand"},"origin":"vanilla","caller":"GameItemElement.GetTooltipBasic","fate":"kept"}]},
+{"id":"sample_plain","name":"Plain","source":"handwritten","maxCharWidth":40,
+ "lines":[{"segments":[{"text":"Plain","len":5,"color":"#c4c4b0"}]}],
+ "types":[],"tags":[],"inventories":[]}
+]}

@@ -13,6 +13,10 @@ foreach ($variant in @('Release', 'Diag', 'SelfTest')) {
     try {
         $hasSelfTest = @($assembly.MainModule.Types | Where-Object FullName -eq 'ItemDetails.SelfTest').Count -gt 0
         if ($hasSelfTest -ne ($variant -eq 'SelfTest')) { throw "Unexpected self-test code in $variant." }
+        # tooltip 快照（序列化、录制补丁、导出）只进 SelfTest：Release / Diag 不得多出这些类型或它们装的补丁。
+        $snapshotTypes = @($assembly.MainModule.Types | Where-Object { $_.FullName -like 'ItemDetails.TooltipSnapshot*' -or $_.FullName -eq 'ItemDetails.JsonOut' })
+        if ($variant -eq 'SelfTest' -and $snapshotTypes.Count -ne 4) { throw "SelfTest build is missing tooltip snapshot types ($($snapshotTypes.Count)/4)." }
+        if ($variant -ne 'SelfTest' -and $snapshotTypes.Count -ne 0) { throw "Tooltip snapshot code leaked into $variant." }
     }
     finally { $assembly.Dispose() }
 }

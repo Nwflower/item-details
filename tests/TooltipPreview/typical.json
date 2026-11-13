@@ -1,0 +1,13 @@
+{
+  "comment": "tooltip_preview.py 页面顶部的典型物品。any 里任一条命中即归入该类；tag=键存在且启用，tagPrefix=有该前缀的键且整数值 >= min，id/idPattern 按物品标识，type 按物品分类；holds=自己库存里直接放着标识匹配该正则的物品（可同时写 type 限定分类）。",
+  "perCategory": 3,
+  "categories": [
+    {"key": "water", "title": "含水容器", "any": [{"tag": "LIQUID_CONTAINER_TAG"}]},
+    {"key": "modified-seed", "title": "改良种子", "any": [{"tag": "MODIFIED_SEED"}, {"type": "MODIFIED_SEED"}]},
+    {"key": "purifier", "title": "净水器", "any": [{"id": "water_purifier"}]},
+    {"key": "learning-module", "title": "带自学习词条的模组", "any": [{"tagPrefix": "LEARNING_ALGO_MAX_", "min": 1}]},
+    {"key": "appraisal", "title": "鉴定品", "any": [{"tag": "APPRAISAL_ITEM"}]},
+    {"key": "locked-box", "title": "带锁箱", "any": [{"tag": "LOCKED_CONTAINER_TAG"}, {"tag": "LOCK_TYPE"}]},
+    {"key": "battery-machine", "title": "带电池的机器", "any": [{"type": "MACHINE", "holds": "^energy_credit"}]}
+  ]
+}

@@ -81,6 +81,11 @@ internal static class TypeBadge
 
     private static readonly List<Entry> Pending = new();
     private static readonly List<Entry> Built = new();
+#if ITEMDETAILS_SELFTEST
+    /// <summary>快照导出读待显示的徽章：给一份值拷贝，免得对私有嵌套类型做反射（扫描器会拒）。</summary>
+    internal static List<(string Type, string Display)> PendingForSnapshot()
+        => Pending.ConvertAll(e => (e.TypeConst, e.Display));
+#endif
     private static readonly List<float> Widths = new();
     private static Transform? _builtParent;
     private static RectTransform? _builtAnchor;

@@ -14,6 +14,9 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Tooltip stress regressions failed.' }
     & python -B -m unittest discover -s tests -p test_check_localization.py
     if ($LASTEXITCODE -ne 0) { throw 'Localization validator regressions failed.' }
+    # TooltipPreview 站点构建器：小样例、分块、对比、差异、字体与输出目录保护。
+    & python -B -m unittest discover -s tests -p test_tooltip_preview.py
+    if ($LASTEXITCODE -ne 0) { throw 'Tooltip preview renderer regressions failed.' }
     & python -B tools/check_localization.py --strict-placeholders
     if ($LASTEXITCODE -ne 0) { throw 'Localization validation failed.' }
     foreach ($script in @('test_localization_runtime.ps1', 'test_selftest_results.ps1', 'test_selftest_fixtures.ps1', 'test_info_settings.ps1')) {

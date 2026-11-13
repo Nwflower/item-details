@@ -132,6 +132,9 @@ public sealed partial class ModEntry : IMod
         // tooltip 正文导出：ModData/item_details/tooltipdump.flag（内容为槽位 ID）
         try { TooltipDump.MaybeStart(manifest.ID); }
         catch (Exception ex) { Log.Error("TooltipDump", ex); }
+        // tooltip 可视化快照：ModData/item_details/tooltipsnap.flag（内容为槽位 ID）
+        try { TooltipSnapshotExport.MaybeStart(manifest.ID, manifest.ModVersion); }
+        catch (Exception ex) { Log.Error("TooltipSnapshot", ex); }
 #endif
     }
 

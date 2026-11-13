@@ -80,6 +80,36 @@ pwsh -NoProfile -File scripts/test.ps1 -GameDir "<游戏目录>"
 
 渲染器快照只包含模组追加内容；原版 tooltip 的抑制与改写由原生入口用例检查。
 
+## tooltip 可视化预览
+
+不进游戏看完整 tooltip（原版行 + 本模组的行、徽章、内容物格、进度条）。快照格式见 [tests/TooltipPreview/SNAPSHOT.md](tests/TooltipPreview/SNAPSHOT.md)。
+
+**录**：SelfTest 构建读入一个存档，遍历各库存里的物品（同标识最多 3 件），逐件走实机悬停的路径并导出 JSON，不改、不存档，结束后退出。
+在工作区根运行（会构建、部署 SelfTest 版并启动游戏；默认不结束正在运行的游戏）：
+
+```powershell
+pwsh tools/run_selftest.ps1 -TooltipSnapshot -SaveSlot <N>
+```
+
+快照放到 `Modding/ItemDetails/out/tooltip-snapshots/<游戏版本>-<语言码>[-<变体>]/snapshot.json`，
+同时用 `tests/TooltipPreview/build.py` 生成站点 `Modding/ItemDetails/out/tooltip-preview/sites/<同名>/index.html`。
+快照含游戏原版文案，`out/` 被忽略，是否入库由维护者决定。
+
+**看**：
+
+```powershell
+python Modding/ItemDetails/tests/TooltipPreview/build.py Modding/ItemDetails/out/tooltip-snapshots/<目录> `
+  -o Modding/ItemDetails/out/tooltip-preview/sites/<名称>
+```
+
+页面顶部按 `tests/TooltipPreview/typical.json` 列出典型物品，其余可按文字过滤；每张卡片可展开原始片段、原版带与标签。
+折行以快照为准，页面不重新折行；页脚列出只是近似的部分。
+
+**比**：游戏更新或改代码后各录一次，再加 `--diff <旧快照目录>`，页面顶部并排列出文字或片段有变化的物品。
+
+`scripts/test.ps1` 跑渲染器的手写样例测试（`tests/test_tooltip_preview.py`）；带 `-GameDir` 时另跑 `tests/test_tooltip_snapshot.ps1`：在游戏外用真实程序集的
+静态改写副本跑本模组渲染器，经同一个序列化器产出 `out/tooltip-preview/sites/offline-fixture/index.html`。
+
 ## 第三方模组接入
 
 其他模组读取或接管物品详情的输出，不需要改本仓库：
