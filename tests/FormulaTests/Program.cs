@@ -412,6 +412,17 @@ const int WaterTotalParts = 20_000_000;   // 20000 mL × 1000 parts/mL
 CheckText("成分百分比 98.07", WaterLayout.PercentText(19_614_000, WaterTotalParts, inv), "98.07");
 CheckText("成分百分比 0.58", WaterLayout.PercentText(116_000, WaterTotalParts, inv), "0.58");
 CheckText("成分百分比 100", WaterLayout.PercentText(WaterTotalParts, WaterTotalParts, inv), "100.00");
+// 液体单位优化：成分用量与百分比按有效数字取位
+CheckText("优化 百分比 微量 0.0312", WaterLayout.PercentText(6_240, WaterTotalParts, inv, true), "0.0312");
+CheckText("优化 百分比 0.00312", WaterLayout.PercentText(624, WaterTotalParts, inv, true), "0.00312");
+CheckText("优化 百分比 极微量", WaterLayout.PercentText(100, WaterTotalParts, inv, true), "<0.001");
+CheckText("优化 百分比 0.58 不变", WaterLayout.PercentText(116_000, WaterTotalParts, inv, true), "0.58");
+CheckText("关闭优化 微量仍两位", WaterLayout.PercentText(6_240, WaterTotalParts, inv, false), "0.03");
+CheckText("优化 用量 ≥100", WaterLayout.AmountText(1_961_400, inv, true), "1961");
+CheckText("优化 用量 10-100", WaterLayout.AmountText(12_340, inv, true), "12.3");
+CheckText("优化 用量 1-10", WaterLayout.AmountText(1_234, inv, true), "1.23");
+CheckText("优化 用量 <1", WaterLayout.AmountText(12, inv, true), "0.012");
+CheckText("关闭优化 用量一位小数", WaterLayout.AmountText(1_961_400, inv, false), "1961.4");
 CheckText("体积 mL", WaterLayout.VolumeText(1_961_400, false, inv), "1961.4");
 CheckText("体积 L", WaterLayout.VolumeText(19_720_100, true, inv), "19.72");
 CheckText("容器容量 mL", WaterLayout.Capacity(20000, 20000, false, inv), "20000/20000mL");

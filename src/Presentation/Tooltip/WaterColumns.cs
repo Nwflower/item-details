@@ -150,13 +150,16 @@ internal static class WaterColumns
     internal readonly struct Layout
     {
         internal readonly float VolumeStart;
+        /// <summary>用量列的右端；用量右对齐到这里，小数点才落在同一条竖线上。</summary>
+        internal readonly float VolumeRight;
         internal readonly float PercentStart;
         /// <summary>百分比列的右端；百分比与净化建议的增益都右对齐到这里。</summary>
         internal readonly float RightEdge;
 
-        internal Layout(float volumeStart, float percentStart, float rightEdge)
+        internal Layout(float volumeStart, float volumeRight, float percentStart, float rightEdge)
         {
             VolumeStart = volumeStart;
+            VolumeRight = volumeRight;
             PercentStart = percentStart;
             RightEdge = rightEdge;
         }
@@ -167,7 +170,7 @@ internal static class WaterColumns
         => row.Kind == WaterRowKind.FoldHint
             // 折叠提示：名称合并占住名称列与用量列（不经过用量列起点），只把合计落在百分比列
             ? row.Name + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent
-            : row.Name + Pos(layout.VolumeStart) + row.Amount + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent;
+            : row.Name + Pos(layout.VolumeRight - Em(row.Amount)) + row.Amount + Pos(layout.RightEdge - Em(row.Percent)) + row.Percent;
 
     /// <summary>按所有可见行的名称/用量算出列落点，折叠提示行也参与。</summary>
     private static Layout Measure(IReadOnlyList<WaterRow> rows, float minRightEdge = 0f)
@@ -188,11 +191,11 @@ internal static class WaterColumns
         // 提示盖不住两列时，只顺延百分比列，用量列位置不变
         float percentStart = Math.Max(volStart + volEm + ColumnGapEm, hintEm + ColumnGapEm);
         // 净化建议要求的右端更靠右时跟着它走，两列数字落在同一条竖线上
-        return new Layout(volStart, percentStart, Math.Max(percentStart + pctEm, minRightEdge));
+        return new Layout(volStart, volStart + volEm, percentStart, Math.Max(percentStart + pctEm, minRightEdge));
     }
 
-    /// <summary>液体容器的一行体积，单位随 <see cref="Volume.UseLiters"/>。</summary>
-    internal static string AmountOf(int parts, bool liters) => VolumeOf(parts, liters);
+    /// <summary>液体容器的一行成分用量（mL）。</summary>
+    internal static string AmountOf(int parts) => VolumeOf(parts);
 
     /// <summary>
     /// 成分列表：名称、用量、配色。液体容器与固体化学品共用，两条路径只差
@@ -207,7 +210,7 @@ internal static class WaterColumns
         foreach (var component in analysis.Components)
         {
             string name = component.Name;
-            if (waterMismatch && component.Role == "water" && analysis.LabelMismatch)
+            if (waterMismatch && component.Role == "water" && analysis.LabelMismatch && WaterIsMain(analysis))
                 name += Loc.T("water.mismatch", " (doesn't match label)");
             int index = component.Role == "active" ? activeIndex++ : byType && component.Role == "other" ? otherIndex++ : 0;
             comps.Add((name, component.Microliters, ColorOf(component.Role, component.Id, index, byType)));
@@ -229,7 +232,8 @@ internal static class WaterColumns
         var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: !foldInactive || Expanded(),
             Loc.T("water.fold_inactive", "{0} to expand inactive components", ModSettings.ExpandKeyName),
             WaterInfo.Amount, Loc.Culture,
-            foldInactive ? i => components[i].Role != "active" : null);
+            foldInactive ? i => components[i].Role != "active" : null,
+            optimizedPercent: ModSettings.ContainerUnits);
         visible?.AddRange(plan.Rows);
 
         var lines = RowLines(plan.Rows, comps);
@@ -244,7 +248,7 @@ internal static class WaterColumns
     {
         var comps = Components(analysis, waterMismatch: false);
         var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: true,
-            "", _ => "", Loc.Culture);
+            "", _ => "", Loc.Culture, optimizedPercent: ModSettings.ContainerUnits);
         return RowLines(plan.Rows, comps);
     }
 
@@ -291,7 +295,7 @@ internal static class WaterColumns
 
         var comps = Components(analysis, waterMismatch: true);
         var plan = WaterTable.Build(Pairs(comps), analysis.TotalMicroliters, expanded: true,
-            "", parts => VolumeOf(parts, liters), Loc.Culture);
+            "", VolumeOf, Loc.Culture, optimizedPercent: ModSettings.ContainerUnits);
         visible?.AddRange(plan.Rows);
 
         string tail = " " + WaterLayout.Capacity(totalMl, capacityMl, liters, Loc.Culture)
@@ -328,49 +332,75 @@ internal static class WaterColumns
     private static int _tableFrame = -1;
     private static float _tableRightEdge;
 
-    /// <summary>净化建议自己需要的百分比列右端：最长名称 + 列间距 + 最宽增益。</summary>
-    internal static float AdviceRightEdge(IReadOnlyList<(string Name, double GainPercentagePoints)> methods)
+    /// <summary>
+    /// 净化建议自己需要的百分比列右端：最长名称 + 列间距 + 最宽「净化后」+ 列间距 + 最宽增益。
+    /// 没有「净化后」列（<paramref name="results"/> 为空或全空）时退回名称 + 增益两列。
+    /// </summary>
+    internal static float AdviceRightEdge(IReadOnlyList<(string Name, double GainPercentagePoints)> methods,
+        IReadOnlyList<string>? results = null)
     {
-        float nameEm = 0f, gainEm = 0f;
-        foreach (var m in methods)
+        float nameEm = 0f, gainEm = 0f, resultEm = 0f;
+        for (int i = 0; i < methods.Count; i++)
         {
-            nameEm = Math.Max(nameEm, Em(m.Name));
-            gainEm = Math.Max(gainEm, Em(GainText(m.GainPercentagePoints)));
+            nameEm = Math.Max(nameEm, Em(methods[i].Name));
+            gainEm = Math.Max(gainEm, Em(GainText(methods[i].GainPercentagePoints)));
+            if (results != null && i < results.Count) resultEm = Math.Max(resultEm, Em(results[i]));
         }
-        return nameEm + ColumnGapEm + gainEm;
+        return nameEm + (resultEm > 0f ? ColumnGapEm + resultEm : 0f) + ColumnGapEm + gainEm;
     }
 
     private static string GainText(double gain) => "+" + gain.ToString("0.00", Loc.Culture) + "%";
 
     /// <summary>
-    /// 净水建议：一种手段一行，名称靠左、增益靠右，数字右端对齐在成分表的百分比列。
-    /// 本帧没有成分表（折叠/无表）时按自己的名称宽度另起一列；名称比成分表名称列还宽时顺延，避免叠字。
+    /// 净水建议：一种手段一行，三列——名称靠左、净化后的纯度(档位)居中、增益靠右。
+    /// 增益右端对齐在成分表的百分比列；本帧没有成分表（折叠/无表）时按自己的宽度另起一列，
+    /// 名称比成分表名称列还宽时顺延，避免叠字。没有「净化后」结果时只有名称与增益两列。
     /// 文本是全角空格分隔的规范输出，渲染写法是 &lt;pos&gt;。
     /// </summary>
     internal static List<TooltipLine> AdviceLines(
-        IReadOnlyList<(string Name, double GainPercentagePoints)> methods, RenderHandler.ColorPalette color)
+        IReadOnlyList<(string Name, double GainPercentagePoints)> methods, RenderHandler.ColorPalette color,
+        IReadOnlyList<string>? results = null)
     {
         var gains = new string[methods.Count];
         float nameEm = 0f;
         float gainEm = 0f;
+        float resultEm = 0f;
         for (int i = 0; i < methods.Count; i++)
         {
             gains[i] = GainText(methods[i].GainPercentagePoints);
             nameEm = Math.Max(nameEm, Em(methods[i].Name));
             gainEm = Math.Max(gainEm, Em(gains[i]));
+            if (results != null && i < results.Count) resultEm = Math.Max(resultEm, Em(results[i]));
         }
 
-        float right = nameEm + ColumnGapEm + gainEm;
+        bool hasResult = resultEm > 0f;
+        float resultStart = nameEm + ColumnGapEm;
+        float right = (hasResult ? resultStart + resultEm : nameEm) + ColumnGapEm + gainEm;
         if (_tableFrame == Time.frameCount) right = Math.Max(right, _tableRightEdge);
 
         var lines = new List<TooltipLine>(methods.Count);
         for (int i = 0; i < methods.Count; i++)
         {
             string name = methods[i].Name;
-            lines.Add(new TooltipLine(name + CellSeparator + gains[i], color)
-                .WithRender(name + Pos(right - Em(gains[i])) + gains[i]));
+            string result = hasResult && i < results!.Count ? results[i] : "";
+            string render = name + (hasResult ? Pos(resultStart) + result : "")
+                          + Pos(right - Em(gains[i])) + gains[i];
+            string canonical = name + CellSeparator + (hasResult ? result + CellSeparator : "") + gains[i];
+            lines.Add(new TooltipLine(canonical, color).WithRender(render));
         }
         return lines;
+    }
+
+    /// <summary>水是否为主要成分（超过一半）：净化建议与「与标签不符」提示只对这类容器有意义。</summary>
+    internal static bool WaterIsMain(LiquidAnalysis analysis)
+    {
+        long water = 0, total = 0;
+        foreach (var c in analysis.Components)
+        {
+            total += c.Microliters;
+            if (c.Role == "water") water += c.Microliters;
+        }
+        return total > 0 && water * 2 > total;
     }
 
     private static List<(string Name, int Parts)> Pairs(
@@ -395,7 +425,7 @@ internal static class WaterColumns
          : byType ? (id != null && TypeColors.TryGetValue(id, out var color) ? color : ActiveColors[fallbackIndex % ActiveColors.Length])
          : ImpurityColor;
 
-    private static string VolumeOf(int parts, bool liters)
-        => WaterLayout.VolumeText(parts, liters, Loc.Culture)
-           + (liters ? WaterLayout.LiterUnit : WaterLayout.MilliliterUnit);
+    /// <summary>成分用量永远用 mL（玩家习惯，也方便横向比较）；「液体单位优化」开启时按有效数字取位。</summary>
+    private static string VolumeOf(int parts)
+        => WaterLayout.AmountText(parts, Loc.Culture, ModSettings.ContainerUnits) + WaterLayout.MilliliterUnit;
 }

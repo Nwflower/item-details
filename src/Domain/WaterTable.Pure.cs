@@ -76,7 +76,8 @@ internal static class WaterTable
         string hint,
         Func<int, string> amountOf,
         IFormatProvider? culture,
-        Func<int, bool>? foldable = null)
+        Func<int, bool>? foldable = null,
+        bool optimizedPercent = false)
     {
         var rows = new List<WaterRow>(components.Count + 1);
         int foldedParts = 0, foldedCount = 0;
@@ -90,22 +91,22 @@ internal static class WaterTable
                 continue;
             }
             rows.Add(new WaterRow(WaterRowKind.Component, i, component.Name,
-                amountOf(component.Parts), Percent(component.Parts, totalParts, culture)));
+                amountOf(component.Parts), Percent(component.Parts, totalParts, culture, optimizedPercent)));
         }
 
         // 只有真的折起了成分才提示：净化建议始终显示，不再藏在展开键后面。
         if (!expanded && foldedCount > 0)
         {
             rows.Add(new WaterRow(WaterRowKind.FoldHint, -1, hint, "",
-                Percent(foldedParts, totalParts, culture)));
+                Percent(foldedParts, totalParts, culture, optimizedPercent)));
         }
 
         return new Plan(rows.AsReadOnly(), foldedParts, foldedCount);
     }
 
     /// <summary>百分比列的文案（含 %）。</summary>
-    internal static string Percent(int parts, int total, IFormatProvider? culture)
-        => WaterLayout.PercentText(parts, total, culture) + "%";
+    internal static string Percent(int parts, int total, IFormatProvider? culture, bool optimized = false)
+        => WaterLayout.PercentText(parts, total, culture, optimized) + "%";
 
     /// <summary>
     /// 空格子的占位。流式布局按分隔符切列，空格子如果什么都不放，相邻两个分隔符会并成一段，

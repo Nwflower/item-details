@@ -17,11 +17,37 @@ internal static class WaterLayout
     internal const string MilliliterUnit = "mL";
     internal const string LiterUnit = "L";
 
-    /// <summary>百分比数字（不含 %），保留两位小数。</summary>
-    internal static string PercentText(int parts, int total, IFormatProvider? culture = null)
+    /// <summary>
+    /// 百分比数字（不含 %）。默认两位小数；<paramref name="optimized"/> 为真时按有效数字：
+    /// ≥0.1% 仍是两位小数，更小的取 3 位有效数字（0.0312），低于 0.001% 写「&lt;0.001」，
+    /// 免得微量杂质一排「0.00」。
+    /// </summary>
+    internal static string PercentText(int parts, int total, IFormatProvider? culture = null, bool optimized = false)
     {
+        culture ??= CultureInfo.InvariantCulture;
         if (total <= 0 || parts <= 0) return "0.00";
-        return ((double)parts * 100.0 / total).ToString("0.00", culture ?? CultureInfo.InvariantCulture);
+        double p = (double)parts * 100.0 / total;
+        if (!optimized || p >= 0.1) return p.ToString("0.00", culture);
+        if (p >= 0.01) return p.ToString("0.0000", culture);
+        if (p >= 0.001) return p.ToString("0.00000", culture);
+        return "<0.001";
+    }
+
+    /// <summary>
+    /// 成分用量的 mL 数字（不含单位）。1 part = 1 µL，所以 mL 的三位小数是精确值。
+    /// 默认一位小数；<paramref name="optimized"/> 为真时取约 3 位有效数字：
+    /// ≥100 取整，10–100 一位小数，1–10 两位小数，&lt;1 三位小数。
+    /// </summary>
+    internal static string AmountText(int parts, IFormatProvider? culture = null, bool optimized = false)
+    {
+        culture ??= CultureInfo.InvariantCulture;
+        if (parts <= 0) return optimized ? "0" : "0.0";
+        double ml = parts / 1000.0;
+        if (!optimized) return ml.ToString("0.0", culture);
+        if (ml >= 100) return ml.ToString("0", culture);
+        if (ml >= 10) return ml.ToString("0.0", culture);
+        if (ml >= 1) return ml.ToString("0.00", culture);
+        return ml.ToString("0.000", culture);
     }
 
     /// <summary>体积数字（不含单位）：mL 保留一位小数，L 最多两位小数。</summary>

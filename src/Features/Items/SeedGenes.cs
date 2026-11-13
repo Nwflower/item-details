@@ -10,7 +10,7 @@ namespace ItemDetails;
 ///   营养丰富 1   热量 +25%   固有
 /// 原版 <c>PlantGeneticsHelper.CreateSeedGeneticsTooltip</c> 一口气写完这一块（表头、性状行、被移除的固有性状），
 /// 这里整体换成两列写法：性状名（带等级）、效果、来源/状态。
-/// 等级默认写阿拉伯数字，设置里打开「基因等级用罗马数字」就改用原版
+/// 等级默认写阿拉伯数字，设置里关掉「基因等级使用阿拉伯数字」就改用原版
 /// <c>PlantGeneticsHelper.RankLabel</c>（I、II、III…）。
 /// 规范文本逐行等于原版文字，只有一处合并：固有降级的性状，原版会另起一行写「X（已移除）」，
 /// 这里并进本行的「固有(2→1)」，既不再出现「又在又不在」的两行，也不用把这段信息只挂在渲染层。
@@ -241,7 +241,7 @@ internal static class SeedGenes
     }
 
     /// <summary>
-    /// 等级文字：默认阿拉伯数字，打开设置后改用原版
+    /// 等级文字：默认阿拉伯数字，关闭对应设置后改用原版
     /// <see cref="PlantGeneticsHelper.RankLabel"/> 的罗马数字（I、II、III…）。
     /// 罗马数字由 ASCII 的 I/V/X/L/C/D/M 拼成，不涉及字体缺字；
     /// 取不到或为空时仍回落阿拉伯数字，不让等级整格消失。
@@ -249,7 +249,7 @@ internal static class SeedGenes
     private static string RankText(int rank)
     {
         rank = Math.Max(1, rank);
-        if (!ModSettings.GeneRankRoman) return rank.ToString();
+        if (ModSettings.GeneRankArabic) return rank.ToString();
         try
         {
             string roman = PlantGeneticsHelper.RankLabel(rank);

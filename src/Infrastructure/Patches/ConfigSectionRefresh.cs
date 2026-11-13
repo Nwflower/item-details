@@ -80,26 +80,20 @@ internal static class ConfigSectionRefresh
     private const string Master = "show_info_enhance";
 
     private static readonly Func<CustomUIElement, bool> Checked = e => e.GetBool();
-    /// <summary>下拉框序号 0 是「关闭」（见 <see cref="ModSettings.LiquidMode"/>）；面板按序号读写，与选项语言无关。</summary>
+    /// <summary>下拉框序号 0 是「关闭」（液体分析、物品名称显示都是）；面板按序号读写，与选项语言无关。</summary>
     private static readonly Func<CustomUIElement, bool> NotOff = e => e.GetIndex() != (int)ModSettings.LiquidMode.Off;
 
     /// <summary>
     /// 条目显隐依赖：子项键 → 直接父控件键 → 父控件取什么值时子项显示。父项自己被隐藏时子项也隐藏，
-    /// 所以链式依赖（总开关 → 分类标签 → 淡化配色）只写直接父项。
-    /// 总开关这一组以 ModSettings 里实际取值受 InfoEnhance 控制的访问器为准；淡化配色与底色不透明度
-    /// 经由各自的上级开关受控。<c>water_advice</c> 有意独立，不在表里。
+    /// 所以链式依赖只写直接父项。
+    /// 总开关这一组以 ModSettings 里实际取值受 InfoEnhance 控制的访问器为准，都在「信息补充」组内；
+    /// 顾客对话与「排版」组不受总开关控制。淡化配色与底色不透明度经由各自的上级开关受控。
+    /// <c>water_advice</c> 有意独立，不在表里。
     /// </summary>
     private static readonly (string Child, string Parent, Func<CustomUIElement, bool> Shows)[] Dependencies =
     {
         ("show_cost_performance", Master, Checked),
         ("show_container_contents", Master, Checked),
-        ("tooltip_text_formatting", Master, Checked),
-        ("show_type_badge", Master, Checked),
-        ("mute_type_badge_colors", "show_type_badge", Checked),
-        ("show_container_name_display", Master, Checked),
-        ("container_name_bg_opacity", "show_container_name_display", Checked),
-        ("color_liquid_components", "liquid_analysis", NotOff),
-        ("result_prefill_price", "show_result_prefill", Checked),
         ("info_price_modifiers", Master, Checked),
         ("info_black_market", Master, Checked),
         ("info_lottery", Master, Checked),
@@ -107,10 +101,10 @@ internal static class ConfigSectionRefresh
         ("info_meat", Master, Checked),
         ("info_machines", Master, Checked),
         ("info_batteries", Master, Checked),
-        ("info_progress_bar", Master, Checked),
-        ("info_container_units", Master, Checked),
-        ("info_gene_roman", Master, Checked),
-        ("info_manufacturer_inline", Master, Checked),
+        ("color_liquid_components", "liquid_analysis", NotOff),
+        ("result_prefill_price", "show_result_prefill", Checked),
+        ("mute_type_badge_colors", "show_type_badge", Checked),
+        ("container_name_bg_opacity", "item_name_display", NotOff),
     };
 
     private static void OpenPostfix(CustomUIWindow __result)

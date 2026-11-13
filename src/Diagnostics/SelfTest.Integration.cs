@@ -273,7 +273,7 @@ internal static partial class SelfTest
         }
     }
 
-    /// <summary>在真实游戏 UI 中检查第四组、实时切换和重置；不应用或写盘。</summary>
+    /// <summary>在真实游戏 UI 中检查「信息补充」总开关的实时切换和重置；不应用或写盘。</summary>
     private static string CheckInfoSettingsWindow(out bool ok)
     {
         ok = false;
@@ -292,34 +292,32 @@ internal static partial class SelfTest
             string section = config.Get("info_price_modifiers").Section;
             var header = window.Get("section_" + section).root.transform.parent.gameObject;
             var master = window.Get("show_info_enhance");
-            bool shown = header.activeSelf;
-            string[] keys = { "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat",
-                "info_machines", "info_batteries", "info_progress_bar", "info_container_units", "info_manufacturer_inline" };
+            UnityEngine.GameObject Row(string key) => window.Get(key).root.transform.parent.gameObject;
+            bool shown = header.activeSelf && Row("info_price_modifiers").activeSelf;
+            string[] keys = { "show_cost_performance", "show_container_contents", "info_price_modifiers",
+                "info_black_market", "info_lottery", "info_brewing", "info_meat", "info_machines", "info_batteries" };
             bool defaults = true;
             foreach (string key in keys) defaults &= config.Get(key).BoxedDefault is true;
             master.SetBool(false, notify: true);
-            bool hidden = !header.activeSelf;
-            foreach (string key in keys) hidden &= !window.Get(key).root.transform.parent.gameObject.activeSelf;
-            // 显示优化组里受总开关控制的条目也一起隐藏，组内其余条目（顾客对话历史、总开关本身）保留。
-            foreach (string key in new[] { "show_cost_performance", "show_container_contents", "tooltip_text_formatting",
-                         "show_type_badge", "mute_type_badge_colors", "show_container_name_display", "container_name_bg_opacity" })
-                hidden &= !window.Get(key).root.transform.parent.gameObject.activeSelf;
-            hidden &= master.root.transform.parent.gameObject.activeSelf;
+            // 总开关只收起本组的物品子项；组标题、总开关、顾客对话与排版组都保留。
+            bool hidden = header.activeSelf && Row("show_info_enhance").activeSelf && Row("show_customer_history").activeSelf
+                && Row("tooltip_text_formatting").activeSelf && Row("show_type_badge").activeSelf;
+            foreach (string key in keys) hidden &= !Row(key).activeSelf;
             window.Get("info_meat").SetBool(false);
             master.SetBool(true, notify: true);
-            bool preserved = header.activeSelf && !window.Get("info_meat").GetBool();
+            bool preserved = Row("info_meat").activeSelf && !window.Get("info_meat").GetBool();
             master.SetBool(false, notify: true);
             var reset = AccessTools.Method(typeof(ModConfigWindow), "ResetWidgets",
                 new[] { typeof(CustomUIWindow), typeof(ModConfig) });
             if (reset == null) return "info settings UI: ResetWidgets missing";
             reset.Invoke(null, new object[] { window, config });
-            bool resetShown = header.activeSelf && master.GetBool() && window.Get("info_meat").GetBool();
+            bool resetShown = Row("info_meat").activeSelf && master.GetBool() && window.Get("info_meat").GetBool();
             window.Close();
             window = null;
             apply.Invoke(setting, new object[] { false });
             window = ModConfigWindow.Open(mod);
-            bool reopenHidden = window != null && !window.Get("section_" + config.Get(keys[0]).Section)
-                .root.transform.parent.gameObject.activeSelf;
+            bool reopenHidden = window != null && !window.Get("info_price_modifiers").root.transform.parent.gameObject.activeSelf
+                && window.Get("show_customer_history").root.transform.parent.gameObject.activeSelf;
             bool unapplied = !ModSettings.InfoEnhance;
             ok = defaults && shown && hidden && preserved && resetShown && reopenHidden && unapplied;
             return $"info settings UI: defaults={defaults} shown={shown} hidden={hidden} preserved={preserved} " +
@@ -333,7 +331,7 @@ internal static partial class SelfTest
         }
     }
 
-    /// <summary>信息增强组位于透视后；全部设置关闭时 AnyEnabled 与渲染输出都为空。</summary>
+    /// <summary>分组顺序为信息补充 → 透视 → 排版 → 操作；全部设置关闭时 AnyEnabled 与渲染输出都为空。</summary>
     private static string CheckSettingsLayoutAndDisable(out bool ok)
     {
         ok = false;
@@ -347,36 +345,30 @@ internal static partial class SelfTest
         {
             ModSettings.RefreshSections();
             string infoSection = Loc.T("config.section.info", ModSettings.SecInfoEn);
-            string[] displayKeys =
-            {
-                "show_info_enhance", "show_cost_performance", "show_container_contents",
-                "tooltip_text_formatting", "show_type_badge", "mute_type_badge_colors",
-                "show_container_name_display", "container_name_bg_opacity",
-            };
+            string layoutSection = Loc.T("config.section.layout", ModSettings.SecLayoutEn);
             string[] infoKeys =
             {
+                "show_customer_history", "show_info_enhance", "show_cost_performance", "show_container_contents",
                 "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat",
-                "info_machines", "info_batteries", "info_progress_bar", "info_container_units",
-                "info_gene_roman", "info_manufacturer_inline",
+                "info_machines", "info_batteries",
+            };
+            string[] layoutKeys =
+            {
+                "tooltip_text_formatting", "info_manufacturer_inline", "info_progress_bar", "info_container_units",
+                "gene_rank_arabic", "show_type_badge", "mute_type_badge_colors",
+                "item_name_display", "container_name_bg_opacity",
             };
             bool grouped = true;
-            foreach (string key in infoKeys)
+            foreach (string key in infoKeys) grouped &= config.Get(key)?.Section == infoSection;
+            foreach (string key in layoutKeys) grouped &= config.Get(key)?.Section == layoutSection;
+            var order = new List<string>();
+            foreach (var entry in config.Entries)
+                if (!order.Contains(entry.Section)) order.Add(entry.Section);
+            bool ordered = order.SequenceEqual(new[]
             {
-                var entry = config.Get(key);
-                if (entry == null || entry.Section != infoSection) grouped = false;
-            }
-            foreach (string key in displayKeys)
-            {
-                var entry = config.Get(key);
-                if (entry == null || entry.Section != config.Get("show_customer_history")?.Section) grouped = false;
-            }
-            int reveal = -1, info = -1;
-            for (int i = 0; i < config.Entries.Count; i++)
-            {
-                if (ReferenceEquals(config.Entries[i], config.Get("result_prefill_price"))) reveal = i;
-                if (ReferenceEquals(config.Entries[i], config.Get("info_price_modifiers"))) info = i;
-            }
-            bool ordered = reveal >= 0 && info > reveal;
+                infoSection, Loc.T("config.section.reveal", ModSettings.SecRevealEn), layoutSection,
+                Loc.T("config.section.interaction", ModSettings.SecInteractionEn),
+            });
 
             foreach (var entry in config.Entries)
             {
@@ -396,7 +388,7 @@ internal static partial class SelfTest
                 && !ModSettings.PriceImpact && !ModSettings.Contraband && !ModSettings.Lottery
                 && !ModSettings.Wine && !ModSettings.Meat && !ModSettings.Machines && !ModSettings.ModuleEffects
                 && !ModSettings.MachineBattery && !ModSettings.BlockProgressBar && !ModSettings.ManufacturerInline
-                && !ModSettings.GeneRankRoman;
+                && !ModSettings.GeneRankArabic && ModSettings.ItemNames == ModSettings.ItemNameMode.Off;
             item = TryCreate("plasma_fuel");
             if (item == null) return "settings layout/disable: cannot create tooltip sample";
             PlasmaHelper.InitPlasmaItem(item);

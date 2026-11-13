@@ -3,7 +3,7 @@
   <ID>item_details</ID>
   <Name>Item Details / 物品详情</Name>
   <Author>Nwflower（千川白浪）</Author>
-  <ModVersion>0.9.4</ModVersion>
+  <ModVersion>0.9.5 beta</ModVersion>
   <Description>鼠标悬停即见真伪、价值构成、水质、机器状态与模组效果，到店顾客也有提示。不开新窗口。 / Authenticity, value, water and machine info right in tooltips, plus customer alerts.</Description>
   <GameVersions>
     <Version>0.46</Version>

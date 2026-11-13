@@ -158,7 +158,7 @@ machine.energy_label,"Zużycie: "
 machine.energy_unit,/dzień
 machine.energy_battery," {0}/{1} kJ, starczy na {2} {2|dzień|dni|dni}"
 machine.energy_left," {0} kJ, starczy na {1} {1|dzień|dni|dni}"
-config.section.display,Wyświetlanie
+config.section.layout,Układ
 config.authenticity,Sprawdzanie autentyczności
 config.authenticity.tip,"Odróżnia oryginał od podróbki, wymienia wady i powody podróbki."
 config.plant_analysis,Analiza roślin
@@ -171,34 +171,37 @@ config.valuation.tip,Pokazuje rozbicie prawdziwej wartości i idealny przedział
 config.cost_performance,Wartość na kratkę
 config.cost_performance.tip,Pokazuje wartość na kratkę ekwipunku i stopień kompresji pojemników.
 config.container_contents,Zawartość pojemnika
-config.container_contents.tip,Pokazuje zawartość odblokowanych pojemników w osobnym oknie ikon.
-config.section.info,Ustawienia dodatkowych informacji
-config.info_enhance,Dodatkowe informacje
-config.info_enhance.tip,Włącza dodatkowe informacje i pokazuje ich ustawienia pod sekcją Ujawnianie. Wyłączenie zachowuje indywidualne wybory.
+config.container_contents.tip,Pokazuje przedmioty w odblokowanych pojemnikach jako ikony w panelu obok podpowiedzi.
+config.section.info,Dodatkowe informacje
+config.info_enhance,Dodatkowe informacje o przedmiotach
+config.info_enhance.tip,Dodaje do podpowiedzi informacje o przedmiotach wymienione poniżej. Wyłączenie ukrywa je wszystkie i zachowuje indywidualne wybory.
 config.tooltip_formatting,Formatowanie tekstu podpowiedzi
 config.tooltip_formatting.tip,"Czytelniejsze ceny, zawijanie opisów, adnotacje kalorii i odstępy bloku ceny. Wyłącz, aby zachować oryginalny układ tekstu."
 config.type_badge,Plakietki kategorii
-config.type_badge.tip,"Pokazuje kategorie przedmiotu nad podpowiedzią."
+config.type_badge.tip,Pokazuje kategorie przedmiotu nad podpowiedzią.
 config.type_badge_muted,Stonowane kolory plakietek
 config.type_badge_muted.tip,Etykiety poza kontrabandą używają ciemnego tła podpowiedzi i rozjaśnionego koloru kategorii; kontrabanda zachowuje czerwony tekst ostrzegawczy.
-config.container_name,Nazwy pojemników i maszyn
-config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
+config.item_name_display,Wyświetlanie nazw przedmiotów
+config.item_name_display.tip,"Pokazuje nazwę u dołu ikon przedmiotów. „Pojemniki i maszyny” podpisuje wszystkie pojemniki i maszyny, własną nazwą, jeśli ją mają. „Przemianowane przedmioty” podpisuje tylko przedmioty z własną nazwą."
+config.item_name_display.off,Wyłączone
+config.item_name_display.containers,Pojemniki i maszyny
+config.item_name_display.renamed,Przemianowane przedmioty
 config.container_name_bg,Tło nazw
 config.container_name_bg.tip,Krycie czarnego tła za nazwą (0–100%); przy 0 bez tła.
 config.slider_percent,{0}%
 config.customer_alert,Powiadomienie o przybyciu klienta
-config.customer_alert.tip,Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz nagrodę za zabicie i zagrożenie ulepszonych.
+config.customer_alert.tip,"Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz nagrodę za zabicie i zagrożenie ulepszonych."
 config.customer_history,Historia rozmowy po najechaniu
 config.customer_history.tip,Najechanie na klienta w sklepie pokazuje rozmowę z bieżącej wizyty.
 config.section.interaction,Sterowanie
 config.double_click_inspect,Sprawdzanie dwuklikiem
-config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny lub weryfikacji autentyczności (iniektory, papierosy, kartki żywnościowe itp.) otwiera panel oględzin bez szkła powiększającego. Gdy panel jest otwarty, dwuklik na innym przedmiocie od razu się na niego przełącza. Podpowiedź o szkle powiększającym zmienia się na „Kliknij dwukrotnie, by sprawdzić”. Wyłącz, aby przywrócić oryginalny przebieg."
+config.double_click_inspect.tip,"Dwuklik na przedmiocie do wyceny lub weryfikacji autentyczności (iniektory, papierosy, kartki żywnościowe itp.) otwiera panel oględzin bez szkła powiększającego. Gdy panel jest otwarty, dwuklik na innym przedmiocie od razu się na niego przełącza."
 config.double_click_scan,Skanowanie dwuklikiem
-config.double_click_scan.tip,"Jeśli masz odpowiednie urządzenie, dwuklik na przedmiocie otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion. Bez urządzenia działa oryginalny dwuklik."
+config.double_click_scan.tip,"Jeśli masz odpowiednie urządzenie, dwuklik na przedmiocie otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion. Przedmioty, które już otwierają się lub działają po dwukliku, zachowują tę akcję; bez urządzenia działa oryginalny dwuklik."
 config.context_menu_scan,Dodaj skanowanie do menu kontekstowego
 config.context_menu_scan.tip,"Jeśli masz odpowiednie urządzenie, w menu prawego przycisku myszy przedmiotu pojawia się pozycja „Zeskanuj”, która otwiera panel skanowania: skaner wody lub chemiczny dla cieczy i chemikaliów, skaner rentgenowski dla zamkniętych skrzyń zaopatrzenia, analizator roślin dla nasion."
 config.expand_key,Klawisz rozwijania
-config.expand_key.tip,"Przytrzymaj ten klawisz, aby rozwinąć zwinięte składniki nieaktywne w tabelach składu upraw. Better Item Tooltips domyślnie używa klawisza Shift; wybierz Shift, aby oba mody miały ten sam klawisz."
+config.expand_key.tip,"Przytrzymaj ten klawisz, aby rozwinąć zwinięte składniki nieaktywne w tabelach składu upraw."
 config.expand_key.ctrl,Ctrl
 config.expand_key.shift,Shift
 config.expand_key.alt,Alt
@@ -207,19 +210,19 @@ config.hidden_truth,Ujawniaj maskowanie i prawdziwe wartości
 config.hidden_truth.tip,"Pokazuje, co kryją zamaskowane cechy, rzeczywistą trwałość oraz rzeczywistą czystość sztabek i chemikaliów. Od razu zdradza podróbki i znacznie ułatwia wycenę."
 config.liquid_analysis,Analiza składu cieczy
 config.liquid_analysis.tip,"Pokazuje czystość i zanieczyszczenia wody oraz skład i działanie leków i chemikaliów. „Ze skanerem” pokazuje to tylko, gdy masz skaner wody lub chemiczny."
-config.color_liquid_components,Koloruj składniki cieczy według typu
+config.color_liquid_components,Koloruj zanieczyszczenia według typu
 config.color_liquid_components.tip,"Nadaje każdemu rodzajowi zanieczyszczeń w tabeli składu osobny kolor: zanieczyszczenia chemiczne, odpady organiczne, drobnoustroje, minerały, metale ciężkie i zanieczyszczenia fizyczne. Wyłączone: wszystkie białe."
 config.liquid_analysis.off,Wyłączone
 config.liquid_analysis.scanner,Ze skanerem
 config.liquid_analysis.always,Zawsze
 config.water_advice,Porady dotyczące oczyszczania
-config.water_advice.tip,"Na pojemniku z wodą pokazuje, o ile każda metoda oczyszczania (filtry, maszyny) podniosłaby czystość. Widoczne niezależnie od analizy cieczy; tylko przy trybie „Ze skanerem” wymaga też skanera. Wartość domyślna wynika z ustawienia analizy."
+config.water_advice.tip,"Na pojemniku z wodą pokazuje, o ile każda metoda oczyszczania (filtry, maszyny) podniosłaby czystość. Gdy „Analiza składu cieczy” jest ustawione na „Ze skanerem”, to również wymaga skanera."
 config.scratcher,Podgląd zdrapek
 config.scratcher.tip,"Przed zdrapaniem pokazuje, czy zdrapka wygrywa, ile i jak daleko jest już zdrapana. Tylko odczyt według zasad gry; nigdy nie zdrapuje za ciebie."
 config.sealed_box,Prześwietlanie zamkniętych pojemników
-config.sealed_box.tip,"Pokazuje zawartość i łączną wartość zamkniętych pojemników (sejfy, szafki na broń) przed otwarciem. To pomija zamek, więc domyślnie jest wyłączone."
+config.sealed_box.tip,"Pokazuje zawartość i łączną wartość zamkniętych pojemników (sejfy, szafki na broń) przed otwarciem. To pomija zamek."
 config.result_prefill,Wstępne wypełnianie oględzin
-config.result_prefill.tip,Po otwarciu panelu inspekcji zaznacza rzeczywiste wady podróbki i wypełnia cenę wyceny prawdziwą wartością lub najlepszą ofertą, zgodnie z wyborem poniżej. Wypełnia tylko pola, nigdy nie wysyła ani nie zatwierdza. Domyślnie wyłączone.
+config.result_prefill.tip,"Po otwarciu panelu inspekcji zaznacza rzeczywiste wady podróbki i wypełnia cenę wyceny prawdziwą wartością lub najlepszą ofertą, zgodnie z wyborem poniżej. Wypełnia tylko pola, nigdy nie wysyła ani nie zatwierdza."
 config.result_prefill_source,Wypełniana cena
 config.result_prefill_source.tip,Prawdziwa wartość = rzeczywista wartość z gry; najlepsza oferta = górna granica idealnego przedziału z podpowiedzi.
 config.result_prefill_source.true,Prawdziwa wartość
@@ -244,6 +247,8 @@ purifier.estimate,"Szacowane usunięcie tej nocy: {0} ml"
 purifier.tier," ({0} → {1})"
 purifier.label,Oczyszczanie
 purifier.rate,{0}mL/dziś w nocy
+hydro.purify_rank,Gen oczyszczania poz. {0}
+ras.purify_fish,{0} ryb pochłania
 fridge.no_effect,", bez efektu: {0}"
 fridge.label,Lodówka
 wine.rack,"Butelki dojrzewające: {0}, +{1} {1|dzień|dni|dni}/dzień"
@@ -321,15 +326,15 @@ config.info_meat.tip,Pokazuje gatunek pochodzenia mięsa i oznaczenia prionów.
 config.info_machines,Maszyny
 config.info_machines.tip,"Pokazuje efekty modułów, postęp nauki, pozostałe dni, zużycie wody, chłodzenie, dojrzewanie, oczyszczanie i przewidywane produkty pieca."
 config.info_batteries,Baterie
-config.info_batteries.tip,"Pokazuje ładunek i pozostałe dni, także każdej baterii w ładowarce. Niezależnie od maszyn i zawartości pojemników."
-config.info_progress_bar,Paski postępu
+config.info_batteries.tip,"Pokazuje ładunek i pozostałe dni, także każdej baterii w ładowarce."
+config.info_progress_bar,Kolorowe paski postępu
 config.info_progress_bar.tip,"Zastępuje paski tekstowe kolorowymi blokami. Wyłącz, aby zachować oryginalny styl."
-config.info_manufacturer_inline,Nazwa firmy po prawej
+config.info_manufacturer_inline,Nazwa firmy w wierszu nazwy
 config.info_manufacturer_inline.tip,Przenosi nazwę firmy na prawą stronę wiersza z nazwą przedmiotu.
-config.info_container_units,Jednostki objętości pojemników
-config.info_container_units.tip,Pokazuje objętość płynu powyżej 3 L w litrach. Do 3 L zachowuje ml. Niezależnie od formatowania tekstu.
-config.info_gene_roman,Poziomy cyframi rzymskimi
-config.info_gene_roman.tip,"Pokazuje poziomy cech nasion cyframi rzymskimi (I, II, III...), tak jak w oryginalnej grze. Wyłączone — poziomy są arabskie."
+config.info_container_units,Optymalizacja jednostek płynów
+config.info_container_units.tip,Pojemność powyżej 3 L jest w litrach (do 3 L w mL). Ilości składników zawsze w mL z cyframi znaczącymi; śladowe udziały zachowują 3 cyfry znaczące.
+config.gene_rank_arabic,Poziomy cyframi arabskimi
+config.gene_rank_arabic.tip,"Pokazuje poziomy cech nasion cyframi arabskimi (1, 2, 3...). Wyłączone — wracają cyfry rzymskie z oryginalnej gry (I, II, III...)."
 list.zone_sep,; 
 module.special_label,Specjalne
 module.learn_chance,{0}% szans na noc na „Algorytm uczący się”

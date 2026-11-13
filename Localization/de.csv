@@ -158,7 +158,7 @@ machine.energy_label,"Verbrauch: "
 machine.energy_unit,/Tag
 machine.energy_battery," {0}/{1} kJ, noch {2} {2|Tag|Tage}"
 machine.energy_left," {0} kJ, {1} {1|Tag|Tage}"
-config.section.display,Anzeige
+config.section.layout,Layout
 config.authenticity,Echtheitsprüfung
 config.authenticity.tip,Unterscheidet echt von gefälscht und nennt Mängel und Fälschungsgründe.
 config.plant_analysis,Pflanzenanalyse
@@ -171,34 +171,37 @@ config.valuation.tip,Zeigt die Aufschlüsselung des wahren Werts und den perfekt
 config.cost_performance,Wert pro Feld
 config.cost_performance.tip,Zeigt den Wert pro Inventarfeld und das Kompressionsverhältnis von Behältern.
 config.container_contents,Behälterinhalt
-config.container_contents.tip,Zeigt den Inhalt unverschlossener Behälter im separaten Symbolfenster.
-config.section.info,Einstellungen für Zusatzinfos
+config.container_contents.tip,Zeigt die Gegenstände in unverschlossenen Behältern als Symbole in einem Feld neben dem Tooltip.
+config.section.info,Zusatzinfos
 config.info_enhance,Zusätzliche Gegenstandsinfos
-config.info_enhance.tip,Aktiviert Zusatzinfos und zeigt ihre Einstellungen unter Einblick. Die Einzelauswahl bleibt beim Ausschalten erhalten.
+config.info_enhance.tip,Ergänzt Tooltips um die unten aufgeführten Gegenstandsinfos. Ausgeschaltet wird alles ausgeblendet; die Einzelauswahl bleibt erhalten.
 config.tooltip_formatting,Tooltip-Textformatierung
 config.tooltip_formatting.tip,"Klarere Preisangaben, Beschreibungsumbrüche, Kalorienhinweise und Preisblockabstände. Deaktivieren erhält das originale Textlayout."
 config.type_badge,Kategorie-Plaketten
-config.type_badge.tip,"Zeigt die Kategorien des Gegenstands über dem Tooltip."
+config.type_badge.tip,Zeigt die Kategorien des Gegenstands über dem Tooltip.
 config.type_badge_muted,Plakettenfarben dämpfen
 config.type_badge_muted.tip,Plaketten außer Schmuggelware nutzen den dunklen Tooltip-Hintergrund und eine aufgehellte Kategoriefarbe; Schmuggelware behält roten Warntext.
-config.container_name,Behälter- & Maschinennamen
-config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
+config.item_name_display,Gegenstandsnamen anzeigen
+config.item_name_display.tip,"Zeigt einen Namen unten an Gegenstandssymbolen. „Behälter & Maschinen“ beschriftet alle Behälter und Maschinen, bei eigenem Namen mit diesem. „Umbenannte Gegenstände“ beschriftet nur Gegenstände mit eigenem Namen."
+config.item_name_display.off,Aus
+config.item_name_display.containers,Behälter & Maschinen
+config.item_name_display.renamed,Umbenannte Gegenstände
 config.container_name_bg,Namenshintergrund
 config.container_name_bg.tip,Deckkraft der schwarzen Fläche hinter dem Namen (0–100 %); bei 0 kein Hintergrund.
 config.slider_percent,{0} %
 config.customer_alert,Hinweis bei Kundenankunft
-config.customer_alert.tip,Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen sowie Abschussprämie und Bedrohung bei Augmentierten.
+config.customer_alert.tip,"Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen sowie Abschussprämie und Bedrohung bei Augmentierten."
 config.customer_history,Gesprächsverlauf beim Hovern
 config.customer_history.tip,Beim Hovern über einem Kunden im Laden wird der Verlauf des aktuellen Besuchs angezeigt.
 config.section.interaction,Bedienung
 config.double_click_inspect,Doppelklick zum Untersuchen
-config.double_click_inspect.tip,"Ein Doppelklick auf Gutachten- oder Echtheitsprüfungsobjekte (Injektoren, Zigaretten, Lebensmittelmarken usw.) öffnet die Untersuchungsansicht ohne Lupe. Ist sie geöffnet, wechselt ein Doppelklick auf einen anderen Gegenstand direkt dorthin. Der Lupen-Hinweis wird zu „Zum Untersuchen doppelklicken“. Deaktivieren stellt den Originalablauf wieder her."
+config.double_click_inspect.tip,"Ein Doppelklick auf Gutachten- oder Echtheitsprüfungsobjekte (Injektoren, Zigaretten, Lebensmittelmarken usw.) öffnet die Untersuchungsansicht ohne Lupe. Ist sie geöffnet, wechselt ein Doppelklick auf einen anderen Gegenstand direkt dorthin."
 config.double_click_scan,Doppelklick zum Scannen
-config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein Doppelklick auf einen Gegenstand die Scanansicht: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen. Ohne Gerät bleibt der ursprüngliche Doppelklick."
+config.double_click_scan.tip,"Wenn Sie das passende Gerät besitzen, öffnet ein Doppelklick auf einen Gegenstand die Scanansicht: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen. Gegenstände, die sich per Doppelklick öffnen oder benutzen lassen, behalten diese Aktion; ohne Gerät bleibt der ursprüngliche Doppelklick."
 config.context_menu_scan,Scannen zum Kontextmenü hinzufügen
 config.context_menu_scan.tip,"Wenn Sie das passende Gerät besitzen, enthält das Rechtsklickmenü eines Gegenstands den Eintrag „Scannen“, der die Scanansicht öffnet: Wasser- oder Chemiescanner für Flüssigkeiten und Chemikalien, Röntgenscanner für verschlossene Versorgungskisten, Pflanzenanalysator für Samen."
 config.expand_key,Taste zum Aufklappen
-config.expand_key.tip,"Halten Sie diese Taste, um die eingeklappten inaktiven Bestandteile in Zusammensetzungstabellen von Pflanzen anzuzeigen. Better Item Tooltips klappt standardmäßig mit Umschalt auf; wählen Sie Umschalt, um für beide dieselbe Taste zu nutzen."
+config.expand_key.tip,"Halten Sie diese Taste, um die eingeklappten inaktiven Bestandteile in Zusammensetzungstabellen von Pflanzen anzuzeigen."
 config.expand_key.ctrl,Strg
 config.expand_key.shift,Umschalt
 config.expand_key.alt,Alt
@@ -207,19 +210,19 @@ config.hidden_truth,Tarnungen & echte Werte aufdecken
 config.hidden_truth.tip,"Zeigt, was hinter getarnten Merkmalen steckt, die echte Haltbarkeit sowie die echte Barren- und Chemikalienreinheit. Entlarvt Fälschungen sofort und erleichtert Gutachten deutlich."
 config.liquid_analysis,Flüssigkeitsanalyse
 config.liquid_analysis.tip,"Zeigt Wasserreinheit und Verunreinigungen sowie Zusammensetzung und Wirkung von Medikamenten und Chemikalien. „Mit Scanner“ zeigt dies nur, solange Sie einen Wasser- oder Chemiescanner besitzen."
-config.color_liquid_components,Flüssigkeitskomponenten nach Art einfärben
+config.color_liquid_components,Verunreinigungen nach Art einfärben
 config.color_liquid_components.tip,"Färbt jede Verunreinigungsart in der Zusammensetzungstabelle anders ein: chemische Schadstoffe, organischer Abfall, Mikroben, Mineralien, Schwermetalle und physische Verunreinigungen. Aus: alle weiß."
 config.liquid_analysis.off,Aus
 config.liquid_analysis.scanner,Mit Scanner
 config.liquid_analysis.always,Immer
 config.water_advice,Reinigungsempfehlung
-config.water_advice.tip,"Zeigt bei Wasserbehältern, um wie viel jede Reinigungsmethode (Filter, Maschinen) die Reinheit erhöhen würde. Unabhängig davon, ob die Flüssigkeitsanalyse an oder aus ist; nur bei „Mit Scanner“ ist auch der Scanner nötig. Standardwert folgt der Analyse-Einstellung."
+config.water_advice.tip,"Zeigt bei Wasserbehältern, um wie viel jede Reinigungsmethode (Filter, Maschinen) die Reinheit erhöhen würde. Steht „Flüssigkeitsanalyse“ auf „Mit Scanner“, braucht auch dies einen Scanner."
 config.scratcher,Rubbellos-Vorschau
 config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewinnt und wie weit es freigerubbelt ist. Nur Auslesen nach den Spielregeln; es wird nie für dich gerubbelt."
 config.sealed_box,Röntgenblick für verschlossene Behälter
-config.sealed_box.tip,"Listet Inhalt und Gesamtwert verschlossener Behälter (Safes, Waffenschränke) schon vor dem Öffnen auf. Das umgeht das Schloss, daher standardmäßig aus."
+config.sealed_box.tip,"Listet Inhalt und Gesamtwert verschlossener Behälter (Safes, Waffenschränke) schon vor dem Öffnen auf. Das umgeht das Schloss."
 config.result_prefill,Prüfergebnis vorausfüllen
-config.result_prefill.tip,Öffnet das Prüffenster, hakt die tatsächlichen Fälschungsmängel ab und trägt den Prüfpreis ein – echter Wert oder bestes Angebot, wie unten gewählt. Füllt nur die Felder aus, sendet oder bestätigt nichts. Standardmäßig aus.
+config.result_prefill.tip,"Öffnet das Prüffenster, hakt die tatsächlichen Fälschungsmängel ab und trägt den Prüfpreis ein – echter Wert oder bestes Angebot, wie unten gewählt. Füllt nur die Felder aus, sendet oder bestätigt nichts."
 config.result_prefill_source,Vorausgefüllter Preis
 config.result_prefill_source.tip,Echter Wert = der reale Wert des Spiels; bestes Angebot = die Obergrenze des perfekten Bereichs aus dem Tooltip.
 config.result_prefill_source.true,Echter Wert
@@ -244,6 +247,8 @@ purifier.estimate,Geschätzte Reinigung heute Nacht: {0} ml
 purifier.tier," ({0} → {1})"
 purifier.label,Reinigung
 purifier.rate,{0}mL/heute Nacht
+hydro.purify_rank,Reinigungs-Gen Stufe {0}
+ras.purify_fish,{0} {0|Fisch|Fische} nehmen auf
 fridge.no_effect,", {0} ohne Wirkung"
 fridge.label,Kühlschrank
 wine.rack,"{0} {0|Flasche reift|Flaschen reifen}, +{1} {1|Tag|Tage}/Tag"
@@ -321,15 +326,15 @@ config.info_meat.tip,Zeigt die Herkunftsart des Fleisches und Prionenmarkierunge
 config.info_machines,Maschinen
 config.info_machines.tip,"Zeigt Moduleffekte, Lernfortschritt, verbleibende Tage, Wasserverbrauch, Kühlung, Reifung, Reinigungsertrag und erwartete Schmelzprodukte."
 config.info_batteries,Batterien
-config.info_batteries.tip,"Zeigt Ladung und verbleibende Tage, auch für jede Batterie im Ladegerät. Unabhängig von Maschinen und Behälterinhalt."
-config.info_progress_bar,Fortschrittsbalken
+config.info_batteries.tip,"Zeigt Ladung und verbleibende Tage, auch für jede Batterie im Ladegerät."
+config.info_progress_bar,Farbige Fortschrittsbalken
 config.info_progress_bar.tip,Ersetzt Textbalken durch farbige Blöcke. Ausschalten stellt den ursprünglichen Stil wieder her.
-config.info_manufacturer_inline,Firmenname rechts
+config.info_manufacturer_inline,Firmenname in der Namenszeile
 config.info_manufacturer_inline.tip,Verschiebt den Firmennamen nach rechts in die Zeile des Gegenstandsnamens.
-config.info_container_units,Volumeneinheiten für Behälter
-config.info_container_units.tip,Zeigt Flüssigkeitsmengen über 3 L in Litern an. Bis 3 L bleibt ml erhalten. Unabhängig von der Tooltip-Textformatierung.
-config.info_gene_roman,Genetik-Stufen als römische Zahlen
-config.info_gene_roman.tip,"Zeigt die Stufen der Samen-Merkmale wieder als römische Zahlen (I, II, III ...) wie im Originalspiel. Ausgeschaltet stehen arabische Ziffern."
+config.info_container_units,Flüssigkeitseinheiten optimieren
+config.info_container_units.tip,Mengen über 3 L werden in Litern angezeigt (bis 3 L in mL). Komponentenmengen stets in mL mit signifikanten Stellen; Spurenanteile behalten 3 signifikante Stellen.
+config.gene_rank_arabic,Genetik-Stufen als arabische Ziffern
+config.gene_rank_arabic.tip,"Zeigt die Stufen der Samen-Merkmale als arabische Ziffern (1, 2, 3 ...). Ausgeschaltet stehen wieder die römischen Zahlen des Originalspiels (I, II, III ...)."
 list.zone_sep,; 
 module.special_label,Spezial
 module.learn_chance,{0} % Chance pro Nacht auf „Lernender Algorithmus“

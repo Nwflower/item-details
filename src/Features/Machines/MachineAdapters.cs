@@ -33,6 +33,7 @@ internal static class MachineAdapters
         ["hydroponic"] = Hydroponic,
         ["fridge"] = Fridge,
         ["water_purifier"] = Purifier,
+        ["ras"] = Ras,
         ["wine_rack"] = WineRack,
         // 酿酒拓展（工坊 3829730904）的流年：由 MachineWineRack.AgeWell() 改 ID 而来，陈化规则同原版
         ["be_liunian_ager"] = WineRack,
@@ -208,6 +209,97 @@ internal static class MachineAdapters
     /// 水槽由这里完整显示，认领后通用的液体行不再重复。
     /// </summary>
     private static void Hydroponic(MachineInterior.Context ctx, List<TooltipLine> lines)
+    {
+        HydroponicWater(ctx, lines);
+        HydroponicPurify(ctx, lines);
+    }
+
+    private const string PurifyingTrait = "purifying";
+
+    /// <summary>
+    /// 净化基因：每个生长周期游戏对水槽里的容器调用 PlantWaterQuality.Purify（ContinueGrowing → RunGrowTickHooks）。
+    /// 只对「工作中且今晚有电有水」的水培机成立；基因等级取自种子标签，任何带该基因的作物都适用。
+    /// 在探针上跑同一函数，显示今晚去除量与前后档位；不认领水槽面板。
+    /// </summary>
+    private static void HydroponicPurify(MachineInterior.Context ctx, List<TooltipLine> lines)
+    {
+        if (GameRead.TagString(ctx.Machine, "MACHINE_STATE_TAG") != "STATE_WORKING") return;
+        if (ctx.WaterDays == 0) return;
+        if (ctx.HasPowerPanel && !CanPower(ctx)) return;
+
+        var seed = ctx.FindPanel("seed")?.Items is { Count: > 0 } s ? s[0] : null;
+        var water = ctx.FindPanel("water")?.Items is { Count: > 0 } w ? w[0] : null;
+        if (seed == null || water == null || !GameRead.IsTag(water, "LIQUID_CONTAINER_TAG")) return;
+        if (WaterHelper.IsEmpty(water)) return;
+
+        int rank;
+        try { rank = PlantGeneticsHelper.GetTraitRank(seed, PurifyingTrait); }
+        catch { return; }
+        if (rank <= 0) return;
+
+        var (parts, before, after) = WaterAdvice.SimulateNightly(water, probe => PlantWaterQuality.Purify(probe, rank));
+        if (parts < 0) return;
+        AddNightlyPurify(lines, parts, before, after, Loc.T("hydro.purify_rank", "Purifying gene Lv.{0}", rank));
+    }
+
+    /// <summary>
+    /// 养殖缸（RAS）：每晚活鱼按体重吸收重金属、化学与物理污染物（AquacultureHelper.RunRemediation），
+    /// 不需要供电。吸收量与游戏的累加方式一致；私有函数经反射取得，取不到就不显示。
+    /// </summary>
+    private static void Ras(MachineInterior.Context ctx, List<TooltipLine> lines)
+    {
+        if (RunRemediation == null) return;
+        GameItem? water;
+        float ml = 0f;
+        int fish = 0;
+        try
+        {
+            water = MachineRAS.GetWaterSlot(ctx.Machine)?.childItem;
+            var tank = MachineRAS.GetTankGrid(ctx.Machine);
+            if (water == null || tank == null || !GameRead.IsTag(water, "LIQUID_CONTAINER_TAG")) return;
+            if (WaterHelper.IsEmpty(water)) return;
+            foreach (var f in tank.childItems)
+            {
+                if (f == null || !AquacultureHelper.IsFish(f) || AquacultureHelper.IsDead(f)) continue;
+                var species = AquacultureHelper.GetSpecies(f);
+                if (species == null || species.remediationMlPer100gPerNight <= 0f) continue;
+                ml += AquacultureHelper.GetWeightGrams(f) / 100f * species.remediationMlPer100gPerNight;
+                fish++;
+            }
+        }
+        catch { return; }
+        if (fish == 0 || ml <= 0f) return;
+
+        var (parts, before, after) = WaterAdvice.SimulateNightly(water, probe => RunRemediation(probe, ml));
+        if (parts < 0) return;
+        AddNightlyPurify(lines, parts, before, after,
+            Loc.T("ras.purify_fish", "{0} {0|fish|fish} absorbing", fish));
+    }
+
+    private static readonly Action<GameItem, float>? RunRemediation = MakeRemediation();
+
+    private static Action<GameItem, float>? MakeRemediation()
+    {
+        try
+        {
+            var m = HarmonyLib.AccessTools.Method(typeof(AquacultureHelper), "RunRemediation", new[] { typeof(GameItem), typeof(float) });
+            return m == null ? null : (Action<GameItem, float>)Delegate.CreateDelegate(typeof(Action<GameItem, float>), m);
+        }
+        catch { return null; }
+    }
+
+    /// <summary>设备自带的被动净化行，样式与净水器一致：[净化] 去除量 档位变化，说明里写来源。</summary>
+    private static void AddNightlyPurify(List<TooltipLine> lines, int parts, int before, int after, string source)
+    {
+        string text = Loc.T("purifier.estimate", "Estimated removal tonight: {0} ml", WaterInfo.Ml(parts))
+            + TierChange(before, after) + " · " + source;
+        string note = source + "  " + (TierPair(before, after) ?? Pct(before) + " → " + Pct(after));
+        lines.Add(ChipLine(text, Loc.T("purifier.label", "Purify"),
+                Loc.T("purifier.rate", "{0}mL/tonight", WaterInfo.Ml(parts)), note, Info)
+            .WithData("purification", (parts, before, after)));
+    }
+
+    private static void HydroponicWater(MachineInterior.Context ctx, List<TooltipLine> lines)
     {
         var waterPanel = ctx.FindPanel("water");
         var seedPanel = ctx.FindPanel("seed");

@@ -158,7 +158,7 @@ machine.energy_label,"Consumo: "
 machine.energy_unit,/giorno
 machine.energy_battery," {0}/{1} kJ, per {2} {2|giorno|giorni}"
 machine.energy_left," {0} kJ, per {1} {1|giorno|giorni}"
-config.section.display,Visualizzazione
+config.section.layout,Impaginazione
 config.authenticity,Verifica di autenticità
 config.authenticity.tip,Distingue l'originale dal falso e indica difetti e motivi del falso.
 config.plant_analysis,Analisi delle piante
@@ -171,34 +171,37 @@ config.valuation.tip,"Mostra la ripartizione del valore reale e la fascia di pre
 config.cost_performance,Valore per cella
 config.cost_performance.tip,Mostra il valore per cella dell'inventario e la compressione dei contenitori.
 config.container_contents,Contenuto del contenitore
-config.container_contents.tip,Mostra il contenuto dei contenitori sbloccati nella finestra di icone separata.
-config.section.info,Impostazioni informazioni aggiuntive
-config.info_enhance,Informazioni extra
-config.info_enhance.tip,Attiva le informazioni aggiuntive e mostra le impostazioni sotto Rivelazione. Disattivando si conservano le scelte individuali.
+config.container_contents.tip,Mostra gli oggetti dei contenitori sbloccati come icone in un pannello accanto al tooltip.
+config.section.info,Informazioni aggiuntive
+config.info_enhance,Informazioni extra sugli oggetti
+config.info_enhance.tip,"Aggiunge ai tooltip le informazioni sugli oggetti elencate sotto. Disattivato, nasconde tutto e conserva le scelte individuali."
 config.tooltip_formatting,Formattazione del testo dei tooltip
 config.tooltip_formatting.tip,"Etichette di prezzo più chiare, descrizioni a capo, note caloriche e spaziatura del blocco prezzo. Disattiva per mantenere il layout originale."
 config.type_badge,Badge di categoria
 config.type_badge.tip,Mostra le categorie dell'oggetto sopra il riquadro informativo.
 config.type_badge_muted,Colori dei badge attenuati
 config.type_badge_muted.tip,I badge non di contrabbando usano lo sfondo scuro del tooltip e un colore di categoria schiarito; il contrabbando mantiene il testo rosso di avviso.
-config.container_name,Nomi di contenitori e macchine
-config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
+config.item_name_display,Visualizzazione nomi oggetti
+config.item_name_display.tip,"Mostra un nome in fondo alle icone degli oggetti. «Contenitori e macchine» etichetta tutti i contenitori e le macchine, col nome personalizzato se presente. «Oggetti rinominati» etichetta solo gli oggetti con un nome personalizzato."
+config.item_name_display.off,Disattivato
+config.item_name_display.containers,Contenitori e macchine
+config.item_name_display.renamed,Oggetti rinominati
 config.container_name_bg,Sfondo dei nomi
 config.container_name_bg.tip,Opacità dello sfondo nero dietro il nome (0–100%); a 0 nessuno sfondo.
 config.slider_percent,{0}%
 config.customer_alert,Avviso di arrivo clienti
-config.customer_alert.tip,Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome, e la ricompensa per l'uccisione e la minaccia dei potenziati.
+config.customer_alert.tip,"Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome, e la ricompensa per l'uccisione e la minaccia dei potenziati."
 config.customer_history,Cronologia al passaggio del mouse
 config.customer_history.tip,Passando il mouse su un cliente del negozio mostra la conversazione della visita in corso.
 config.section.interaction,Controlli
 config.double_click_inspect,Doppio clic per ispezionare
-config.double_click_inspect.tip,"Fai doppio clic su un oggetto da periziare o da autenticare (iniettori, sigarette, buoni alimentari, ecc.) per aprire il pannello di ispezione senza lente. Con il pannello aperto, un doppio clic su un altro oggetto passa direttamente a quello. L'indicazione della lente diventa «Doppio clic per ispezionare». Disattivalo per ripristinare il funzionamento originale."
+config.double_click_inspect.tip,"Fai doppio clic su un oggetto da periziare o da autenticare (iniettori, sigarette, buoni alimentari, ecc.) per aprire il pannello di ispezione senza lente. Con il pannello aperto, un doppio clic su un altro oggetto passa direttamente a quello."
 config.double_click_scan,Doppio clic per analizzare
-config.double_click_scan.tip,"Se possiedi il dispositivo corrispondente, un doppio clic su un oggetto apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi. Senza il dispositivo resta il doppio clic originale."
+config.double_click_scan.tip,"Se possiedi il dispositivo corrispondente, un doppio clic su un oggetto apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi. Gli oggetti che si aprono o si usano già con il doppio clic mantengono quell'azione; senza il dispositivo resta il doppio clic originale."
 config.context_menu_scan,Aggiungi scansione al menu contestuale
 config.context_menu_scan.tip,"Se possiedi il dispositivo corrispondente, il menu del clic destro di un oggetto mostra «Scansiona», che apre il pannello di scansione: scanner dell'acqua o chimico per liquidi e prodotti chimici, scanner a raggi X per le casse di rifornimento bloccate, analizzatore di piante per i semi."
 config.expand_key,Tasto di espansione
-config.expand_key.tip,Tieni premuto questo tasto per espandere i componenti inattivi compressi nelle tabelle di composizione delle colture. Better Item Tooltips usa Maiusc per impostazione predefinita; scegli Maiusc per usare lo stesso tasto in entrambe.
+config.expand_key.tip,Tieni premuto questo tasto per espandere i componenti inattivi compressi nelle tabelle di composizione delle colture.
 config.expand_key.ctrl,Ctrl
 config.expand_key.shift,Maiusc
 config.expand_key.alt,Alt
@@ -207,19 +210,19 @@ config.hidden_truth,Rivela travestimenti e valori reali
 config.hidden_truth.tip,"Mostra cosa nascondono le caratteristiche mascherate, la durabilità reale e la purezza reale di lingotti e prodotti chimici. Smaschera subito i falsi e semplifica molto la perizia."
 config.liquid_analysis,Analisi dei componenti liquidi
 config.liquid_analysis.tip,"Mostra la purezza e le impurità dell'acqua, nonché la composizione e gli effetti di medicinali e prodotti chimici. «Con scanner» lo mostra solo se possiedi uno scanner dell'acqua o chimico."
-config.color_liquid_components,Colora i componenti liquidi per tipo
+config.color_liquid_components,Colora le impurità per tipo
 config.color_liquid_components.tip,"Assegna a ogni tipo di impurità della tabella di composizione un colore proprio: contaminanti chimici, rifiuti organici, microbi, minerali, metalli pesanti e contaminanti fisici. Disattivato, sono tutte bianche."
 config.liquid_analysis.off,Disattivato
 config.liquid_analysis.scanner,Con scanner
 config.liquid_analysis.always,Sempre
 config.water_advice,Consigli di purificazione
-config.water_advice.tip,"Su un contenitore d'acqua, mostra di quanto ogni metodo di purificazione (filtri, macchine) aumenterebbe la purezza. Visibile con l'analisi dei liquidi attiva o no; solo con «Con scanner» serve anche lo scanner. Il valore predefinito segue l'analisi."
+config.water_advice.tip,"Su un contenitore d’acqua, indica di quanto ogni metodo di purificazione (filtri, macchine) aumenterebbe la purezza. Se «Analisi dei componenti liquidi» è su «Con scanner», serve anche qui uno scanner."
 config.scratcher,Anteprima gratta e vinci
 config.scratcher.tip,"Prima di grattare, mostra se un gratta e vinci è vincente, quanto vale e quanto è già stato grattato. Sola lettura con le regole del gioco; non gratta mai al posto tuo."
 config.sealed_box,Raggi X per contenitori chiusi
-config.sealed_box.tip,"Elenca contenuto e valore totale dei contenitori chiusi a chiave (casseforti, armadietti per armi) prima di aprirli. Equivale a saltare la serratura, quindi è disattivato per impostazione predefinita."
+config.sealed_box.tip,"Elenca contenuto e valore totale dei contenitori chiusi a chiave (casseforti, armadietti per armi) prima di aprirli. Equivale a saltare la serratura."
 config.result_prefill,Precompila esito ispezione
-config.result_prefill.tip,All'apertura del pannello di ispezione spunta i difetti reali di contraffazione e compila il prezzo di perizia con il valore reale o l'offerta migliore, secondo la scelta qui sotto. Compila solo i campi, non invia né conferma. Disattivato per impostazione predefinita.
+config.result_prefill.tip,"All'apertura del pannello di ispezione spunta i difetti reali di contraffazione e compila il prezzo di perizia con il valore reale o l'offerta migliore, secondo la scelta qui sotto. Compila solo i campi, non invia né conferma."
 config.result_prefill_source,Prezzo precompilato
 config.result_prefill_source.tip,Valore reale = il valore reale del gioco; offerta migliore = il limite superiore dell'intervallo perfetto mostrato nel tooltip.
 config.result_prefill_source.true,Valore reale
@@ -244,6 +247,8 @@ purifier.estimate,"Rimozione stimata stanotte: {0} ml"
 purifier.tier," ({0} → {1})"
 purifier.label,Purificazione
 purifier.rate,{0}mL/stanotte
+hydro.purify_rank,Gene purificante liv. {0}
+ras.purify_fish,{0} {0|pesce|pesci} assorbono
 fridge.no_effect,", {0} senza effetto"
 fridge.label,Frigo
 wine.rack,"{0} {0|bottiglia|bottiglie} in cantina, +{1} {1|giorno|giorni}/giorno"
@@ -321,15 +326,15 @@ config.info_meat.tip,Mostra la specie d’origine della carne e i marcatori di p
 config.info_machines,Macchine
 config.info_machines.tip,"Mostra effetti dei moduli, apprendimento, giorni rimanenti, consumo d’acqua, refrigerazione, invecchiamento, purificazione e prodotti previsti della fornace."
 config.info_batteries,Batterie
-config.info_batteries.tip,"Mostra carica e giorni rimanenti, inclusa ogni batteria nel caricatore. Indipendente da Macchine e Contenuto dei contenitori."
-config.info_progress_bar,Barre di avanzamento
+config.info_batteries.tip,"Mostra carica e giorni rimanenti, inclusa ogni batteria nel caricatore."
+config.info_progress_bar,Barre di avanzamento colorate
 config.info_progress_bar.tip,Sostituisce le barre testuali con blocchi colorati. Disattiva per mantenere lo stile originale.
-config.info_manufacturer_inline,Azienda a destra
+config.info_manufacturer_inline,Azienda sulla riga del nome
 config.info_manufacturer_inline.tip,Sposta il nome dell’azienda a destra sulla riga del nome dell’oggetto.
-config.info_container_units,Unità di volume dei contenitori
-config.info_container_units.tip,Mostra in litri i volumi di liquido superiori a 3 L. Fino a 3 L mantiene ml. Indipendente dalla formattazione del testo.
-config.info_gene_roman,Livelli in numeri romani
-config.info_gene_roman.tip,"Mostra di nuovo i livelli dei tratti dei semi in numeri romani (I, II, III...), come nel gioco originale. Disattivato, i livelli usano cifre arabe."
+config.info_container_units,Ottimizza unità dei liquidi
+config.info_container_units.tip,Le capacità oltre 3 L sono in litri (fino a 3 L in mL). Le quantità dei componenti sono sempre in mL con cifre significative; le percentuali in tracce mantengono 3 cifre significative.
+config.gene_rank_arabic,Livelli in cifre arabe
+config.gene_rank_arabic.tip,"Mostra i livelli dei tratti dei semi in cifre arabe (1, 2, 3...). Disattivato, torna ai numeri romani del gioco originale (I, II, III...)."
 list.zone_sep,; 
 module.special_label,Speciale
 module.learn_chance,{0}% di probabilità a notte di «Algoritmo di apprendimento»

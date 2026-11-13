@@ -98,7 +98,10 @@ namespace TEST_NS {
   public void Save() { Saves++; foreach (var e in Entries) rawValues[e.Key] = e.BoxedValue.ToString()!; }
   ConfigEntry<T> Add<T>(string key, T value, string section, string[]? choices = null) where T : notnull {
    var entry = new ConfigEntry<T>(value) { Key = key, Section = section, Choices = choices, Config = this };
-   if (rawValues.TryGetValue(key, out var stored) && typeof(T) == typeof(bool)) entry.ApplyBoxed(bool.Parse(stored));
+   if (rawValues.TryGetValue(key, out var stored)) {
+    if (typeof(T) == typeof(bool)) entry.ApplyBoxed(bool.Parse(stored));
+    else if (typeof(T) == typeof(string)) entry.ApplyBoxed(stored);
+   }
    Entries.Add(entry); return entry;
   }
   public ConfigEntry<bool> Define(string key, bool value, string section, Func<string> label, Func<string>? tip = null) => Add(key, value, section);
@@ -247,9 +250,11 @@ namespace TEST_NS {
    liquidMode.Set(ModSettings.LiquidChoiceValue(ModSettings.LiquidMode.Always));
    string[] keys = { "info_price_modifiers", "info_black_market", "info_lottery", "info_brewing", "info_meat", "info_machines", "info_batteries", "info_progress_bar", "info_container_units", "info_manufacturer_inline" };
    Func<bool>[] enabled = { () => ModSettings.PriceImpact, () => ModSettings.Contraband, () => ModSettings.Lottery, () => ModSettings.Wine, () => ModSettings.Meat, () => ModSettings.Machines, () => ModSettings.MachineBattery, () => ModSettings.BlockProgressBar, () => ModSettings.ContainerUnits, () => ModSettings.ManufacturerInline };
+   const int gatedCount = 7; // the first seven are item info under the master; the rest are layout
    Check(keys.All(k => Equals(cfg.Get(k)!.BoxedDefault, true)) && enabled.All(f => f()), "all ten default on");
-   Check(cfg.Entries.Select(e => e.Section).Distinct().SequenceEqual(new[] { "Display", "Controls", "Reveal", ModSettings.SecInfoEn }), "four sections in order");
-   Check(cfg.Get("show_info_enhance")!.Section == "Display", "master always in display");
+   Check(cfg.Entries.Select(e => e.Section).Distinct().SequenceEqual(new[] { ModSettings.SecInfoEn, "Reveal", ModSettings.SecLayoutEn, "Controls" }), "info, reveal, layout, controls in order");
+   Check(cfg.Get("show_info_enhance")!.Section == ModSettings.SecInfoEn && cfg.Get("show_customer_history")!.Section == ModSettings.SecInfoEn, "master and customer history in the info group");
+   Check(keys.Skip(gatedCount).Concat(new[] { "tooltip_text_formatting", "show_type_badge", "item_name_display", "gene_rank_arabic" }).All(k => cfg.Get(k)!.Section == ModSettings.SecLayoutEn), "layout options in the layout group");
    for (int i = 0; i < keys.Length; i++) {
     cfg.Get(keys[i])!.ApplyBoxed(false);
     for (int j = 0; j < enabled.Length; j++) Check(enabled[j]() == (i != j), "independent: " + keys[i] + " / " + keys[j]);
@@ -264,17 +269,46 @@ namespace TEST_NS {
    cfg.Get("info_container_units")!.ApplyBoxed(true);
    cfg.Get(keys[3])!.ApplyBoxed(false);
    cfg.Get("show_info_enhance")!.ApplyBoxed(false);
-   Check(enabled.All(f => !f()), "master gates every new feature");
+   Check(enabled.Take(gatedCount).All(f => !f()) && enabled.Skip(gatedCount).All(f => f()), "master gates item info only");
+   Check(ModSettings.TooltipFormatting && ModSettings.TypeBadge && ModSettings.GeneRankArabic && ModSettings.CustomerHistory, "layout and customer history ignore the master");
    cfg.Get("show_info_enhance")!.ApplyBoxed(true);
    Check(!ModSettings.Wine && ModSettings.Meat, "master preserves child choices");
 
+   // ---- 2026-11 regroup migration ----
+   string[] movedOut = { "tooltip_text_formatting", "info_manufacturer_inline", "info_progress_bar", "info_container_units", "show_type_badge" };
+   cfg = Reinit(new() { ["show_info_enhance"] = "false", ["info_gene_roman"] = "true", ["show_container_name_display"] = "true" });
+   Check(movedOut.All(k => !(bool)cfg.Get(k)!.BoxedValue) && ModSettings.GeneRankArabic, "master off: moved-out layout turns off, gene ranks stay Arabic");
+   Check(ModSettings.ItemNames == ModSettings.ItemNameMode.Off, "master off: name labels were not in effect, so they migrate to off");
+   Check(!ModSettings.InfoEnhance && ModSettings.CustomerHistory && cfg.rawValues.ContainsKey("info_gene_roman"), "master off stays off; old key kept");
+   cfg = Reinit(new() { ["info_gene_roman"] = "true" });
+   Check(!ModSettings.GeneRankArabic && ModSettings.TooltipFormatting && ModSettings.TypeBadge, "roman on with master on keeps Roman numerals and layout");
+   cfg = Reinit(new() { ["show_info_enhance"] = "false", ["gene_rank_arabic"] = "false" });
+   Check(ModSettings.TooltipFormatting && !ModSettings.GeneRankArabic, "already migrated configs are left alone");
+   cfg = Reinit(new());
+   Check(ModSettings.GeneRankArabic && movedOut.All(k => (bool)cfg.Get(k)!.BoxedValue) && ModSettings.ItemNames == ModSettings.ItemNameMode.Off, "fresh config keeps defaults");
+
+   // ---- item name display: bool → three modes ----
+   var nameEntry = (ConfigEntry<string>)cfg.Get("item_name_display")!;
+   Check(nameEntry.Section == ModSettings.SecLayoutEn && cfg.Get("show_container_name_display") == null, "name labels are a layout dropdown; the old toggle is gone");
+   cfg = Reinit(new() { ["show_container_name_display"] = "true" });
+   Check(ModSettings.ItemNames == ModSettings.ItemNameMode.Containers && cfg.rawValues.ContainsKey("show_container_name_display"), "old toggle on migrates to containers; old key kept");
+   cfg = Reinit(new() { ["show_container_name_display"] = "false" });
+   Check(ModSettings.ItemNames == ModSettings.ItemNameMode.Off, "old toggle off migrates to off");
+   cfg = Reinit(new() { ["show_container_name_display"] = "true", ["gene_rank_arabic"] = "true", ["show_info_enhance"] = "false" });
+   Check(ModSettings.ItemNames == ModSettings.ItemNameMode.Containers, "after the regroup the old toggle was already independent of the master");
+   cfg = Reinit(new() { ["show_container_name_display"] = "true", ["item_name_display"] = "显示命名过的物品名称 (Renamed items)" });
+   Check(ModSettings.ItemNames == ModSettings.ItemNameMode.Renamed, "an existing item_name_display wins");
+   ((ConfigEntry<string>)cfg.Get("item_name_display")!).Set(ModSettings.ItemNameChoiceValue(ModSettings.ItemNameMode.Off));
+   cfg.Get(keys[3])!.ApplyBoxed(false);
+
    // ---- panel visibility ----
+   // headers: [0] info, [1] reveal, [2] layout, [3] controls
    ModSettings.RefreshSections();
    var (w, content, headers) = BuildWindow(cfg);
    Func<string, bool> row = key => w.elements[key].root.parent!.active;
-   string[] displayGated = { "show_cost_performance", "show_container_contents", "tooltip_text_formatting", "show_type_badge", "mute_type_badge_colors", "show_container_name_display", "container_name_bg_opacity" };
    string[] infoKeys = cfg.Entries.Where(e => e.Section == ModSettings.SecInfoEn).Select(e => e.Key).ToArray();
-   Check(infoKeys.Length == 11 && infoKeys.Last() == "info_manufacturer_inline", "info group has eleven entries");
+   Check(infoKeys.Length == 11 && infoKeys[0] == "show_customer_history" && infoKeys[1] == "show_info_enhance" && infoKeys.Last() == "info_batteries", "info group: history, master, nine children");
+   string[] gated = infoKeys.Skip(2).ToArray();
    var master = w.elements["show_info_enhance"];
    int saves = cfg.Saves;
    Invoke("OpenPostfix", w);
@@ -285,16 +319,14 @@ namespace TEST_NS {
    Check(!row("container_name_bg_opacity") && !row("result_prefill_price") && row("color_liquid_components") && row("mute_type_badge_colors"), "child rows follow their parent on open");
 
    master.SetBool(false, true);
-   Check(displayGated.All(k => !row(k)) && infoKeys.All(k => !row(k)), "master hides every gated row in both groups");
-   Check(row("show_info_enhance") && row("show_customer_history") && headers[0].active, "display group keeps the master and its own options");
-   int infoHeader = headers[3].GetSiblingIndex();
-   Check(!headers[3].active && !content.GetChild(infoHeader + 1).active && !content.children[content.children.IndexOf(w.elements["info_manufacturer_inline"].root.parent!) + 1].active, "hide info header, separator and gap");
-   Check(content.children.Last().active && content.children[content.childCount - 2].active, "footer stays visible");
-   w.elements["show_container_name_display"].SetBool(true, true);
-   Check(!row("container_name_bg_opacity"), "a chained child stays hidden while the master is off");
+   Check(gated.All(k => !row(k)), "master hides its item info rows");
+   Check(row("show_info_enhance") && row("show_customer_history") && headers[0].active, "info group keeps its header, the master and customer history");
+   Check(headers[2].active && row("tooltip_text_formatting") && row("show_type_badge") && row("gene_rank_arabic"), "layout group ignores the master");
+   w.elements["item_name_display"].SetIndex((int)ModSettings.ItemNameMode.Renamed, true);
+   Check(row("container_name_bg_opacity"), "label background follows its own parent while the master is off");
    w.elements["info_brewing"].SetBool(false);
    master.SetBool(true, true);
-   Check(row("container_name_bg_opacity") && headers[3].active && infoKeys.All(k => row(k)) && !w.elements["info_brewing"].GetBool(), "show group without resetting children");
+   Check(gated.All(k => row(k)) && !w.elements["info_brewing"].GetBool(), "show rows without resetting children");
 
    w.elements["show_type_badge"].SetBool(false, true);
    Check(!row("mute_type_badge_colors") && row("show_type_badge"), "muted colors follow the badge toggle");
@@ -313,18 +345,18 @@ namespace TEST_NS {
    w.elements["show_result_prefill"].SetBool(false);
    int refreshed = ConfigSliderValue.Refreshed;
    Invoke("ResetPostfix", w);
-   Check(infoKeys.All(k => row(k)) && headers[3].active && !row("result_prefill_price"), "reset restores visibility");
+   Check(gated.All(k => row(k)) && !row("result_prefill_price"), "reset restores visibility");
    Check(ConfigSliderValue.Refreshed == refreshed + 1, "reset refreshes the slider value");
 
    master.SetBool(false); // opening with a saved disabled master
    ConfigSectionRefresh.RefreshVisibility(w);
-   Check(!headers[3].active && headers[2].active, "saved disabled master hides group on open");
+   Check(gated.All(k => !row(k)) && headers[0].active && headers[1].active, "saved disabled master hides its rows on open");
 
    w.id = "mod_config:another_mod";
    master.SetBool(true);
    ConfigSectionRefresh.RefreshVisibility(w);
    Invoke("ResetPostfix", w);
-   Check(!headers[3].active && ConfigSliderValue.Refreshed == refreshed + 1, "other mods are untouched");
+   Check(!row("info_meat") && ConfigSliderValue.Refreshed == refreshed + 1, "other mods are untouched");
    w.id = "mod_config:item_details";
 
    Loc.Code = "zh";
@@ -332,18 +364,20 @@ namespace TEST_NS {
    var renamed = cfg.Entries.Select(e => e.Section).Distinct().ToList();
    for (int i = 0; i < renamed.Count; i++) w.elements["section_" + renamed[i]] = new CustomUIElement(new Node("translated_header", headers[i]));
    ConfigSectionRefresh.RefreshVisibility(w);
-   Check(headers[3].active && Log.Warnings.Count == 0, "localized sections still toggle");
+   Check(row("info_meat") && Log.Warnings.Count == 0, "localized sections still toggle");
 
    // Unexpected layout: rows of a group live elsewhere → that group is left as is and one warning is logged.
    var stray = new Node("elsewhere");
    w.elements["info_meat"].root.parent!.parent = stray;
    master.SetBool(false);
+   w.elements["show_type_badge"].SetBool(false);
    ConfigSectionRefresh.RefreshVisibility(w);
-   Check(headers[3].active && Log.Warnings.Count > 0 && !row("show_cost_performance"), "unexpected layout leaves that group alone and logs");
+   Check(row("info_price_modifiers") && Log.Warnings.Count > 0 && !row("mute_type_badge_colors"), "unexpected layout leaves that group alone and logs");
+   w.elements["show_type_badge"].SetBool(true);
    Loc.Code = "en";
 
    Check(cfg.Saves == saves && ModSettings.InfoEnhance && !ModSettings.Wine, "UI visibility does not save or apply configuration");
-   return "PASS plant/authenticity migration (incl. save-during-migration), plant gate, expand key, ten defaults, independent gates, master preservation, section order, dependency-table visibility, chained children, reset, localization, layout fallback and other-mod isolation";
+   return "PASS plant/authenticity migration (incl. save-during-migration), plant gate, expand key, ten defaults, independent gates, master scope and preservation, regroup migration, section order, dependency-table visibility, chained children, reset, localization, layout fallback and other-mod isolation";
   }
  }
 }

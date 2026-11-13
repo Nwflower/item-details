@@ -158,7 +158,7 @@ machine.energy_label,"소비 전력: "
 machine.energy_unit,/일
 machine.energy_battery," {0}/{1}kJ, {2}일분"
 machine.energy_left," {0}kJ, {1}일분"
-config.section.display,표시
+config.section.layout,레이아웃
 config.authenticity,진위 감정
 config.authenticity.tip,진품과 위조품을 판정해 결함과 위조 사유를 보여 줍니다.
 config.plant_analysis,식물 분석
@@ -169,36 +169,39 @@ config.plant_analysis.always,항상
 config.valuation,감정가 계산
 config.valuation.tip,"감정 아이템의 실제 가치 내역과 완벽 가격 범위를 보여 주고, 감정 서비스 제목에 정가와 최고 제시가를 표시합니다."
 config.cost_performance,칸당 가치
-config.cost_performance.tip,"칸당 가치와 컨테이너 압축률을 표시합니다."
+config.cost_performance.tip,칸당 가치와 컨테이너 압축률을 표시합니다.
 config.container_contents,컨테이너 내용
-config.container_contents.tip,잠기지 않은 컨테이너의 내용물을 별도 아이콘 창에 표시합니다.
-config.section.info,정보 강화 설정
+config.container_contents.tip,잠기지 않은 컨테이너의 내용물을 툴팁 옆에 아이콘으로 표시합니다.
+config.section.info,추가 정보
 config.info_enhance,추가 아이템 정보
-config.info_enhance.tip,추가 정보를 켜고 투시 아래에 설정을 표시합니다. 꺼도 개별 선택은 유지됩니다.
+config.info_enhance.tip,아래 나열된 아이템 정보를 툴팁에 추가합니다. 끄면 모두 숨기고 개별 선택은 유지됩니다.
 config.tooltip_formatting,툴팁 텍스트 서식
 config.tooltip_formatting.tip,"가격 표기, 설명 줄 바꿈, 칼로리 주석, 가격 블록 간격을 최적화합니다. 끄면 원래 텍스트 레이아웃을 유지합니다."
 config.type_badge,아이템 분류 배지
-config.type_badge.tip,"툴팁 위에 아이템 분류를 표시합니다."
+config.type_badge.tip,툴팁 위에 아이템 분류를 표시합니다.
 config.type_badge_muted,배지 색상 줄이기
 config.type_badge_muted.tip,금지·제한 품목 외에는 툴팁의 어두운 배경과 밝게 조정한 분류 색을 사용합니다. 금지·제한 품목은 빨간 경고 텍스트를 유지합니다.
-config.container_name,컨테이너/기계 이름표
-config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
+config.item_name_display,아이템 이름 표시
+config.item_name_display.tip,"아이템 아이콘 아래에 이름을 항상 표시합니다. ‘컨테이너와 기계’는 모든 컨테이너와 기계에 이름을 붙이며, 이름을 바꾼 경우 새 이름을 표시합니다. ‘이름을 바꾼 아이템’은 이름을 바꾼 아이템에만 표시합니다."
+config.item_name_display.off,끄기
+config.item_name_display.containers,컨테이너와 기계
+config.item_name_display.renamed,이름을 바꾼 아이템
 config.container_name_bg,이름표 배경
 config.container_name_bg.tip,이름표 뒤 검정 배경의 불투명도(0–100%)입니다. 0이면 배경이 없습니다.
 config.slider_percent,{0}%
 config.customer_alert,손님 방문 알림
-config.customer_alert.tip,수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 처치 보상, 개조 위협을 표시합니다.
+config.customer_alert.tip,"수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 처치 보상, 개조 위협을 표시합니다."
 config.customer_history,손님에 커서를 올려 이번 대화 보기
 config.customer_history.tip,매장 손님 위에 마우스를 올리면 이번 응대에서 오간 대화를 표시합니다.
 config.section.interaction,조작
 config.double_click_inspect,더블클릭으로 감정
-config.double_click_inspect.tip,"감정품이나 진위 확인이 필요한 물품(주사기, 담배, 식량 배급표 등)을 더블클릭하면 돋보기 없이 검사 패널이 열립니다. 패널이 열린 상태에서 다른 물품을 더블클릭하면 바로 전환됩니다. 돋보기 안내는 '더블클릭하여 감정'으로 바뀝니다. 끄면 원래 방식으로 돌아갑니다."
+config.double_click_inspect.tip,"감정품이나 진위 확인이 필요한 물품(주사기, 담배, 식량 배급표 등)을 더블클릭하면 돋보기 없이 검사 패널이 열립니다. 패널이 열린 상태에서 다른 물품을 더블클릭하면 바로 전환됩니다."
 config.double_click_scan,더블클릭으로 스캔
-config.double_click_scan.tip,"해당 장치를 보유하고 있으면 아이템을 더블클릭해 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다. 장치가 없으면 기존 더블클릭 동작이 유지됩니다."
+config.double_click_scan.tip,"해당 장치를 보유하고 있으면 아이템을 더블클릭해 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다. 원래 더블클릭으로 열거나 사용하는 아이템은 그 동작을 유지하며, 장치가 없을 때도 기존 더블클릭 동작이 유지됩니다."
 config.context_menu_scan,우클릭 메뉴에 스캔 추가
 config.context_menu_scan.tip,"해당 장치를 보유하고 있으면 아이템 우클릭 메뉴에 '스캔'이 추가되어 스캔 결과 패널을 엽니다. 액체와 화학 물질은 수질/화학 스캐너, 잠긴 보급 상자는 X선 스캐너, 씨앗은 식물 분석기에 대응합니다."
 config.expand_key,펼치기 키
-config.expand_key.tip,이 키를 누르고 있으면 작물 성분표에서 접힌 비활성 성분을 펼칩니다. Better Item Tooltips의 펼치기 키는 기본값이 Shift이므로 Shift를 고르면 두 모드의 키를 맞출 수 있습니다.
+config.expand_key.tip,이 키를 누르고 있으면 작물 성분표에서 접힌 비활성 성분을 펼칩니다.
 config.expand_key.ctrl,Ctrl
 config.expand_key.shift,Shift
 config.expand_key.alt,Alt
@@ -207,21 +210,21 @@ config.hidden_truth,위장 및 실제 수치 공개
 config.hidden_truth.tip,"위장된 특성의 실제 값, 실제 내구도, 주괴/화학품의 실제 순도를 표시합니다. 가짜가 바로 드러나 감정이 훨씬 쉬워집니다."
 config.liquid_analysis,액체 성분 분석
 config.liquid_analysis.tip,"물의 순도와 불순물, 약품 및 화학 물질의 성분과 효과를 표시합니다. '스캐너 보유 시'는 수질 스캐너나 화학 스캐너를 보유한 동안에만 표시합니다."
-config.color_liquid_components,액체 성분을 종류별로 색상 구분
+config.color_liquid_components,불순물을 종류별로 색상 구분
 config.color_liquid_components.tip,"성분표의 불순물을 종류별로 다른 색으로 표시합니다(화학 오염물, 유기 폐기물, 미생물, 미네랄, 중금속, 물리 오염물). 끄면 모두 흰색입니다."
 config.liquid_analysis.off,끄기
 config.liquid_analysis.scanner,스캐너 보유 시
 config.liquid_analysis.always,항상
 config.water_advice,정화 조언
-config.water_advice.tip,"물 용기에서 각 정화 수단(필터, 기계 등)이 순도를 얼마나 올려 주는지 표시합니다. 액체 성분 분석이 켜져 있든 꺼져 있든 표시되며, 분석이 '스캐너 보유 시'일 때만 스캐너도 필요합니다. 기본값은 액체 성분 분석 설정을 따릅니다."
+config.water_advice.tip,"물이 든 용기에서 각 정화 방법(필터, 기계 등)으로 순도가 얼마나 오르는지 보여 줍니다. ‘액체 성분 분석’ 설정이 ‘스캐너 보유 시’이면 여기에도 스캐너가 필요합니다."
 config.scratcher,스크래치 복권 미리보기
 config.scratcher.tip,"긁기 전에 스크래치 복권의 당첨 여부, 당첨금, 긁은 진행도를 표시합니다. 게임과 같은 규칙으로 읽기만 하며 대신 긁지 않습니다."
 config.sealed_box,잠긴 컨테이너 투시
-config.sealed_box.tip,"잠긴 컨테이너(금고, 총기 보관함 등)의 내용물과 총가치를 열기 전에 보여줍니다. 잠금 해제 과정을 건너뛰는 셈이라 기본값은 꺼짐입니다."
+config.sealed_box.tip,"잠긴 컨테이너(금고, 총기 보관함 등)의 내용물과 총가치를 열기 전에 보여줍니다. 잠금 해제 과정을 건너뛰는 셈입니다."
 config.result_prefill,감정 결과 미리 채우기
-config.result_prefill.tip,검사 패널을 열면 실제 위조 결함을 체크하고, 아래 선택에 따라 감정 가격을 실제 가치나 최적 제안가로 채웁니다. 입력만 하며 제출이나 확인은 하지 않습니다. 기본값은 꺼짐.
+config.result_prefill.tip,"검사 패널을 열면 실제 위조 결함을 체크하고, 아래 선택에 따라 감정 가격을 실제 가치나 최적 제안가로 채웁니다. 입력만 하며 제출이나 확인은 하지 않습니다."
 config.result_prefill_source,채울 가격
-config.result_prefill_source.tip,실제 가치 = 게임이 계산한 진짜 가치, 최적 제안가 = 툴팁에 표시되는 완벽 범위의 상한.
+config.result_prefill_source.tip,"실제 가치 = 게임이 계산한 진짜 가치, 최적 제안가 = 툴팁에 표시되는 완벽 범위의 상한."
 config.result_prefill_source.true,실제 가치
 config.result_prefill_source.best,최적 제안가
 machine.eta,완료까지 약 {0}일
@@ -244,6 +247,8 @@ purifier.estimate,오늘 밤 예상 정화: {0}ml
 purifier.tier," ({0} → {1})"
 purifier.label,정화
 purifier.rate,{0}mL/오늘 밤
+hydro.purify_rank,정화 유전자 {0}단계
+ras.purify_fish,물고기 {0}마리 흡수
 fridge.no_effect,", 효과 없음 {0}개"
 fridge.label,냉장고
 wine.rack,"{0}병 숙성 중, 하루에 {1}일씩 숙성"
@@ -321,15 +326,15 @@ config.info_meat.tip,고기의 출처 종과 프리온 표식을 표시합니다
 config.info_machines,기계
 config.info_machines.tip,"모듈 효과, 학습 진행도, 남은 일수, 물 사용량, 냉각, 숙성, 정화량, 용광로 예상 생산물을 표시합니다."
 config.info_batteries,배터리
-config.info_batteries.tip,충전량과 남은 일수를 표시합니다. 충전기 안의 각 배터리도 포함하며 기계 및 용기 내용물 설정과 독립적입니다.
-config.info_progress_bar,진행 막대
+config.info_batteries.tip,충전량과 남은 일수를 표시합니다. 충전기 안의 각 배터리도 포함합니다.
+config.info_progress_bar,색상 진행 막대
 config.info_progress_bar.tip,문자 진행 막대를 색상 블록으로 바꿉니다. 끄면 원래 스타일을 유지합니다.
-config.info_manufacturer_inline,회사명을 오른쪽에 표시
+config.info_manufacturer_inline,회사명을 이름 줄에 표시
 config.info_manufacturer_inline.tip,회사명을 아이템 이름과 같은 줄의 오른쪽으로 옮깁니다.
-config.info_container_units,용기 부피 단위
-config.info_container_units.tip,3 L를 초과하는 액체는 L로 표시합니다. 3 L 이하는 ml를 유지하며 툴팁 텍스트 서식과 독립적입니다.
-config.info_gene_roman,유전자 등급 로마 숫자 표시
-config.info_gene_roman.tip,"씨앗 유전자 표시의 형질 등급을 게임 원래의 로마 숫자(I, II, III…)로 되돌립니다. 끄면 아라비아 숫자로 표시됩니다."
+config.info_container_units,액체 단위 최적화
+config.info_container_units.tip,"3 L를 초과하는 용량은 L로 표시합니다(3 L 이하는 mL). 성분량은 항상 mL로 유효숫자에 맞춰 표시하고, 미량 성분의 비율은 유효숫자 3자리를 유지합니다."
+config.gene_rank_arabic,유전자 등급 아라비아 숫자 표시
+config.gene_rank_arabic.tip,"씨앗 형질 등급을 아라비아 숫자(1, 2, 3…)로 표시합니다. 끄면 게임 원래의 로마 숫자(I, II, III…)로 돌아갑니다."
 list.zone_sep,; 
 module.special_label,특수
 module.learn_chance,매일 밤 {0}% 확률로 학습 알고리즘 부여

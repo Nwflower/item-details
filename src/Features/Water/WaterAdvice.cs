@@ -229,6 +229,8 @@ internal static class WaterAdvice
 
         int purity = SafePurity(item);
         if (purity < 0) return false;
+        // 水不是主要成分（不超过一半）时净化建议没有意义：不模拟、不显示
+        if (purity * 2L <= WaterInfo.PurityFull) return false;
 
         // 命中判断也必须知道净化手段：已安装滤芯立即取指纹，拥有设备走 2 秒扫描报告。
         var owned = PurifySources.Scan();
@@ -742,6 +744,35 @@ internal static class WaterAdvice
         {
             Log.Warn("WaterAdvice.SimulateMachineRemoval", ex);
             return (-1, 0);
+        }
+    }
+
+    /// <summary>
+    /// 在池化探针上对容器跑一次「设备每晚的被动净化」（水培净化基因、养殖缸鱼类吸收），
+    /// 返回被去除的杂质量（parts）与净化前后的纯度。<paramref name="apply"/> 收到的是探针壳，
+    /// 必须直接调用游戏函数；失败返回 (-1, 0, 0)。从不触碰真实容器。
+    /// </summary>
+    internal static (int RemovedParts, int PurityBefore, int PurityAfter) SimulateNightly(
+        GameItem container, Action<GameItem> apply)
+    {
+        _job = null;   // 共用探针壳：进行中的分片任务让路
+        try
+        {
+            int before = SafePurity(container);
+            var probe = GetShell(ProbeShells, container);
+            if (before < 0 || probe == null || !ResetProbe(probe, container)) return (-1, 0, 0);
+
+            string waterPart = Liquid.GetCurrentPartFromId("water");
+            int water0 = GameRead.TagInt(probe, waterPart) ?? 0;
+            apply(probe);
+            int after = SafePurity(probe);
+            int water1 = GameRead.TagInt(probe, waterPart) ?? 0;
+            return after >= 0 ? (Math.Max(0, water1 - water0), before, after) : (-1, 0, 0);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("WaterAdvice.SimulateNightly", ex);
+            return (-1, 0, 0);
         }
     }
 

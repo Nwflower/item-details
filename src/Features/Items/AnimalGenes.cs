@@ -20,7 +20,8 @@ internal static class AnimalGenes
     private static readonly double GradeA = 0.5 - Math.Sqrt(0.30 / 2);
     private static readonly double GradeB = Math.Sqrt(0.40 / 2) - 0.5;
 
-    // 繁殖力的即时状态由原版另外显示。这里额外列出它的遗传值，之后是原版六行的顺序。
+    // 第 0 项繁殖力的即时状态由原版另外显示，这里额外列出它的遗传值，画在表格最后一行；
+    // 其余六项是原版的顺序，转译器按它们匹配原版指令。
     private static readonly (string Key, string Id, string Fallback)[] Traits =
     {
         ("husbandry_tooltip_fertility", HusbandryHelper.ANIMAL_FERTILITY_TAG, "Fertility"),
@@ -128,7 +129,8 @@ internal static class AnimalGenes
                 float expression = GeneticHelper.GetExpressedValue(item, id);
                 if (!float.IsFinite(expression)) return false;
                 bool higher = !HusbandryHelper.StatHigherIsBetter.TryGetValue(id, out bool direction) || direction;
-                rows[i] = (TraitLabel(key, fallback), Number(expression) + (i == 0 ? "%" : ""),
+                // 繁殖力置底：其余六项保持原版顺序在前
+                rows[i == 0 ? Traits.Length - 1 : i - 1] = (TraitLabel(key, fallback), Number(expression) + (i == 0 ? "%" : ""),
                     (Number(a), StatColor(id, a, baseline), Grade(a, baseline, higher)),
                     (Number(b), StatColor(id, b, baseline), Grade(b, baseline, higher)));
             }

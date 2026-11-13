@@ -158,70 +158,73 @@ machine.energy_label,耗能：
 machine.energy_unit,/天
 machine.energy_battery, {0}/{1}kJ（{2}天）
 machine.energy_left, {0}kJ（{1}天）
-config.section.display,显示优化
+config.section.layout,排版
 config.authenticity,真伪鉴定
-config.authenticity.tip,判定真品或赝品，列出瑕疵与赝品原因。
+config.authenticity.tip,直接判定真品还是赝品，并列出瑕疵和判为赝品的原因。
 config.plant_analysis,植物分析
-config.plant_analysis.tip,显示荧光莓品质和未分析的种子性状。「有植物分析仪时开启」只在拥有植物分析仪时显示种子性状，荧光莓品质两档都显示。
+config.plant_analysis.tip,显示荧光莓品质和未分析种子的性状。选「有植物分析仪时开启」时，种子性状要有植物分析仪才显示，荧光莓品质不受影响。
 config.plant_analysis.off,关闭
 config.plant_analysis.analyser,有植物分析仪时开启
 config.plant_analysis.always,总是开启
 config.valuation,估价计算
-config.valuation.tip,显示待鉴定物品的真实价值构成与完美报价区间，并在鉴定服务标题显示标价与最优报价。
-config.cost_performance,性价比
-config.cost_performance.tip,显示每格价值与容器压缩率。
+config.valuation.tip,显示待鉴定物品的真实价值构成和完美报价区间；鉴定服务的标题里也会显示标价和最优报价。
+config.cost_performance,每格价值
+config.cost_performance.tip,显示物品每格的价值，以及容器的压缩率。
 config.container_contents,容器内容物
-config.container_contents.tip,在额外窗口显示未上锁容器的内容物图标。
-config.section.info,信息增强配置
-config.info_enhance,信息增强
-config.info_enhance.tip,开启信息增强，并在透视下方显示配置分组；关闭时保留各子项的选择。
+config.container_contents.tip,悬停未上锁的容器时，在提示框右侧用图标列出里面的物品。
+config.section.info,信息补充
+config.info_enhance,物品信息补充
+config.info_enhance.tip,在物品提示框里补充下面列出的信息。关闭后全部隐藏，下面各项的勾选会保留。
 config.tooltip_formatting,提示框文字优化
-config.tooltip_formatting.tip,优化价格用词、描述折行、卡路里注释和价格块间距。关闭后保持原版文字布局。
+config.tooltip_formatting.tip,让提示框文字更好读：价格名称更明确、长描述自动换行、食物标出卡路里、价格之间留出间距。关闭后恢复原版排版。
 config.type_badge,物品分类标签
-config.type_badge.tip,在物品提示框上方显示物品分类。
+config.type_badge.tip,在物品提示框顶部用小标签显示物品分类。
 config.type_badge_muted,淡化标签颜色
-config.type_badge_muted.tip,非违禁标签改用与提示框一致的深色底和提亮的分类文字色；违禁品保留红色警示文字。
-config.container_name,容器和机器名称标签
-config.container_name.tip,在容器和机器图标底部显示名称。
+config.type_badge_muted.tip,分类标签改用深色底和彩色文字，不那么抢眼；违禁品标签仍是红色警示。
+config.item_name_display,物品名称显示
+config.item_name_display.tip,在物品图标底部一直显示名字。选「显示容器和机器名称」时，所有容器和机器都显示，改过名的显示新名字；选「显示命名过的物品名称」时，只有改过名的物品显示。
+config.item_name_display.off,关闭
+config.item_name_display.containers,显示容器和机器名称
+config.item_name_display.renamed,显示命名过的物品名称
 config.container_name_bg,名称标签底色
-config.container_name_bg.tip,名称标签后黑底的不透明度（0–100%），拉到 0 不加底色。
+config.container_name_bg.tip,名字后面黑色底板的不透明度，0 为不加底板。
 config.slider_percent,{0}%
 config.customer_alert,顾客到店提示
-config.customer_alert.tip,通缉犯或改造体顾客到店时弹出提示，并给出实际赏金、真名，以及改造体的击杀奖励与威胁值。
+config.customer_alert.tip,通缉犯或改造体顾客进店时弹出提示，显示真实赏金和真名；改造体还会显示击杀奖励和威胁值。
 config.customer_history,悬停顾客查看本次对话
-config.customer_history.tip,鼠标停在店内顾客身上时，显示本次接待已经说过的对话。
-config.section.interaction,操作优化
+config.customer_history.tip,鼠标停在店里的顾客身上，可以看到这次接待中说过的话；下一位顾客进店时清空。
+config.section.interaction,操作
 config.double_click_inspect,双击鉴定
-config.double_click_inspect.tip,双击待鉴定物品或需辨别真伪的物品（注射器、香烟、食品券等），无需放大镜即可打开检视面板；面板打开时，双击另一件物品可直接切换。物品上的放大镜提示改为“双击以鉴定”。关闭后恢复原版流程。
+config.double_click_inspect.tip,双击待鉴定物品或需要辨别真伪的物品（注射器、香烟、食品券等），不用放大镜就能打开检视面板；面板开着时双击另一件物品可直接切换。
 config.double_click_scan,双击扫描
-config.double_click_scan.tip,拥有对应设备时，双击物品直接打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。没有设备时保持原版双击。
+config.double_click_scan.tip,拥有对应扫描设备时，双击液体、化学品、种子或上锁补给箱，直接打开扫描结果。本来双击就能打开或使用的物品不受影响。
 config.context_menu_scan,右键菜单添加扫描
-config.context_menu_scan.tip,拥有对应设备时，物品右键菜单里多出「扫描」，点击即打开扫描结果面板：液体与化学品对应水质/化学扫描仪，上锁补给箱对应X射线扫描仪，种子对应植物分析仪。
+config.context_menu_scan.tip,拥有对应扫描设备时，物品右键菜单多出「扫描」：液体和化学品用水质/化学扫描仪，上锁补给箱用X射线扫描仪，种子用植物分析仪。
 config.expand_key,展开键
-config.expand_key.tip,按住此键展开作物成分表里折叠的非活性成分。「物品详情美化」的展开键默认是 Shift，选 Shift 可让两者一致。
+config.expand_key.tip,作物成分表里不起作用的成分默认收起，按住这个键可以展开查看。
 config.expand_key.ctrl,Ctrl
 config.expand_key.shift,Shift
 config.expand_key.alt,Alt
 config.section.reveal,透视
 config.hidden_truth,揭示伪装与真实属性
-config.hidden_truth.tip,显示被伪装特性的真实情况、真实耐久度与金属锭/化学品的真实纯度。会直接暴露假货，大幅降低鉴定难度。
+config.hidden_truth.tip,直接显示被伪装特性的真实情况、真实耐久度，以及金属锭和化学品的真实纯度。假货一眼就能看穿，鉴定难度大幅降低。
 config.liquid_analysis,液体组分分析
-config.liquid_analysis.tip,显示液体的水质纯度与杂质，以及药品和化学品的成分与药效。「有扫描器时开启」只在拥有水质扫描仪或化学扫描仪时显示。
-config.color_liquid_components,不同液体组分以不同颜色显示
-config.color_liquid_components.tip,成分表里的杂质按种类各用一种颜色：化学污染物、有机废物、微生物、矿物质、重金属、物理污染物。关闭时杂质统一为白色。
+config.liquid_analysis.tip,显示水的纯度和杂质，以及药品、化学品的成分和药效。选「有扫描器时开启」时，要有水质扫描仪或化学扫描仪才显示。
+config.color_liquid_components,杂质按种类着色
+config.color_liquid_components.tip,成分表里的杂质按种类分别上色：化学污染物、有机废物、微生物、矿物质、重金属、物理污染物。关闭时都显示为白色。
 config.liquid_analysis.off,关闭
 config.liquid_analysis.scanner,有扫描器时开启
 config.liquid_analysis.always,总是开启
 config.water_advice,净化建议
-config.water_advice.tip,在含水容器上列出各种净化手段（滤水器、机器等）能把纯度提高多少。液体组分分析开或关都会显示；仅当分析设为「有扫描器时开启」时，建议也需要扫描器。默认值跟随液体组分分析。
+config.water_advice.tip,在装水的容器上列出各种净化方式（滤水器、机器等）能把纯度提高多少。液体组分分析选「有扫描器时开启」时，这里同样要有扫描器才显示。
 config.scratcher,刮刮乐预知
-config.scratcher.tip,刮开前就显示刮刮乐彩票能否中奖、奖金多少以及已刮进度。按游戏同一套规则只读推算，不会替你刮开。
+config.scratcher.tip,刮开之前就显示这张刮刮乐能不能中奖、奖金多少、已经刮了多少。只提前告诉你结果，不会替你刮。
 config.sealed_box,带锁容器透视
-config.sealed_box.tip,带锁容器（保险箱、枪柜等）未开锁时也列出箱内物品与总价值。相当于跳过开锁环节，因此默认关闭。
+config.sealed_box.tip,保险箱、枪柜等带锁容器不用开锁就能看到里面的物品和总价值，相当于跳过开锁环节。
 config.result_prefill,鉴定结果预填
-config.result_prefill.tip,打开检视面板时自动勾选赝品的实际问题，并按下面的选项把鉴定报价填为真实估价或最优报价。只填写控件，不会提交或确认。默认关闭。
+config.result_prefill.tip,打开检视面板时，自动勾好赝品的实际问题，并按「预填价格」填好鉴定报价。只帮你填写，不会提交或确认。
 config.result_prefill_source,预填价格
-config.result_prefill_source.tip,真实估价＝游戏算出的真实价值；最优报价＝完美区间上沿，也就是 tooltip 里显示的那个上限。
+config.result_prefill_source.tip,「真实估价」填物品的真实价值；「最优报价」填完美报价区间的上限，也就是提示框里显示的最高价。
 config.result_prefill_source.true,真实估价
 config.result_prefill_source.best,最优报价
 machine.eta,预计还需 {0} 天完成
@@ -244,6 +247,8 @@ purifier.estimate,预计今晚净化：{0}毫升
 purifier.tier,（{0} → {1}）
 purifier.label,净化
 purifier.rate,{0}mL/今晚
+hydro.purify_rank,净化基因 {0} 级
+ras.purify_fish,{0} 条鱼吸收
 fridge.no_effect,，{0} 件无效果
 fridge.label,冰箱
 wine.rack,{0} 瓶陈化中，每天陈化 {1} 天
@@ -309,27 +314,27 @@ meat.prion.present,携带
 meat.prion.unmarked,未标记
 berry.wine_value,酿酒值：{0}
 config.info_price_modifiers,价格修正
-config.info_price_modifiers.tip,显示物品标签、状态和店铺事件带来的价格修正值。
+config.info_price_modifiers.tip,显示物品标签、物品状况和店铺事件让价格变动了多少。
 config.info_black_market,黑市溢价
-config.info_black_market.tip,显示违禁品带来的黑市溢价。
+config.info_black_market.tip,显示违禁品在黑市上的溢价。
 config.info_lottery,彩票
-config.info_lottery.tip,直观显示彩票开奖号码、命中数和奖金，不影响开奖结果。
+config.info_lottery.tip,显示彩票的开奖号码、命中几个号码和奖金。只是显示，不影响开奖结果。
 config.info_brewing,酿酒
-config.info_brewing.tip,显示原料酿酒值、酵母作用、果酿评分与成分，以及发酵和陈化等信息。
-config.info_meat,肉
+config.info_brewing.tip,显示原料的酿酒值、酵母的作用、果酿评分和成分，以及发酵、陈化等信息。
+config.info_meat,肉类
 config.info_meat.tip,显示肉品来源物种与朊病毒标记。
 config.info_machines,机器
-config.info_machines.tip,显示机器模组实际效果、自学习进度、剩余天数、用水、冷藏、陈化、净化收益与熔炉预期产物等提示。
+config.info_machines.tip,显示机器模组的实际效果、自学习进度、剩余天数、用水、冷藏、陈化、净化收益和熔炉预计产物。
 config.info_batteries,电池
-config.info_batteries.tip,显示电量和可用天数，包括充电器内逐个电池的电量；独立于机器和容器内容物开关。
-config.info_progress_bar,进度条
-config.info_progress_bar.tip,将文字进度条改为直观的彩色块样式；关闭后恢复原版样式。
-config.info_manufacturer_inline,公司名称后置
-config.info_manufacturer_inline.tip,将生产公司名并到物品名称行右侧。
-config.info_container_units,容器单位优化
-config.info_container_units.tip,大于 3 L 的液体改用 L 显示，3 L 及以下仍用 ml；独立于提示框文字优化。
-config.info_gene_roman,基因等级用罗马数字
-config.info_gene_roman.tip,种子基因读数里的性状等级改回游戏原本的罗马数字（I、II、III……）；关闭时用阿拉伯数字。
+config.info_batteries.tip,显示电量和可用天数，包括充电器内逐个电池的电量。
+config.info_progress_bar,彩色进度条
+config.info_progress_bar.tip,把文字进度条换成彩色方块。关闭后恢复原版样式。
+config.info_manufacturer_inline,公司名并入名称行
+config.info_manufacturer_inline.tip,把生产公司名移到物品名称那一行的右侧。
+config.info_container_units,液体单位优化
+config.info_container_units.tip,容量超过 3 L 时用 L 显示（3 L 及以下用 mL）。成分用量始终用 mL 并按有效数字取位，微量成分的百分比保留 3 位有效数字。
+config.gene_rank_arabic,基因等级使用阿拉伯数字
+config.gene_rank_arabic.tip,种子性状等级用阿拉伯数字（1、2、3……）显示；关闭后恢复游戏原本的罗马数字（I、II、III……）。
 list.zone_sep,；
 module.special_label,特殊
 module.learn_chance,每晚{0}%概率赋予模组自学习

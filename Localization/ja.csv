@@ -158,7 +158,7 @@ machine.energy_label,消費電力：
 machine.energy_unit,/日
 machine.energy_battery, {0}/{1}kJ、{2}日分
 machine.energy_left, {0}kJ、{1}日分
-config.section.display,表示
+config.section.layout,レイアウト
 config.authenticity,真偽鑑定
 config.authenticity.tip,本物か偽物かを判定し、欠陥と偽物の理由を表示します。
 config.plant_analysis,植物分析
@@ -171,18 +171,21 @@ config.valuation.tip,鑑定アイテムの真の価値の内訳と完璧な価�
 config.cost_performance,マス単価
 config.cost_performance.tip,1マスあたりの価値とコンテナの圧縮率を表示します。
 config.container_contents,コンテナ内容
-config.container_contents.tip,ロックされていないコンテナの中身を別ウィンドウのアイコンで表示します。
-config.section.info,情報強化の設定
+config.container_contents.tip,ロックされていないコンテナの中身を、ツールチップの横にアイコンで表示します。
+config.section.info,追加情報
 config.info_enhance,追加アイテム情報
-config.info_enhance.tip,追加情報を有効にし、透視の下に設定を表示します。オフにしても個別の選択は保持されます。
+config.info_enhance.tip,下に並ぶアイテム情報をツールチップに追加します。オフにするとすべて非表示になり、個別の選択は保持されます。
 config.tooltip_formatting,ツールチップ文章の整形
 config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで原版のレイアウトを維持します。
 config.type_badge,アイテム分類バッジ
-config.type_badge.tip,"ツールチップ上部にアイテム分類を表示します。"
+config.type_badge.tip,ツールチップ上部にアイテム分類を表示します。
 config.type_badge_muted,バッジの色を控えめに
 config.type_badge_muted.tip,違法・制限品以外はツールチップの暗い背景と明るくした分類色を使います。違法・制限品は赤い警告文字のままです。
-config.container_name,コンテナ/機械の名前ラベル
-config.container_name.tip,コンテナと機械のアイコン下部に名前を表示します。
+config.item_name_display,アイテム名の表示
+config.item_name_display.tip,アイテムアイコンの下部に名前を常時表示します。「コンテナと機械」はすべてのコンテナと機械に名前を付け、名前を変更したものは新しい名前を表示します。「名前を変更したアイテム」は名前を変更したアイテムだけに表示します。
+config.item_name_display.off,オフ
+config.item_name_display.containers,コンテナと機械
+config.item_name_display.renamed,名前を変更したアイテム
 config.container_name_bg,名前ラベルの背景
 config.container_name_bg.tip,名前ラベルの後ろの黒い背景の不透明度（0–100%）。0 で背景なし。
 config.slider_percent,{0}%
@@ -192,13 +195,13 @@ config.customer_history,顧客にカーソルで今回の会話
 config.customer_history.tip,店内の顧客にマウスを合わせると、今回の接客で交わした会話を表示します。
 config.section.interaction,操作
 config.double_click_inspect,ダブルクリックで鑑定
-config.double_click_inspect.tip,鑑定品や真偽確認が必要な品（注射器・タバコ・フードスタンプなど）をダブルクリックすると、虫眼鏡なしで検査パネルを開きます。パネル表示中に別の品をダブルクリックすると切り替わります。虫眼鏡のヒントは「ダブルクリックで鑑定」に変わります。オフにすると元の操作に戻ります。
+config.double_click_inspect.tip,鑑定品や真偽確認が必要な品（注射器・タバコ・フードスタンプなど）をダブルクリックすると、虫眼鏡なしで検査パネルを開きます。パネル表示中に別の品をダブルクリックすると切り替わります。
 config.double_click_scan,ダブルクリックでスキャン
-config.double_click_scan.tip,対応する装置を持っていると、アイテムをダブルクリックしてスキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。装置がない場合は元のダブルクリック動作になります。
+config.double_click_scan.tip,対応する装置を持っていると、アイテムをダブルクリックしてスキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。もともとダブルクリックで開く・使えるアイテムは元の動作のままで、装置がない場合も元のダブルクリック動作になります。
 config.context_menu_scan,右クリックメニューにスキャンを追加
 config.context_menu_scan.tip,対応する装置を持っていると、アイテムの右クリックメニューに「スキャン」が追加され、スキャン結果パネルを開けます。液体と化学品は水質／ケミカルスキャナー、施錠された補給箱はX線スキャナー、種子は植物分析器に対応します。
 config.expand_key,展開キー
-config.expand_key.tip,このキーを押している間、作物の成分表で折りたたまれた非活性成分を展開します。Better Item Tooltips の展開キーは既定で Shift なので、Shift を選ぶと両方を同じキーにできます。
+config.expand_key.tip,このキーを押している間、作物の成分表で折りたたまれた非活性成分を展開します。
 config.expand_key.ctrl,Ctrl
 config.expand_key.shift,Shift
 config.expand_key.alt,Alt
@@ -207,19 +210,19 @@ config.hidden_truth,偽装と真の値を暴く
 config.hidden_truth.tip,偽装された特性の正体、真の耐久性、インゴット/化学製品の真の純度を表示します。偽物がすぐ分かり、鑑定がかなり易しくなります。
 config.liquid_analysis,液体成分分析
 config.liquid_analysis.tip,水の純度と不純物、薬品・化学品の成分と効果を表示します。「スキャナー所持時」では、水質スキャナーかケミカルスキャナーを持っている間だけ表示します。
-config.color_liquid_components,液体成分を種類ごとに色分け
+config.color_liquid_components,不純物を種類ごとに色分け
 config.color_liquid_components.tip,成分表の不純物を種類ごとに色分けします（化学汚染物質・有機廃棄物・微生物・ミネラル・重金属・物理汚染物質）。オフでは全て白です。
 config.liquid_analysis.off,オフ
 config.liquid_analysis.scanner,スキャナー所持時
 config.liquid_analysis.always,常に表示
 config.water_advice,浄化アドバイス
-config.water_advice.tip,水の容器で、各浄化手段(フィルター、機械など)が純度をどれだけ上げられるかを表示します。液体成分分析のオン/オフに関係なく表示され、分析が「スキャナー所持時」のときだけスキャナーも必要です。初期値は液体成分分析に合わせます。
+config.water_advice.tip,水の入った容器で、各浄化方法（フィルター、機械など）で純度がどれだけ上がるかを一覧表示します。「液体成分分析」が「スキャナー所持時」のときは、こちらもスキャナーが必要です。
 config.scratcher,スクラッチカードの事前確認
 config.scratcher.tip,削る前に、スクラッチカードの当たり外れ・賞金・削った進み具合を表示します。ゲームと同じルールで読み取るだけで、代わりに削ることはありません。
 config.sealed_box,施錠コンテナ透視
-config.sealed_box.tip,施錠されたコンテナ（金庫、銃保管庫など）の中身と合計価値を、開錠前に一覧表示します。開錠の手間を飛ばすことになるため、既定ではオフです。
+config.sealed_box.tip,施錠されたコンテナ（金庫、銃保管庫など）の中身と合計価値を、開錠前に一覧表示します。開錠の手間を飛ばすことになります。
 config.result_prefill,鑑定結果の事前入力
-config.result_prefill.tip,検査パネルを開いたとき、実際の偽造不具合にチェックを入れ、査定価格を下の選択に従って実価値か最高提示額で埋めます。入力のみで、送信や確定はしません。既定はオフ。
+config.result_prefill.tip,検査パネルを開いたとき、実際の偽造不具合にチェックを入れ、査定価格を下の選択に従って実価値か最高提示額で埋めます。入力のみで、送信や確定はしません。
 config.result_prefill_source,埋める価格
 config.result_prefill_source.tip,実価値＝ゲームが算出する真の価値、最高提示額＝ツールチップに出る完璧範囲の上限。
 config.result_prefill_source.true,実価値
@@ -244,6 +247,8 @@ purifier.estimate,今夜の浄化予定量：{0}ml
 purifier.tier,（{0} → {1}）
 purifier.label,浄化
 purifier.rate,{0}mL/今夜
+hydro.purify_rank,浄化遺伝子 Lv.{0}
+ras.purify_fish,魚{0}匹が吸収
 fridge.no_effect,、効果なし {0} 個
 fridge.label,冷蔵庫
 wine.rack,{0} 本熟成中、1日ごとに {1} 日分熟成
@@ -321,15 +326,15 @@ config.info_meat.tip,肉の由来となる種とプリオンの印を表示し�
 config.info_machines,機械
 config.info_machines.tip,モジュールの効果、学習進度、残り日数、水の消費、冷却、熟成、浄化量、炉の予想生成物を表示します。
 config.info_batteries,電池
-config.info_batteries.tip,充電量と残り日数を表示します。充電器内の各電池も対象です。機械や容器内容の設定とは独立しています。
-config.info_progress_bar,進捗バー
+config.info_batteries.tip,充電量と残り日数を表示します。充電器内の各電池も対象です。
+config.info_progress_bar,カラー進捗バー
 config.info_progress_bar.tip,文字の進捗バーを色付きブロックに変更します。オフで元の表示に戻ります。
-config.info_manufacturer_inline,会社名を右に表示
+config.info_manufacturer_inline,会社名を名前の行に表示
 config.info_manufacturer_inline.tip,会社名をアイテム名と同じ行の右側に表示します。
-config.info_container_units,容器の体積単位
-config.info_container_units.tip,3 L を超える液量を L で表示します。3 L 以下は ml のままです。ツールチップの文字設定とは独立しています。
-config.info_gene_roman,遺伝子レベルのローマ数字表記
-config.info_gene_roman.tip,種子の遺伝子表示で、形質のレベルをゲーム本来のローマ数字（I、II、III…）に戻します。オフのときはアラビア数字です。
+config.info_container_units,液体単位の最適化
+config.info_container_units.tip,3 L を超える容量は L で表示します（3 L 以下は mL）。成分の量は常に mL で有効数字に合わせて表示し、微量成分の割合は有効数字 3 桁を保ちます。
+config.gene_rank_arabic,遺伝子レベルをアラビア数字で表示
+config.gene_rank_arabic.tip,種子の形質レベルをアラビア数字（1、2、3…）で表示します。オフにするとゲーム本来のローマ数字（I、II、III…）に戻ります。
 list.zone_sep,／
 module.special_label,特殊
 module.learn_chance,毎晩{0}%の確率で学習アルゴリズムを付与

@@ -9,7 +9,8 @@ namespace ItemDetails;
 /// <summary>
 /// 物品图标上常驻显示名字（不必悬停）。
 ///
-/// 显示范围由设置决定：无（默认）/ 容器名（容器与机器）/ 仅改名物品（用标签打印机改过名的）。
+/// 显示范围由设置「物品名称显示」决定：关闭（默认）/ 容器和机器（改过名的显示新名字）/
+/// 只显示改过名的物品（任何物品，未改名的容器也不显示）。垃圾桶与治安部档案两档都排除。
 ///
 /// 实现要点：
 ///   - 挂 <c>GameItemElement.ValidateSelect(bool)</c> 的后缀——游戏自己在里面刷新堆叠数字、
@@ -168,14 +169,15 @@ internal static class ItemNameLabel
     {
         if (element == null) return;
 
-        if (!ModSettings.ContainerNames)
+        var mode = ModSettings.ItemNames;
+        if (mode == ModSettings.ItemNameMode.Off)
         {
             Hide(element);
             return;
         }
 
         string name = "";
-        bool want = ShouldShowContainer(element);
+        bool want = mode == ModSettings.ItemNameMode.Renamed ? HasCustomName(element) : ShouldShowContainer(element);
         if (want && IsHiddenItem(element)) want = false;   // 垃圾桶 / 档案按稳定 ID 排除
         if (want)
         {
@@ -240,6 +242,20 @@ internal static class ItemNameLabel
         }
         catch { }
         return false;
+    }
+
+    /// <summary>
+    /// 改过名的物品：游戏把自定义名存在 <c>CUSTOM_NAME_TAG</c>（<c>GeneralHelper.HasCustomName</c>），
+    /// 原版只在 tooltip 标题里显示它，图标上不显示。判定失败按没改过名处理。
+    /// </summary>
+    private static bool HasCustomName(GameItemElement item)
+    {
+        try { return GeneralHelper.HasCustomName(item); }
+        catch (Exception ex)
+        {
+            Log.Warn("NameLabel.HasCustomName", ex);
+            return false;
+        }
     }
 
     /// <summary>容器（有内嵌库存）或机器；判定失败一律不显示，不猜。</summary>

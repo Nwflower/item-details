@@ -39,10 +39,10 @@ EXCLUDED_SOURCE_DIRS = {"out", "tools", "tests", "bin", "obj", ".git"}
 # 间接引用的键：常量传给 RefreshSections 的循环变量，字面量不出现在 Loc.T(...) 里。
 # 少了它们，设置面板的分组标题在非英语下仍是英文，而校验器还会说「齐全」。
 INDIRECT_KEYS = {
-    "config.section.display": "Display",
+    "config.section.layout": "Layout",
     "config.section.reveal": "Reveal",
-    "config.section.info": "Item Info Settings",
-    "config.section.interaction": "Interaction & Visuals",
+    "config.section.info": "Extra Info",
+    "config.section.interaction": "Controls",
 }
 
 

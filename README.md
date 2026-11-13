@@ -39,7 +39,7 @@
 ## 物品与机器
 
 **详细显示**
-分类小标签、标签与瑕疵对价格的影响、性价比、容器内容物、黑市溢价、电池天数、彩票结果、果酿分数。
+分类小标签、标签与瑕疵对价格的影响、每格价值、容器内容物、黑市溢价、电池天数、彩票结果、果酿分数。
 
 **肉品来源**
 来源物种与朊病毒标记。「未标记」不等于安全。
@@ -78,7 +78,7 @@
 | 顾客到店提示 | 改造体与通缉犯 | 开 |
 | 揭示伪装与真实属性 | 被伪装的特性、真实耐久与纯度 | 开 |
 | 液体组分分析 | 水质、杂质、药物与试剂成分 | 开 |
-| 不同液体组分以不同颜色显示 | 杂质按种类各用一种颜色，关闭时统一白色 | 关 |
+| 杂质按种类着色 | 杂质按种类各用一种颜色，关闭时统一白色 | 关 |
 | 刮刮乐预知 | 刮开前知道奖金 | 关 |
 | 带锁容器透视 | 不开锁也能看到内容物与估价 | 关 |
 | 鉴定结果预填 | 预先勾好赝品问题、填好报价，不替你提交 | 关 |
@@ -87,7 +87,11 @@
 
 在游戏「模组」菜单里打开本模组设置，点「应用」生效。
 
-「信息增强」是总开关，关闭时它控制的选项一并收起，已选的值保留。细项：价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位、基因等级用罗马数字、公司名称后置。除「基因等级用罗马数字」外默认全开，各自独立。
+设置分四组：信息补充、透视、排版、操作。勾选即使用本模组的改动，关闭即回到原版。
+
+「物品信息补充」是信息补充组的总开关，关闭时本组的物品信息一并收起，已选的值保留；悬停顾客查看对话不受它控制。细项：每格价值、容器内容物、价格修正、黑市溢价、彩票、酿酒、肉类、机器、电池，默认全开，各自独立。
+
+排版组只改原版内容的呈现方式，各项独立：提示框文字优化、公司名并入名称行、彩色进度条、液体容量用升显示、基因等级使用阿拉伯数字、物品分类标签、物品名称显示（图标底部常驻名称，可选容器和机器，或只显示改过名的物品）。
 
 从属选项只在上级开启时出现。
 
@@ -175,7 +179,7 @@ These make the game noticeably easier. Authenticity Check, Plant Analysis, Appra
 
 ### Settings
 
-Open the mod's settings from the Mods menu and click Apply. Extra Item Info is the master switch; off, the options it controls fold away and keep their values. Its options are independent and on by default except the Roman numeral gene ranks. Sub-options appear only while their parent is on. Expand Key (Ctrl, Shift or Alt) unfolds crop composition tables; Better Item Tooltips uses Shift by default.
+Open the mod's settings from the Mods menu and click Apply. Settings come in four groups: Extra Info, Reveal, Layout and Controls; a ticked option uses the mod's change, unticked restores vanilla. Extra Item Info is the master switch of the Extra Info group; off, its item info options fold away and keep their values. Customer dialogue on hover is not under it. Layout options only change how vanilla text is presented and are each independent. Sub-options appear only while their parent is on. Expand Key (Ctrl, Shift or Alt) unfolds crop composition tables; Better Item Tooltips uses Shift by default.
 
 ### Principles
 

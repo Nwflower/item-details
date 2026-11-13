@@ -32,7 +32,10 @@ internal static class WaterSections
             // 净化建议开着时先量出它的右端，成分表的百分比列据此对齐（建议结果按 tooltip 缓存，不会算两遍）
             float adviceEdge = 0f;
             if (ModSettings.WaterAdvice && LiquidQueries.GetAdvice(item) is { Count: > 0 } advice)
-                adviceEdge = WaterColumns.AdviceRightEdge(DedupeByGain(advice));
+                {
+                    var deduped = DedupeByGain(advice);
+                    adviceEdge = WaterColumns.AdviceRightEdge(deduped, ResultTexts(item, deduped));
+                }
             var table = WaterColumns.Build(r, visible: visible, adviceRightEdge: adviceEdge);
             PublishWaterRows(builder, visible);
             // 折行预算按本表实际最宽的一行算：原版 40（中文折算 26）通常够用，
@@ -137,9 +140,28 @@ internal static class WaterSections
         // 建议本身是玩家操作水时的依据，始终画出来，不再要求按展开键。
         // 一种手段一行，增益右对齐到成分表的百分比列
         // 折行预算按最长的一行留：名称里常有空格，预算不够时原版会在名称中间折行，右对齐随之错位
-        foreach (var m in shown)
-            builder.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(m.Name + "　+00.00%")));
-        return LineOutput.AppendLines(builder, WaterColumns.AdviceLines(shown, RenderHandler.ColorPalette.LightTurquoise));
+        var results = ResultTexts(item, shown);
+        for (int i = 0; i < shown.Count; i++)
+            builder.RequireWidth(ProgressBarStyle.WidthForLine(ProgressBarStyle.VisibleLength(
+                shown[i].Name + (results[i].Length > 0 ? "　" + results[i] : "") + "　+00.00%")));
+        return LineOutput.AppendLines(builder, WaterColumns.AdviceLines(shown, RenderHandler.ColorPalette.LightTurquoise, results));
+    }
+
+    /// <summary>净化后的纯度与档位，如「99.29%(优质水)」；纯度读不到或档位名取不到时只写百分比，读不到纯度则为空。</summary>
+    private static string[] ResultTexts(GameItem item, IReadOnlyList<(string Name, double GainPercentagePoints)> methods)
+    {
+        var texts = new string[methods.Count];
+        int purity = WaterAdvice.SafePurity(item);
+        if (purity < 0) return texts;
+        for (int i = 0; i < texts.Length; i++)
+        {
+            int after = Math.Min(WaterInfo.PurityFull, purity + (int)Math.Round(methods[i].GainPercentagePoints * 100.0));
+            string pct = (after / (WaterInfo.PurityFull / 100.0)).ToString("0.00", Loc.Culture) + "%";
+            string tier = "";
+            try { tier = WaterFeatureHelper.GetWaterDisplayName(after) ?? ""; } catch { }
+            texts[i] = tier.Length > 0 ? pct + "(" + tier + ")" : pct;
+        }
+        return texts;
     }
 
     /// <summary>按提升幅度去重：收益相同的手段只留第一个（顺序即扫描顺序）。</summary>
