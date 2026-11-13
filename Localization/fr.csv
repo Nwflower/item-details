@@ -185,6 +185,7 @@ config.container_name,Noms des conteneurs et machines
 config.container_name.tip,Affiche le nom en bas de l'icône des conteneurs et des machines.
 config.container_name_bg,Fond des noms
 config.container_name_bg.tip,"Opacité du fond noir derrière le nom (0–100 %) ; à 0, aucun fond."
+config.slider_percent,{0} %
 config.customer_alert,Alerte à l'arrivée d'un client
 config.customer_alert.tip,Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom, ainsi que la prime d'élimination et la menace des clients augmentés.
 config.customer_history,Historique au survol du client

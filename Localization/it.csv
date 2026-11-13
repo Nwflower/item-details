@@ -185,6 +185,7 @@ config.container_name,Nomi di contenitori e macchine
 config.container_name.tip,Mostra il nome in basso sull'icona di contenitori e macchine.
 config.container_name_bg,Sfondo dei nomi
 config.container_name_bg.tip,Opacità dello sfondo nero dietro il nome (0–100%); a 0 nessuno sfondo.
+config.slider_percent,{0}%
 config.customer_alert,Avviso di arrivo clienti
 config.customer_alert.tip,Avvisa quando arriva un cliente ricercato o potenziato, con la taglia effettiva, il vero nome, e la ricompensa per l'uccisione e la minaccia dei potenziati.
 config.customer_history,Cronologia al passaggio del mouse

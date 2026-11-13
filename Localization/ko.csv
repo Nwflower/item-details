@@ -185,6 +185,7 @@ config.container_name,컨테이너/기계 이름표
 config.container_name.tip,컨테이너와 기계 아이콘 아래쪽에 이름을 표시합니다.
 config.container_name_bg,이름표 배경
 config.container_name_bg.tip,이름표 뒤 검정 배경의 불투명도(0–100%)입니다. 0이면 배경이 없습니다.
+config.slider_percent,{0}%
 config.customer_alert,손님 방문 알림
 config.customer_alert.tip,수배범이나 개조 고객이 방문하면 알리고, 실제 현상금, 본명, 처치 보상, 개조 위협을 표시합니다.
 config.customer_history,손님에 커서를 올려 이번 대화 보기

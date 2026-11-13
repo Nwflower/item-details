@@ -300,6 +300,11 @@ internal static partial class SelfTest
             master.SetBool(false, notify: true);
             bool hidden = !header.activeSelf;
             foreach (string key in keys) hidden &= !window.Get(key).root.transform.parent.gameObject.activeSelf;
+            // 显示优化组里受总开关控制的条目也一起隐藏，组内其余条目（顾客对话历史、总开关本身）保留。
+            foreach (string key in new[] { "show_cost_performance", "show_container_contents", "tooltip_text_formatting",
+                         "show_type_badge", "mute_type_badge_colors", "show_container_name_display", "container_name_bg_opacity" })
+                hidden &= !window.Get(key).root.transform.parent.gameObject.activeSelf;
+            hidden &= master.root.transform.parent.gameObject.activeSelf;
             window.Get("info_meat").SetBool(false);
             master.SetBool(true, notify: true);
             bool preserved = header.activeSelf && !window.Get("info_meat").GetBool();

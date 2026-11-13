@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 
 namespace ItemDetails;
 
 /// <summary>
 /// 设置面板每次打开前，把分组标题和下拉框选项换成当前语言；本模组配置写盘前再把选项换回固定文字。
+/// 面板打开后按依赖表切换条目显隐，并给底色不透明度滑条补一个数值（<see cref="ConfigSliderValue"/>）。
 ///
 /// 为什么需要这一步：ModConfig.Define 的 section 是**静态字符串**，直接存进
 /// ConfigEntry.Section，ModConfigWindow.Open 里原样交给 AddHeader(text)（不做本地化）。
@@ -74,48 +76,146 @@ internal static class ConfigSectionRefresh
 
     private static void SavePrefix(ModConfig __instance) => ModSettings.RestoreChoices(__instance);
 
+    private const string WindowId = "mod_config:item_details";
+    private const string Master = "show_info_enhance";
+
+    private static readonly Func<CustomUIElement, bool> Checked = e => e.GetBool();
+    /// <summary>下拉框序号 0 是「关闭」（见 <see cref="ModSettings.LiquidMode"/>）；面板按序号读写，与选项语言无关。</summary>
+    private static readonly Func<CustomUIElement, bool> NotOff = e => e.GetIndex() != (int)ModSettings.LiquidMode.Off;
+
+    /// <summary>
+    /// 条目显隐依赖：子项键 → 直接父控件键 → 父控件取什么值时子项显示。父项自己被隐藏时子项也隐藏，
+    /// 所以链式依赖（总开关 → 分类标签 → 淡化配色）只写直接父项。
+    /// 总开关这一组以 ModSettings 里实际取值受 InfoEnhance 控制的访问器为准；淡化配色与底色不透明度
+    /// 经由各自的上级开关受控。<c>water_advice</c> 有意独立，不在表里。
+    /// </summary>
+    private static readonly (string Child, string Parent, Func<CustomUIElement, bool> Shows)[] Dependencies =
+    {
+        ("show_cost_performance", Master, Checked),
+        ("show_container_contents", Master, Checked),
+        ("tooltip_text_formatting", Master, Checked),
+        ("show_type_badge", Master, Checked),
+        ("mute_type_badge_colors", "show_type_badge", Checked),
+        ("show_container_name_display", Master, Checked),
+        ("container_name_bg_opacity", "show_container_name_display", Checked),
+        ("color_liquid_components", "liquid_analysis", NotOff),
+        ("result_prefill_price", "show_result_prefill", Checked),
+        ("info_price_modifiers", Master, Checked),
+        ("info_black_market", Master, Checked),
+        ("info_lottery", Master, Checked),
+        ("info_brewing", Master, Checked),
+        ("info_meat", Master, Checked),
+        ("info_machines", Master, Checked),
+        ("info_batteries", Master, Checked),
+        ("info_progress_bar", Master, Checked),
+        ("info_container_units", Master, Checked),
+        ("info_gene_roman", Master, Checked),
+        ("info_manufacturer_inline", Master, Checked),
+    };
+
     private static void OpenPostfix(CustomUIWindow __result)
     {
-        if (__result == null || __result.id != "mod_config:item_details") return;
+        if (__result == null || __result.id != WindowId) return;
         try
         {
             // 只切换显示，不提交设置；功能值仍由游戏的「应用」按钮统一保存。
-            __result.Get("show_info_enhance")?.OnToggle(_ => RefreshInfoVisibility(__result));
-            RefreshInfoVisibility(__result);
+            var parents = new HashSet<string>();
+            foreach (var (_, parent, _) in Dependencies)
+            {
+                if (!parents.Add(parent)) continue;
+                var control = __result.Get(parent);
+                if (control?.toggle != null) control.OnToggle(_ => RefreshVisibility(__result));
+                else if (control?.dropdown != null) control.OnDropdown(_ => RefreshVisibility(__result));
+            }
+            RefreshVisibility(__result);
+            ConfigSliderValue.Attach(__result);
         }
         catch (Exception ex) { Log.Warn("ConfigSections.Visibility", ex); }
     }
 
     private static void ResetPostfix(CustomUIWindow __0)
     {
-        try { RefreshInfoVisibility(__0); }
+        if (__0 == null || __0.id != WindowId) return;
+        try
+        {
+            RefreshVisibility(__0);
+            ConfigSliderValue.Refresh();
+        }
         catch (Exception ex) { Log.Warn("ConfigSections.Visibility", ex); }
     }
 
     /// <summary>
-    /// 0.46D ModConfigWindow.Open 为每组依次生成标题行、分隔线、条目行与空隙。
-    /// 一起隐藏这些完整行，避免只隐藏控件留下大片空白；不删除控件或修改配置条目，
-    /// 因而关闭再开启总开关、应用和重置都能保留游戏原有语义。
+    /// 0.46D ModConfigWindow.Open 为每组依次生成标题行、分隔线、条目行与空隙，都是滚动内容的直接子物体。
+    /// 按 <see cref="Dependencies"/> 逐行显隐；一组条目全部隐藏时，标题行、分隔线与空隙一起隐藏，
+    /// 不留空白。不删除控件、不改配置条目，所以关闭再开启、应用和重置都保留游戏原有语义。
+    /// 某一组的结构不是预期样子时整组不动并记一条日志。
     /// </summary>
-    internal static void RefreshInfoVisibility(CustomUIWindow window)
+    internal static void RefreshVisibility(CustomUIWindow window)
     {
-        if (window == null || !window.IsAlive || window.id != "mod_config:item_details") return;
+        if (window == null || !window.IsAlive || window.id != WindowId) return;
         var config = ModConfig.Find("item_details");
-        var first = config?.Get("info_price_modifiers");
-        if (first == null) return;
-        var header = window.Get("section_" + first.Section)?.root;
-        var last = window.Get("info_manufacturer_inline")?.root;
-        var master = window.Get("show_info_enhance");
-        if (header == null || last == null || master == null) return;
-        var headerRow = header.transform.parent;
-        var lastRow = last.transform.parent;
-        if (headerRow == null || lastRow == null || headerRow.parent != lastRow.parent) return;
-        var parent = headerRow.parent;
-        if (parent == null) return;
-        int start = headerRow.GetSiblingIndex(), end = lastRow.GetSiblingIndex();
-        if (end < start) return;
-        if (end + 1 < parent.childCount && parent.GetChild(end + 1).name == "space") end++;
-        bool visible = master.GetBool();
-        for (int i = start; i <= end; i++) parent.GetChild(i).gameObject.SetActive(visible);
+        if (config == null) return;
+
+        var sections = new List<string>();
+        foreach (var entry in config.Entries)
+            if (!sections.Contains(entry.Section)) sections.Add(entry.Section);
+
+        foreach (string section in sections)
+        {
+            var header = window.Get("section_" + section);
+            var headerRow = header?.root != null ? header.root.transform.parent : null;
+            var content = headerRow != null ? headerRow.parent : null;
+            if (content == null)
+            {
+                Log.Warn("ConfigSections.Layout", $"分组 {section} 的标题行不是预期结构，保持原样");
+                continue;
+            }
+
+            // 先核对：每个条目都是同一滚动内容下的一整行，记下最后一行的位置找空隙。
+            int last = -1;
+            bool expected = true;
+            foreach (var entry in config.Entries)
+            {
+                if (entry.Section != section) continue;
+                var control = window.Get(entry.Key);
+                var row = control?.root != null ? control.root.transform.parent : null;
+                if (row == null || row.parent != content) { expected = false; break; }
+                last = Math.Max(last, row.GetSiblingIndex());
+            }
+            if (!expected || last < 0)
+            {
+                Log.Warn("ConfigSections.Layout", $"分组 {section} 的条目行不是预期结构，保持原样");
+                continue;
+            }
+
+            bool any = false;
+            foreach (var entry in config.Entries)
+            {
+                if (entry.Section != section) continue;
+                bool shown = Shown(window, entry.Key, 0);
+                window.Get(entry.Key)!.root.transform.parent!.gameObject.SetActive(shown);
+                any |= shown;
+            }
+
+            headerRow!.gameObject.SetActive(any);
+            int next = headerRow.GetSiblingIndex() + 1;
+            if (next < content.childCount && content.GetChild(next).name.StartsWith("separator", StringComparison.Ordinal))
+                content.GetChild(next).gameObject.SetActive(any);
+            if (last + 1 < content.childCount && content.GetChild(last + 1).name == "space")
+                content.GetChild(last + 1).gameObject.SetActive(any);
+        }
+    }
+
+    /// <summary>沿依赖链判定条目是否显示；父控件不在面板上时按显示处理（深度上限防止表写成环）。</summary>
+    private static bool Shown(CustomUIWindow window, string key, int depth)
+    {
+        foreach (var (child, parent, shows) in Dependencies)
+        {
+            if (child != key) continue;
+            var control = window.Get(parent);
+            if (control == null || depth > Dependencies.Length) return true;
+            return shows(control) && Shown(window, parent, depth + 1);
+        }
+        return true;
     }
 }

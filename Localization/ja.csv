@@ -185,6 +185,7 @@ config.container_name,コンテナ/機械の名前ラベル
 config.container_name.tip,コンテナと機械のアイコン下部に名前を表示します。
 config.container_name_bg,名前ラベルの背景
 config.container_name_bg.tip,名前ラベルの後ろの黒い背景の不透明度（0–100%）。0 で背景なし。
+config.slider_percent,{0}%
 config.customer_alert,来客アラート
 config.customer_alert.tip,指名手配犯やAI人間の客が来店すると通知し、実際の懸賞金・本名・撃破報酬・AI人間の脅威を表示します。
 config.customer_history,顧客にカーソルで今回の会話

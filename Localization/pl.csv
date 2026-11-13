@@ -185,6 +185,7 @@ config.container_name,Nazwy pojemników i maszyn
 config.container_name.tip,Pokazuje nazwę u dołu ikony pojemników i maszyn.
 config.container_name_bg,Tło nazw
 config.container_name_bg.tip,Krycie czarnego tła za nazwą (0–100%); przy 0 bez tła.
+config.slider_percent,{0}%
 config.customer_alert,Powiadomienie o przybyciu klienta
 config.customer_alert.tip,Powiadamia o przybyciu poszukiwanego lub ulepszonego klienta i pokazuje faktyczną nagrodę, prawdziwe imię oraz nagrodę za zabicie i zagrożenie ulepszonych.
 config.customer_history,Historia rozmowy po najechaniu

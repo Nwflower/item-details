@@ -87,7 +87,11 @@
 
 在游戏「模组」菜单里打开本模组设置，点「应用」生效。
 
-「信息增强」是总开关，开启后出现下列细项：价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位、基因等级用罗马数字、公司名称后置。除「基因等级用罗马数字」外默认全开，各自独立。
+「信息增强」是总开关，关闭时它控制的选项一并收起，已选的值保留。细项：价格修正、黑市溢价、彩票、酿酒、肉、机器、电池、进度条、容器单位、基因等级用罗马数字、公司名称后置。除「基因等级用罗马数字」外默认全开，各自独立。
+
+从属选项只在上级开启时出现。
+
+「展开键」可选 Ctrl、Shift、Alt，用来展开作物成分表里折叠的成分；「物品详情美化」默认是 Shift。
 
 ## 原则
 
@@ -167,11 +171,11 @@ No extra window, no change to the vanilla layout.
 
 ### Reveal
 
-These make the game noticeably easier. Authenticity Check, Appraisal Calculator, Customer Arrival Alert, Reveal Disguises & True Stats and Liquid Composition Analysis are on by default; Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off.
+These make the game noticeably easier. Authenticity Check, Plant Analysis, Appraisal Calculator, Customer Arrival Alert, Reveal Disguises & True Stats and Liquid Composition Analysis are on by default; Scratcher Preview, Locked Container X-Ray and Prefill Inspection Result are off.
 
 ### Settings
 
-Open the mod's settings from the Mods menu and click Apply. Extra Item Info is the master switch for the options below, each independent and on by default except the Roman numeral gene ranks.
+Open the mod's settings from the Mods menu and click Apply. Extra Item Info is the master switch; off, the options it controls fold away and keep their values. Its options are independent and on by default except the Roman numeral gene ranks. Sub-options appear only while their parent is on. Expand Key (Ctrl, Shift or Alt) unfolds crop composition tables; Better Item Tooltips uses Shift by default.
 
 ### Principles
 

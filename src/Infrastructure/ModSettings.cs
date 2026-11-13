@@ -14,9 +14,11 @@ namespace ItemDetails;
 ///   "操作优化"   —— 鉴定与扫描交互
 ///   "透视"       —— 揭示本应靠鉴定/分析才能知道的东西（会降低难度）
 ///   "信息增强配置" —— 位于透视之后；仅在总开关开启时显示，各项独立控制
+/// 面板里哪些条目随总开关或上级选项一起隐藏，见 <see cref="ConfigSectionRefresh"/> 的依赖表。
 ///
 /// 拆分过的项（旧值迁移到全部新键，见 <see cref="MigrateLegacyAppraisalToggle"/>）：
 ///   show_item_appraisal → show_authenticity（真伪鉴定）+ show_valuation（估价计算），并移到「透视」
+///   show_authenticity 里的莓果品质与种子性状 → plant_analysis（三档下拉，见 <see cref="MigratePlantAnalysis"/>）
 /// 换了控件的项：
 ///   show_container_name_bg（开关）→ container_name_bg_opacity（0–100 滑条；旧值关 → 0）
 /// 换了分组的项（键不变，值原样保留）：
@@ -326,9 +328,6 @@ internal static class ModSettings
             ContainerUnitsToggle.Define(_cfg, "info_container_units", SecInfoKey, SecInfoEn,
                 Text("config.info_container_units", "Container Volume Units"),
                 Text("config.info_container_units.tip", "Displays liquid volumes above 3 L in liters. At 3 L or below, keeps ml. Independent of Tooltip Text Formatting."));
-            // 这一项必须排在 info_manufacturer_inline 之前：RefreshInfoVisibility 把
-            // 「首项标题行 → info_manufacturer_inline」这段整段隐藏，排在它后面的条目
-            // 会落在区间外，总开关关闭时仍然可见。
             GeneRomanToggle.Define(_cfg, "info_gene_roman", SecInfoKey, SecInfoEn,
                 Text("config.info_gene_roman", "Roman Numeral Gene Ranks"),
                 Text("config.info_gene_roman.tip", "Shows seed trait ranks in Roman numerals (I, II, III...), " +

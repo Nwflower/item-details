@@ -185,6 +185,7 @@ config.container_name,Behälter- & Maschinennamen
 config.container_name.tip,Zeigt den Namen unten am Symbol von Behältern und Maschinen.
 config.container_name_bg,Namenshintergrund
 config.container_name_bg.tip,Deckkraft der schwarzen Fläche hinter dem Namen (0–100 %); bei 0 kein Hintergrund.
+config.slider_percent,{0} %
 config.customer_alert,Hinweis bei Kundenankunft
 config.customer_alert.tip,Meldet die Ankunft gesuchter oder augmentierter Kunden mit tatsächlicher Belohnung, echtem Namen sowie Abschussprämie und Bedrohung bei Augmentierten.
 config.customer_history,Gesprächsverlauf beim Hovern
