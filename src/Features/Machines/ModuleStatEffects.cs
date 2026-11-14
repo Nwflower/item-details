@@ -9,8 +9,8 @@ namespace ItemDetails;
 ///
 /// 第三列的规则，按这项加成对结果的影响方式决定：
 ///   · 连续量（加成稍有变化，结果就跟着变）：写这项加成现在带来的变化，如 +14作业速度、+2000毫升/天、-10能量/天。
-///   · 分档量（要跨过门槛才变，一档通常差几十个百分点）：写还差多少到下一档，如 +50%后产出优质水、+125%后+1陈化速度。
-///     到顶后写当前结论。净水器进入纯水档后，下一个目标是纯度上限 100%。
+///   · 分档量（要跨过门槛才变，一档通常差几十个百分点）：写当前档位值与还差多少到下一档，
+///     如 +50%后产出优质水、陈化速度6(+28%后+1)。到顶后写当前结论；净水器进入纯水档后，下一个目标是纯度上限 100%。
 /// 机器不具备的指标不写：作业速度只属于有进度的机器（BASE_PROCESSING_SPEED_TAG &gt; 0）。
 ///
 /// 为什么用差分而不是照抄公式：
@@ -452,7 +452,6 @@ internal static class ModuleStatEffects
         catch { return null; }
     }
 
-    /// <summary>催陈器：再加多少质量每天多陈化一天。陈化天数随质量无上限递增。</summary>
     /// <summary>自学习强化机：质量每满一档（说明里的百分数）多推进 1 次学习，写「每日+N次额外学习」。</summary>
     private static string? LearningExtraSteps(GameItem machine, out int? nextBonus)
     {
@@ -462,14 +461,18 @@ internal static class ModuleStatEffects
         return Loc.T("module.learn_extra", "{0} extra learning steps per day", Plus(quality / per));   // 向零取整，同 Pen
     }
 
+    /// <summary>催陈器：当前每周期陈化几天，以及再加多少质量每天多陈化一天。陈化天数随质量无上限递增。</summary>
     private static string? WineNextAging(GameItem machine, out int? nextBonus)
     {
         nextBonus = null;
         try
         {
+            int days = MachineWineRack.GetAgingDays(machine);
+            // 125 一个档，向上 1000 内必跨档；找不到变化只可能是探针建不出来，那就不写
             int step = NextStep(machine, QualityTag, MachineWineRack.GetAgingDays);
-            if (step > 0) nextBonus = step;
-            return step > 0 ? Loc.T("module.aging_next", "+{0}% for +1 aging speed", step) : null;
+            if (step <= 0) return null;
+            nextBonus = step;
+            return Loc.T("module.aging_next", "aging speed {0} (+{1}% for +1)", days, step);
         }
         catch { return null; }
     }

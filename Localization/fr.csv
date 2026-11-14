@@ -287,7 +287,7 @@ module.recover,{0}% de distillat récupéré
 module.attract,{0} % d'attractivité
 module.bargain,{0} % de réussite au marchandage
 module.theft,{0} % de prévention des vols
-module.aging_next,+{0} % pour +1 vitesse de vieillissement
+module.aging_next,Vitesse de vieillissement {0} (+{1} % pour +1)
 module.print_quality,qualité d'impression {0}
 module.success,{0} % de chances de réussite
 module.harvest,{0} % de récolte

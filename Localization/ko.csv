@@ -287,7 +287,7 @@ module.recover,증류액 {0}% 회수
 module.attract,{0}% 매력
 module.bargain,{0}% 흥정 성공률
 module.theft,{0}% 도난 방지율
-module.aging_next,+{0}% 더하면 숙성 속도 +1
+module.aging_next,숙성 속도 {0}(+{1}% 더하면 +1)
 module.print_quality,{0} 인쇄 품질
 module.success,{0}% 성공률
 module.harvest,{0}% 수확량

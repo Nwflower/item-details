@@ -287,7 +287,7 @@ module.recover,{0}% дистиллята возвращается
 module.attract,{0}% привлекательности
 module.bargain,{0}% успеха торга
 module.theft,{0}% защиты от краж
-module.aging_next,ещё +{0}% — скорость выдержки +1
+module.aging_next,Скорость выдержки {0} (ещё +{1}% — +1)
 module.print_quality,{0} качества печати
 module.success,{0}% шанса успеха
 module.harvest,{0}% урожая

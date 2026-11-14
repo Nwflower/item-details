@@ -287,7 +287,7 @@ module.recover,蒸留液 {0}% 回収
 module.attract,{0}%魅力
 module.bargain,{0}%交渉成功率
 module.theft,{0}%盗難防止率
-module.aging_next,あと+{0}%で熟成速度+1
+module.aging_next,熟成速度{0}(あと+{1}%で+1)
 module.print_quality,{0}印刷品質
 module.success,{0}%成功率
 module.harvest,{0}%収穫量

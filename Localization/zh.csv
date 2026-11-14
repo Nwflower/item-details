@@ -287,7 +287,7 @@ module.recover,{0}%蒸馏液回收
 module.attract,{0}%吸引力
 module.bargain,{0}%议价成功率
 module.theft,{0}%防盗率
-module.aging_next,+{0}%后+1陈化速度
+module.aging_next,陈化速度{0}(+{1}%后+1)
 module.print_quality,{0}打印品质
 module.success,{0}%成功率
 module.harvest,{0}%收获数量

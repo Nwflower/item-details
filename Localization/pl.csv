@@ -287,7 +287,7 @@ module.recover,{0}% odzyskanego destylatu
 module.attract,{0}% atrakcyjności
 module.bargain,{0}% skuteczności targowania
 module.theft,{0}% ochrony przed kradzieżą
-module.aging_next,+{0}% do +1 szybkości dojrzewania
+module.aging_next,Szybkość dojrzewania {0} (+{1}% do +1)
 module.print_quality,{0} jakości druku
 module.success,{0}% szansy powodzenia
 module.harvest,{0}% plonu

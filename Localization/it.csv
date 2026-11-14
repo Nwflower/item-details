@@ -287,7 +287,7 @@ module.recover,{0}% di distillato recuperato
 module.attract,{0}% di attrattiva
 module.bargain,{0}% di successo nella trattativa
 module.theft,{0}% di prevenzione furti
-module.aging_next,+{0}% per +1 velocità di invecchiamento
+module.aging_next,Velocità di invecchiamento {0} (+{1}% per +1)
 module.print_quality,{0} qualità di stampa
 module.success,{0}% di probabilità di successo
 module.harvest,{0}% di raccolto
