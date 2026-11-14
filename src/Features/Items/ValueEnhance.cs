@@ -6,6 +6,9 @@ namespace ItemDetails;
 /// <summary>
 /// 性价比 = 整组价值 / 占用格数，写在价格块下一行：「性价比：55（110/2格）」。
 ///
+/// 单格物品不写：分母是 1 时每格价值就等于整组价值，价格行已经写过同一个数字，
+/// 而玩家很容易把「格」读成件数（一件物品怎么会有好几格）。
+///
 /// 原版对堆叠物品已经分两行写单价和总价（mech_tooltip_unit_barter / total_barter），
 /// 这里不再另写「单价 × 数量 = 总价」。
 ///
@@ -128,7 +131,7 @@ internal static class ValueEnhance
                 return null;
             }
 
-            if (cells > 0 && StackValue.TryTotal(unit, count, out long total) && total > 0)
+            if (cells > 1 && StackValue.TryTotal(unit, count, out long total) && total > 0)
             {
                 result = new PerCell(StackValue.PerCell(total, cells), total, cells);
                 Log.MarkOk("ValueEnhance");

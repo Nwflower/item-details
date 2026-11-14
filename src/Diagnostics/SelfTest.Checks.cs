@@ -753,19 +753,24 @@ internal static partial class SelfTest
             bool baseline = before.Count == 1 && textOnly.Count == 0;
 
             var valueBefore = new RichTextBuilder(60);
-            bool valueBaseline = ValueEnhance.TryWrite(valueBefore, box);
+            // 单格物品不写每格价值行，所以基线按样本的实心格数定，不写死样本一定是多格物品。
+            int valueCells = GameRead.OccupiedCells(box.modifiedShape);
+            bool expectValueLine = valueCells > 1;
+            bool valueBaseline = ValueEnhance.TryWrite(valueBefore, box) == expectValueLine;
             registration = ItemDetailsApi.RegisterTooltipDisplay(modId,
                 ItemDetailsTooltipSection.Contents | ItemDetailsTooltipSection.ValueEnhance);
             var combinedSuppressed = StorageInfo.Collect(box, includeRatio: true, includeContents: true);
             var valueSuppressed = new RichTextBuilder(60);
+            // 注销前一律不认：格数不影响这条断言。
             bool combinedHidden = combinedSuppressed.Count == 0
-                && valueBaseline && !ValueEnhance.TryWrite(valueSuppressed, box);
+                && !ValueEnhance.Applies(box) && !ValueEnhance.TryWrite(valueSuppressed, box);
             registration.Dispose();
             registration = null;
 
             var restored = StorageInfo.Collect(box, includeRatio: true, includeContents: true);
             var valueRestored = new RichTextBuilder(60);
-            bool storageRestored = restored.Count == 1 && ValueEnhance.TryWrite(valueRestored, box);
+            bool storageRestored = restored.Count == 1
+                && ValueEnhance.TryWrite(valueRestored, box) == expectValueLine;
 
             box.EnableTag("LOCKED_CONTAINER_TAG");
             box.ModifyTag("LOCK_ID", st => st.Enable().SetString("LOCK_ID_SEC"));
@@ -774,7 +779,8 @@ internal static partial class SelfTest
 
             ok = baseline && combinedHidden && storageRestored && sealedTextSilent;
             return $"tooltip section injection: baseline={baseline} combinedHidden={combinedHidden} " +
-                   $"storageRestored={storageRestored} sealedTextSilent={sealedTextSilent} (期望全部 True)";
+                   $"storageRestored={storageRestored} sealedTextSilent={sealedTextSilent} " +
+                   $"valueCells={valueCells} (期望全部 True)";
         }
         catch (Exception ex)
         {
