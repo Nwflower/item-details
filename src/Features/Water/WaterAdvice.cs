@@ -27,6 +27,7 @@ namespace ItemDetails;
 /// 这条路径比其它模块贵得多，所以按「液体组成 + 容器类型 + 净化前纯度 + 净化手段状态」缓存。
 /// 不按容器实例缓存：同组成、同滤芯/设备状态的水可以共享结果；已安装滤芯立即改变 key，
 /// 背包设备变化最迟经 PurifySources 的 2 秒报告刷新后改变 key，不再串用另一瓶水的建议。
+/// 例外：悬停期间纯度跳升（刚净化过）会立即作废手段报告并重算，不等那 2 秒，也不走 5 秒沿用。
 /// 100 槽只是容量上限，条目仍受 30 秒 TTL 约束。
 ///
 /// 探针壳按 identifier 池化复用。实测单次 66ms 中 DirectoryMaster.Create 占 55ms，
@@ -46,6 +47,9 @@ internal static class WaterAdvice
     // 持续悬停同一容器时，成分若每秒都在变（加热、沸腾、反应），至多每 5 秒重算一次，
     // 其间沿用这件容器上次的结果。只在净化手段没变时沿用：滤芯磨损、设备增减照常立即重算；
     // 鼠标离开超过 0.5 秒（拖动、换物品）也不再沿用。
+    // 例外：纯度比上一帧升高说明刚发生过净化（药片、滤芯、机器、氯反应），不走这条沿用，
+    // 立即刷新手段报告并重算——游戏成分按秒 tick（onOneSecondItemFunc），帧间纯度本不变，
+    // 升高就是离散事件，不是需要节流的持续漂移。见 Simulate 里的 purified 分支。
     private const float RecomputeSeconds = 5f;
     private const float HoverGapSeconds = 0.5f;
 
@@ -77,6 +81,8 @@ internal static class WaterAdvice
         internal string Locale = "";
         internal float ComputedAt;
         internal float SeenAt;
+        /// <summary>上一次调用时读到的纯度；用来发现「这一帧刚净化过」的跳升。</summary>
+        internal int SeenPurity;
         internal List<Method> Methods = new();
     }
 
@@ -106,6 +112,11 @@ internal static class WaterAdvice
 
     /// <summary>每帧分给水质模拟的毫秒数。</summary>
     private const double SliceBudgetMs = 1.5;
+    /// <summary>
+    /// 刚净化完（纯度跳升）那一轮的分片预算：放宽到 4ms，让建议在几帧内追上新的水质，
+    /// 而不是按常规 1.5ms 磨上十几帧。净化是玩家主动操作的低频事件，多花这几毫秒值得。
+    /// </summary>
+    private const double UrgentSliceBudgetMs = 4.0;
     /// <summary>任务超过这么久没人继续推进（鼠标离开了）就作废，不拿陈旧的输入接着算。</summary>
     private const float JobIdleSeconds = 1f;
 
@@ -130,6 +141,8 @@ internal static class WaterAdvice
         internal readonly List<Method> Result = new();
         internal bool Available;
         internal bool Cacheable;
+        /// <summary>因纯度跳升（刚净化过）而起的任务：用更宽的分片预算尽快算完。</summary>
+        internal bool Urgent;
         internal float LastPumpAt;
         internal IEnumerator<bool>? Steps;
 #if ITEMDETAILS_DIAG
@@ -163,7 +176,14 @@ internal static class WaterAdvice
             var recent = _recent;
             bool sameItem = recent != null && ReferenceEquals(recent.Item, inp.Item);
             bool hovering = sameItem && now - recent!.SeenAt <= HoverGapSeconds;
-            if (sameItem) recent!.SeenAt = now;
+            // 纯度比上一帧升高 = 这一帧刚发生过净化。游戏成分按秒 tick，帧间纯度本不变，
+            // 所以不需要幅度阈值：升高就是离散事件，必须立刻重算，不能走 5 秒沿用。
+            bool purified = sameItem && inp.Purity > recent!.SeenPurity;
+            if (sameItem)
+            {
+                recent!.SeenAt = now;
+                recent.SeenPurity = inp.Purity;
+            }
 
             if (TryCached(inp, now, out var cached))
             {
@@ -171,10 +191,17 @@ internal static class WaterAdvice
                 return cached;
             }
 
-            // 持续悬停：成分每秒都在变时，至多每 5 秒重算一次，其间沿用上次结果。
-            if (hovering && inp.MeansValid && recent!.MeansValid && now - recent.ComputedAt < RecomputeSeconds
+            if (purified)
+            {
+                // 净化可能用掉了药片、磨了滤芯：手段报告默认 2 秒才重建，这里立即作废重扫，
+                // 再读一次输入，让新建议按当前的设备状态算，而不是等报告自然过期。
+                PurifySources.Invalidate();
+                if (!Prepare(item, out inp)) return new List<Method>();
+            }
+            else if (hovering && inp.MeansValid && recent!.MeansValid && now - recent.ComputedAt < RecomputeSeconds
                 && recent.Means == inp.Means && recent.Locale == inp.Locale)
             {
+                // 持续悬停：成分每秒都在变时，至多每 5 秒重算一次，其间沿用上次结果。
                 available = true;
                 return recent.Methods;
             }
@@ -190,9 +217,13 @@ internal static class WaterAdvice
             var job = _job;
             if (job != null && (now - job.LastPumpAt > JobIdleSeconds || !SameQuestion(job.In, inp)))
                 job = _job = null;
-            job ??= _job = NewJob(inp, now);
+            if (job == null)
+            {
+                job = _job = NewJob(inp, now);
+                job.Urgent = purified;
+            }
 
-            if (Pump(job, now, SliceBudgetTicks))
+            if (Pump(job, now, job.Urgent ? UrgentSliceBudgetTicks : SliceBudgetTicks))
             {
                 _job = null;
                 available = job.Available;
@@ -217,6 +248,8 @@ internal static class WaterAdvice
 
     private static readonly long SliceBudgetTicks =
         (long)(SliceBudgetMs * System.Diagnostics.Stopwatch.Frequency / 1000.0);
+    private static readonly long UrgentSliceBudgetTicks =
+        (long)(UrgentSliceBudgetMs * System.Diagnostics.Stopwatch.Frequency / 1000.0);
 
     /// <summary>读取这次模拟的输入；不适用（非水容器、酒瓶、读不到纯度）返回 false。</summary>
     private static bool Prepare(GameItem? item, out Inputs inp)
@@ -377,6 +410,7 @@ internal static class WaterAdvice
             Locale = inp.Locale,
             ComputedAt = now,
             SeenAt = now,
+            SeenPurity = inp.Purity,
             Methods = job.Result,
         };
     }
