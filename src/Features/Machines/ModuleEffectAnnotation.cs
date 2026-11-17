@@ -189,6 +189,8 @@ internal static class ModuleEffectAnnotation
             if (!string.Equals(item.identifier, "water_purifier", StringComparison.Ordinal)) return;
             if (GameRead.IsTag(item, "BROKEN_MACHINE_TAG")) return;
             int limit = MachinePurifier.GetMaxPurityCap(MachineryHelper.GetCurrentQualityBonus(item));
+            // 刻意不带 Loc.Culture：原版 MachinePurifier.CreateTooltip 就是用无文化 ToString("0.##")
+            // 格式化上限再塞进词条的，这里要逐字复现那一行才能认出它；跟游戏语言走反而会对不上。
             string cap = ((double)limit / 100.0).ToString("0.##");
             string original = LocHelper.GetLocalizedMechanicOrDefault("mech_purifier_tooltip_max_purity", "Max Purity: {0}%", cap);
             if (!string.Equals(text.Trim(), original.Trim(), StringComparison.Ordinal)) return;

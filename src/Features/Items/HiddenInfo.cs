@@ -162,7 +162,7 @@ internal static class HiddenInfo
 
             Log.MarkOk("Hidden.ChemPurity");
             lines.Add(new TooltipLine(
-                Loc.T("hidden.chem_purity", "Chemical purity: {0}%", v.ToString("0.#")),
+                Loc.T("hidden.chem_purity", "Chemical purity: {0}%", v.ToString("0.#", Loc.Culture)),
                 Info).WithData("chemicalPurityPercent", v));
         }
         catch (Exception ex) { Log.Warn("Hidden.ChemPurity", ex); }

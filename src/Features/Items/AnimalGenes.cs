@@ -227,7 +227,7 @@ internal static class AnimalGenes
         _ => Palette.LightRed,
     };
 
-    private static string Number(float value) => value.ToString("0.##");
+    private static string Number(float value) => value.ToString("0.##", Loc.Culture);
 
     private static string TraitLabel(string key, string fallback)
     {

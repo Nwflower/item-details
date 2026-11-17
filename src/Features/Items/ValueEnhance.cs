@@ -89,7 +89,7 @@ internal static class ValueEnhance
         builder.Field("perCell", v.Value);
         builder.Field("total", v.Total);
         builder.Field("cells", v.Cells);
-        builder.Add(Loc.T("value.cost_perf", "Value per cell: {0}", v.Value.ToString("0.#")), Color);
+        builder.Add(Loc.T("value.cost_perf", "Value per cell: {0}", v.Value.ToString("0.#", Loc.Culture)), Color);
         builder.Add(Loc.T("value.cost_perf_detail", " ({0}/{1} {1|cell|cells})", v.Total, v.Cells),
             RenderHandler.ColorPalette.Gray);
         builder.NextLine();
