@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using HarmonyLib;
 
 namespace ItemDetails;
@@ -91,6 +92,25 @@ internal static class TooltipWidthFix
             if (c == '\n') return -1;
         }
         return -1;
+    }
+
+    /// <summary>去掉富文本标签，保留其余字符（含换行等控制字符）；标签判定与 <see cref="VisibleWidth"/> 同源，
+    /// 字面尖括号（&lt;1 day、&lt;0.001）按普通字符保留，不会吃掉后续文本。</summary>
+    internal static string StripTags(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        var sb = new StringBuilder(text!.Length);
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            if (c == '<')
+            {
+                int end = TagEnd(text, i);
+                if (end >= 0) { i = end; continue; }
+            }
+            sb.Append(c);
+        }
+        return sb.ToString();
     }
 
     /// <summary>逐行去掉 &lt;…&gt; 标签后取最大的可见字符数（控制字符不计）。</summary>

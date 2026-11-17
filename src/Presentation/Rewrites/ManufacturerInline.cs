@@ -214,7 +214,7 @@ internal static class ManufacturerInline
         // 原版 Build：nakedText 是去掉标签的纯文本，推荐宽度 = 纯文本里最长一行的非控制字符数。
         // 这里必须同口径：以前把带标签的前景当 nakedText 数，名称行里的颜色标签、透明占位标签
         // （合计几十个字符）全被算成宽度，提示框比内容宽出一大截，右对齐的公司名也随之被推远。
-        string naked = StripTags(foreground);
+        string naked = TooltipWidthFix.StripTags(foreground);
         int width = 0;
         foreach (var line in naked.Split('\n'))
         {
@@ -224,20 +224,6 @@ internal static class ManufacturerInline
         }
         return new RichText(naked, r.richTextStrikethrough, r.richTextUnderline, foreground, background,
             width, r.recommendedHeight, r.isTruncated);
-    }
-
-    /// <summary>去掉 &lt;…&gt; 标签，保留其余字符（含换行等控制字符）。</summary>
-    private static string StripTags(string text)
-    {
-        var sb = new StringBuilder(text.Length);
-        bool inTag = false;
-        foreach (char ch in text)
-        {
-            if (ch == '<') { inTag = true; continue; }
-            if (ch == '>') { inTag = false; continue; }
-            if (!inTag) sb.Append(ch);
-        }
-        return sb.ToString();
     }
 
     /// <summary>与 RichTextBuilder.Build 相同的折行宽度；无法确认 noBreak 时采用保守值。</summary>
@@ -250,17 +236,14 @@ internal static class ManufacturerInline
 
     private static int VisibleLength(string text) => Visible(text).Length;
 
-    /// <summary>跳过富文本标签与控制字符，按显示文本匹配公司行。</summary>
+    /// <summary>跳过富文本标签与控制字符，按显示文本匹配公司行。标签判定与框宽修正同源，
+    /// 字面尖括号（&lt;1 day）按普通字符保留。</summary>
     private static string Visible(string text)
     {
-        var sb = new StringBuilder(text.Length);
-        bool inTag = false;
-        foreach (char ch in text)
-        {
-            if (ch == '<') { inTag = true; continue; }
-            if (ch == '>') { inTag = false; continue; }
-            if (!inTag && !char.IsControl(ch)) sb.Append(ch);
-        }
+        string plain = TooltipWidthFix.StripTags(text);
+        var sb = new StringBuilder(plain.Length);
+        foreach (char ch in plain)
+            if (!char.IsControl(ch)) sb.Append(ch);
         return sb.ToString();
     }
 }
