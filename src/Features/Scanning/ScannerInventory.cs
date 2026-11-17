@@ -54,8 +54,11 @@ internal static class ScannerInventory
 
     private static void Refresh()
     {
-        float now = Time.unscaledTime;
-        if (now - _at < CacheSeconds) return;
+        // 非 Unity 宿主（离线契约测试）没有原生时钟：按「没有扫描器」降级，不把 ECall 抛进门控路径。
+        float now;
+        try { now = Time.unscaledTime; } catch { return; }
+        // 时钟回退（now < _at）按过期处理，不能当成刚扫过；与 TooltipValueMemo.Fresh 同一口径。
+        if (now >= _at && now - _at < CacheSeconds) return;
         _at = now;
         Found.Clear();
         try
