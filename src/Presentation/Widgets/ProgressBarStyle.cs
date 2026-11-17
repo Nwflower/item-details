@@ -164,6 +164,18 @@ internal static class ProgressBarStyle
         return width;
     }
 
+    private sealed class NarrowFlag { }
+
+    /// <summary>本次 Build 期间被收窄过 maxCharWidth 的 builder；前缀置位、终结器清除。</summary>
+    private static readonly ConditionalWeakTable<RichTextBuilder, NarrowFlag> Narrowed = new();
+
+    /// <summary>
+    /// 这个 builder 的 maxCharWidth 是否正处于收窄状态。收窄后 Build 的实际折行预算是
+    /// 收窄宽度×0.875（恰等于原宽×0.66）；渲染层预折行要按实际预算反算，不能再乘 0.66。
+    /// </summary>
+    internal static bool IsNarrowed(RichTextBuilder? builder)
+        => builder != null && Narrowed.TryGetValue(builder, out _);
+
     private static void BeforeBuild(RichTextBuilder __instance, out int __state)
     {
         __state = 0;
@@ -178,6 +190,8 @@ internal static class ProgressBarStyle
             if (narrowed >= original) return;
             __state = original;
             __instance.maxCharWidth = narrowed;
+            Narrowed.Remove(__instance);
+            Narrowed.Add(__instance, new NarrowFlag());
         }
         catch { __state = 0; }
     }
@@ -187,6 +201,7 @@ internal static class ProgressBarStyle
         if (__state > 0)
         {
             try { __instance.maxCharWidth = __state; } catch { }
+            try { Narrowed.Remove(__instance); } catch { }
         }
         return __exception;
     }

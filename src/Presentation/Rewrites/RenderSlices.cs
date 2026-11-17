@@ -277,7 +277,10 @@ internal static class RenderSlices
         // 中日韩且这段 tooltip 的预算被别人的条放宽到 0.875 时，同样按 0.66 预折行（缩小只动渲染写法，规范文本仍是原文）。
         float scale = UISettings.current != null ? UISettings.current.GetCharWidthScale() : 1f;
         bool widens = scale > 1f && ProgressBarStyle.WidensBudget(builder);
-        int limit = scale > 1f ? Math.Max(8, (int)(builder.maxCharWidth * 0.66f)) : Math.Max(8, builder.maxCharWidth);
+        // 本作的条会在 Build 前缀把 maxCharWidth 收窄（见 ProgressBarStyle.BeforeBuild），此时实际
+        // 折行预算是收窄宽度×0.875（恰等于原宽×0.66）；按 0.875 反算才不会被提前折行。
+        float factor = ProgressBarStyle.IsNarrowed(builder) ? 0.875f : 0.66f;
+        int limit = scale > 1f ? Math.Max(8, (int)(builder.maxCharWidth * factor)) : Math.Max(8, builder.maxCharWidth);
         bool wrap = (ShrinkDescription || widens) && note.Text.Length > limit;
         if (!wrap && !ShrinkDescription) return null;
         int key = wrap ? limit : -2;
