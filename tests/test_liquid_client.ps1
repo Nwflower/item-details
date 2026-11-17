@@ -214,10 +214,14 @@ try {
     $queries.GetField('analyzed',$flags).SetValue($null,$true)
     $queries.GetField('currentAdvice',$flags).SetValue($null,[ValueTuple[string,double][]]::new(0))
     $queries.GetField('simulated',$flags).SetValue($null,$true)
-    Check ($client::HasData($item)) 'actual snapshot preserves units, visible components, label and effects'
-    Check ($client::EmptyAdvice($item)) 'empty advice is an available result'
+    # 默认「有扫描器时开启」的门控要查拥有物，离线宿主没有 Unity 时钟（ScannerInventory 已降级为无扫描器）。
+    # 快照断言显式置「总是开启」，只验快照形状，不与扫描器门控耦合；门控本身由实机与设置迁移用例覆盖。
     $choice = $provider.GetType('ItemDetails.ModSettings').GetField('LiquidChoice',$flags).GetValue($null)
     $entry = $choice.GetType().GetField('_entry',$inst)
+    $always = [Activator]::CreateInstance([ConfigEntry[string]],$inst,$null,@('总是开启 (Always)'),$null)
+    $entry.SetValue($choice,$always)
+    Check ($client::HasData($item)) 'actual snapshot preserves units, visible components, label and effects'
+    Check ($client::EmptyAdvice($item)) 'empty advice is an available result'
     $off = [Activator]::CreateInstance([ConfigEntry[string]],$inst,$null,@('关闭 (Off)'),$null)
     $entry.SetValue($choice,$off)
     # 0.9.0 起「净化建议」有自己的开关：液体组分分析关闭时，快照隐藏、建议照常可用
