@@ -152,7 +152,7 @@ wine.preview,Wertung nach der Gärung: {0}
 wine.tier,", Stufe {0}"
 wine.unknown_state,Unbekannt ({0})
 wine.yeast_power,Hefestärke: {0}/Tick
-wine.yeast_effect,"Wein +{0} (einmalig), {1} {1|Tick|Ticks}"
+wine.yeast_effect,"Wein +{0} (einmalig), Gärung {1} {1|Tick|Ticks}"
 wine.yeast_illegal,Der Wein wird eine Fälschung
 machine.energy_label,"Verbrauch: "
 machine.energy_unit,/Tag
@@ -251,7 +251,7 @@ hydro.purify_rank,Reinigungs-Gen Stufe {0}
 ras.purify_fish,{0} {0|Fisch nimmt|Fische nehmen} auf
 fridge.no_effect,", {0} ohne Wirkung"
 fridge.label,Kühlschrank
-wine.rack,"{0} reifend, +{1} {1|Tag|Tage}/Tag"
+wine.rack,"{0} {0|Flasche|Flaschen} reifend, +{1} {1|Tag|Tage}/Tag"
 wine.rack_idle,", {0} reifen nicht"
 wine.rack_label,Reifung
 inner.line,{0}: {1}
@@ -337,7 +337,7 @@ config.gene_rank_arabic,Genetik-Stufen als arabische Ziffern
 config.gene_rank_arabic.tip,"Zeigt die Stufen der Samen-Merkmale als arabische Ziffern (1, 2, 3 ...). Ausgeschaltet stehen wieder die römischen Zahlen des Originalspiels (I, II, III ...)."
 list.zone_sep,"; "
 module.special_label,Spezial
-module.learn_chance,{0} %/Nacht: „Lernender Algorithmus“
+module.learn_chance,{0} % Chance/Nacht auf „Lernender Algorithmus“
 module.learn_extra,{0} extra Lernschritte/Tag
 animal.next_stage,Nächste Stufe: {0} (+{1} {1|Lebenstag|Lebenstage})
 exchange.tonight,Heute Nacht voraussichtlich: {0}

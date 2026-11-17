@@ -108,7 +108,7 @@ ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
 scratcher.progress_part,", gratté {0}/3"
-scratcher.win,Ticket à gratter : {0} ({1} identiques)
+scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
 seed.header,Gènes (non analysés)
 seed.rank,Rang {0}
 seed.more,... et {0} de plus
@@ -152,7 +152,7 @@ wine.preview,Score après fermentation : {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu ({0})
 wine.yeast_power,Force de la levure : {0}/cycle
-wine.yeast_effect,"Vin +{0} (sans cumul), {1} {1|cycle|cycles}"
+wine.yeast_effect,"Vin +{0} (sans cumul), fermente en {1} {1|cycle|cycles}"
 wine.yeast_illegal,Le vin sera une contrefaçon
 machine.energy_label,"Consommation : "
 machine.energy_unit,/jour
@@ -337,7 +337,7 @@ config.gene_rank_arabic,Niveaux en chiffres arabes
 config.gene_rank_arabic.tip,"Affiche les niveaux des traits des graines en chiffres arabes (1, 2, 3...). Désactivé, revient aux chiffres romains du jeu d’origine (I, II, III...)."
 list.zone_sep," ; "
 module.special_label,Spécial
-module.learn_chance,{0} %/nuit : « Algorithme d'apprentissage »
+module.learn_chance,Chance/nuit {0} % d'obtenir « Algorithme d'apprentissage »
 module.learn_extra,{0} étapes d'apprentissage bonus/jour
 animal.next_stage,Stade suivant : {0} (+{1} {1|jour d’âge|jours d’âge})
 exchange.tonight,Prévu cette nuit : {0}

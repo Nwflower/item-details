@@ -337,7 +337,7 @@ config.gene_rank_arabic,Арабские цифры уровней генов
 config.gene_rank_arabic.tip,"Показывает уровни признаков семян арабскими цифрами (1, 2, 3...). Если выключено, возвращаются римские цифры оригинальной игры (I, II, III...)."
 list.zone_sep,"; "
 module.special_label,Особое
-module.learn_chance,{0}%/ночь: «Самообучающийся»
+module.learn_chance,{0}% шанс/ночь получить «Самообучающийся»
 module.learn_extra,{0} доп. шагов обучения в день
 animal.next_stage,Следующая стадия: {0} (ещё {1} дн.)
 exchange.tonight,Ожидается этой ночью: {0}

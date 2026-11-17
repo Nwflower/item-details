@@ -152,7 +152,7 @@ wine.preview,Ocena po fermentacji: {0}
 wine.tier,", próg {0}"
 wine.unknown_state,Nieznany ({0})
 wine.yeast_power,Moc drożdży: {0}/takt
-wine.yeast_effect,"Wino +{0} (nie sumuje), {1} takt."
+wine.yeast_effect,"Wino +{0} (nie sumuje), fermentacja {1} takt."
 wine.yeast_illegal,Wino będzie podróbką
 machine.energy_label,"Zużycie: "
 machine.energy_unit,/dzień
@@ -337,7 +337,7 @@ config.gene_rank_arabic,Poziomy cyframi arabskimi
 config.gene_rank_arabic.tip,"Pokazuje poziomy cech nasion cyframi arabskimi (1, 2, 3...). Wyłączone — wracają cyfry rzymskie z oryginalnej gry (I, II, III...)."
 list.zone_sep,"; "
 module.special_label,Specjalne
-module.learn_chance,{0}%/noc: „Algorytm uczący się”
+module.learn_chance,{0}% szans/noc na „Algorytm uczący się”
 module.learn_extra,{0} dodatkowych kroków nauki dziennie
 animal.next_stage,Kolejny etap: {0} (za {1} dn.)
 exchange.tonight,Przewidywana wymiana tej nocy: {0}

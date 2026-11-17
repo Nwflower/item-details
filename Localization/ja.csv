@@ -176,7 +176,7 @@ config.section.info,追加情報
 config.info_enhance,追加アイテム情報
 config.info_enhance.tip,下に並ぶアイテム情報をツールチップに追加します。オフにするとすべて非表示になり、個別の選択は保持されます。
 config.tooltip_formatting,ツールチップ文章の整形
-config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで元ののレイアウトを維持します。
+config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで元のレイアウトを維持します。
 config.type_badge,アイテム分類バッジ
 config.type_badge.tip,ツールチップ上部にアイテム分類を表示します。
 config.type_badge_muted,バッジの色を控えめに

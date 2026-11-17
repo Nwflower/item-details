@@ -152,7 +152,7 @@ wine.preview,Pontuação após fermentar: {0}
 wine.tier,", faixa {0}"
 wine.unknown_state,Desconhecido ({0})
 wine.yeast_power,Força da levedura: {0}/ciclo
-wine.yeast_effect,"Vinho +{0} (não acumula), {1} {1|ciclo|ciclos}"
+wine.yeast_effect,"Vinho +{0} (não acumula), fermenta {1} {1|ciclo|ciclos}"
 wine.yeast_illegal,O vinho será falsificado
 machine.energy_label,"Consumo: "
 machine.energy_unit,/dia
@@ -337,7 +337,7 @@ config.gene_rank_arabic,Níveis em algarismos arábicos
 config.gene_rank_arabic.tip,"Mostra os níveis das características das sementes em algarismos arábicos (1, 2, 3...). Desativado, volta aos algarismos romanos do jogo original (I, II, III...)."
 list.zone_sep,"; "
 module.special_label,Especial
-module.learn_chance,{0}%/noite: «Algoritmo de aprendizado»
+module.learn_chance,{0}% chance/noite de receber «Algoritmo de aprendizado»
 module.learn_extra,{0} passos extras de aprendizado por dia
 animal.next_stage,Próxima fase: {0} (+{1} {1|dia de idade|dias de idade})
 exchange.tonight,Previsão para esta noite: {0}
