@@ -235,7 +235,7 @@ machine.paused,In pausa: {0}
 machine.paused_label,In pausa
 hydro.water,"Acqua: {0}{3} ({2}{3}/giorno), {1} {1|giorno|giorni}"
 hydro.water_short,"Acqua: {0}{3} ({2}{3}/giorno), <1 giorno"
-hydro.status_label,Stato: 
+hydro.status_label,"Stato: "
 hydro.eta_paused,"circa {0} {0|giorno|giorni}, {1}"
 hydro.eta_growing,"circa {0} {0|giorno|giorni}, {1}"
 hydro.progress,{0}/{1} ({2} {2|giorno|giorni})
@@ -248,7 +248,7 @@ purifier.tier," ({0} → {1})"
 purifier.label,Purificazione
 purifier.rate,{0}mL/stanotte
 hydro.purify_rank,Gene purificante liv. {0}
-ras.purify_fish,{0} {0|pesce|pesci} assorbono
+ras.purify_fish,{0} {0|pesce assorbe|pesci assorbono}
 fridge.no_effect,", {0} senza effetto"
 fridge.label,Frigo
 wine.rack,"{0} {0|bottiglia|bottiglie} in cantina, +{1} {1|giorno|giorni}/giorno"
@@ -335,7 +335,7 @@ config.info_container_units,Ottimizza unità dei liquidi
 config.info_container_units.tip,Le capacità oltre 3 L sono in litri (fino a 3 L in mL). Le quantità dei componenti sono sempre in mL con cifre significative; le percentuali in tracce mantengono 3 cifre significative.
 config.gene_rank_arabic,Livelli in cifre arabe
 config.gene_rank_arabic.tip,"Mostra i livelli dei tratti dei semi in cifre arabe (1, 2, 3...). Disattivato, torna ai numeri romani del gioco originale (I, II, III...)."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,Speciale
 module.learn_chance,{0}% di probabilità a notte di «Algoritmo di apprendimento»
 module.learn_extra,{0} passi di apprendimento extra al giorno

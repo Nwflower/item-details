@@ -52,19 +52,19 @@ auth.counterfeit,× Contrefaçon ({0})
 auth.defect,× {0} ({1})
 auth.genuine,√ Authentique
 berry.dried,Desséchée
-berry.line,Qualité de {0} : {1}
+berry.line,Qualité de {0} : {1}
 berry.wine," (valeur vinicole {0})"
 berry.moldy,Partiellement moisie
 berry.normal,Normale
-berry.small,Petits grains
+berry.small,Petite
 berry.unripe,Cueillie trop tôt
 calorie.line,Énergie : {0} {1}
 calorie.per_credit," ({0} {1}/{2})"
 calorie.unit,kcal
 condition.line,État : {0} {1}
-contraband.markup,Marché noir : +{0}%
+contraband.markup,Marché noir : +{0} %
 generic.line,Source : {0}
-hidden.chem_purity,Pureté chimique : {0}%
+hidden.chem_purity,Pureté chimique : {0} %
 hidden.durability,Durabilité : {0}/{1}
 hidden.durability_faked,Vraie durabilité : {0}/{1} (affiche {2}/{3})
 hidden.purity,Pureté : {0}
@@ -79,7 +79,7 @@ lottery.matched_prize,Bons numéros {0}/6 -> gain {1}
 lottery.not_drawn,Tirage {0} : à venir (samedi matin)
 lottery.winning,Numéros gagnants : {0}
 market.line,Marché : {0}
-faucet.header,Eau du robinet : {0}
+faucet.header,Eau du robinet : {0}
 calendar.today_events,Événements du jour
 module.power,énergie {0}/jour
 module.speed,vitesse {0}
@@ -88,7 +88,7 @@ price.cost_close,)
 price.cost_open," (Coût "
 price.list," Prix : {0}"
 price.sell,Vente : {0}
-reveal.modifier,Vrai modificateur : {0}% (déguisé en {1}%)
+reveal.modifier,Vrai modif. : {0} % (déguisé en {1} %)
 reveal.real,Réel : {0} (déguisé en {1})
 reveal.real_with_mod,Réel : {0} {1} (déguisé en {2})
 ribwich.header,Raisons de la contrefaçon :
@@ -108,7 +108,7 @@ ribwich.reason_unknown,{0}
 ribwich.reason_year_range,Année {0} hors de 425-429 / 432-438
 scratcher.no_prize,Ticket à gratter : aucun gain
 scratcher.progress_part,", gratté {0}/3"
-scratcher.win,Ticket à gratter : gain {0} ({1} identiques)
+scratcher.win,Ticket à gratter : {0} ({1} identiques)
 seed.header,Gènes (non analysés)
 seed.rank,Rang {0}
 seed.more,... et {0} de plus
@@ -138,7 +138,7 @@ chem.euphoria_weak,euphorie légère
 chem.euphoria_mild,euphorie modérée
 chem.euphoria_strong,euphorie forte
 chem.euphoria_extreme,euphorie extrême
-chem.synaprest,anti-addiction
+chem.synaprest,anti-addictif
 chem.contraceptive,contraceptif
 wine.aging,Bonus de garde : +{0}/jour (total +{1})
 wine.composition,"Composition : extrait {0}‰, polluants {1}‰"
@@ -152,7 +152,7 @@ wine.preview,Score après fermentation : {0}
 wine.tier,", palier {0}"
 wine.unknown_state,Inconnu ({0})
 wine.yeast_power,Force de la levure : {0}/cycle
-wine.yeast_effect,"Vin +{0} (sans cumul), fermente en {1} {1|cycle|cycles}"
+wine.yeast_effect,"Vin +{0} (sans cumul), {1} {1|cycle|cycles}"
 wine.yeast_illegal,Le vin sera une contrefaçon
 machine.energy_label,"Consommation : "
 machine.energy_unit,/jour
@@ -162,7 +162,7 @@ config.section.layout,Mise en page
 config.authenticity,Vérification d'authenticité
 config.authenticity.tip,Distingue l'authentique de la contrefaçon et indique les défauts et les raisons de la contrefaçon.
 config.plant_analysis,Analyse des plantes
-config.plant_analysis.tip,Affiche la qualité de la grappe et les traits non analysés des graines. « Avec analyseur » n'affiche les traits des graines que si vous possédez un analyseur de plantes ; la qualité de la grappe s'affiche dans les deux modes.
+config.plant_analysis.tip,Affiche la qualité du Floraisin et les traits non analysés des graines. « Avec analyseur » n'affiche les traits des graines que si vous possédez un analyseur de plantes ; la qualité du Floraisin s'affiche dans les deux modes.
 config.plant_analysis.off,Désactivé
 config.plant_analysis.analyser,Avec analyseur
 config.plant_analysis.always,Toujours
@@ -182,12 +182,12 @@ config.type_badge.tip,Affiche les catégories de l'objet au-dessus de l'infobull
 config.type_badge_muted,Couleurs de badges atténuées
 config.type_badge_muted.tip,Les badges hors contrebande utilisent le fond sombre de l'infobulle et une couleur de catégorie éclaircie ; la contrebande garde le texte rouge d'alerte.
 config.item_name_display,Affichage des noms d’objets
-config.item_name_display.tip,"Affiche un nom en bas des icônes d’objets. « Conteneurs et machines » nomme tous les conteneurs et machines, avec leur nom personnalisé s’ils en ont un. « Objets renommés » ne nomme que les objets ayant un nom personnalisé."
+config.item_name_display.tip,"Affiche un nom en bas des icônes d’objets. « Conteneurs et machines » nomme tous les conteneurs et machines, avec leur nom personnalisé s’ils en ont un. « Objets renommés » ne nomme que les objets ayant un nom personnalisé."
 config.item_name_display.off,Désactivé
 config.item_name_display.containers,Conteneurs et machines
 config.item_name_display.renamed,Objets renommés
 config.container_name_bg,Fond des noms
-config.container_name_bg.tip,"Opacité du fond noir derrière le nom (0–100 %) ; à 0, aucun fond."
+config.container_name_bg.tip,"Opacité du fond noir derrière le nom (0–100 %) ; à 0, aucun fond."
 config.slider_percent,{0} %
 config.customer_alert,Alerte à l'arrivée d'un client
 config.customer_alert.tip,"Signale l'arrivée d'un client recherché ou augmenté, avec la prime réelle, son vrai nom, ainsi que la prime d'élimination et la menace des clients augmentés."
@@ -197,7 +197,7 @@ config.section.interaction,Commandes
 config.double_click_inspect,Double-clic pour analyser
 config.double_click_inspect.tip,"Un double-clic sur un objet à estimer ou à authentifier (injecteurs, cigarettes, bons alimentaires, etc.) ouvre le panneau d'analyse sans loupe. Panneau ouvert, un double-clic sur un autre objet bascule directement dessus."
 config.double_click_scan,Double-clic pour scanner
-config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Les objets qui s’ouvrent ou s’utilisent déjà par double-clic gardent cette action ; sans l'appareil, le double-clic d'origine s'applique."
+config.double_click_scan.tip,"Si vous possédez l'appareil correspondant, un double-clic sur un objet ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines. Les objets qui s’ouvrent ou s’utilisent déjà par double-clic gardent cette action ; sans l'appareil, le double-clic d'origine s'applique."
 config.context_menu_scan,Ajouter le scan au menu contextuel
 config.context_menu_scan.tip,"Si vous possédez l'appareil correspondant, le menu du clic droit d'un objet propose « Scanner », qui ouvre son panneau de scan : scanner d'eau ou chimique pour les liquides et produits chimiques, scanner à rayons X pour les caisses de ravitaillement verrouillées, analyseur de plantes pour les graines."
 config.expand_key,Touche pour déplier
@@ -211,12 +211,12 @@ config.hidden_truth.tip,"Montre ce que cachent les caractéristiques déguisées
 config.liquid_analysis,Analyse des composants liquides
 config.liquid_analysis.tip,"Affiche la pureté et les impuretés de l'eau, ainsi que la composition et les effets des médicaments et produits chimiques. « Avec scanner » ne l'affiche que si vous possédez un scanner d'eau ou chimique."
 config.color_liquid_components,Colorer les impuretés par type
-config.color_liquid_components.tip,"Donne à chaque type d'impureté du tableau de composition sa propre couleur : contaminants chimiques, déchets organiques, microbes, minéraux, métaux lourds et contaminants physiques. Désactivé, tout est blanc."
+config.color_liquid_components.tip,"Donne à chaque type d'impureté du tableau de composition sa propre couleur : contaminants chimiques, déchets organiques, microbes, minéraux, métaux lourds et contaminants physiques. Désactivé, tout est blanc."
 config.liquid_analysis.off,Désactivé
 config.liquid_analysis.scanner,Avec scanner
 config.liquid_analysis.always,Toujours
 config.water_advice,Conseils de purification
-config.water_advice.tip,"Sur un récipient d’eau, indique de combien chaque méthode de purification (filtres, machines) augmenterait la pureté. Si « Analyse des composants liquides » est sur « Avec scanner », il faut aussi un scanner."
+config.water_advice.tip,"Sur un récipient d’eau, indique de combien chaque méthode de purification (filtres, machines) augmenterait la pureté. Si « Analyse des composants liquides » est sur « Avec scanner », il faut aussi un scanner."
 config.scratcher,Aperçu des tickets à gratter
 config.scratcher.tip,"Indique avant grattage si un ticket à gratter est gagnant, combien il rapporte et où en est le grattage. Lecture seule selon les règles du jeu ; ne gratte jamais à votre place."
 config.sealed_box,Radiographie des conteneurs verrouillés
@@ -233,9 +233,9 @@ machine.eta_battery_short," (batterie insuffisante)"
 machine.eta_water," (eau pour {0} j)"
 machine.paused,En pause : {0}
 machine.paused_label,En pause
-hydro.water,"Eau : {0}{3} ({2}{3}/jour), {1} {1|jour|jours}"
-hydro.water_short,"Eau : {0}{3} ({2}{3}/jour), <1 jour"
-hydro.status_label,État : 
+hydro.water,"Eau : {0}{3} ({2}{3}/jour), {1} {1|jour|jours}"
+hydro.water_short,"Eau : {0}{3} ({2}{3}/jour), <1 jour"
+hydro.status_label,État :
 hydro.eta_paused,"env. {0} {0|jour|jours}, {1}"
 hydro.eta_growing,"env. {0} {0|jour|jours}, {1}"
 hydro.progress,{0}/{1} ({2} {2|jour|jours})
@@ -268,7 +268,7 @@ inner.filters,Filtres ×{0} : durabilité minimale {1}/{2}
 inner.spent_count,", {0} usé(s)"
 inner.liquid,{0}/{1}{2}
 inner.liquid_empty,vide
-inner.liquid_purity,", {0}% {1}"
+inner.liquid_purity,", {0} % {1}"
 unit.ml," ml"
 unit.liter," L"
 inner.uses,{0} : utilisations restantes {1}/{2}
@@ -283,22 +283,22 @@ recharger.label,Charge
 module.days_faster,", environ {0} {0|jour|jours} plus tôt"
 module.output,{0} ml/jour
 module.evaporate,{0} ml évaporés par nuit
-module.recover,{0}% de distillat récupéré
+module.recover,{0} % de distillat récupéré
 module.attract,{0} % d'attractivité
 module.bargain,{0} % de réussite au marchandage
 module.theft,{0} % de prévention des vols
-module.aging_next,Vitesse de vieillissement {0} (+{1} % pour +1)
+module.aging_next,Vit. de vieillissement {0} (+{1} % → +1)
 module.print_quality,qualité d'impression {0}
 module.success,{0} % de chances de réussite
 module.harvest,{0} % de récolte
-module.water_next,+{0} % pour produire : {1}
+module.water_next,+{0} % pour produire : {1}
 module.water_top,produit : {0}
-module.purifier_next,+{0} % pour purifier jusqu'à : {1}
-module.purifier_full,+{0} % pour 100 % de pureté
-module.purifier_top,purifie jusqu'à 100 %
+module.purifier_next,+{0} % pour purifier jusqu'à : {1}
+module.purifier_full,+{0} % pour 100 % de pureté
+module.purifier_top,purifie jusqu'à 100 %
 module.furnace_gain,Pureté {0}
-module.furnace_step,+{0} % pour pureté {1}
-module.furnace_result,lingot ×{0} : {1}/10
+module.furnace_step,+{0} % pour pureté {1}
+module.furnace_result,lingot ×{0} : {1}/10
 module.furnace_cap,pureté maximale
 module.furnace_basic,flux ordinaire consommé
 module.furnace_junk,sans effet sur le recyclage
@@ -306,10 +306,10 @@ history.empty,Aucune réplique pour l'instant.
 history.earlier,…{0} {0|réplique précédente|répliques précédentes}
 history.unknown,Client
 appraisal.minimum_adjustment,Ajustement à la valeur minimale
-meat.source,Origine de la viande : {0}
+meat.source,Origine de la viande : {0}
 meat.unknown,Inconnue
 meat.fish,Poisson
-meat.prion,Prions : {0}
+meat.prion,Prions : {0}
 meat.prion.present,Présents
 meat.prion.unmarked,Non signalés
 berry.wine_value,Valeur vinicole : {0}
@@ -332,27 +332,27 @@ config.info_progress_bar.tip,Remplace les barres textuelles par des blocs color�
 config.info_manufacturer_inline,Société sur la ligne du nom
 config.info_manufacturer_inline.tip,Déplace le nom de la société à droite sur la ligne du nom de l’objet.
 config.info_container_units,Optimiser les unités de liquide
-config.info_container_units.tip,"Les capacités supérieures à 3 L sont affichées en litres (jusqu’à 3 L, en mL). Les quantités des composants restent en mL avec chiffres significatifs ; les pourcentages de traces gardent 3 chiffres significatifs."
+config.info_container_units.tip,"Les capacités supérieures à 3 L sont affichées en litres (jusqu’à 3 L, en mL). Les quantités des composants restent en mL avec chiffres significatifs ; les pourcentages de traces gardent 3 chiffres significatifs."
 config.gene_rank_arabic,Niveaux en chiffres arabes
 config.gene_rank_arabic.tip,"Affiche les niveaux des traits des graines en chiffres arabes (1, 2, 3...). Désactivé, revient aux chiffres romains du jeu d’origine (I, II, III...)."
-list.zone_sep, ; 
+list.zone_sep," ; "
 module.special_label,Spécial
-module.learn_chance,{0} % de chance par nuit d'obtenir « Algorithme d'apprentissage »
-module.learn_extra,{0} étapes d'apprentissage en plus par jour
-animal.next_stage,Stade suivant : {0} (+{1} {1|jour d’âge|jours d’âge})
-exchange.tonight,Prévu cette nuit : {0}
+module.learn_chance,{0} %/nuit : « Algorithme d'apprentissage »
+module.learn_extra,{0} étapes d'apprentissage bonus/jour
+animal.next_stage,Stade suivant : {0} (+{1} {1|jour d’âge|jours d’âge})
+exchange.tonight,Prévu cette nuit : {0}
 exchange.reputation,Réputation du marché noir
-exchange.module,"Rare : {0}, sinon aucune récompense"
-exchange.keycards,Deux tirages parmi : {0}
-exchange.low_purity,Aucune récompense (poussière de rêve trop impure)
+exchange.module,"Rare : {0}, sinon aucune récompense"
+exchange.keycards,Deux tirages parmi : {0}
+exchange.low_purity,Aucune récompense (poussière onirique trop impure)
 exchange.unknown,Récompense déterminée lors de l’échange
-exchange.candidates,Tirage parmi : {0}
-exchange.module_candidates,{0} (rare : {1})
+exchange.candidates,Tirage parmi : {0}
+exchange.module_candidates,{0} (rare : {1})
 animal.genes_trait,Caractère
 animal.genes_expression,Expression
 animal.genes_alleles,Allèles
 animal.genes_grade,Note
-luck.current,Chance actuelle : {0}
-luck.base,Chance de base : {0}
-luck.coin,Pièce portée : {0}
-luck.liquid,{0} : {1} (encore {2} {2|jour|jours})
+luck.current,Chance actuelle : {0}
+luck.base,Chance de base : {0}
+luck.coin,Pièce portée : {0}
+luck.liquid,{0} : {1} (encore {2} {2|jour|jours})

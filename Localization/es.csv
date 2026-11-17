@@ -28,13 +28,13 @@ appraisal.casing_crack,Resquebrajado
 appraisal.casing_reinforced,Reforzado
 appraisal.casing_screws,Tornillos expuestos
 appraisal.casing_wear,Desgaste ligero
-appraisal.casing_wear_heavy,Desgaste pesado
+appraisal.casing_wear_heavy,Desgaste severo
 appraisal.damaged,Desperfectos
 appraisal.emgplus,Interfaz EMG+
 appraisal.finish_cheap,Color de baja calidad
 appraisal.finish_premium,Color de alta calidad
 appraisal.gold,Baño de oro
-appraisal.iface_unknown,Control sin especificar
+appraisal.iface_unknown,Interfaz sin especificar
 appraisal.neural,Interfaz neuronal
 appraisal.ribwich_deluxe,Edición Deluxe
 appraisal.ribwich_double_meat,Doble de carne
@@ -54,7 +54,7 @@ auth.genuine,√ Auténtico
 berry.dried,Seca
 berry.line,Calidad de {0}: {1}
 berry.wine," (valor vinícola {0})"
-berry.moldy,Picada
+berry.moldy,Mohosa
 berry.normal,Normal
 berry.small,Pequeña
 berry.unripe,Verde
@@ -129,7 +129,7 @@ value.cost_perf_detail," ({0}/{1} {1|celda|celdas})"
 value.perfect_range," | perfecto {0}-{1}"
 value.total_line,Total: {0}
 water.mismatch," (etiqueta no coincide)"
-water.trace_count,(+{0} más bajo el umbral de visualización)
+water.trace_count,(+{0} bajo el umbral de visualización)
 water.fold_inactive,{0} para ver componentes inactivos
 chem.effects,Efectos: {0}
 chem.lethal,letal ({0}x dosis letal)
@@ -152,7 +152,7 @@ wine.preview,Puntuación tras fermentar: {0}
 wine.tier,", nivel {0}"
 wine.unknown_state,Desconocido ({0})
 wine.yeast_power,Potencia de levadura: {0}/ciclo
-wine.yeast_effect,"Vino +{0} (no acumula), fermenta {1} {1|ciclo|ciclos}"
+wine.yeast_effect,"Vino +{0} (no acumula), {1} {1|ciclo|ciclos}"
 wine.yeast_illegal,El vino será falso
 machine.energy_label,"Consumo: "
 machine.energy_unit,/día
@@ -235,7 +235,7 @@ machine.paused,En pausa: {0}
 machine.paused_label,En pausa
 hydro.water,"Agua: {0}{3} ({2}{3}/día), {1} {1|día|días}"
 hydro.water_short,"Agua: {0}{3} ({2}{3}/día), <1 día"
-hydro.status_label,Estado: 
+hydro.status_label,"Estado: "
 hydro.eta_paused,"aprox. {0} {0|día|días}, {1}"
 hydro.eta_growing,"aprox. {0} {0|día|días}, {1}"
 hydro.progress,{0}/{1} ({2} {2|día|días})
@@ -335,17 +335,17 @@ config.info_container_units,Optimizar unidades de líquido
 config.info_container_units.tip,"Las capacidades superiores a 3 L se muestran en litros (hasta 3 L, en mL). Las cantidades de componentes siempre en mL con cifras significativas; los porcentajes traza conservan 3 cifras significativas."
 config.gene_rank_arabic,Niveles en cifras árabes
 config.gene_rank_arabic.tip,"Muestra los niveles de los rasgos de las semillas en cifras árabes (1, 2, 3...). Desactivado, vuelve a los números romanos del juego original (I, II, III...)."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,Especial
-module.learn_chance,{0} % de probabilidad por noche de «Algoritmo de aprendizaje»
+module.learn_chance,{0} %/noche: «Algoritmo de aprendizaje»
 module.learn_extra,{0} pasos de aprendizaje extra al día
 animal.next_stage,Siguiente etapa: {0} (+{1} {1|día de edad|días de edad})
 exchange.tonight,Previsto para esta noche: {0}
 exchange.reputation,Reputación del mercado negro
-exchange.module,"Raro: {0}; de lo contrario, sin recompensa"
+exchange.module,"Raro: {0}; si no, sin recompensa"
 exchange.keycards,Dos al azar entre: {0}
-exchange.low_purity,Sin recompensa (polvo onírico de baja pureza)
-exchange.unknown,La recompensa se determina al liquidar el intercambio
+exchange.low_purity,Sin recompensa (onírica de baja pureza)
+exchange.unknown,Recompensa definida al liquidar
 exchange.candidates,Al azar entre: {0}
 exchange.module_candidates,{0}; raro: {1}
 animal.genes_trait,Rasgo

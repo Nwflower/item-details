@@ -152,7 +152,7 @@ wine.preview,Pontuação após fermentar: {0}
 wine.tier,", faixa {0}"
 wine.unknown_state,Desconhecido ({0})
 wine.yeast_power,Força da levedura: {0}/ciclo
-wine.yeast_effect,"Vinho +{0} (não acumula), fermenta {1} {1|ciclo|ciclos}"
+wine.yeast_effect,"Vinho +{0} (não acumula), {1} {1|ciclo|ciclos}"
 wine.yeast_illegal,O vinho será falsificado
 machine.energy_label,"Consumo: "
 machine.energy_unit,/dia
@@ -235,7 +235,7 @@ machine.paused,Pausado: {0}
 machine.paused_label,Pausado
 hydro.water,"Água: {0}{3} ({2}{3}/dia), {1} {1|dia|dias}"
 hydro.water_short,"Água: {0}{3} ({2}{3}/dia), <1 dia"
-hydro.status_label,Status: 
+hydro.status_label,"Status: "
 hydro.eta_paused,"aprox. {0} {0|dia|dias}, {1}"
 hydro.eta_growing,"aprox. {0} {0|dia|dias}, {1}"
 hydro.progress,{0}/{1} ({2} {2|dia|dias})
@@ -335,17 +335,17 @@ config.info_container_units,Otimizar unidades de líquido
 config.info_container_units.tip,"Capacidades acima de 3 L aparecem em litros (até 3 L, em mL). As quantidades dos componentes ficam sempre em mL com algarismos significativos; porcentagens-traço mantêm 3 algarismos significativos."
 config.gene_rank_arabic,Níveis em algarismos arábicos
 config.gene_rank_arabic.tip,"Mostra os níveis das características das sementes em algarismos arábicos (1, 2, 3...). Desativado, volta aos algarismos romanos do jogo original (I, II, III...)."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,Especial
-module.learn_chance,{0}% de chance por noite de receber «Algoritmo de aprendizado»
+module.learn_chance,{0}%/noite: «Algoritmo de aprendizado»
 module.learn_extra,{0} passos extras de aprendizado por dia
 animal.next_stage,Próxima fase: {0} (+{1} {1|dia de idade|dias de idade})
 exchange.tonight,Previsão para esta noite: {0}
 exchange.reputation,Reputação no mercado negro
 exchange.module,"Raro: {0}; caso contrário, sem recompensa"
 exchange.keycards,Dois sorteios entre: {0}
-exchange.low_purity,Sem recompensa (pureza do pó dos sonhos insuficiente)
-exchange.unknown,Recompensa definida na liquidação da troca
+exchange.low_purity,Sem prêmio (pó dos sonhos pouco puro)
+exchange.unknown,Recompensa definida na liquidação
 exchange.candidates,Sorteio entre: {0}
 exchange.module_candidates,{0}; raro: {1}
 animal.genes_trait,Traço

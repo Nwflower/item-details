@@ -263,8 +263,8 @@ internal static class MachineBatteryInfo
                       : RenderHandler.ColorPalette.LightRed;
 
             return new TooltipLine(maxEnergy > 0
-                ? Loc.T("machine.energy_battery", " {0}/{1}kJ ({2} day)", energy, maxEnergy, days)
-                : Loc.T("machine.energy_left", " {0}kJ, {1} day", energy, days),
+                ? Loc.T("machine.energy_battery", " {0}/{1}kJ ({2} {2|day|days})", energy, maxEnergy, days)
+                : Loc.T("machine.energy_left", " {0}kJ, {1} {1|day|days}", energy, days),
                 color);
         }
         catch (Exception ex)

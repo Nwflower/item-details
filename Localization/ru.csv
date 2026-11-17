@@ -34,9 +34,9 @@ appraisal.emgplus,Интерфейс ЭМГ+
 appraisal.finish_cheap,Плазма низкого качества
 appraisal.finish_premium,Плазма высокого качества
 appraisal.gold,Золотое покрытие
-appraisal.iface_unknown,Механизм управления не указан
+appraisal.iface_unknown,Интерфейс не указан
 appraisal.neural,Нейронный интерфейс
-appraisal.ribwich_deluxe,Deluxe Edition
+appraisal.ribwich_deluxe,Издание «Делюкс»
 appraisal.ribwich_double_meat,Двойной слой мяса
 appraisal.ribwich_first_batch,Первая партия
 appraisal.ribwich_month_edge,Первый или последний месяц
@@ -235,7 +235,7 @@ machine.paused,Пауза: {0}
 machine.paused_label,Пауза
 hydro.water,"Вода: {0}{3} ({2}{3}/день), {1} дн."
 hydro.water_short,"Вода: {0}{3} ({2}{3}/день), <1 дн."
-hydro.status_label,Статус: 
+hydro.status_label,"Статус: "
 hydro.eta_paused,"прибл. {0} дн., {1}"
 hydro.eta_growing,"прибл. {0} дн., {1}"
 hydro.progress,{0}/{1} ({2} дн.)
@@ -248,7 +248,7 @@ purifier.tier," ({0} → {1})"
 purifier.label,Очистка
 purifier.rate,{0} мл/сегодня ночью
 hydro.purify_rank,Ген очистки ур. {0}
-ras.purify_fish,Поглощают: {0} рыб
+ras.purify_fish,{0} {0|рыба поглощает|рыбы поглощают|рыб поглощают}
 fridge.no_effect,", без эффекта: {0}"
 fridge.label,Холодильник
 wine.rack,"Выдерживается бутылок: {0}, +{1} дн./день"
@@ -335,16 +335,16 @@ config.info_container_units,Оптимизация единиц жидкости
 config.info_container_units.tip,Объём свыше 3 л показывается в литрах (до 3 л — в мл). Количества компонентов всегда в мл со значащими цифрами; доли следов сохраняют 3 значащие цифры.
 config.gene_rank_arabic,Арабские цифры уровней генов
 config.gene_rank_arabic.tip,"Показывает уровни признаков семян арабскими цифрами (1, 2, 3...). Если выключено, возвращаются римские цифры оригинальной игры (I, II, III...)."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,Особое
-module.learn_chance,{0}% шанс за ночь получить «Самообучающийся»
+module.learn_chance,{0}%/ночь: «Самообучающийся»
 module.learn_extra,{0} доп. шагов обучения в день
-animal.next_stage,Следующая стадия: {0} (осталось {1} дн. роста)
+animal.next_stage,Следующая стадия: {0} (ещё {1} дн.)
 exchange.tonight,Ожидается этой ночью: {0}
 exchange.reputation,Репутация на чёрном рынке
 exchange.module,"Редко: {0}, иначе без награды"
 exchange.keycards,Два случайных выбора из: {0}
-exchange.low_purity,Без награды (низкая чистота пыли грёз)
+exchange.low_purity,Без награды (пыль сновидений нечиста)
 exchange.unknown,Награда определяется при обмене
 exchange.candidates,Случайно из: {0}
 exchange.module_candidates,{0}; редко: {1}

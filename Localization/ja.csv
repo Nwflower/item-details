@@ -34,7 +34,7 @@ appraisal.emgplus,EMG+インターフェース
 appraisal.finish_cheap,低グレードのプラズマ色
 appraisal.finish_premium,高グレードのプラズマ色
 appraisal.gold,金メッキ
-appraisal.iface_unknown,不特定の制御
+appraisal.iface_unknown,不特定のインターフェース
 appraisal.neural,神経インターフェース
 appraisal.ribwich_deluxe,デラックス版
 appraisal.ribwich_double_meat,パティ2枚
@@ -176,7 +176,7 @@ config.section.info,追加情報
 config.info_enhance,追加アイテム情報
 config.info_enhance.tip,下に並ぶアイテム情報をツールチップに追加します。オフにするとすべて非表示になり、個別の選択は保持されます。
 config.tooltip_formatting,ツールチップ文章の整形
-config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで原版のレイアウトを維持します。
+config.tooltip_formatting.tip,価格表記、説明文の折り返し、カロリー注記、価格ブロックの間隔を最適化します。オフで元ののレイアウトを維持します。
 config.type_badge,アイテム分類バッジ
 config.type_badge.tip,ツールチップ上部にアイテム分類を表示します。
 config.type_badge_muted,バッジの色を控えめに
@@ -274,7 +274,7 @@ unit.liter,L
 inner.uses,{0}：残り使用回数 {1}/{2}
 inner.tools,道具 ×{0}：残り最少 {1}（{2}/{3}）
 inner.energy,{0}：エネルギー {1}/{2}
-learning.progress,学習進度：{0}
+learning.progress,学習進捗：{0}
 learning.stat,{0} {1}/{2}
 learning.stat_full,{0}は上限
 learning.machine,自己学習：{0}/{1} 個のモジュールが学習中
@@ -289,7 +289,7 @@ module.bargain,{0}%交渉成功率
 module.theft,{0}%盗難防止率
 module.aging_next,熟成速度{0}(あと+{1}%で+1)
 module.print_quality,{0}印刷品質
-module.success,{0}%成功率
+module.success,成功率{0}%
 module.harvest,{0}%収穫量
 module.water_next,あと+{0}%で{1}を生産
 module.water_top,{0}を生産中
@@ -324,7 +324,7 @@ config.info_brewing.tip,材料の醸造値、酵母の効果、ワインの評�
 config.info_meat,肉
 config.info_meat.tip,肉の由来となる種とプリオンの印を表示します。
 config.info_machines,機械
-config.info_machines.tip,モジュールの効果、学習進度、残り日数、水の消費、冷却、熟成、浄化量、炉の予想生成物を表示します。
+config.info_machines.tip,モジュールの効果、学習進捗、残り日数、水の消費、冷却、熟成、浄化量、炉の予想生成物を表示します。
 config.info_batteries,電池
 config.info_batteries.tip,充電量と残り日数を表示します。充電器内の各電池も対象です。
 config.info_progress_bar,カラー進捗バー

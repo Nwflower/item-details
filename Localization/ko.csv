@@ -235,7 +235,7 @@ machine.paused,일시정지: {0}
 machine.paused_label,일시정지
 hydro.water,"물: {0}{3} ({2}{3}/일), {1}일분"
 hydro.water_short,"물: {0}{3} ({2}{3}/일), 1일 미만"
-hydro.status_label,상태: 
+hydro.status_label,"상태: "
 hydro.eta_paused,"약 {0}일, {1}"
 hydro.eta_growing,"약 {0}일, {1}"
 hydro.progress,{0}/{1} ({2}일)
@@ -335,7 +335,7 @@ config.info_container_units,액체 단위 최적화
 config.info_container_units.tip,"3 L를 초과하는 용량은 L로 표시합니다(3 L 이하는 mL). 성분량은 항상 mL로 유효숫자에 맞춰 표시하고, 미량 성분의 비율은 유효숫자 3자리를 유지합니다."
 config.gene_rank_arabic,유전자 등급 아라비아 숫자 표시
 config.gene_rank_arabic.tip,"씨앗 형질 등급을 아라비아 숫자(1, 2, 3…)로 표시합니다. 끄면 게임 원래의 로마 숫자(I, II, III…)로 돌아갑니다."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,특수
 module.learn_chance,매일 밤 {0}% 확률로 학습 알고리즘 부여
 module.learn_extra,매일 추가 학습 {0}회

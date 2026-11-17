@@ -34,7 +34,7 @@ appraisal.emgplus,Interfejs EMG+
 appraisal.finish_cheap,Barwa niskiej jakości
 appraisal.finish_premium,Barwa wysokiej jakości
 appraisal.gold,Pozłacane
-appraisal.iface_unknown,Nieokreślone sterowanie
+appraisal.iface_unknown,Nieokreślony interfejs
 appraisal.neural,Interfejs neuronowy
 appraisal.ribwich_deluxe,Edycja Deluxe
 appraisal.ribwich_double_meat,Podwójny kotlet
@@ -110,7 +110,7 @@ scratcher.no_prize,Zdrapka: bez nagrody
 scratcher.progress_part,", zdrapano {0}/3"
 scratcher.win,Zdrapka: wygrana {0} ({1} zgodnych)
 seed.header,Geny (niezbadane)
-seed.rank,Rząd {0}
+seed.rank,Ranga {0}
 seed.more,... i jeszcze {0}
 seed.trait_rank,{0} (ranga {1})
 seed.innate_lowered,Wrodzona ({0}→{1})
@@ -141,7 +141,7 @@ chem.euphoria_extreme,skrajna euforia
 chem.synaprest,przeciw uzależnieniu
 chem.contraceptive,antykoncepcyjne
 wine.aging,Bonus leżakowania: +{0}/dzień (razem +{1})
-wine.composition,"Skład: ekstrakt {0}‰, zanieczyszczenia {1}‰"
+wine.composition,"Skład: ekstrakt {0}‰, zaniecz. {1}‰"
 wine.counterfeit,Podróbka: nielegalne drożdże
 wine.empty,Pusta
 wine.fermenting,Fermentuje
@@ -152,7 +152,7 @@ wine.preview,Ocena po fermentacji: {0}
 wine.tier,", próg {0}"
 wine.unknown_state,Nieznany ({0})
 wine.yeast_power,Moc drożdży: {0}/takt
-wine.yeast_effect,"Wino +{0} (nie sumuje), {1} takt. fermentacji"
+wine.yeast_effect,"Wino +{0} (nie sumuje), {1} takt."
 wine.yeast_illegal,Wino będzie podróbką
 machine.energy_label,"Zużycie: "
 machine.energy_unit,/dzień
@@ -235,7 +235,7 @@ machine.paused,Wstrzymano: {0}
 machine.paused_label,Wstrzymano
 hydro.water,"Woda: {0}{3} ({2}{3}/dzień), {1} {1|dzień|dni|dni}"
 hydro.water_short,"Woda: {0}{3} ({2}{3}/dzień), <1 dzień"
-hydro.status_label,Stan: 
+hydro.status_label,"Stan: "
 hydro.eta_paused,"ok. {0} {0|dzień|dni|dni}, {1}"
 hydro.eta_growing,"ok. {0} {0|dzień|dni|dni}, {1}"
 hydro.progress,{0}/{1} ({2} {2|dzień|dni|dni})
@@ -248,10 +248,10 @@ purifier.tier," ({0} → {1})"
 purifier.label,Oczyszczanie
 purifier.rate,{0}mL/dziś w nocy
 hydro.purify_rank,Gen oczyszczania poz. {0}
-ras.purify_fish,{0} ryb pochłania
+ras.purify_fish,{0} {0|ryba pochłania|ryby pochłaniają|ryb pochłania}
 fridge.no_effect,", bez efektu: {0}"
 fridge.label,Lodówka
-wine.rack,"Butelki dojrzewające: {0}, +{1} {1|dzień|dni|dni}/dzień"
+wine.rack,"Butelki dojrzewają: {0}, +{1}/dzień"
 wine.rack_idle,", niedojrzewające: {0}"
 wine.rack_label,Leżakowanie
 inner.line,{0}: {1}
@@ -335,17 +335,17 @@ config.info_container_units,Optymalizacja jednostek płynów
 config.info_container_units.tip,Pojemność powyżej 3 L jest w litrach (do 3 L w mL). Ilości składników zawsze w mL z cyframi znaczącymi; śladowe udziały zachowują 3 cyfry znaczące.
 config.gene_rank_arabic,Poziomy cyframi arabskimi
 config.gene_rank_arabic.tip,"Pokazuje poziomy cech nasion cyframi arabskimi (1, 2, 3...). Wyłączone — wracają cyfry rzymskie z oryginalnej gry (I, II, III...)."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,Specjalne
-module.learn_chance,{0}% szans na noc na „Algorytm uczący się”
+module.learn_chance,{0}%/noc: „Algorytm uczący się”
 module.learn_extra,{0} dodatkowych kroków nauki dziennie
-animal.next_stage,Następny etap: {0} (pozostało {1} dni wzrostu)
+animal.next_stage,Kolejny etap: {0} (za {1} dn.)
 exchange.tonight,Przewidywana wymiana tej nocy: {0}
 exchange.reputation,Reputacja na czarnym rynku
-exchange.module,"Rzadko: {0}, w przeciwnym razie bez nagrody"
+exchange.module,"Rzadko: {0}, inaczej bez nagrody"
 exchange.keycards,Dwa losowania spośród: {0}
-exchange.low_purity,Brak nagrody (zbyt niska czystość sennego pyłu)
-exchange.unknown,Nagroda zostanie ustalona przy rozliczeniu
+exchange.low_purity,Bez nagrody: Proszek Snów za mało czysty
+exchange.unknown,Nagroda ustalana przy rozliczeniu
 exchange.candidates,Losowo spośród: {0}
 exchange.module_candidates,{0}; rzadko: {1}
 animal.genes_trait,Cecha
@@ -355,4 +355,4 @@ animal.genes_grade,Ocena
 luck.current,Aktualne szczęście: {0}
 luck.base,Bazowe szczęście: {0}
 luck.coin,Noszona moneta: {0}
-luck.liquid,{0}: {1} (pozostało {2} dni)
+luck.liquid,{0}: {1} (pozostało {2} dn.)

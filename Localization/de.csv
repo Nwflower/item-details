@@ -34,7 +34,7 @@ appraisal.emgplus,EMG+-Schnittstelle
 appraisal.finish_cheap,Minderwertige Plasmafarbe
 appraisal.finish_premium,Hochwertige Plasmafarbe
 appraisal.gold,Vergoldet
-appraisal.iface_unknown,Unspezifische Steuerung
+appraisal.iface_unknown,Unspezifische Schnittstelle
 appraisal.neural,Neuralschnittstelle
 appraisal.ribwich_deluxe,Deluxe-Version
 appraisal.ribwich_double_meat,Doppelte Frikadelle
@@ -129,7 +129,7 @@ value.cost_perf_detail," ({0}/{1} {1|Feld|Felder})"
 value.perfect_range," | perfekt {0}-{1}"
 value.total_line,Gesamt: {0}
 water.mismatch," (Etikett passt nicht)"
-water.trace_count,(+{0} weitere unter der Anzeigeschwelle)
+water.trace_count,(+{0} unter der Anzeigeschwelle)
 water.fold_inactive,{0}: inaktive Bestandteile anzeigen
 chem.effects,Wirkung: {0}
 chem.lethal,tödlich ({0}-fache tödliche Dosis)
@@ -152,7 +152,7 @@ wine.preview,Wertung nach der Gärung: {0}
 wine.tier,", Stufe {0}"
 wine.unknown_state,Unbekannt ({0})
 wine.yeast_power,Hefestärke: {0}/Tick
-wine.yeast_effect,"Wein +{0} (einmalig), Gärung: {1} {1|Tick|Ticks}"
+wine.yeast_effect,"Wein +{0} (einmalig), {1} {1|Tick|Ticks}"
 wine.yeast_illegal,Der Wein wird eine Fälschung
 machine.energy_label,"Verbrauch: "
 machine.energy_unit,/Tag
@@ -218,7 +218,7 @@ config.liquid_analysis.always,Immer
 config.water_advice,Reinigungsempfehlung
 config.water_advice.tip,"Zeigt bei Wasserbehältern, um wie viel jede Reinigungsmethode (Filter, Maschinen) die Reinheit erhöhen würde. Steht „Flüssigkeitsanalyse“ auf „Mit Scanner“, braucht auch dies einen Scanner."
 config.scratcher,Rubbellos-Vorschau
-config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewinnt und wie weit es freigerubbelt ist. Nur Auslesen nach den Spielregeln; es wird nie für dich gerubbelt."
+config.scratcher.tip,"Zeigt vor dem Rubbeln, ob und wie viel ein Rubbellos gewinnt und wie weit es freigerubbelt ist. Nur Auslesen nach den Spielregeln; es wird nie für Sie gerubbelt."
 config.sealed_box,Röntgenblick für verschlossene Behälter
 config.sealed_box.tip,"Listet Inhalt und Gesamtwert verschlossener Behälter (Safes, Waffenschränke) schon vor dem Öffnen auf. Das umgeht das Schloss."
 config.result_prefill,Prüfergebnis vorausfüllen
@@ -235,7 +235,7 @@ machine.paused,Pausiert: {0}
 machine.paused_label,Pausiert
 hydro.water,"Wasser: {0}{3} ({2}{3}/Tag), {1} {1|Tag|Tage}"
 hydro.water_short,"Wasser: {0}{3} ({2}{3}/Tag), <1 Tag"
-hydro.status_label,Status: 
+hydro.status_label,"Status: "
 hydro.eta_paused,"ca. {0} {0|Tag|Tage}, {1}"
 hydro.eta_growing,"ca. {0} {0|Tag|Tage}, {1}"
 hydro.progress,{0}/{1} ({2} {2|Tag|Tage})
@@ -248,10 +248,10 @@ purifier.tier," ({0} → {1})"
 purifier.label,Reinigung
 purifier.rate,{0}mL/heute Nacht
 hydro.purify_rank,Reinigungs-Gen Stufe {0}
-ras.purify_fish,{0} {0|Fisch|Fische} nehmen auf
+ras.purify_fish,{0} {0|Fisch nimmt|Fische nehmen} auf
 fridge.no_effect,", {0} ohne Wirkung"
 fridge.label,Kühlschrank
-wine.rack,"{0} {0|Flasche reift|Flaschen reifen}, +{1} {1|Tag|Tage}/Tag"
+wine.rack,"{0} reifend, +{1} {1|Tag|Tage}/Tag"
 wine.rack_idle,", {0} reifen nicht"
 wine.rack_label,Reifung
 inner.line,{0}: {1}
@@ -287,7 +287,7 @@ module.recover,{0}% Destillat zurückgewonnen
 module.attract,{0} % Attraktivität
 module.bargain,{0} % Feilscherfolg
 module.theft,{0} % Diebstahlschutz
-module.aging_next,Reifetempo {0} (+{1} % für +1)
+module.aging_next,Reifetempo {0} (+{1} % → +1)
 module.print_quality,{0} Druckqualität
 module.success,{0} % Erfolgschance
 module.harvest,{0} % Ernte
@@ -335,17 +335,17 @@ config.info_container_units,Flüssigkeitseinheiten optimieren
 config.info_container_units.tip,Mengen über 3 L werden in Litern angezeigt (bis 3 L in mL). Komponentenmengen stets in mL mit signifikanten Stellen; Spurenanteile behalten 3 signifikante Stellen.
 config.gene_rank_arabic,Genetik-Stufen als arabische Ziffern
 config.gene_rank_arabic.tip,"Zeigt die Stufen der Samen-Merkmale als arabische Ziffern (1, 2, 3 ...). Ausgeschaltet stehen wieder die römischen Zahlen des Originalspiels (I, II, III ...)."
-list.zone_sep,; 
+list.zone_sep,"; "
 module.special_label,Spezial
-module.learn_chance,{0} % Chance pro Nacht auf „Lernender Algorithmus“
-module.learn_extra,{0} zusätzliche Lernschritte pro Tag
+module.learn_chance,{0} %/Nacht: „Lernender Algorithmus“
+module.learn_extra,{0} extra Lernschritte/Tag
 animal.next_stage,Nächste Stufe: {0} (+{1} {1|Lebenstag|Lebenstage})
 exchange.tonight,Heute Nacht voraussichtlich: {0}
 exchange.reputation,Schwarzmarktruf
 exchange.module,"Selten: {0}, sonst keine Belohnung"
 exchange.keycards,Zweimal zufällig aus: {0}
 exchange.low_purity,Keine Belohnung (Traumstaub zu unrein)
-exchange.unknown,Belohnung wird bei der Abrechnung ermittelt
+exchange.unknown,Belohnung bei Abrechnung ermittelt
 exchange.candidates,Zufällig aus: {0}
 exchange.module_candidates,{0}; selten: {1}
 animal.genes_trait,Merkmal
